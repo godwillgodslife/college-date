@@ -36,7 +36,7 @@ async function signUpWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://collegedates.netlify.app'
+            redirectTo: 'https://collegedate.netlify.app/auth/callback?next=/discover'
         }
     });
     if (error) console.error('Google signup error:', error);
@@ -48,7 +48,7 @@ async function signUpWithFacebook() {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-            redirectTo: 'https://collegedates.netlify.app'
+            redirectTo: 'https://collegedate.netlify.app/auth/callback?next=/discover'
         }
     });
     if (error) console.error('Facebook signup error:', error);

@@ -8,7 +8,7 @@ export default function SocialLogin() {
         await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${location.origin}/auth/callback`,
+                redirectTo: `https://collegedate.netlify.app/auth/callback?next=/discover`,
             },
         });
     };

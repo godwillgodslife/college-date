@@ -1,17 +1,26 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
+
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import BottomNav from '@/components/BottomNav';
+import { useAuth } from '@/context/AuthContext';
+import StatusInput from '@/components/StatusInput';
+import StoriesFeed from '@/components/StoriesFeed';
+import SnapshotUpload from '@/components/SnapshotUpload';
 
 export default function DiscoverPage() {
     const router = useRouter();
     const supabase = createClient();
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user, profile, loading: authLoading } = useAuth();
+
+    // UI state
     const [profiles, setProfiles] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // Data loading (not auth)
+
+    // ... (rest of state items: showPayment, pendingSwipe, etc.)
     const [showPayment, setShowPayment] = useState(false);
     const [pendingSwipe, setPendingSwipe] = useState(null);
     const [swipeDirection, setSwipeDirection] = useState(null);
@@ -22,24 +31,11 @@ export default function DiscoverPage() {
     const dragStart = useRef({ x: 0, y: 0 });
     const cardRef = useRef(null);
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    const loadData = useCallback(async () => {
+        if (!user || !profile) return;
+        setLoading(true);
 
-    const loadData = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { router.push('/auth/login'); return; }
-
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (!profile) { router.push('/onboarding'); return; }
-            setCurrentUser(profile);
-
             // Get already swiped profiles
             const { data: swipedData } = await supabase
                 .from('swipes')
@@ -68,7 +64,29 @@ export default function DiscoverPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, profile, supabase]); // dependencies
+
+    useEffect(() => {
+        if (!authLoading && user && profile) {
+            loadData();
+        }
+    }, [authLoading, user, profile, loadData]);
+
+    // Show loading while auth checks are happening or data is loading
+    if (authLoading || (loading && profiles.length === 0)) {
+        return (
+            <div style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}>
+                <div className="spinner"></div>
+            </div>
+        );
+    }
 
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
@@ -80,67 +98,72 @@ export default function DiscoverPage() {
 
         const targetProfile = profiles[currentIndex];
 
-        if (direction === 'left') {
-            // Record pass swipe
-            await supabase.from('swipes').insert({
-                swiper_id: currentUser.id,
-                swiped_id: targetProfile.id,
-                direction: 'left',
-                is_free: true,
-                is_paid: false,
-            });
-            setCurrentIndex((prev) => prev + 1);
-            setCardPosition({ x: 0, y: 0 });
-            return;
-        }
+        // Optimistic UI: Immediately advance the card
+        // We do this BEFORE the async DB call
+        const previousIndex = currentIndex;
+        setCurrentIndex((prev) => prev + 1);
+        setCardPosition({ x: 0, y: 0 });
+        setSwipeDirection(null);
+        setIsDragging(false);
 
-        // Right swipe — like
-        if (currentUser.gender === 'male') {
-            if (currentUser.free_swipes_remaining > 0) {
-                // Free swipe
+        // Background / Async Logic
+        try {
+            if (direction === 'left') {
+                // Record pass swipe
                 await supabase.from('swipes').insert({
                     swiper_id: currentUser.id,
                     swiped_id: targetProfile.id,
-                    direction: 'right',
+                    direction: 'left',
                     is_free: true,
                     is_paid: false,
                 });
-
-                // Decrease free swipes
-                const newFreeSwipes = currentUser.free_swipes_remaining - 1;
-                await supabase
-                    .from('profiles')
-                    .update({ free_swipes_remaining: newFreeSwipes })
-                    .eq('id', currentUser.id);
-
-                setCurrentUser({ ...currentUser, free_swipes_remaining: newFreeSwipes });
-
-                // Create conversation
-                await createConversation(currentUser.id, targetProfile.id);
-
-                showToast(`Matched with ${targetProfile.full_name}! 🎉 (Free swipe)`);
-                setCurrentIndex((prev) => prev + 1);
-                setCardPosition({ x: 0, y: 0 });
             } else {
-                // Needs payment
-                setPendingSwipe(targetProfile);
-                setShowPayment(true);
+                // Right swipe — like
+                // Logic for free/paid swipes
+                const isFemale = currentUser.gender === 'female';
+                const hasFreeSwipes = currentUser.free_swipes_remaining > 0;
+
+                if (isFemale || hasFreeSwipes) {
+                    // Optimistic Toast
+                    showToast(isFemale ? `Liked ${targetProfile.full_name}! 💕` : `Matched with ${targetProfile.full_name}! 🎉`);
+
+                    await supabase.from('swipes').insert({
+                        swiper_id: currentUser.id,
+                        swiped_id: targetProfile.id,
+                        direction: 'right',
+                        is_free: true,
+                        is_paid: false,
+                    });
+
+                    if (!isFemale) {
+                        // Decrease free swipes (Local State update)
+                        const newFreeSwipes = currentUser.free_swipes_remaining - 1;
+                        setCurrentUser(prev => ({ ...prev, free_swipes_remaining: newFreeSwipes }));
+
+                        // DB Update (Background)
+                        await supabase
+                            .from('profiles')
+                            .update({ free_swipes_remaining: newFreeSwipes })
+                            .eq('id', currentUser.id);
+                    }
+
+                    // Create conversation (Background)
+                    createConversation(currentUser.id, targetProfile.id).catch(err =>
+                        console.error('Error creating convo:', err)
+                    );
+                } else {
+                    // Payment required - Revert optimistic update because we need to show modal
+                    setCurrentIndex(previousIndex);
+                    setPendingSwipe(targetProfile);
+                    setShowPayment(true);
+                }
             }
-        } else {
-            // Female swiping — always free
-            await supabase.from('swipes').insert({
-                swiper_id: currentUser.id,
-                swiped_id: targetProfile.id,
-                direction: 'right',
-                is_free: true,
-                is_paid: false,
-            });
-            await createConversation(currentUser.id, targetProfile.id);
-            showToast(`Liked ${targetProfile.full_name}! 💕`);
-            setCurrentIndex((prev) => prev + 1);
-            setCardPosition({ x: 0, y: 0 });
+        } catch (error) {
+            console.error('Swipe error:', error);
+            // Optional: Revert on error or show toast "Swipe failed"
+            // For now, simpler to just log it as reverting shakes the UI too much
         }
-    }, [profiles, currentIndex, currentUser]);
+    }, [profiles, currentIndex, currentUser, supabase]);
 
     const createConversation = async (userId1, userId2) => {
         const p1 = userId1 < userId2 ? userId1 : userId2;
@@ -267,26 +290,49 @@ export default function DiscoverPage() {
 
     const currentProfile = profiles[currentIndex];
 
-    if (loading) {
-        return (
-            <div className="loading-screen">
-                <div className="spinner" />
-                <p className="loading-text">Finding people near you...</p>
-            </div>
-        );
-    }
+    const [showUpload, setShowUpload] = useState(false);
+
+    // ... (existing loading check)
 
     return (
         <div className="page">
             <div className="container">
-                <div className="page-header">
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h1 className="page-title">Discover</h1>
-                    {currentUser?.gender === 'male' && (
-                        <div className="free-swipes-badge">
-                            ⚡ {currentUser.free_swipes_remaining} free
-                        </div>
-                    )}
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        {currentUser?.gender === 'male' && (
+                            <div className="free-swipes-badge">
+                                ⚡ {currentUser.free_swipes_remaining}
+                            </div>
+                        )}
+                        <button
+                            onClick={() => setShowUpload(!showUpload)}
+                            style={{
+                                background: 'transparent',
+                                border: '1px solid var(--primary)',
+                                color: 'var(--primary)',
+                                borderRadius: '50%',
+                                width: '32px',
+                                height: '32px',
+                                cursor: 'pointer',
+                                fontSize: '1.2rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            +
+                        </button>
+                    </div>
                 </div>
+
+                {showUpload && (
+                    <div style={{ marginBottom: '16px', animation: 'fade-in-up 0.3s ease' }}>
+                        <SnapshotUpload onUploadComplete={() => setShowUpload(false)} />
+                    </div>
+                )}
+
+                <StatusInput />
 
                 {!currentProfile ? (
                     <div className="empty-state">
@@ -309,10 +355,15 @@ export default function DiscoverPage() {
                                         filter: 'brightness(0.7)',
                                     }}
                                 >
-                                    <img
-                                        src={profiles[currentIndex + 1].avatar_url || '/placeholder-avatar.png'}
+                                    <Image
+                                        src={profiles[currentIndex + 1].photos?.[0] || profiles[currentIndex + 1].avatar_url || '/placeholder-avatar.png'}
                                         alt=""
                                         className="swipe-card-image"
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, 400px"
+                                        style={{
+                                            objectFit: 'cover',
+                                        }}
                                     />
                                 </div>
                             )}
@@ -334,10 +385,17 @@ export default function DiscoverPage() {
                                 onTouchMove={handleDragMove}
                                 onTouchEnd={handleDragEnd}
                             >
-                                <img
-                                    src={currentProfile.avatar_url || '/placeholder-avatar.png'}
+                                <Image
+                                    src={currentProfile.photos?.[0] || currentProfile.avatar_url || '/placeholder-avatar.png'}
                                     alt={currentProfile.full_name}
                                     className="swipe-card-image"
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 400px"
+                                    priority
+                                    style={{
+                                        objectFit: 'cover',
+                                        pointerEvents: 'none'
+                                    }}
                                     draggable={false}
                                 />
 
@@ -402,12 +460,13 @@ export default function DiscoverPage() {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                            <img
+                            <Image
                                 src={pendingSwipe.avatar_url || '/placeholder-avatar.png'}
                                 alt={pendingSwipe.full_name}
+                                className="img-enhanced" // Added class for "sexy" filter
+                                width={80}
+                                height={80}
                                 style={{
-                                    width: 80,
-                                    height: 80,
                                     borderRadius: '50%',
                                     objectFit: 'cover',
                                     margin: '0 auto 12px',

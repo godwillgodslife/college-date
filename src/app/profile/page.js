@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import BottomNav from '@/components/BottomNav';
+import Link from 'next/link';
+import ReferralDashboard from '@/components/ReferralDashboard';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -174,8 +175,34 @@ export default function ProfilePage() {
                     )}
                 </div>
 
+                {/* Referral & Rewards Section */}
+                {profile && <ReferralDashboard profile={profile} onUpdate={loadProfile} />}
+
+                {/* Boost Section */}
+                <div style={{ marginBottom: 24, padding: '16px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', borderRadius: 'var(--radius-lg)', color: 'black', boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>⚡ Boost Profile</h3>
+                        <span style={{ fontWeight: 800, background: 'rgba(0,0,0,0.1)', padding: '2px 8px', borderRadius: '4px' }}>500 Coins</span>
+                    </div>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', opacity: 0.9, fontWeight: 500 }}>
+                        Get 10x more visibility for 1 hour!
+                    </p>
+                    <button
+                        onClick={handleBoost}
+                        className="btn"
+                        style={{
+                            width: '100%',
+                            background: 'black',
+                            color: 'white',
+                            border: 'none',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        Activate Boost
+                    </button>
+                </div>
+
                 {/* Photos grid */}
-                <h3 style={{ fontWeight: 600, marginBottom: 12 }}>Photos</h3>
                 <div className="profile-photos">
                     {(profile?.photos || []).map((url, i) => (
                         <img key={i} src={url} alt="" className="profile-photo" />

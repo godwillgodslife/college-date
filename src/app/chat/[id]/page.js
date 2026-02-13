@@ -21,10 +21,13 @@ export default function ChatConversationPage() {
         loadConversation();
     }, [conversationId]);
 
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
+
     useEffect(() => {
-        // Subscribe to realtime messages
+        // Subscribe to realtime messages & typing
         const channel = supabase
-            .channel(`messages-${conversationId}`)
+            .channel(`conversation-${conversationId}`)
             .on(
                 'postgres_changes',
                 {
@@ -35,15 +38,53 @@ export default function ChatConversationPage() {
                 },
                 (payload) => {
                     setMessages((prev) => [...prev, payload.new]);
+                    // If message is from other user, verify read immediately
+                    if (payload.new.sender_id !== currentUser?.id) {
+                        supabase
+                            .from('messages')
+                            .update({ is_read: true })
+                            .eq('id', payload.new.id);
+                    }
                     scrollToBottom();
                 }
             )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE', // Listen for read receipts
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `conversation_id=eq.${conversationId}`,
+                },
+                (payload) => {
+                    setMessages((prev) => prev.map(m => m.id === payload.new.id ? payload.new : m));
+                }
+            )
+            .on('broadcast', { event: 'typing' }, (payload) => {
+                if (payload.sender_id !== currentUser?.id) {
+                    setIsTyping(true);
+                    // Clear existing timeout
+                    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                    // Set new timeout to hide indicator
+                    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
+                }
+            })
             .subscribe();
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [conversationId]);
+    }, [conversationId, currentUser]); // Added currentUser to dep to avoid stale closure
+
+    const handleTyping = async () => {
+        if (!newMessage) {
+            await supabase.channel(`conversation-${conversationId}`).send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { sender_id: currentUser.id }
+            });
+        }
+    };
 
     const scrollToBottom = () => {
         setTimeout(() => {
@@ -209,7 +250,7 @@ export default function ChatConversationPage() {
             </div>
 
             {/* Messages */}
-            <div className="messages-container">
+            <div className="messages-container" style={{ padding: '16px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {messages.length === 0 && (
                     <div style={{
                         textAlign: 'center',
@@ -223,12 +264,28 @@ export default function ChatConversationPage() {
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
-                        className={`message-bubble ${msg.sender_id === currentUser?.id ? 'message-sent' : 'message-received'}`}
+                        className={msg.sender_id === currentUser?.id ? 'chat-bubble-sent' : 'chat-bubble-received'}
                     >
-                        {msg.content}
-                        <div className="message-time">{formatTime(msg.created_at)}</div>
+                        <div className="chat-bubble-content">
+                            {msg.content}
+                            <div className="chat-bubble-meta">
+                                {formatTime(msg.created_at)}
+                                {msg.sender_id === currentUser?.id && (
+                                    <span>{msg.is_read ? '✓✓' : '✓'}</span>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 ))}
+
+                {isTyping && (
+                    <div className="typing-indicator">
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
+                    </div>
+                )}
+
                 <div ref={messagesEndRef} />
             </div>
 
@@ -239,7 +296,10 @@ export default function ChatConversationPage() {
                     className="chat-input"
                     placeholder="Type a message..."
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={(e) => {
+                        setNewMessage(e.target.value);
+                        handleTyping();
+                    }}
                 />
                 <button type="submit" className="chat-send-btn" disabled={!newMessage.trim()}>
                     ➤
