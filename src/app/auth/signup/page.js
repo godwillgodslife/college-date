@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import SocialLogin from '@/components/SocialLogin';
 
 const NIGERIAN_UNIVERSITIES = [
     'University of Lagos (UNILAG)',
@@ -29,6 +30,30 @@ const NIGERIAN_UNIVERSITIES = [
     'Other',
 ];
 
+// Google signup/login
+async function signUpWithGoogle() {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: 'https://collegedates.netlify.app'
+        }
+    });
+    if (error) console.error('Google signup error:', error);
+}
+
+// Facebook signup/login
+async function signUpWithFacebook() {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+            redirectTo: 'https://collegedates.netlify.app'
+        }
+    });
+    if (error) console.error('Facebook signup error:', error);
+}
+
 export default function SignUpPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -43,13 +68,9 @@ export default function SignUpPage() {
         university: '',
     });
 
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleGenderSelect = (gender) => {
-        setForm({ ...form, gender });
-    };
+    const handleGenderSelect = (gender) => setForm({ ...form, gender });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,6 +151,7 @@ export default function SignUpPage() {
 
                 <div className="auth-card">
                     <form onSubmit={handleSubmit}>
+                        {/* Full Name */}
                         <div className="form-group">
                             <label className="form-label">Full Name</label>
                             <input
@@ -143,6 +165,7 @@ export default function SignUpPage() {
                             />
                         </div>
 
+                        {/* Gender */}
                         <div className="form-group">
                             <label className="form-label">I am a...</label>
                             <div className="gender-select">
@@ -163,6 +186,7 @@ export default function SignUpPage() {
                             </div>
                         </div>
 
+                        {/* Age */}
                         <div className="form-group">
                             <label className="form-label">Age</label>
                             <input
@@ -178,6 +202,7 @@ export default function SignUpPage() {
                             />
                         </div>
 
+                        {/* University */}
                         <div className="form-group">
                             <label className="form-label">University</label>
                             <select
@@ -194,6 +219,7 @@ export default function SignUpPage() {
                             </select>
                         </div>
 
+                        {/* Email */}
                         <div className="form-group">
                             <label className="form-label">Email</label>
                             <input
@@ -207,6 +233,7 @@ export default function SignUpPage() {
                             />
                         </div>
 
+                        {/* Password */}
                         <div className="form-group">
                             <label className="form-label">Password</label>
                             <input
@@ -221,6 +248,7 @@ export default function SignUpPage() {
                             />
                         </div>
 
+                        {/* Confirm Password */}
                         <div className="form-group">
                             <label className="form-label">Confirm Password</label>
                             <input
@@ -240,12 +268,14 @@ export default function SignUpPage() {
                             {loading ? 'Creating Account...' : '🚀 Sign Up'}
                         </button>
                     </form>
+
+                    <SocialLogin />
                 </div>
 
                 <div className="auth-footer">
                     Already have an account? <Link href="/auth/login">Log in</Link>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
