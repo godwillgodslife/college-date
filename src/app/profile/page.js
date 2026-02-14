@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import ReferralDashboard from '@/components/ReferralDashboard';
+import BottomNav from '@/components/BottomNav';
 
 export default function ProfilePage() {
     const router = useRouter();

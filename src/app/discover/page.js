@@ -8,7 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import StatusInput from '@/components/StatusInput';
 import StoriesFeed from '@/components/StoriesFeed';
-import SnapshotUpload from '@/components/SnapshotUpload';
+import snapshotUpload from '@/components/SnapshotUpload';
+import BottomNav from '@/components/BottomNav';
 
 export default function DiscoverPage() {
     const router = useRouter();
