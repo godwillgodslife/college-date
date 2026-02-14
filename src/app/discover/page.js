@@ -13,7 +13,7 @@ import SnapshotUpload from '@/components/SnapshotUpload';
 export default function DiscoverPage() {
     const router = useRouter();
     const supabase = createClient();
-    const { user, profile, loading: authLoading } = useAuth();
+    const { user, profile, refreshProfile, loading: authLoading } = useAuth();
 
     // UI state
     const [profiles, setProfiles] = useState([]);
