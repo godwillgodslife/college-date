@@ -331,13 +331,18 @@ export default function DiscoverPage() {
                     </div>
                 </div>
 
+                {/* 2.2 Features disabled for stabilization */}
+                {/* <StatusInput /> */}
+                {/* <StoriesFeed /> */}
+
                 {showUpload && (
                     <div style={{ marginBottom: '16px', animation: 'fade-in-up 0.3s ease' }}>
-                        <SnapshotUpload onUploadComplete={() => setShowUpload(false)} />
+                        {/* <SnapshotUpload onUploadComplete={() => setShowUpload(false)} /> */}
+                        <div style={{ padding: '20px', textAlign: 'center', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
+                            Snapshots are temporarily disabled for maintenance.
+                        </div>
                     </div>
                 )}
-
-                <StatusInput />
 
                 {!currentProfile ? (
                     <div className="empty-state">
@@ -461,103 +466,109 @@ export default function DiscoverPage() {
             </div>
 
             {/* Payment Modal */}
-            {showPayment && pendingSwipe && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                            <Image
-                                src={pendingSwipe.avatar_url || '/placeholder-avatar.png'}
-                                alt={pendingSwipe.full_name}
-                                className="img-enhanced" // Added class for "sexy" filter
-                                width={80}
-                                height={80}
-                                style={{
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    margin: '0 auto 12px',
-                                    border: '3px solid var(--primary)',
-                                }}
-                            />
-                        </div>
-                        <h3 className="modal-title" style={{ textAlign: 'center' }}>
-                            Swipe on {pendingSwipe.full_name}?
-                        </h3>
-                        <p className="modal-desc" style={{ textAlign: 'center' }}>
-                            Your free swipes are used up! Pay to unlock chat & contact.
-                        </p>
-                        <div className="modal-price">₦500</div>
-                        <p style={{
-                            textAlign: 'center',
-                            fontSize: '0.8rem',
-                            color: 'var(--text-muted)',
-                            marginBottom: '8px',
-                        }}>
-                            ₦250 goes to {pendingSwipe.full_name} • ₦250 platform fee
-                        </p>
-                        <div className="modal-actions" style={{ flexDirection: 'column' }}>
-                            <button
-                                className="btn btn-primary btn-full btn-lg"
-                                onClick={initiateFlutterwavePayment}
-                            >
-                                💳 Pay ₦500
-                            </button>
-                            <button
-                                className="btn btn-secondary btn-full"
-                                onClick={() => {
-                                    setShowPayment(false);
-                                    setPendingSwipe(null);
-                                }}
-                            >
-                                Cancel
-                            </button>
+            {
+                showPayment && pendingSwipe && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                                <Image
+                                    src={pendingSwipe.avatar_url || '/placeholder-avatar.png'}
+                                    alt={pendingSwipe.full_name}
+                                    className="img-enhanced" // Added class for "sexy" filter
+                                    width={80}
+                                    height={80}
+                                    style={{
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        margin: '0 auto 12px',
+                                        border: '3px solid var(--primary)',
+                                    }}
+                                />
+                            </div>
+                            <h3 className="modal-title" style={{ textAlign: 'center' }}>
+                                Swipe on {pendingSwipe.full_name}?
+                            </h3>
+                            <p className="modal-desc" style={{ textAlign: 'center' }}>
+                                Your free swipes are used up! Pay to unlock chat & contact.
+                            </p>
+                            <div className="modal-price">₦500</div>
+                            <p style={{
+                                textAlign: 'center',
+                                fontSize: '0.8rem',
+                                color: 'var(--text-muted)',
+                                marginBottom: '8px',
+                            }}>
+                                ₦250 goes to {pendingSwipe.full_name} • ₦250 platform fee
+                            </p>
+                            <div className="modal-actions" style={{ flexDirection: 'column' }}>
+                                <button
+                                    className="btn btn-primary btn-full btn-lg"
+                                    onClick={initiateFlutterwavePayment}
+                                >
+                                    💳 Pay ₦500
+                                </button>
+                                <button
+                                    className="btn btn-secondary btn-full"
+                                    onClick={() => {
+                                        setShowPayment(false);
+                                        setPendingSwipe(null);
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Profile Detail Modal */}
-            {showProfileDetail && currentProfile && (
-                <div className="modal-overlay" onClick={() => setShowProfileDetail(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflow: 'auto' }}>
-                        <div className="profile-header">
-                            <img
-                                src={currentProfile.avatar_url || '/placeholder-avatar.png'}
-                                alt={currentProfile.full_name}
-                                className="profile-avatar-large"
-                            />
-                            <h2 className="profile-name">{currentProfile.full_name}, {currentProfile.age}</h2>
-                            <p className="profile-uni">🎓 {currentProfile.university}</p>
-                            {currentProfile.bio && <p className="profile-bio">{currentProfile.bio}</p>}
-                        </div>
-                        {currentProfile.photos && currentProfile.photos.length > 0 && (
-                            <div className="profile-photos">
-                                {currentProfile.photos.map((url, i) => (
-                                    <img key={i} src={url} alt="" className="profile-photo" />
-                                ))}
+            {
+                showProfileDetail && currentProfile && (
+                    <div className="modal-overlay" onClick={() => setShowProfileDetail(false)}>
+                        <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '80vh', overflow: 'auto' }}>
+                            <div className="profile-header">
+                                <img
+                                    src={currentProfile.avatar_url || '/placeholder-avatar.png'}
+                                    alt={currentProfile.full_name}
+                                    className="profile-avatar-large"
+                                />
+                                <h2 className="profile-name">{currentProfile.full_name}, {currentProfile.age}</h2>
+                                <p className="profile-uni">🎓 {currentProfile.university}</p>
+                                {currentProfile.bio && <p className="profile-bio">{currentProfile.bio}</p>}
                             </div>
-                        )}
-                        <button
-                            className="btn btn-primary btn-full"
-                            style={{ marginTop: 20 }}
-                            onClick={() => setShowProfileDetail(false)}
-                        >
-                            Close
-                        </button>
+                            {currentProfile.photos && currentProfile.photos.length > 0 && (
+                                <div className="profile-photos">
+                                    {currentProfile.photos.map((url, i) => (
+                                        <img key={i} src={url} alt="" className="profile-photo" />
+                                    ))}
+                                </div>
+                            )}
+                            <button
+                                className="btn btn-primary btn-full"
+                                style={{ marginTop: 20 }}
+                                onClick={() => setShowProfileDetail(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Toast */}
-            {toast && (
-                <div className={`toast toast-${toast.type}`}>
-                    <span className="toast-message">{toast.message}</span>
-                </div>
-            )}
+            {
+                toast && (
+                    <div className={`toast toast-${toast.type}`}>
+                        <span className="toast-message">{toast.message}</span>
+                    </div>
+                )
+            }
 
             <BottomNav gender={profile?.gender} />
 
             {/* Flutterwave inline script */}
             <script src="https://checkout.flutterwave.com/v3.js" async />
-        </div>
+        </div >
     );
 }

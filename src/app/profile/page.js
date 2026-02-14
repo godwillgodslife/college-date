@@ -168,7 +168,8 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Referral & Rewards Section */}
-                {profile && <ReferralDashboard profile={profile} onUpdate={refreshProfile} />}
+                {/* Referral & Rewards Section disabled for stabilization */}
+                {/* {profile && <ReferralDashboard profile={profile} onUpdate={refreshProfile} />} */}
 
                 {/* Boost Section */}
                 <div style={{ marginBottom: 24, padding: '16px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', borderRadius: 'var(--radius-lg)', color: 'black', boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)' }}>

@@ -83,6 +83,8 @@ export default function ChatConversationPage() {
     }, [conversationId, user, profile, supabase]);
 
     const handleTyping = async () => {
+        // Disabled for stabilization
+        /*
         if (!newMessage && user) {
             await supabase.channel(`conversation-${conversationId}`).send({
                 type: 'broadcast',
@@ -90,6 +92,7 @@ export default function ChatConversationPage() {
                 payload: { sender_id: user.id }
             });
         }
+        */
     };
 
     const scrollToBottom = () => {
@@ -195,7 +198,7 @@ export default function ChatConversationPage() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-primary)' }}>
             {/* Header */}
             <div style={{
                 display: 'flex',
@@ -230,32 +233,41 @@ export default function ChatConversationPage() {
                     }}
                 />
                 <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                        {otherUser?.full_name}
+                    <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                        {otherUser?.full_name || 'Loading...'}
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
                         {otherUser?.university}
                     </div>
                 </div>
-                <button
-                    onClick={() => setShowPhone(!showPhone)}
-                    style={{
-                        background: 'var(--bg-card)',
-                        border: '1px solid var(--border)',
-                        color: 'var(--text-secondary)',
-                        padding: '8px 12px',
-                        borderRadius: 'var(--radius-full)',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem',
-                    }}
-                >
-                    📞 {showPhone && otherUser?.phone ? otherUser.phone : 'Show Number'}
-                </button>
+                {otherUser?.phone && (
+                    <button
+                        onClick={() => setShowPhone(!showPhone)}
+                        style={{
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border)',
+                            color: 'var(--text-secondary)',
+                            padding: '6px 12px',
+                            borderRadius: 'var(--radius-full)',
+                            cursor: 'pointer',
+                            fontSize: '0.75rem',
+                        }}
+                    >
+                        📞 {showPhone ? otherUser.phone : 'Show Number'}
+                    </button>
+                )}
             </div>
 
             {/* Messages */}
-            <div className="messages-container" style={{ padding: '16px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {messages.length === 0 && (
+            <div className="messages-container" style={{
+                padding: '16px',
+                flex: 1,
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+            }}>
+                {messages.length === 0 && !loading && (
                     <div style={{
                         textAlign: 'center',
                         padding: '40px 20px',
@@ -265,6 +277,7 @@ export default function ChatConversationPage() {
                         <p>Say hello to {otherUser?.full_name}!</p>
                     </div>
                 )}
+
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
@@ -280,19 +293,20 @@ export default function ChatConversationPage() {
                         }}>
                             <span className="chat-bubble-time">{formatTime(msg.created_at)}</span>
                             {msg.sender_id === user?.id && (
-                                <span>{msg.is_read ? '✓✓' : '✓'}</span>
+                                <span style={{ fontSize: '0.7rem' }}>{msg.is_read ? '✓✓' : '✓'}</span>
                             )}
                         </div>
                     </div>
                 ))}
 
-                {isTyping && (
-                    <div className="typing-indicator">
+                {/* Typing indicator disabled for stabilization */}
+                {/* {isOtherTyping && (
+                    <div className="typing-indicator" style={{ background: 'var(--bg-card)', padding: '8px 12px', borderRadius: '12px', width: 'fit-content' }}>
                         <div className="typing-dot"></div>
                         <div className="typing-dot"></div>
                         <div className="typing-dot"></div>
                     </div>
-                )}
+                )} */}
 
                 <div ref={messagesEndRef} />
             </div>
