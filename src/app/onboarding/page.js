@@ -50,7 +50,28 @@ export default function OnboardingPage() {
     const [age, setAge] = useState('');
     const [university, setUniversity] = useState('');
 
+    const [colleges, setColleges] = useState(NIGERIAN_UNIVERSITIES);
+
     useEffect(() => {
+        const fetchColleges = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('college')
+                    .select('name')
+                    .order('name');
+
+                if (data && data.length > 0) {
+                    setColleges(data.map(c => c.name));
+                } else if (error) {
+                    console.error('Error fetching colleges:', error);
+                }
+            } catch (err) {
+                console.error('Failed to fetch colleges:', err);
+            }
+        };
+
+        fetchColleges();
+
         if (!authLoading && user) {
             initializeForm();
         }
@@ -297,7 +318,7 @@ export default function OnboardingPage() {
                                 onChange={(e) => setUniversity(e.target.value)}
                             >
                                 <option value="">Select your university</option>
-                                {NIGERIAN_UNIVERSITIES.map((uni) => (
+                                {colleges.map((uni) => (
                                     <option key={uni} value={uni}>{uni}</option>
                                 ))}
                             </select>

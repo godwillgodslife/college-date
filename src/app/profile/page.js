@@ -3,14 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import ReferralDashboard from '@/components/ReferralDashboard';
 
 export default function ProfilePage() {
     const router = useRouter();
     const supabase = createClient();
-    const fileInputRef = useRef(null);
-    const [profile, setProfile] = useState(null);
+    const { user, profile, refreshProfile, loading: authLoading } = useAuth();
     const [editing, setEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -19,32 +19,20 @@ export default function ProfilePage() {
     const [showReport, setShowReport] = useState(false);
 
     useEffect(() => {
-        loadProfile();
-    }, []);
-
-    const loadProfile = async () => {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { router.push('/auth/login'); return; }
-
-            const { data } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            setProfile(data);
+        if (!authLoading && user && profile) {
             setEditForm({
-                full_name: data?.full_name || '',
-                bio: data?.bio || '',
-                phone: data?.phone || '',
-                university: data?.university || '',
+                full_name: profile.full_name || '',
+                bio: profile.bio || '',
+                phone: profile.phone || '',
+                university: profile.university || '',
             });
-        } catch (err) {
-            console.error('Error:', err);
-        } finally {
             setLoading(false);
         }
+    }, [authLoading, user, profile]);
+
+    const loadProfile = async () => {
+        // Redundant but keeping signature for now if other things call it
+        await refreshProfile();
     };
 
     const handleSave = async () => {
@@ -53,9 +41,9 @@ export default function ProfilePage() {
             await supabase.from('profiles').update({
                 ...editForm,
                 updated_at: new Date().toISOString(),
-            }).eq('id', profile.id);
+            }).eq('id', user.id);
 
-            setProfile({ ...profile, ...editForm });
+            await refreshProfile();
             setEditing(false);
             setToast({ message: 'Profile updated! ✅', type: 'success' });
             setTimeout(() => setToast(null), 3000);
@@ -88,13 +76,9 @@ export default function ProfilePage() {
             await supabase.from('profiles').update({
                 photos: newPhotos,
                 avatar_url: profile.avatar_url || urlData.publicUrl,
-            }).eq('id', profile.id);
+            }).eq('id', user.id);
 
-            setProfile({
-                ...profile,
-                photos: newPhotos,
-                avatar_url: profile.avatar_url || urlData.publicUrl,
-            });
+            await refreshProfile();
 
             setToast({ message: 'Photo uploaded! 📸', type: 'success' });
             setTimeout(() => setToast(null), 3000);
@@ -110,9 +94,16 @@ export default function ProfilePage() {
         router.push('/');
     };
 
-    if (loading) {
+    if (authLoading || (loading && !profile)) {
         return (
-            <div className="loading-screen">
+            <div className="loading-screen" style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}>
                 <div className="spinner" />
             </div>
         );
@@ -176,7 +167,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Referral & Rewards Section */}
-                {profile && <ReferralDashboard profile={profile} onUpdate={loadProfile} />}
+                {profile && <ReferralDashboard profile={profile} onUpdate={refreshProfile} />}
 
                 {/* Boost Section */}
                 <div style={{ marginBottom: 24, padding: '16px', background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', borderRadius: 'var(--radius-lg)', color: 'black', boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)' }}>

@@ -45,6 +45,18 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initializeAuth = async () => {
             setLoading(true);
+
+            // Safety timeout to ensure loading always eventually stops
+            const loadingTimeout = setTimeout(() => {
+                setLoading((prev) => {
+                    if (prev) {
+                        console.warn('Auth initialization timed out, forcing loading false');
+                        return false;
+                    }
+                    return prev;
+                });
+            }, 10000); // 10s safety margin
+
             try {
                 // 1. Get Session
                 const { data: { session } } = await supabase.auth.getSession();
@@ -61,6 +73,7 @@ export const AuthProvider = ({ children }) => {
             } catch (error) {
                 console.error('Auth initialization error:', error);
             } finally {
+                clearTimeout(loadingTimeout);
                 setLoading(false);
             }
         };
@@ -103,17 +116,22 @@ export const AuthProvider = ({ children }) => {
 
         // 2. Realtime Presence
         const channel = supabase.channel('online-users');
+
         channel
             .on('presence', { event: 'sync' }, () => {
                 // Optional: Store active user IDs if needed globally
-                // const state = channel.presenceState();
             })
-            .subscribe(async (status) => {
+            .subscribe((status, error) => {
+                if (error) {
+                    console.error('Realtime presence subscription error:', error);
+                    return;
+                }
+
                 if (status === 'SUBSCRIBED') {
-                    await channel.track({
+                    channel.track({
                         online_at: new Date().toISOString(),
                         user_id: user.id,
-                    });
+                    }).catch(err => console.error('Presence track error:', err));
                 }
             });
 
@@ -151,8 +169,8 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            // Check Profile Completeness
-            const isProfileComplete = profile && profile.gender && profile.age && profile.university;
+            // Check Profile Completeness (More strict to ensure they finish all steps)
+            const isProfileComplete = profile && profile.gender && profile.age && profile.university && profile.avatar_url;
 
             if (!isProfileComplete && !isOnboardingParams) {
                 console.log('Incomplete profile, redirecting to onboarding');

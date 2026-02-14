@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import BottomNav from '@/components/BottomNav';
 
 export default function WalletPage() {
     const router = useRouter();
     const supabase = createClient();
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user, profile, loading: authLoading } = useAuth();
     const [wallet, setWallet] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [showWithdraw, setShowWithdraw] = useState(false);
@@ -23,27 +24,20 @@ export default function WalletPage() {
     });
 
     useEffect(() => {
-        loadWallet();
-    }, []);
+        if (!authLoading && user && profile) {
+            loadWallet();
+        }
+    }, [authLoading, user, profile]);
 
     const loadWallet = async () => {
+        if (!user || !profile) return;
+
+        if (profile.gender !== 'female') {
+            router.push('/discover');
+            return;
+        }
+
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { router.push('/auth/login'); return; }
-
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (profile?.gender !== 'female') {
-                router.push('/discover');
-                return;
-            }
-
-            setCurrentUser(profile);
-
             const { data: walletData } = await supabase
                 .from('wallets')
                 .select('*')
@@ -78,7 +72,7 @@ export default function WalletPage() {
         setWithdrawing(true);
         try {
             await supabase.from('withdrawal_requests').insert({
-                user_id: currentUser.id,
+                user_id: user.id,
                 amount: parseFloat(withdrawForm.amount),
                 bank_name: withdrawForm.bank_name,
                 account_number: withdrawForm.account_number,
@@ -115,9 +109,16 @@ export default function WalletPage() {
         });
     };
 
-    if (loading) {
+    if (authLoading || (loading && !wallet)) {
         return (
-            <div className="loading-screen">
+            <div className="loading-screen" style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}>
                 <div className="spinner" />
             </div>
         );
@@ -280,7 +281,7 @@ export default function WalletPage() {
                 </div>
             )}
 
-            <BottomNav gender={currentUser?.gender} />
+            <BottomNav gender={profile?.gender} />
         </div>
     );
 }

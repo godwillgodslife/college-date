@@ -3,33 +3,27 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import BottomNav from '@/components/BottomNav';
 import Link from 'next/link';
 
 export default function ChatListPage() {
     const router = useRouter();
     const supabase = createClient();
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user, profile, loading: authLoading } = useAuth();
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadConversations();
-    }, []);
+        if (!authLoading && user && profile) {
+            loadConversations();
+        }
+    }, [authLoading, user, profile]);
 
     const loadConversations = async () => {
+        if (!user || !profile) return;
+
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { router.push('/auth/login'); return; }
-
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            setCurrentUser(profile);
-
             // Get conversations
             const { data: convos } = await supabase
                 .from('conversations')
@@ -79,9 +73,16 @@ export default function ChatListPage() {
         return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
     };
 
-    if (loading) {
+    if (authLoading || (loading && conversations.length === 0)) {
         return (
-            <div className="loading-screen">
+            <div className="loading-screen" style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}>
                 <div className="spinner" />
             </div>
         );
@@ -139,7 +140,7 @@ export default function ChatListPage() {
                 )}
             </div>
 
-            <BottomNav gender={currentUser?.gender} />
+            <BottomNav gender={profile?.gender} />
         </div>
     );
 }

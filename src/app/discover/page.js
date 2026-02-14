@@ -111,7 +111,7 @@ export default function DiscoverPage() {
             if (direction === 'left') {
                 // Record pass swipe
                 await supabase.from('swipes').insert({
-                    swiper_id: currentUser.id,
+                    swiper_id: user.id,
                     swiped_id: targetProfile.id,
                     direction: 'left',
                     is_free: true,
@@ -120,15 +120,15 @@ export default function DiscoverPage() {
             } else {
                 // Right swipe — like
                 // Logic for free/paid swipes
-                const isFemale = currentUser.gender === 'female';
-                const hasFreeSwipes = currentUser.free_swipes_remaining > 0;
+                const isFemale = profile?.gender === 'female';
+                const hasFreeSwipes = (profile?.free_swipes_remaining || 0) > 0;
 
                 if (isFemale || hasFreeSwipes) {
                     // Optimistic Toast
                     showToast(isFemale ? `Liked ${targetProfile.full_name}! 💕` : `Matched with ${targetProfile.full_name}! 🎉`);
 
                     await supabase.from('swipes').insert({
-                        swiper_id: currentUser.id,
+                        swiper_id: user.id,
                         swiped_id: targetProfile.id,
                         direction: 'right',
                         is_free: true,
@@ -137,18 +137,22 @@ export default function DiscoverPage() {
 
                     if (!isFemale) {
                         // Decrease free swipes (Local State update)
-                        const newFreeSwipes = currentUser.free_swipes_remaining - 1;
-                        setCurrentUser(prev => ({ ...prev, free_swipes_remaining: newFreeSwipes }));
+                        const newFreeSwipes = (profile?.free_swipes_remaining || 1) - 1;
+                        // Since we are using global profile, we should ideally update it via context or just wait for DB 
+                        // For immediate feedback, we'll call refreshProfile after DB update or if we had a local setter.
+                        // For now, let's just do the DB update and then refresh.
 
                         // DB Update (Background)
                         await supabase
                             .from('profiles')
                             .update({ free_swipes_remaining: newFreeSwipes })
-                            .eq('id', currentUser.id);
+                            .eq('id', user.id);
+
+                        refreshProfile(); // Sync global state
                     }
 
                     // Create conversation (Background)
-                    createConversation(currentUser.id, targetProfile.id).catch(err =>
+                    createConversation(user.id, targetProfile.id).catch(err =>
                         console.error('Error creating convo:', err)
                     );
                 } else {
@@ -163,7 +167,7 @@ export default function DiscoverPage() {
             // Optional: Revert on error or show toast "Swipe failed"
             // For now, simpler to just log it as reverting shakes the UI too much
         }
-    }, [profiles, currentIndex, currentUser, supabase]);
+    }, [profiles, currentIndex, user, profile, supabase, refreshProfile]);
 
     const createConversation = async (userId1, userId2) => {
         const p1 = userId1 < userId2 ? userId1 : userId2;
@@ -200,7 +204,7 @@ export default function DiscoverPage() {
             if (result.success) {
                 // Record paid swipe
                 await supabase.from('swipes').insert({
-                    swiper_id: currentUser.id,
+                    swiper_id: user.id,
                     swiped_id: pendingSwipe.id,
                     direction: 'right',
                     is_free: false,
@@ -208,7 +212,7 @@ export default function DiscoverPage() {
                     transaction_id: result.transaction_id,
                 });
 
-                await createConversation(currentUser.id, pendingSwipe.id);
+                await createConversation(user.id, pendingSwipe.id);
                 showToast(`Matched with ${pendingSwipe.full_name}! 💕`);
                 setCurrentIndex((prev) => prev + 1);
             } else {
@@ -229,13 +233,13 @@ export default function DiscoverPage() {
         // Use Flutterwave inline JS
         const modal = window.FlutterwaveCheckout?.({
             public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY,
-            tx_ref: `CD_${currentUser.id}_${pendingSwipe.id}_${Date.now()}`,
+            tx_ref: `CD_${user.id}_${pendingSwipe.id}_${Date.now()}`,
             amount: 500,
             currency: 'NGN',
             payment_options: 'card,banktransfer,ussd',
             customer: {
-                email: currentUser.email,
-                name: currentUser.full_name,
+                email: user.email,
+                name: profile?.full_name,
             },
             customizations: {
                 title: 'College Date',
@@ -300,9 +304,9 @@ export default function DiscoverPage() {
                 <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h1 className="page-title">Discover</h1>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        {currentUser?.gender === 'male' && (
-                            <div className="free-swipes-badge">
-                                ⚡ {currentUser.free_swipes_remaining}
+                        {profile?.gender === 'male' && (
+                            <div style={{ marginTop: 12 }}>
+                                ⚡ {profile?.free_swipes_remaining} free swipes remaining
                             </div>
                         )}
                         <button
@@ -549,7 +553,7 @@ export default function DiscoverPage() {
                 </div>
             )}
 
-            <BottomNav gender={currentUser?.gender} />
+            <BottomNav gender={profile?.gender} />
 
             {/* Flutterwave inline script */}
             <script src="https://checkout.flutterwave.com/v3.js" async />

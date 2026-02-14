@@ -3,13 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ChatConversationPage() {
     const router = useRouter();
     const params = useParams();
     const conversationId = params.id;
     const supabase = createClient();
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user, profile, loading: authLoading } = useAuth();
     const [otherUser, setOtherUser] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -19,13 +20,8 @@ export default function ChatConversationPage() {
 
     useEffect(() => {
         loadConversation();
-    }, [conversationId]);
 
-    const [isTyping, setIsTyping] = useState(false);
-    const typingTimeoutRef = useRef(null);
-
-    useEffect(() => {
-        // Subscribe to realtime messages & typing
+        // Non-blocking Realtime Subscription
         const channel = supabase
             .channel(`conversation-${conversationId}`)
             .on(
@@ -37,13 +33,21 @@ export default function ChatConversationPage() {
                     filter: `conversation_id=eq.${conversationId}`,
                 },
                 (payload) => {
-                    setMessages((prev) => [...prev, payload.new]);
-                    // If message is from other user, verify read immediately
-                    if (payload.new.sender_id !== currentUser?.id) {
+                    setMessages((prev) => {
+                        // Prevent duplicate messages if already loaded
+                        if (prev.some(m => m.id === payload.new.id)) return prev;
+                        return [...prev, payload.new];
+                    });
+
+                    // Mark as read if from other user
+                    if (payload.new.sender_id !== user?.id) {
                         supabase
                             .from('messages')
                             .update({ is_read: true })
-                            .eq('id', payload.new.id);
+                            .eq('id', payload.new.id)
+                            .then(({ error }) => {
+                                if (error) console.error('Read receipt error:', error);
+                            });
                     }
                     scrollToBottom();
                 }
@@ -51,7 +55,7 @@ export default function ChatConversationPage() {
             .on(
                 'postgres_changes',
                 {
-                    event: 'UPDATE', // Listen for read receipts
+                    event: 'UPDATE',
                     schema: 'public',
                     table: 'messages',
                     filter: `conversation_id=eq.${conversationId}`,
@@ -61,27 +65,29 @@ export default function ChatConversationPage() {
                 }
             )
             .on('broadcast', { event: 'typing' }, (payload) => {
-                if (payload.sender_id !== currentUser?.id) {
+                if (payload.sender_id !== user?.id) {
                     setIsTyping(true);
-                    // Clear existing timeout
                     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-                    // Set new timeout to hide indicator
                     typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
                 }
             })
-            .subscribe();
+            .subscribe((status) => {
+                if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    console.error(`Realtime subscription ${status} for conversation ${conversationId}`);
+                }
+            });
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [conversationId, currentUser]); // Added currentUser to dep to avoid stale closure
+    }, [conversationId, user, profile, supabase]);
 
     const handleTyping = async () => {
-        if (!newMessage) {
+        if (!newMessage && user) {
             await supabase.channel(`conversation-${conversationId}`).send({
                 type: 'broadcast',
                 event: 'typing',
-                payload: { sender_id: currentUser.id }
+                payload: { sender_id: user.id }
             });
         }
     };
@@ -93,18 +99,9 @@ export default function ChatConversationPage() {
     };
 
     const loadConversation = async () => {
+        if (!user || !profile || !conversationId) return;
+
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { router.push('/auth/login'); return; }
-
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            setCurrentUser(profile);
-
             // Get conversation
             const { data: convo } = await supabase
                 .from('conversations')
@@ -158,7 +155,7 @@ export default function ChatConversationPage() {
         try {
             await supabase.from('messages').insert({
                 conversation_id: conversationId,
-                sender_id: currentUser.id,
+                sender_id: user.id,
                 content: msg,
             });
 
@@ -182,9 +179,16 @@ export default function ChatConversationPage() {
         });
     };
 
-    if (loading) {
+    if (authLoading || loading) {
         return (
-            <div className="loading-screen">
+            <div className="loading-screen" style={{
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}>
                 <div className="spinner" />
             </div>
         );
@@ -264,16 +268,20 @@ export default function ChatConversationPage() {
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
-                        className={msg.sender_id === currentUser?.id ? 'chat-bubble-sent' : 'chat-bubble-received'}
+                        className={msg.sender_id === user?.id ? 'chat-bubble-sent' : 'chat-bubble-received'}
                     >
-                        <div className="chat-bubble-content">
-                            {msg.content}
-                            <div className="chat-bubble-meta">
-                                {formatTime(msg.created_at)}
-                                {msg.sender_id === currentUser?.id && (
-                                    <span>{msg.is_read ? '✓✓' : '✓'}</span>
-                                )}
-                            </div>
+                        <div className="chat-bubble-text">{msg.content}</div>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: '4px',
+                            marginTop: '2px'
+                        }}>
+                            <span className="chat-bubble-time">{formatTime(msg.created_at)}</span>
+                            {msg.sender_id === user?.id && (
+                                <span>{msg.is_read ? '✓✓' : '✓'}</span>
+                            )}
                         </div>
                     </div>
                 ))}

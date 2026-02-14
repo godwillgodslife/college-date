@@ -9,23 +9,57 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    // Safety timeout: loading should never be forever
+    const timer = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          console.warn('Initial load timed out');
+          return false;
+        }
+        return prev;
+      });
+    }, 5000);
+
+    const checkAuthAndFetchData = async () => {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        router.push('/discover');
-      } else {
+
+      try {
+        // Fetch college data independently as requested
+        // Note: Realtime should enhance this, but not block it.
+        const { data: colleges, error: collegeError } = await supabase
+          .from('college')
+          .select('*');
+
+        if (collegeError) {
+          console.error('Error fetching college data:', collegeError);
+        } else {
+          console.log('Colleges loaded:', colleges);
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          router.push('/discover');
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
         setLoading(false);
+      } finally {
+        clearTimeout(timer);
       }
     };
-    checkAuth();
+
+    checkAuthAndFetchData();
+
+    return () => clearTimeout(timer);
   }, [router]);
 
   if (loading) {
     return (
       <div className="loading-screen">
         <div className="spinner" />
-        <p className="loading-text">Loading College Date...</p>
+        <p className="loading-text">Loading College Data...</p>
       </div>
     );
   }
