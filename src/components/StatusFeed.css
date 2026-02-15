@@ -1,0 +1,206 @@
+.status-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 2rem;
+}
+
+.status-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.status-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--glass-border);
+}
+
+.status-username {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.status-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.status-image-wrapper {
+    width: 100%;
+    background: var(--bg-tertiary);
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.status-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.status-card:hover .status-image {
+    transform: scale(1.02);
+}
+
+.status-caption {
+    padding: 1.25rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.status-caption p {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.status-empty-state {
+    text-align: center;
+    padding: 4rem 1.5rem;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    border: 1px dashed var(--glass-border);
+    backdrop-filter: blur(12px);
+}
+
+.status-feed-loading {
+    padding: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* Badge for Own Status */
+.badge-you {
+    font-size: 0.75rem;
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--accent-primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+/* Status Footer Actions (Owner) */
+.status-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-caption {
+    border-top: none;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.status-actions-owner {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-viewers {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-viewers:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Viewers List */
+.status-viewers-list {
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--glass-border);
+    padding: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.viewers-loading {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.no-viewers {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.viewer-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.viewer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.viewer-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.viewer-item span {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.viewer-item .view-time {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-weight: 400;
+}

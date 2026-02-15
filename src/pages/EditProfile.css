@@ -1,0 +1,169 @@
+.edit-profile-page {
+    padding: 1.5rem;
+    padding-bottom: 6rem;
+    display: flex;
+    justify-content: center;
+}
+
+.edit-profile-card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.edit-profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.edit-profile-header h1 {
+    font-size: 1.8rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.edit-profile-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Avatar Upload */
+.avatar-upload-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.avatar-preview-container {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border: 3px solid #f0f2f5;
+    transition: var(--transition-fast);
+}
+
+.avatar-preview-container:hover {
+    border-color: var(--primary);
+}
+
+.avatar-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-large {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0eafc, #ece9e6);
+    /* Soft gradient */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.avatar-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.7rem;
+    padding: 4px 0;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.avatar-preview-container:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 2px solid #eef0f5;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: var(--transition-fast);
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    outline: none;
+    background: white;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.9rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: var(--transition-fast);
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 75, 75, 0.4);
+}
+
+.btn-cancel {
+    background: #f0f2f5;
+    color: var(--text-primary);
+}
+
+.btn-cancel:hover {
+    background: #e4e6eb;
+}
+
+@media (max-width: 480px) {
+    .edit-profile-page {
+        padding: 1rem;
+    }
+
+    .edit-profile-card {
+        padding: 1.5rem;
+    }
+}
