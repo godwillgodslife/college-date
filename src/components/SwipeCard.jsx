@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import './SwipeCard.css';
 
-export default function SwipeCard({ profile, onSwipe }) {
+export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe }) {
     const [exitX, setExitX] = useState(0);
     const [showPremiumNote, setShowPremiumNote] = useState(false);
     const [premiumNote, setPremiumNote] = useState('');
@@ -47,7 +47,7 @@ export default function SwipeCard({ profile, onSwipe }) {
             whileHover={{ scale: 1.02 }}
         >
             <div className="swipe-card-inner">
-                {/* Profile Image with Debugging */}
+                {/* Profile Image */}
                 <div className="swipe-card-image-container">
                     {profile.avatar_url ? (
                         <img
@@ -114,6 +114,21 @@ export default function SwipeCard({ profile, onSwipe }) {
                         <p className="swipe-card-bio">{bio}</p>
 
                         <div className="swipe-card-actions">
+                            {/* Super Swipe Button */}
+                            {superSwipesAvailable > 0 && onSuperSwipe && (
+                                <button
+                                    className="super-swipe-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExitX(300);
+                                        onSuperSwipe(profile);
+                                    }}
+                                >
+                                    <span>⭐ Super Swipe</span>
+                                    <span className="badge">{superSwipesAvailable}</span>
+                                </button>
+                            )}
+
                             {!showPremiumNote ? (
                                 <button
                                     className="action-btn premium-btn"

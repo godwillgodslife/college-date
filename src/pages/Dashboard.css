@@ -93,7 +93,7 @@
 
 @media (max-width: 768px) {
     .dashboard {
-        padding: 1.5rem 1rem;
+        padding: 1.5rem 1rem calc(6rem + env(safe-area-inset-bottom));
     }
 
     .dashboard-greeting {

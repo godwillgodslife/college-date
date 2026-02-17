@@ -5,7 +5,9 @@ import {
     getTransactions,
     createTransaction,
     completeTransaction,
-    initializeFlutterwave
+    initializePaystack,
+    getPayoutDetails,
+    updatePayoutDetails
 } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -21,6 +23,15 @@ export default function Wallet() {
     const [fundingAmount, setFundingAmount] = useState('2000');
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Payout Details State
+    const [payoutDetails, setPayoutDetails] = useState({
+        bank_name: '',
+        account_number: '',
+        account_name: '',
+        paypal_email: '',
+        preferred_method: 'bank'
+    });
 
     useEffect(() => {
         if (currentUser) {
@@ -39,6 +50,12 @@ export default function Wallet() {
                 const { data: txData, error: txError } = await getTransactions(walletData.id);
                 if (txError) throw txError;
                 setTransactions(txData || []);
+            }
+
+            // Load Payout Details
+            const { data: payoutData } = await getPayoutDetails(currentUser.id);
+            if (payoutData) {
+                setPayoutDetails(payoutData);
             }
         } catch (err) {
             console.error('Error loading wallet data:', err);
@@ -72,36 +89,34 @@ export default function Wallet() {
 
             if (txError) throw txError;
 
-            // 2. Initialize Flutterwave
-            initializeFlutterwave({
-                public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-                tx_ref: `CD-TX-${tx.id}`,
+            // 2. Initialize Paystack
+            initializePaystack({
+                public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+                reference: `CD-TX-${tx.id}`,
                 amount: amount,
-                currency: 'NGN',
-                customer: {
-                    email: currentUser.email,
-                    phone_number: userProfile?.phone || '',
-                    name: userProfile?.full_name || 'College Date User',
+                email: currentUser.email,
+                metadata: {
+                    user_id: currentUser.id,
+                    tx_id: tx.id,
+                    type: 'deposit'
                 },
-                callback: async (response) => {
-                    if (response.status === "successful") {
-                        const { error: completeError } = await completeTransaction(
-                            tx.id,
-                            'success',
-                            response.transaction_id.toString()
-                        );
-                        if (completeError) {
-                            addToast('Payment successful but wallet update failed. Please contact support.', 'error');
-                        } else {
-                            addToast('Wallet funded successfully!', 'success');
-                            loadWalletData();
-                        }
+                onSuccess: async (response) => {
+                    const { error: completeError } = await completeTransaction(
+                        tx.id,
+                        'success',
+                        response.reference,
+                        response
+                    );
+
+                    if (completeError) {
+                        addToast('Payment successful but wallet update failed.', 'error');
                     } else {
-                        await completeTransaction(tx.id, 'failed', response.transaction_id?.toString());
-                        addToast('Payment failed', 'error');
+                        addToast('Wallet funded successfully!', 'success');
+                        loadWalletData();
+                        setIsProcessing(false);
                     }
                 },
-                onclose: () => {
+                onCancel: () => {
                     setIsProcessing(false);
                 }
             });
@@ -158,6 +173,20 @@ export default function Wallet() {
             addToast('Withdrawal request submitted! Payouts are processed weekly.', 'success');
             loadWalletData();
             setWithdrawalAmount('');
+        } catch (err) {
+            addToast(err.message, 'error');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleSavePayout = async (e) => {
+        e.preventDefault();
+        setIsProcessing(true);
+        try {
+            const { error } = await updatePayoutDetails(currentUser.id, payoutDetails);
+            if (error) throw error;
+            addToast('Payout details saved successfully!', 'success');
         } catch (err) {
             addToast(err.message, 'error');
         } finally {
@@ -243,7 +272,107 @@ export default function Wallet() {
                         <span className="mini-value">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
                     </div>
                 </div>
+
+                {/* Gift Stats Section */}
+                <div className="gift-stats-container">
+                    <h3>🎁 Gift Earnings</h3>
+                    <div className="gift-stats-grid">
+                        <div className="gift-stat">
+                            <span className="stat-val">
+                                {transactions.filter(t => t.type === 'gift_received').length}
+                            </span>
+                            <span className="stat-lbl">Gifts Received</span>
+                        </div>
+                        <div className="gift-stat">
+                            <span className="stat-val">
+                                ₦{transactions
+                                    .filter(t => t.type === 'gift_received')
+                                    .reduce((acc, curr) => acc + parseFloat(curr.amount), 0)
+                                    .toLocaleString()}
+                            </span>
+                            <span className="stat-lbl">From Gifts</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <section className="payout-section">
+                <h2 className="section-title">Payout Information</h2>
+                <p className="section-subtitle">Where should we send your earnings?</p>
+
+                <div className="payout-method-selector">
+                    <button
+                        type="button"
+                        className={`method-btn ${payoutDetails.preferred_method === 'bank' ? 'active' : ''}`}
+                        onClick={() => setPayoutDetails({ ...payoutDetails, preferred_method: 'bank' })}
+                    >
+                        🏦 Bank Account
+                    </button>
+                    <button
+                        type="button"
+                        className={`method-btn ${payoutDetails.preferred_method === 'paypal' ? 'active' : ''}`}
+                        onClick={() => setPayoutDetails({ ...payoutDetails, preferred_method: 'paypal' })}
+                    >
+                        🅿️ PayPal
+                    </button>
+                </div>
+
+                <form onSubmit={handleSavePayout} className="payout-form">
+                    {payoutDetails.preferred_method === 'bank' ? (
+                        <div className="payout-info-grid">
+                            <div className="payout-form-group">
+                                <label>Bank Name</label>
+                                <input
+                                    type="text"
+                                    className="payout-input"
+                                    placeholder="e.g. GTBank"
+                                    value={payoutDetails.bank_name || ''}
+                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, bank_name: e.target.value })}
+                                />
+                            </div>
+                            <div className="payout-form-group">
+                                <label>Account Number</label>
+                                <input
+                                    type="text"
+                                    className="payout-input"
+                                    placeholder="0123456789"
+                                    value={payoutDetails.account_number || ''}
+                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, account_number: e.target.value })}
+                                />
+                            </div>
+                            <div className="payout-form-group" style={{ gridColumn: 'span 2' }}>
+                                <label>Account Name</label>
+                                <input
+                                    type="text"
+                                    className="payout-input"
+                                    placeholder="Full name as seen on account"
+                                    value={payoutDetails.account_name || ''}
+                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, account_name: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="payout-form-group">
+                            <label>PayPal Email</label>
+                            <input
+                                type="email"
+                                className="payout-input"
+                                placeholder="your@paypal.com"
+                                value={payoutDetails.paypal_email || ''}
+                                onChange={(e) => setPayoutDetails({ ...payoutDetails, paypal_email: e.target.value })}
+                            />
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="btn btn-primary btn-save-payout"
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? 'Saving...' : 'Save Payout Details'}
+                    </button>
+                </form>
+            </section>
 
             <section className="transaction-history">
                 <h2 className="section-title">Recent Activity</h2>
@@ -278,6 +407,6 @@ export default function Wallet() {
                     </div>
                 )}
             </section>
-        </div>
+        </div >
     );
 }

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">College Date</string>
+    <string name="title_activity_main">College Date</string>
+    <string name="package_name">com.collegedate.app</string>
+    <string name="custom_url_scheme">com.collegedate.app</string>
+</resources>

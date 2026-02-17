@@ -16,28 +16,13 @@ export async function getDiscoverProfiles(userId, filters = {}) {
         // Also exclude self
         if (userId) swipedIds.push(userId);
 
-        // 2. DISCOVERY BOOST: Find users who sent a PREMIUM swipe to this user
-        // These should be shown first as they are high-value interactions
-        const { data: premiumSentToMe } = await supabase
-            .from('swipes')
-            .select('swiper_id')
-            .eq('swiped_id', userId)
-            .eq('type', 'premium')
-            .eq('status', 'pending');
-
-        const priorityInboundIds = (premiumSentToMe || []).map(s => s.swiper_id);
-
-        // 3. Fetch profiles with filters (Join with wallets for Top Seeker status)
+        // 2. Fetch profiles from the new discovery view (v3)
         let query = supabase
-            .from('profiles')
-            .select(`
-                *,
-                wallets (total_spent)
-            `);
+            .from('discovery_feed_v3')
+            .select('*');
 
         // Exclude swiped profiles and self
         if (swipedIds.length > 0) {
-            // PostgREST "in" requires parentheses: in.(id1,id2)
             query = query.not('id', 'in', `(${swipedIds.join(',')})`);
         }
 
@@ -58,38 +43,60 @@ export async function getDiscoverProfiles(userId, filters = {}) {
             if (max) query = query.lte('age', max);
         }
 
+        // Sort by Visibility Score (Dynamic Rotation)
+        query = query.order('visibility_score', { ascending: false });
+
         // Limit results
-        query = query.limit(40); // Increased limit to allow more room for sorting
+        query = query.limit(40);
 
         const { data: profiles, error: profilesError } = await query;
 
         if (profilesError) throw profilesError;
 
-        // 4. SORTING LOGIC: Prioritize those in priorityInboundIds
-        const sortedProfiles = (profiles || []).sort((a, b) => {
-            const aIsPriority = priorityInboundIds.includes(a.id);
-            const bIsPriority = priorityInboundIds.includes(b.id);
-            if (aIsPriority && !bIsPriority) return -1;
-            if (!aIsPriority && bIsPriority) return 1;
-            return 0;
-        });
-
-        // 5. Flatten wallet data and add Top Seeker flag
-        const finalProfiles = sortedProfiles.map(p => {
-            // wallets is an array when joining via inverse FK
-            const wallet = Array.isArray(p.wallets) ? p.wallets[0] : p.wallets;
-            const totalSpent = wallet?.total_spent || 0;
-            return {
-                ...p,
-                total_spent: totalSpent,
-                is_top_seeker: totalSpent >= 15000 // Elite spender badge
-            };
-        });
-
-        return { data: finalProfiles, error: null };
+        return { data: profiles || [], error: null };
     } catch (err) {
         console.error('getDiscoverProfiles exception:', err);
         return { data: [], error: err.message || 'Internal Service Error' };
+    }
+}
+
+/**
+ * Check and increment swipe limit for free users
+ */
+export async function checkSwipeLimit(userId) {
+    try {
+        // 1. Get subscription and limit
+        const { data: sub } = await supabase
+            .from('subscriptions')
+            .select('plan_type')
+            .eq('user_id', userId)
+            .single();
+
+        if (sub?.plan_type === 'Premium') return { canSwipe: true };
+
+        // 2. Get current limit
+        const { data: limit, error } = await supabase
+            .from('swipe_limits')
+            .select('swipes_used')
+            .eq('user_id', userId)
+            .single();
+
+        if (error) throw error;
+
+        if (limit.swipes_used >= 10) {
+            return { canSwipe: false, used: limit.swipes_used, max: 10 };
+        }
+
+        // 3. Increment limit
+        await supabase
+            .from('swipe_limits')
+            .update({ swipes_used: limit.swipes_used + 1 })
+            .eq('user_id', userId);
+
+        return { canSwipe: true, used: limit.swipes_used + 1, max: 10 };
+    } catch (err) {
+        console.error('checkSwipeLimit error:', err);
+        return { canSwipe: true }; // Fallback to allow swiping if error
     }
 }
 
@@ -237,5 +244,53 @@ export async function checkMatch(userId, targetId) {
     } catch (err) {
         console.error('checkMatch error:', err.message);
         return { isMatch: false, error: err.message };
+    }
+}
+
+/**
+ * Super Swipe: Consume a credit, record the swipe, and notify the target
+ */
+export async function superSwipe(swiperId, swipedProfile) {
+    try {
+        // 1. Consume a super swipe credit
+        const { data: useResult, error: rpcError } = await supabase.rpc('use_super_swipe', {
+            p_user_id: swiperId
+        });
+
+        if (rpcError) throw rpcError;
+        if (!useResult.success) {
+            return { data: null, error: useResult.error };
+        }
+
+        // 2. Record the swipe as a right swipe with 'super_swipe' type
+        const { data: swipeRecord, error: swipeError } = await supabase
+            .from('swipes')
+            .insert({
+                swiper_id: swiperId,
+                swiped_id: swipedProfile.id,
+                direction: 'right',
+                type: 'super_swipe',
+                status: 'pending',
+                is_priority: true
+            })
+            .select()
+            .single();
+
+        if (swipeError) throw swipeError;
+
+        // 3. Send immediate notification to the swiped user
+        await createNotification({
+            userId: swipedProfile.id,
+            actorId: swiperId,
+            type: 'super_swipe',
+            title: '⭐ Super Swipe!',
+            content: 'Someone sent you a Super Swipe! They really want to connect with you.',
+            metadata: { swipe_id: swipeRecord.id, swiper_id: swiperId }
+        });
+
+        return { data: swipeRecord, error: null };
+    } catch (err) {
+        console.error('superSwipe error:', err.message);
+        return { data: null, error: err.message };
     }
 }

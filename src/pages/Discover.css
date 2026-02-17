@@ -1,5 +1,8 @@
 .discover-page {
-    height: calc(100vh - 64px - 80px);
+    height: calc(100vh - var(--navbar-height));
+    /* Fallback */
+    height: calc(100dvh - var(--navbar-height));
+    /* Desktop default */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -320,4 +323,12 @@
     color: white;
     border: none;
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .discover-page {
+        height: calc(100vh - var(--navbar-height-mobile));
+        /* Fallback */
+        height: calc(100dvh - var(--navbar-height-mobile));
+    }
 }

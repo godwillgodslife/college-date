@@ -19,7 +19,7 @@ import Dashboard from './pages/Dashboard';
 import Discover from './pages/Discover';
 import Chat from './pages/Chat';
 import StatusUpdates from './pages/StatusUpdates';
-import Snapshots from './pages/Snapshots';
+import Snap from './pages/Snap';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import Settings from './pages/Settings';
@@ -28,6 +28,7 @@ import Wallet from './pages/Wallet';
 import Requests from './pages/Requests';
 import Leaderboard from './pages/Leaderboard';
 import Confessions from './pages/Confessions';
+import PremiumUpgrade from './pages/PremiumUpgrade';
 
 function AppRoutes() {
   const { currentUser, loading } = useAuth();
@@ -72,7 +73,8 @@ function AppRoutes() {
         <Route path="/discover" element={<Discover />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/status" element={<StatusUpdates />} />
-        <Route path="/snapshots" element={<Snapshots />} />
+        <Route path="/snap" element={<Snap />} />
+        {/* <Route path="/snapshots" element={<Snapshots />} /> Removed obsolete route */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/settings" element={<Settings />} />
@@ -81,6 +83,7 @@ function AppRoutes() {
         <Route path="/requests" element={<Requests />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/confessions" element={<Confessions />} />
+        <Route path="/premium" element={<PremiumUpgrade />} />
       </Route>
 
       {/* Default redirect */}

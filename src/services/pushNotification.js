@@ -6,8 +6,13 @@ import OneSignal from 'react-onesignal';
  */
 export async function initPushNotifications() {
     try {
+        if (OneSignal.initialized) {
+            console.log('OneSignal already initialized');
+            return;
+        }
+
         await OneSignal.init({
-            appId: "YOUR_ONESIGNAL_APP_ID", // TODO: Replace with actual ID
+            appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "7616182c-6872-4d2a-8991-6f81e3381a1a", // Placeholder or from env
             allowLocalhostAsSecureOrigin: true,
             notifyButton: {
                 enable: true,

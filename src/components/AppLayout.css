@@ -6,8 +6,7 @@
 
 .app-main {
     flex: 1;
-    padding-top: 64px;
-    /* navbar height */
+    padding-top: var(--navbar-height);
     padding-bottom: 0;
     max-width: 1200px;
     margin: 0 auto;
@@ -16,7 +15,9 @@
 
 @media (max-width: 768px) {
     .app-main {
-        padding-bottom: 80px;
-        /* bottom nav height */
+        padding-top: var(--navbar-height-mobile);
+        /* 60px now since tabs are gone */
+        padding-bottom: calc(85px + env(safe-area-inset-bottom));
+        /* Extra padding for bottom nav safely */
     }
 }

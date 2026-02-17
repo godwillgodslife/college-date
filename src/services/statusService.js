@@ -24,16 +24,18 @@ export async function uploadStatusMedia(file, userId) {
     }
 }
 
+// ...
 // Create a new status
 export async function createStatus(userId, mediaUrl, caption) {
     console.log('createStatus args:', { userId, mediaUrl, caption });
     try {
         const { data, error } = await supabase
-            .from('statuses')
+            .from('status_updates') // Updated table name
             .insert({
                 user_id: userId,
                 media_url: mediaUrl,
                 caption: caption
+                // expires_at is default 24h from db
             })
             .select()
             .single();
@@ -49,14 +51,11 @@ export async function createStatus(userId, mediaUrl, caption) {
     }
 }
 
-// Get recent statuses (last 24 hours) with profile info
+// Get recent statuses (active ones)
 export async function getRecentStatuses() {
     try {
-        // Calculate timestamp for 24 hours ago
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
         const { data, error } = await supabase
-            .from('statuses')
+            .from('status_updates') // Updated table name
             .select(`
                 *,
                 profiles:user_id (
@@ -65,7 +64,7 @@ export async function getRecentStatuses() {
                     avatar_url
                 )
             `)
-            .gt('created_at', twentyFourHoursAgo)
+            .gt('expires_at', new Date().toISOString()) // Use expires_at
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -75,6 +74,7 @@ export async function getRecentStatuses() {
         return { data: [], error: error.message };
     }
 }
+// ...
 
 // Get counts of hidden content for connectivity FOMO
 export async function getHiddenContentCounts(userId) {

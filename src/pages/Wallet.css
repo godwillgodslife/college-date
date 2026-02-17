@@ -137,6 +137,74 @@
     border-bottom: 1px solid var(--glass-border);
 }
 
+.payout-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.payout-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.payout-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.payout-input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.2s;
+}
+
+.payout-input:focus {
+    border-color: var(--accent-primary);
+}
+
+.payout-method-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.method-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.method-btn.active {
+    border-color: var(--accent-primary);
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--accent-primary);
+}
+
+.btn-save-payout {
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
 .transaction-list {
     display: flex;
     flex-direction: column;
@@ -245,4 +313,44 @@
     .balance-amount {
         font-size: 2.5rem;
     }
+}
+
+/* Gift Stats */
+.gift-stats-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid var(--glass-border);
+}
+
+.gift-stats-container h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gift-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.gift-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.gift-stat .stat-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.gift-stat .stat-lbl {
+    font-size: 0.8rem;
+    color: var(--text-dim);
 }

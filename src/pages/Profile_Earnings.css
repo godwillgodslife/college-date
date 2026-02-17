@@ -1,0 +1,58 @@
+/* Add to Profile.css */
+
+.earnings-summary-card {
+    background: var(--gradient-primary);
+    border-radius: 20px;
+    padding: 1.5rem !important;
+    margin-top: 1rem;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.earnings-summary-card:hover {
+    transform: scale(1.02);
+}
+
+.earnings-summary-card .profile-section-title {
+    color: white !important;
+    margin-bottom: 0.5rem !important;
+    border: none !important;
+}
+
+.earnings-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.earnings-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.earn-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.earn-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.earn-lbl {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}

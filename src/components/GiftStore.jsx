@@ -1,23 +1,35 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './GiftStore.css';
 
 const GIFTS = [
-    { id: 'rose', name: 'Digital Rose', emoji: '🌹', price: 200, color: '#f43f5e' },
-    { id: 'zobo', name: 'Cold Zobo', emoji: '🍷', price: 200, color: '#9d174d' },
-    { id: 'suya', name: 'Hot Suya', emoji: '🍢', price: 500, color: '#ea580c' },
-    { id: 'credit', name: 'Airtime', emoji: '📱', price: 1000, color: '#2563eb' },
+    { id: 'digital_rules', name: 'Digital Rules', emoji: '📜', price: 200, color: '#64748b' },
+    { id: 'code', name: 'Code', emoji: '💻', price: 500, color: '#22c55e' },
+    { id: 'zubo', name: 'Zubo', emoji: '🍷', price: 500, color: '#9d174d' },
+    { id: 'hotsuya', name: 'Hotsuya', emoji: '🍢', price: 1000, color: '#ea580c' },
+    { id: 'l_time', name: 'L-time', emoji: '⌛', price: 5000, color: '#ffd700' },
 ];
 
 export default function GiftStore({ onSend, onClose, balance = 0 }) {
     const [selectedGift, setSelectedGift] = useState(null);
+    const navigate = useNavigate(); // Hook for navigation
 
     const handlePurchase = () => {
         if (!selectedGift) return;
+
         if (balance < selectedGift.price) {
-            alert('Insufficient balance. Please fund your wallet.');
+            const confirmed = window.confirm('Insufficient wallet balance. Go to Add Funds?');
+            if (confirmed) {
+                onClose(); // Close modal first
+                navigate('/wallet'); // Redirect to Wallet/Add Funds
+            }
             return;
         }
-        onSend(selectedGift);
+
+        const confirmed = window.confirm(`Send ${selectedGift.name} for ₦${selectedGift.price}?`);
+        if (confirmed) {
+            onSend(selectedGift);
+        }
     };
 
     return (
@@ -25,7 +37,9 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
             <div className="gift-store-modal">
                 <div className="gift-store-header">
                     <h3>Icebreaker Store</h3>
-                    <div className="wallet-pill">Balance: ₦{balance}</div>
+                    <div className={`wallet-pill ${balance < 200 ? 'low-balance' : ''}`}>
+                        Balance: ₦{balance.toLocaleString()}
+                    </div>
                     <button className="btn-close" onClick={onClose}>&times;</button>
                 </div>
 
@@ -39,7 +53,7 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
                         >
                             <span className="gift-emoji">{gift.emoji}</span>
                             <span className="gift-name">{gift.name}</span>
-                            <span className="gift-price">₦{gift.price}</span>
+                            <span className="gift-price">₦{gift.price.toLocaleString()}</span>
                         </div>
                     ))}
                 </div>
@@ -51,7 +65,7 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
                         disabled={!selectedGift}
                         onClick={handlePurchase}
                     >
-                        Send {selectedGift ? selectedGift.name : 'Gift'}
+                        {selectedGift ? `Send for ₦${selectedGift.price.toLocaleString()}` : 'Select a Gift'}
                     </button>
                 </div>
             </div>

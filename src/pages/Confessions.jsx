@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getConfessions, postConfession } from '../services/confessionService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Confessions() {
     const { currentUser, userProfile } = useAuth();
@@ -15,6 +16,8 @@ export default function Confessions() {
 
     useEffect(() => {
         loadConfessions();
+        const interval = setInterval(loadConfessions, 30000); // Auto-refresh every 30s
+        return () => clearInterval(interval);
     }, []);
 
     const loadConfessions = async () => {
@@ -56,94 +59,130 @@ export default function Confessions() {
         return `${Math.floor(hours / 24)}d`;
     };
 
-    // Random gradients for cards
-    const getCardGradient = (index) => {
+    const getCardStyle = (index) => {
         const gradients = [
-            'from-purple-500/10 to-indigo-500/10 border-indigo-500/20',
-            'from-pink-500/10 to-rose-500/10 border-pink-500/20',
-            'from-blue-500/10 to-cyan-500/10 border-cyan-500/20',
-            'from-amber-500/10 to-orange-500/10 border-orange-500/20',
+            'from-purple-500/10 to-indigo-500/10 border-indigo-500/30',
+            'from-rose-500/10 to-pink-500/10 border-pink-500/30',
+            'from-amber-500/10 to-orange-500/10 border-orange-500/30',
+            'from-blue-500/10 to-cyan-500/10 border-cyan-500/30',
         ];
         return gradients[index % gradients.length];
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-24 px-4 pt-6 max-w-lg mx-auto">
-            <div className="text-center mb-8">
-                <span className="text-4xl mb-2 block">🤫</span>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-                    Campus Secrets
-                </h1>
-                <p className="text-gray-500 text-sm font-medium">
-                    {userProfile?.university ? `Anonymous @ ${userProfile.university}` : 'The walls have ears...'}
-                </p>
+        <div className="min-h-screen bg-[#0a0a0c] pb-28 text-white selection:bg-rose-500/30 relative overflow-hidden">
+            {/* Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-900/20 blur-[120px] rounded-full" />
             </div>
 
-            {/* Post Input */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-purple-100/50 p-5 mb-10 border border-purple-50 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500" />
+            <div className="relative px-4 pt-8 max-w-lg mx-auto z-10">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-10"
+                >
+                    <motion.div
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
+                        className="text-5xl mb-3 inline-block filter drop-shadow-lg"
+                    >
+                        🤫
+                    </motion.div>
+                    <h1 className="text-4xl font-black italic tracking-tighter bg-gradient-to-br from-white via-gray-200 to-gray-500 bg-clip-text text-transparent mb-2">
+                        Campus Secrets
+                    </h1>
+                    <p className="text-gray-400 text-sm font-medium tracking-wide uppercase">
+                        {userProfile?.university ? `Anonymous @ ${userProfile.university}` : 'The walls have ears...'}
+                    </p>
+                </motion.div>
 
-                <form onSubmit={handleSubmit}>
-                    <textarea
-                        className="w-full resize-none bg-gray-50 rounded-2xl p-4 text-gray-700 focus:outline-none focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all placeholder-gray-400 text-base leading-relaxed"
-                        placeholder="What's a secret you've never told anyone?"
-                        rows="3"
-                        maxLength="280"
-                        value={newConfession}
-                        onChange={(e) => setNewConfession(e.target.value)}
-                    ></textarea>
+                {/* Post Input */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white/5 backdrop-blur-xl rounded-3xl p-5 mb-10 border border-white/10 shadow-2xl relative overflow-hidden group"
+                >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-rose-500 to-indigo-500 opacity-70" />
 
-                    <div className="flex justify-between items-center mt-3">
-                        <span className={`text-xs font-bold ${newConfession.length > 250 ? 'text-red-500' : 'text-gray-300'}`}>
-                            {280 - newConfession.length}
-                        </span>
-                        <button
-                            type="submit"
-                            disabled={!newConfession.trim() || posting}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed ${!newConfession.trim()
-                                    ? 'bg-gray-300'
-                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg shadow-purple-500/30'
-                                }`}
-                        >
-                            {posting ? 'Shushing...' : 'Confess 🕊️'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    <form onSubmit={handleSubmit}>
+                        <textarea
+                            className="w-full resize-none bg-black/20 rounded-2xl p-4 text-gray-200 focus:outline-none focus:bg-black/40 focus:ring-1 focus:ring-rose-500/50 transition-all placeholder-gray-500 text-base leading-relaxed border border-white/5"
+                            placeholder="Spill the tea... (It's anonymous)"
+                            rows="3"
+                            maxLength="280"
+                            value={newConfession}
+                            onChange={(e) => setNewConfession(e.target.value)}
+                        />
 
-            {/* Feed */}
-            {loading ? (
-                <div className="flex justify-center py-20">
-                    <LoadingSpinner />
-                </div>
-            ) : confessions.length === 0 ? (
-                <div className="text-center py-20 text-gray-400">
-                    <p className="font-medium">No secrets yet.</p>
-                    <p className="text-xs mt-1">Be the first to spill the tea!</p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {confessions.map((post, index) => (
-                        <div
-                            key={post.id}
-                            className={`bg-gradient-to-br ${getCardGradient(index)} bg-white backdrop-blur-sm p-5 rounded-2xl border shadow-sm hover:shadow-md transition-shadow duration-300`}
-                        >
-                            <p className="text-gray-800 font-medium leading-relaxed text-[15px]">
-                                "{post.content}"
-                            </p>
-                            <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100/50">
-                                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                    <span>🏫</span>
-                                    <span>{post.university}</span>
-                                </div>
-                                <span className="text-xs text-gray-400 font-mono bg-white/50 px-2 py-1 rounded-full">
-                                    {getTimeAgo(post.created_at)}
-                                </span>
-                            </div>
+                        <div className="flex justify-between items-center mt-4">
+                            <span className={`text-xs font-bold tracking-wider ${newConfession.length > 250 ? 'text-rose-500' : 'text-gray-500'}`}>
+                                {280 - newConfession.length} chars
+                            </span>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                type="submit"
+                                disabled={!newConfession.trim() || posting}
+                                className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${!newConfession.trim()
+                                    ? 'bg-gray-700/50 cursor-not-allowed text-gray-400'
+                                    : 'bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 shadow-rose-500/20'
+                                    }`}
+                            >
+                                {posting ? 'Posting...' : 'Confess 🕊️'}
+                            </motion.button>
                         </div>
-                    ))}
-                </div>
-            )}
+                    </form>
+                </motion.div>
+
+                {/* Feed */}
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <LoadingSpinner />
+                    </div>
+                ) : confessions.length === 0 ? (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-center py-20 text-gray-500"
+                    >
+                        <p className="font-medium text-lg">No secrets yet.</p>
+                        <p className="text-xs mt-2 uppercase tracking-widest opacity-60">Be the first to break the silence</p>
+                    </motion.div>
+                ) : (
+                    <motion.div layout className="space-y-4">
+                        <AnimatePresence mode='popLayout'>
+                            {confessions.map((post, index) => (
+                                <motion.div
+                                    layout
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    key={post.id}
+                                    className={`relative bg-gradient-to-br ${getCardStyle(index)} backdrop-blur-md p-6 rounded-2xl border hover:border-white/20 transition-colors shadow-lg group`}
+                                >
+                                    <div className="absolute top-4 left-[-4px] w-1 h-8 rounded-r-lg bg-white/20 group-hover:bg-rose-500/50 transition-colors" />
+                                    <p className="text-gray-200 font-medium leading-relaxed text-[15px] drop-shadow-sm">
+                                        "{post.content}"
+                                    </p>
+                                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
+                                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                            <span>🏫</span>
+                                            <span className="truncate max-w-[150px]">{post.university}</span>
+                                        </div>
+                                        <span className="text-[10px] text-gray-400 font-bold bg-black/30 px-2 py-1 rounded-lg border border-white/5">
+                                            {getTimeAgo(post.created_at)}
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
+                )}
+            </div>
         </div>
     );
 }

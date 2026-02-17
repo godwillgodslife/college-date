@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getDiscoverProfiles, recordSwipe, trackProfileView } from '../services/swipeService';
+import { getDiscoverProfiles, recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
+import { getActiveBoosts } from '../services/paymentService';
 import SwipeCard from '../components/SwipeCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
@@ -16,6 +17,8 @@ export default function Discover() {
     const [loading, setLoading] = useState(true);
     const [matchAnimation, setMatchAnimation] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
+    const [showInfo, setShowInfo] = useState(false);
+    const [superSwipesAvailable, setSuperSwipesAvailable] = useState(0);
     const [filters, setFilters] = useState({
         gender: 'All',
         university: 'All',
@@ -24,6 +27,7 @@ export default function Discover() {
 
     useEffect(() => {
         loadProfiles();
+        loadBoosts();
     }, [currentUser, filters]);
 
     useEffect(() => {
@@ -32,6 +36,16 @@ export default function Discover() {
             trackProfileView(currentUser.id, topProfile.id);
         }
     }, [currentUser, profiles[0]?.id]);
+
+    async function loadBoosts() {
+        if (!currentUser) return;
+        try {
+            const { data } = await getActiveBoosts(currentUser.id);
+            setSuperSwipesAvailable(data.superSwipeCount);
+        } catch (err) {
+            console.error('Error loading boosts:', err);
+        }
+    }
 
     async function loadProfiles() {
         if (!currentUser) return;
@@ -55,6 +69,16 @@ export default function Discover() {
     }
 
     const handleSwipe = async (direction, swipedProfile, type = 'standard', teaser = null) => {
+        // 1. Check Limits for Free Users
+        if (direction === 'right') {
+            const { canSwipe, used, max } = await checkSwipeLimit(currentUser.id);
+            if (!canSwipe) {
+                addToast(`Free limit reached (${used}/10). Upgrade to Premium for unlimited swipes!`, 'warning');
+                navigate('/premium');
+                return;
+            }
+        }
+
         setProfiles((prev) => prev.filter(p => p.id !== swipedProfile.id));
 
         const { error } = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser);
@@ -69,6 +93,21 @@ export default function Discover() {
             const amount = type === 'premium' ? '₦5,000' : '₦500';
             addToast(`${type === 'premium' ? 'Premium' : 'Standard'} request sent for ${amount}!`, 'success');
         }
+    };
+
+    const handleSuperSwipe = async (swipedProfile) => {
+        setProfiles((prev) => prev.filter(p => p.id !== swipedProfile.id));
+
+        const { data, error } = await superSwipe(currentUser.id, swipedProfile);
+
+        if (error) {
+            console.error('Super Swipe Error:', error);
+            addToast(error, 'error');
+            return;
+        }
+
+        setSuperSwipesAvailable(prev => Math.max(0, prev - 1));
+        addToast(`⭐ Super Swipe sent! ${swipedProfile.full_name || 'They'} will get an instant notification!`, 'success');
     };
 
     if (loading) return <LoadingSpinner fullScreen text="Finding matches..." />;
@@ -98,13 +137,32 @@ export default function Discover() {
                         <button onClick={() => setShowFilters(true)} className="btn btn-primary retry-btn">Adjust Filters</button>
                     </div>
                 ) : (
-                    profiles.slice(0, 2).reverse().map((profile) => (
-                        <SwipeCard
-                            key={profile.id}
-                            profile={profile}
-                            onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
-                        />
-                    ))
+                    <>
+                        <div className="premium-info-container">
+                            <button className="info-trigger" onClick={() => setShowInfo(!showInfo)}>i</button>
+                            {showInfo && (
+                                <div className="swipe-tooltip animate-fade-in-up">
+                                    <h4>💎 Swipe Types</h4>
+                                    <p>Choosing the right swipe increases your matching chance.</p>
+                                    <ul className="tooltip-features">
+                                        <li>✅ <strong>Standard (₦500)</strong>: Normal request sent.</li>
+                                        <li>🚀 <strong>Premium (₦5,000)</strong>: Direct notification, higher visibility.</li>
+                                        <li>⭐ <strong>Super Swipe</strong>: Instant notification to the person!</li>
+                                        <li>👑 <strong>Monthly Subscription</strong>: Get 100 free standard swipes!</li>
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                        {profiles.slice(0, 2).reverse().map((profile) => (
+                            <SwipeCard
+                                key={profile.id}
+                                profile={profile}
+                                onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
+                                superSwipesAvailable={superSwipesAvailable}
+                                onSuperSwipe={handleSuperSwipe}
+                            />
+                        ))}
+                    </>
                 )}
             </div>
 

@@ -1,10 +1,20 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'; // Add useState, useEffect
 import { useAuth } from '../contexts/AuthContext';
+import { getWallet } from '../services/paymentService'; // Add wallet service
 import './Profile.css';
+import './Profile_Earnings.css'; // Add this line
 
 export default function Profile() {
     const { currentUser, userProfile } = useAuth();
     const navigate = useNavigate();
+    const [wallet, setWallet] = useState(null);
+
+    useEffect(() => {
+        if (currentUser) {
+            getWallet(currentUser.id).then(({ data }) => setWallet(data));
+        }
+    }, [currentUser]);
 
     const displayName = userProfile?.full_name
         || userProfile?.username
@@ -68,6 +78,26 @@ export default function Profile() {
                     </div>
                 </div>
 
+                {/* Earnings Section for Ladies */}
+                {userProfile?.role === 'Female' && (
+                    <div className="profile-section earnings-summary-card" onClick={() => navigate('/wallet')}>
+                        <div className="earnings-summary-header">
+                            <h3 className="profile-section-title">💰 My Earnings</h3>
+                            <button className="btn-text">View Wallet →</button>
+                        </div>
+                        <div className="earnings-summary-grid">
+                            <div className="earn-stat">
+                                <span className="earn-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
+                                <span className="earn-lbl">Available</span>
+                            </div>
+                            <div className="earn-stat">
+                                <span className="earn-val">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
+                                <span className="earn-lbl">Lifetime</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* VIBE CHECK SECTION */}
                 {(anthem || locationStatus || voiceIntro) && (
                     <div className="profile-section vibe-check-display">
@@ -109,6 +139,14 @@ export default function Profile() {
                     onClick={() => navigate('/profile/edit')}
                 >
                     ✏️ Edit Profile
+                </button>
+
+                <button
+                    className="btn btn-gradient btn-block"
+                    style={{ marginTop: '1rem' }}
+                    onClick={() => navigate('/premium')}
+                >
+                    👑 Get Premium
                 </button>
             </div>
         </div>

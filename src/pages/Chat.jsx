@@ -10,12 +10,22 @@ import {
     markMessageAsRead,
     uploadVoiceNote
 } from '../services/chatService';
+import { getWallet } from '../services/paymentService'; // Import wallet service
+import { sendGift } from '../services/giftService'; // Import gift service
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import VoiceRecorder from '../components/VoiceRecorder';
 import StickerDrawer from '../components/StickerDrawer';
 import GiftStore from '../components/GiftStore';
 import './Chat.css';
+
+const ICEBREAKERS = [
+    "What's your favorite spot on campus? 🏫",
+    "If you could have dinner with one lecturer, who would it be? 🍎",
+    "What's the best thing about your course? 📚",
+    "Early bird or night owl in the library? 🦉",
+    "What's your go-to campus snack? 🍕"
+];
 
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
@@ -42,12 +52,18 @@ export default function Chat() {
     const typingTimeoutRef = useRef(null);
     const presenceChannelRef = useRef(null);
 
-    // Initial Load: Conversations
+    // Initial Load: Conversations & Wallet
     useEffect(() => {
         if (currentUser) {
             loadConversations();
+            loadWallet();
         }
     }, [currentUser]);
+
+    async function loadWallet() {
+        const { data } = await getWallet(currentUser.id);
+        if (data) setWalletBalance(data.available_balance);
+    }
 
     // Load Messages & Setup Presence when conversation selected
     useEffect(() => {
@@ -114,7 +130,9 @@ export default function Chat() {
             addToast('Could not load chats.', 'error');
         } else {
             setConversations(data);
-            if (data.length > 0 && !selectedConv) {
+            // On mobile, don't auto-select so user stays on conversation list
+            const isMobile = window.innerWidth <= 768;
+            if (data.length > 0 && !selectedConv && !isMobile) {
                 setSelectedConv(data[0]);
             }
         }
@@ -212,8 +230,20 @@ export default function Chat() {
     const handleGiftSend = async (gift) => {
         setShowGifts(false);
         setSending(true);
-        setWalletBalance(prev => prev - gift.price);
 
+        // 1. Process Transaction
+        const { data: txData, error: txError } = await sendGift(currentUser.id, selectedConv.other_user.id, gift.id);
+
+        if (txError) {
+            addToast(txError, 'error');
+            setSending(false);
+            return;
+        }
+
+        // 2. Update Local Balance
+        setWalletBalance(txData.new_balance);
+
+        // 3. Send Message
         const { error } = await sendMessage(
             selectedConv.id,
             currentUser.id,
@@ -222,7 +252,9 @@ export default function Chat() {
             { name: gift.name, price: gift.price }
         );
 
-        if (error) addToast('Failed to send gift.', 'error');
+        if (error) addToast('Gift sent but message failed.', 'warning');
+        else addToast(`Sent ${gift.name}!`, 'success');
+
         setSending(false);
     };
 
@@ -248,6 +280,13 @@ export default function Chat() {
                         <div className="gift-animation">🎁</div>
                         <span className="gift-emoji-large">{msg.content}</span>
                         <span className="gift-label">SENT A {msg.metadata?.name}</span>
+                    </div>
+                );
+            case 'snapshot':
+                return (
+                    <div className="snapshot-message">
+                        <div className="snapshot-thumbnail">📸 Snapshot</div>
+                        <p className="snapshot-hint">Expires in 24h</p>
                     </div>
                 );
             case 'emoji':
@@ -277,7 +316,7 @@ export default function Chat() {
 
     return (
         <div className="chat-page">
-            <div className={`chat-sidebar ${!selectedConv ? 'show' : ''}`}>
+            <div className={`chat-sidebar ${selectedConv ? 'hide' : 'show'}`}>
                 <div className="chat-sidebar-header">
                     <h1>Messages</h1>
                 </div>
@@ -319,6 +358,9 @@ export default function Chat() {
                 {selectedConv ? (
                     <>
                         <div className="chat-header">
+                            <button className="btn-back-mobile" onClick={() => setSelectedConv(null)}>
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M15 18l-6-6 6-6" /></svg>
+                            </button>
                             <div className="chat-header-info">
                                 <img
                                     src={selectedConv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedConv.id}
@@ -348,6 +390,24 @@ export default function Chat() {
                                 <div className="chat-empty-state">
                                     <div className="empty-chat-icon">💬</div>
                                     <p>Start the conversation! Say hi to {selectedConv.other_user?.full_name}.</p>
+                                    <div className="icebreakers-container">
+                                        <p className="icebreaker-title">Try an icebreaker:</p>
+                                        <div className="icebreaker-list">
+                                            {ICEBREAKERS.map((text, i) => (
+                                                <button
+                                                    key={i}
+                                                    className="icebreaker-chip"
+                                                    onClick={() => {
+                                                        setNewMessage(text);
+                                                        // Focus the input
+                                                        document.querySelector('.chat-input')?.focus();
+                                                    }}
+                                                >
+                                                    {text}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 messages.map((msg) => (

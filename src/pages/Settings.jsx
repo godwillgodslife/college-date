@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserSettings, updateUserSettings } from '../services/notificationService';
 import { useToast } from '../components/Toast';
@@ -8,6 +9,7 @@ import './Settings.css';
 export default function Settings() {
     const { currentUser, logout } = useAuth();
     const { addToast } = useToast();
+    const navigate = useNavigate();
     const [settings, setSettings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -51,6 +53,26 @@ export default function Settings() {
             <div className="settings-header">
                 <h1>Settings</h1>
                 <p>Manage your account preferences and notifications.</p>
+            </div>
+
+            <div className="settings-section">
+                <h2 className="section-title">Account</h2>
+                <div className="settings-list">
+                    <div className="settings-item feature-link" onClick={() => navigate('/premium')}>
+                        <div className="item-info">
+                            <h3>👑 Get Premium</h3>
+                            <p>Unlock Super Swipes and more visibility.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                    <div className="settings-item feature-link" onClick={() => navigate('/referrals')}>
+                        <div className="item-info">
+                            <h3>🎁 Referrals</h3>
+                            <p>Invite friends and earn rewards.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                </div>
             </div>
 
             <div className="settings-section">

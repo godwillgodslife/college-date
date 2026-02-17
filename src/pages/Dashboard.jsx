@@ -15,7 +15,8 @@ export default function Dashboard() {
         balance: 0,
         pendingBalance: 0,
         totalEarned: 0,
-        freeSwipes: 0
+        freeSwipes: 0,
+        giftsReceived: 0
     });
 
     useEffect(() => {
@@ -51,8 +52,18 @@ export default function Dashboard() {
                 balance: wallet?.available_balance || 0,
                 pendingBalance: wallet?.pending_balance || 0,
                 totalEarned: wallet?.total_earned || 0,
-                freeSwipes: userProfile?.free_swipes || 0
+                freeSwipes: userProfile?.free_swipes || 0,
+                giftsReceived: 0 // Will count below
             });
+
+            // Count Gifts Received
+            const { count: giftCount } = await supabase
+                .from('wallet_transactions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', currentUser.id)
+                .eq('type', 'gift_received');
+
+            setStats(prev => ({ ...prev, giftsReceived: giftCount || 0 }));
         } catch (err) {
             console.error('Error fetching dashboard stats:', err);
         }
@@ -98,6 +109,10 @@ export default function Dashboard() {
                                 <span className="stat-value">₦{stats.pendingBalance.toLocaleString()}</span>
                                 <span className="stat-label">Pending</span>
                             </div>
+                            <div className="stat-card">
+                                <span className="stat-value">{stats.giftsReceived}</span>
+                                <span className="stat-label">Gifts</span>
+                            </div>
                         </>
                     )}
                     <div className="stat-card">
@@ -127,24 +142,6 @@ export default function Dashboard() {
                         title="Chat"
                         description="Talk with your matches"
                         to="/chat"
-                    />
-                    <FeatureCard
-                        icon="📸"
-                        title="Status Updates"
-                        description="Share moments that disappear in 24 hours"
-                        to="/status"
-                    />
-                    <FeatureCard
-                        icon="✨"
-                        title="Snapshots"
-                        description="Post ephemeral campus photos for 24 hours"
-                        to="/snapshots"
-                    />
-                    <FeatureCard
-                        icon="🎁"
-                        title="Referrals"
-                        description="Invite friends and earn rewards"
-                        to="/referrals"
                     />
                     <FeatureCard
                         icon="👤"

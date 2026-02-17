@@ -49,6 +49,9 @@ export default function Navbar() {
                     <Link to="/confessions" className={`nav-link ${location.pathname === '/confessions' ? 'active' : ''}`}>
                         Confessions
                     </Link>
+                    <Link to="/premium" className={`nav-link premium-nav-link ${location.pathname === '/premium' ? 'active' : ''}`}>
+                        👑 Get Premium
+                    </Link>
                     {userProfile?.role === 'Female' && (
                         <Link to="/requests" className={`nav-link ${location.pathname === '/requests' ? 'active' : ''}`}>
                             Requests
@@ -111,12 +114,63 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile hamburger */}
-                <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+                <button className="navbar-hamburger" onClick={() => { setMenuOpen(!menuOpen); setNotifOpen(false); }}>
                     <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
                     <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
                     <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
                 </button>
             </div>
+
+
+
+            {/* Mobile Menu */}
+            {menuOpen && (
+                <>
+                    <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)} />
+                    <div className="mobile-menu">
+                        <Link to="/dashboard" className={`mobile-menu-item ${location.pathname === '/dashboard' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                            <span>🏠</span> Home
+                        </Link>
+                        <Link to="/discover" className={`mobile-menu-item ${location.pathname === '/discover' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                            <span>🔍</span> Discover
+                        </Link>
+                        <Link to="/chat" className={`mobile-menu-item ${location.pathname === '/chat' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                            <span>💬</span> Chat
+                        </Link>
+                        <Link to="/leaderboard" className={`mobile-menu-item ${location.pathname === '/leaderboard' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                            <span>🏆</span> Leaderboard
+                        </Link>
+                        <Link to="/confessions" className={`mobile-menu-item ${location.pathname === '/confessions' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                            <span>🎭</span> Confessions
+                        </Link>
+                        <Link to="/premium" className="mobile-menu-item premium-menu-item" onClick={() => setMenuOpen(false)}>
+                            <span>👑</span> Get Premium
+                        </Link>
+                        {userProfile?.role === 'Female' && (
+                            <Link to="/requests" className={`mobile-menu-item ${location.pathname === '/requests' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                                <span>💌</span> Requests
+                            </Link>
+                        )}
+                        <hr className="mobile-menu-divider" />
+                        <Link to="/profile" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
+                            <span>👤</span> Profile
+                        </Link>
+                        <Link to="/referrals" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
+                            <span>🎁</span> Referrals
+                        </Link>
+                        <Link to="/wallet" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
+                            <span>💰</span> Wallet
+                        </Link>
+                        <Link to="/settings" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
+                            <span>⚙️</span> Settings
+                        </Link>
+                        <hr className="mobile-menu-divider" />
+                        <button className="mobile-menu-item mobile-menu-logout" onClick={handleLogout}>
+                            <span>🚪</span> Logout
+                        </button>
+                    </div>
+                </>
+            )}
         </nav>
     );
 }
