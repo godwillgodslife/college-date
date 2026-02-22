@@ -231,6 +231,12 @@ export default function PremiumUpgrade() {
 
     return (
         <div className="premium-page animate-fade-in">
+            {/* ── Social Proof Banner ── */}
+            <div className="social-proof-banner">
+                <span className="pulse-dot"></span>
+                <p><strong>2,500+ students</strong> upgraded to Premium this week.</p>
+            </div>
+
             <header className="premium-header">
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -239,127 +245,108 @@ export default function PremiumUpgrade() {
                 >
                     💎
                 </motion.div>
-                <h1>{isPremium ? 'You are Premium' : 'Upgrade to Premium'}</h1>
-                <p>Unlock the full power of College Date</p>
+                <h1>{isPremium ? 'You have the Elite Edge' : 'Unlock Your Full Potential'}</h1>
+                <p className="premium-subtitle">Stop guessing. Start matching. Take control of your dating life on campus.</p>
             </header>
 
-            {/* ── Swipe Types Comparison ── */}
-            <div className="comparison-section">
-                <h2>💡 How Swiping Works</h2>
-                <p className="comparison-subtitle">Every right-swipe sends a connection request. Choose the power behind yours.</p>
-                <div className="comparison-grid">
-                    <motion.div className="comparison-card" whileHover={{ y: -4 }}>
-                        <div className="comparison-tier">Standard</div>
-                        <div className="comparison-price">₦500<span>/swipe</span></div>
-                        <ul className="comparison-perks">
-                            <li>✅ Send connection request</li>
-                            <li>✅ They see you in their requests</li>
-                            <li>❌ No notification sent</li>
-                            <li>❌ Normal queue position</li>
-                        </ul>
-                    </motion.div>
-                    <motion.div className="comparison-card comparison-popular" whileHover={{ y: -4 }}>
-                        <div className="comparison-ribbon">MOST IMPACTFUL</div>
-                        <div className="comparison-tier">Premium Swipe</div>
-                        <div className="comparison-price">₦5,000<span>/swipe</span></div>
-                        <ul className="comparison-perks">
-                            <li>✅ Send connection request</li>
-                            <li>✅ Attach a personal note</li>
-                            <li>✅ Higher visibility in queue</li>
-                            <li>✅ They see your note first</li>
-                        </ul>
-                    </motion.div>
-                    <motion.div className="comparison-card comparison-star" whileHover={{ y: -4 }}>
-                        <div className="comparison-tier">Super Swipe</div>
-                        <div className="comparison-price">₦500<span>/credit</span></div>
-                        <ul className="comparison-perks">
-                            <li>✅ Send connection request</li>
-                            <li>✅ <strong>Instant notification</strong></li>
-                            <li>✅ Priority flag in their queue</li>
-                            <li>✅ Buy credits, use anytime</li>
-                        </ul>
-                    </motion.div>
+            {/* ── Premium vs Free Checklist (Loss Aversion) ── */}
+            <div className="premium-comparison-box">
+                <div className="comparison-header-row">
+                    <div className="col-feature">Features</div>
+                    <div className="col-free">Free</div>
+                    <div className="col-premium">Premium</div>
+                </div>
+                <div className="comparison-body">
+                    <div className="comparison-row">
+                        <div className="col-feature">See who viewed you</div>
+                        <div className="col-free">❌</div>
+                        <div className="col-premium">✅</div>
+                    </div>
+                    <div className="comparison-row">
+                        <div className="col-feature">Unlimited Swipes</div>
+                        <div className="col-free">❌ <span>(10/day)</span></div>
+                        <div className="col-premium">✅</div>
+                    </div>
+                    <div className="comparison-row">
+                        <div className="col-feature">Priority Discovery Queue</div>
+                        <div className="col-free">❌</div>
+                        <div className="col-premium">✅ <span>(Top 10%)</span></div>
+                    </div>
+                    <div className="comparison-row">
+                        <div className="col-feature">Advanced Filters (Course, Level)</div>
+                        <div className="col-free">❌</div>
+                        <div className="col-premium">✅</div>
+                    </div>
+                    <div className="comparison-row">
+                        <div className="col-feature">Free Weekly Boost (₦1,000 value)</div>
+                        <div className="col-free">❌</div>
+                        <div className="col-premium">✅</div>
+                    </div>
+                    <div className="comparison-row">
+                        <div className="col-feature">Premium Profile Badge</div>
+                        <div className="col-free">❌</div>
+                        <div className="col-premium">✅ <span>(+3x Matches)</span></div>
+                    </div>
                 </div>
             </div>
 
-            {/* ── Premium Subscription ── */}
-            <div className="premium-grid">
-                <div className="premium-card">
-                    <h3>Premium Subscription</h3>
-                    <ul className="feature-list">
-                        {premiumFeatures.map((f) => (
-                            <li key={f.id} onClick={() => toggleFeature(f.id)} className={`feature-row ${expandedFeature === f.id ? 'expanded' : ''}`}>
-                                <div className="feature-header">
-                                    <span className="feature-icon-text">{f.icon}</span>
-                                    <div className="feature-text">
-                                        <strong>{f.title}</strong> — {f.short}
-                                    </div>
-                                    <span className="feature-chevron">{expandedFeature === f.id ? '▲' : '▼'}</span>
-                                </div>
-                                <AnimatePresence>
-                                    {expandedFeature === f.id && (
-                                        <motion.div
-                                            className="feature-detail"
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.25 }}
-                                        >
-                                            {f.detail}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </li>
-                        ))}
-                    </ul>
-
-                    {isPremium ? (
-                        <div className="active-subscription">
-                            <p>Your subscription is active until:</p>
-                            <p className="expiry-date">{new Date(subscription.current_period_end).toLocaleDateString()}</p>
-                            <button className="btn btn-secondary" disabled>Premium Active</button>
+            {/* ── Premium Subscription Pricing ── */}
+            <div className="premium-pricing-container">
+                {isPremium ? (
+                    <div className="active-subscription">
+                        <div className="active-icon">🎉</div>
+                        <h3>You are a Premium Member</h3>
+                        <p>Your subscription is active until:</p>
+                        <p className="expiry-date">{new Date(subscription.current_period_end).toLocaleDateString()}</p>
+                    </div>
+                ) : (
+                    <div className="pricing-box glass-panel">
+                        <div className="ribbon-popular">Most Popular</div>
+                        <div className="pricing-header">
+                            <h3>Elite Plan</h3>
+                            <p className="value-anchor">Less than ₦100 a day. Cheaper than lunch.</p>
                         </div>
-                    ) : (
-                        <div className="pricing-box">
-                            <div className="price">
-                                <span className="currency">₦</span>
-                                <span className="amount">2,900</span>
-                                <span className="period">/month</span>
-                            </div>
+                        <div className="price">
+                            <span className="currency">₦</span>
+                            <span className="amount">2,900</span>
+                            <span className="period">/month</span>
+                        </div>
+                        <p className="billing-info">Billed monthly. Cancel anytime.</p>
+
+                        <button
+                            className="btn btn-primary btn-upgrade glow-effect"
+                            onClick={handleSubscribe}
+                            disabled={isProcessing}
+                        >
+                            {isProcessing ? 'Activating...' : 'Upgrade instantly via Card'}
+                        </button>
+
+                        {wallet?.available_balance >= 2900 && (
                             <button
-                                className="btn btn-primary btn-upgrade"
-                                onClick={handleSubscribe}
+                                className="btn btn-wallet-pay"
+                                onClick={handlePayWithWallet}
                                 disabled={isProcessing}
                             >
-                                {isProcessing ? 'Processing...' : 'Upgrade Now'}
+                                {isProcessing ? 'Processing...' : `Pay from Wallet (Bal: ₦${wallet.available_balance.toLocaleString()})`}
                             </button>
+                        )}
 
-                            {wallet?.available_balance >= 2900 && (
-                                <button
-                                    className="btn btn-outline btn-wallet-pay"
-                                    onClick={handlePayWithWallet}
-                                    disabled={isProcessing}
-                                    style={{ marginTop: '0.75rem', width: '100%' }}
-                                >
-                                    {isProcessing ? 'Processing...' : `Pay with Wallet (₦${wallet.available_balance.toLocaleString()})`}
-                                </button>
-                            )}
-
-                            <p className="secure-text">🔒 Secure payment via Paystack</p>
+                        <div className="trust-badges">
+                            <span className="shield">🛡️ Secure Payment via Paystack</span>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             {/* ── One-Time Boosts ── */}
             <div className="microtransactions">
-                <h2>⚡ One-Time Boosts</h2>
-                <p className="boost-subtitle">No subscription needed. Buy once, use immediately. Deducted from your wallet balance.</p>
+                <h2>⚡ Power-Ups</h2>
+                <p className="boost-subtitle">Instant results. No subscription needed.</p>
                 <div className="boost-grid">
                     <div className={`boost-item ${boostData.hasBoosted ? 'boost-active' : ''}`}>
                         <span className="boost-icon">🚀</span>
-                        <h4>24h Boost</h4>
-                        <p className="boost-desc">Your profile gets <strong>2× visibility</strong> for 24 hours. Appear at the top of everyone's Discover feed on campus.</p>
+                        <h4>24h Visibility Boost</h4>
+                        <p className="boost-desc">Jump to the top of everyone's feed for 24 hours.</p>
                         {boostData.hasBoosted && boostTimeRemaining ? (
                             <div className="boost-active-badge">
                                 <span className="boost-pulse"></span>
@@ -371,17 +358,17 @@ export default function PremiumUpgrade() {
                                 onClick={() => handlePurchaseBoost('24h_boost')}
                                 disabled={processingBoost === '24h_boost'}
                             >
-                                {processingBoost === '24h_boost' ? 'Purchasing...' : '₦1,000'}
+                                {processingBoost === '24h_boost' ? 'Purchasing...' : 'Get Boost - ₦1,000'}
                             </button>
                         )}
                     </div>
                     <div className="boost-item">
                         <span className="boost-icon">⭐</span>
                         <h4>Super Swipe</h4>
-                        <p className="boost-desc">They get an <strong>instant notification</strong> that someone wants to connect. Your swipe jumps to the top of their queue.</p>
+                        <p className="boost-desc">Send an instant push notification that you like them.</p>
                         {boostData.superSwipeCount > 0 && (
                             <div className="super-swipe-count">
-                                {boostData.superSwipeCount} credit{boostData.superSwipeCount !== 1 ? 's' : ''} available
+                                {boostData.superSwipeCount} remaining
                             </div>
                         )}
                         <button
@@ -389,11 +376,15 @@ export default function PremiumUpgrade() {
                             onClick={() => handlePurchaseBoost('super_swipe')}
                             disabled={processingBoost === 'super_swipe'}
                         >
-                            {processingBoost === 'super_swipe' ? 'Purchasing...' : '₦500 / credit'}
+                            {processingBoost === 'super_swipe' ? 'Purchasing...' : 'Get 1 Credit - ₦500'}
                         </button>
                     </div>
                 </div>
             </div>
+
+            <footer className="support-footer">
+                <p>Questions? <a href="https://wa.me/2349160264415?text=Hi%20👋%20I%20have%20a%20question%20about%20CollegeDate%20Premium" target="_blank" rel="noopener noreferrer">Chat with us</a></p>
+            </footer>
         </div>
     );
 }

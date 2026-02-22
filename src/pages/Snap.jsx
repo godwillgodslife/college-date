@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom'; // Add useLocation
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import { getReceivedSnaps, sendSnap, openSnap } from '../services/snapService';
@@ -10,8 +11,10 @@ export default function Snap() {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
 
+    const location = useLocation(); // Get location
+
     // State
-    const [viewMode, setViewMode] = useState('inbox'); // 'inbox' | 'camera'
+    const [viewMode, setViewMode] = useState(location.state?.recipient ? 'camera' : 'inbox'); // Default to camera if recipient passed
     const [snaps, setSnaps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [friends, setFriends] = useState([]);
@@ -19,7 +22,7 @@ export default function Snap() {
     // Camera/Upload State
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
-    const [selectedFriend, setSelectedFriend] = useState(null);
+    const [selectedFriend, setSelectedFriend] = useState(location.state?.recipient ? { other_user: location.state.recipient } : null);
     const [sending, setSending] = useState(false);
 
     // Viewing State

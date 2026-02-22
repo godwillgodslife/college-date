@@ -1,21 +1,28 @@
 .gift-store-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 9999;
+    /* Absolute priority */
+    padding: 20px;
 }
 
 .gift-store-modal {
-    width: 90%;
+    width: 100%;
     max-width: 400px;
+    max-height: 90vh;
+    /* Ensure it fits on screen */
     background: var(--bg-secondary);
     border-radius: 24px;
     border: 1px solid var(--glass-border);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Split header, grid, footer */
     animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -61,6 +68,10 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     padding: 1.5rem;
+    overflow-y: auto;
+    /* Allow scrolling content */
+    flex: 1;
+    /* Take remaining space */
 }
 
 .gift-card {
@@ -77,14 +88,14 @@
 
 .gift-card:hover {
     border-color: var(--gift-color);
-    background: rgba(var(--gift-color-rgb), 0.05);
+    background: color-mix(in srgb, var(--gift-color), transparent 95%);
     transform: translateY(-4px);
 }
 
 .gift-card.active {
     border-color: var(--gift-color);
-    background: rgba(var(--gift-color-rgb), 0.1);
-    box-shadow: 0 0 20px rgba(var(--gift-color-rgb), 0.2);
+    background: color-mix(in srgb, var(--gift-color), transparent 90%);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--gift-color), transparent 80%);
 }
 
 .gift-emoji {
@@ -106,8 +117,15 @@
 
 .gift-footer {
     padding: 1.5rem;
-    background: var(--bg-tertiary);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--glass-border);
     text-align: center;
+    margin-top: auto;
+    /* Push to bottom if flexed */
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .gift-hint {
@@ -136,4 +154,54 @@
 .btn-buy:not(:disabled):hover {
     transform: scale(1.02);
     box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+}
+
+.confirm-purchase-area {
+    animation: fadeIn 0.2s ease;
+}
+
+.confirm-text {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+}
+
+.confirm-btns {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-cancel-buy {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-confirm-buy {
+    flex: 1.5;
+    padding: 0.75rem;
+    border-radius: 100px;
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

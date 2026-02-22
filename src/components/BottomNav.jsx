@@ -2,10 +2,10 @@ import { Link, useLocation } from 'react-router-dom';
 import './BottomNav.css';
 
 const navItems = [
-    { path: '/status', icon: '⭕', label: 'Status' },
-    { path: '/snap', icon: '👻', label: 'Snap' },
     { path: '/discover', icon: '🌍', label: 'Explore' },
     { path: '/chat', icon: '💬', label: 'Chat' },
+    { path: '/confessions', icon: '🎭', label: 'Confession' },
+    { path: '/wallet', icon: '💰', label: 'Wallet' },
     { path: '/profile', icon: '👤', label: 'Profile' },
 ];
 

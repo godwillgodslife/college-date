@@ -24,9 +24,9 @@ export function AuthProvider({ children }) {
                 .from('profiles')
                 .select('*')
                 .eq('id', userId)
-                .single();
+                .maybeSingle();
 
-            if (profileError && profileError.code !== 'PGRST116') {
+            if (profileError) {
                 console.warn('Profile fetch warning:', profileError.message);
             }
             setUserProfile(data || null);

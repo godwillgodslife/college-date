@@ -1,0 +1,226 @@
+.pwa-install-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 60px;
+    padding: 1rem 1.5rem;
+    border: none !important;
+    border-radius: 16px;
+    color: white !important;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 1.5rem 0 !important;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    z-index: 100;
+}
+
+/* Platform Specific Gradients */
+.pwa-install-btn.android {
+    background: linear-gradient(135deg, #3DDC84 0%, #178044 100%) !important;
+    box-shadow: 0 10px 20px rgba(61, 220, 132, 0.4);
+}
+
+.pwa-install-btn.ios {
+    background: linear-gradient(135deg, #007AFF 0%, #0056B3 100%) !important;
+    box-shadow: 0 10px 20px rgba(0, 122, 255, 0.4);
+}
+
+.pwa-install-btn:hover {
+    transform: translateY(-2px);
+}
+
+.pwa-install-btn.android:hover {
+    box-shadow: 0 15px 30px rgba(61, 220, 132, 0.4);
+}
+
+.pwa-install-btn.ios:hover {
+    box-shadow: 0 15px 30px rgba(0, 122, 255, 0.4);
+}
+
+.pwa-install-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transition: 0.5s;
+}
+
+.pwa-install-btn:hover::before {
+    left: 100%;
+}
+
+.pwa-install-btn .btn-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+}
+
+.btn-text-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.btn-subtitle {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    font-weight: 600;
+}
+
+.btn-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+}
+
+.btn-chevron {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+/* Install Guide Overlay */
+.install-guide-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.install-guide-card {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.guide-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.share-icon-mimic {
+    display: inline-block;
+    border: 1px solid white;
+    padding: 0 4px;
+    border-radius: 4px;
+    margin: 0 4px;
+    font-size: 0.8rem;
+}
+
+.close-guide {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-guide:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.guide-body p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.guide-step {
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+}
+
+.step-num {
+    background: linear-gradient(135deg, #6c63ff 0%, #3f37c9 100%);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.guide-step p {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

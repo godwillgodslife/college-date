@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import { useAuth } from '../contexts/AuthContext';
 import {
     getConversations,
@@ -30,6 +31,7 @@ const ICEBREAKERS = [
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
+    const navigate = useNavigate(); // Add navigate
     const messagesEndRef = useRef(null);
 
     const [conversations, setConversations] = useState([]);
@@ -153,16 +155,36 @@ export default function Chat() {
         if (!newMessage.trim() || !selectedConv || sending) return;
 
         const content = newMessage.trim();
+        const optimisticId = `temp-${Date.now()}`;
+
+        // Optimistic Update
+        const optimisticMsg = {
+            id: optimisticId,
+            match_id: selectedConv.id,
+            sender_id: currentUser.id,
+            content: content,
+            type: 'text',
+            metadata: {},
+            created_at: new Date().toISOString(),
+            is_read: false
+        };
+        setMessages(prev => [...prev, optimisticMsg]);
+
         setNewMessage('');
         setSending(true);
-        stopTyping(); // Stops typing immediately
+        stopTyping();
 
-        const { error } = await sendMessage(selectedConv.id, currentUser.id, content);
+        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content);
 
         if (error) {
             console.error('Send message failure:', error);
             addToast(error.message || 'Failed to send message.', 'error');
             setNewMessage(content);
+            // Remove optimistic message on failure
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+        } else if (data) {
+            // Replace optimistic message with real one
+            setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
         }
         setSending(false);
     };
@@ -188,14 +210,38 @@ export default function Chat() {
     const handleStickerSelect = async (sticker, type) => {
         setShowStickers(false);
         setSending(true);
-        const { error } = await sendMessage(
+
+        const content = type === 'sticker' ? sticker.emoji : sticker;
+        const metadata = type === 'sticker' ? { label: sticker.label } : {};
+        const optimisticId = `temp-${Date.now()}`;
+
+        // Optimistic Update
+        const optimisticMsg = {
+            id: optimisticId,
+            match_id: selectedConv.id,
+            sender_id: currentUser.id,
+            content: content,
+            type: type,
+            metadata: metadata,
+            created_at: new Date().toISOString(),
+            is_read: false
+        };
+        setMessages(prev => [...prev, optimisticMsg]);
+
+        const { data, error } = await sendMessage(
             selectedConv.id,
             currentUser.id,
-            type === 'sticker' ? sticker.emoji : sticker,
+            content,
             type,
-            type === 'sticker' ? { label: sticker.label } : {}
+            metadata
         );
-        if (error) addToast('Failed to send.', 'error');
+
+        if (error) {
+            addToast('Failed to send.', 'error');
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+        } else if (data) {
+            setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+        }
         setSending(false);
     };
 
@@ -228,34 +274,84 @@ export default function Chat() {
     };
 
     const handleGiftSend = async (gift) => {
-        setShowGifts(false);
-        setSending(true);
+        console.log('🎁 [Chat.jsx] handleGiftSend triggered with:', gift);
+        console.log('🎁 [Chat.jsx] Current User ID:', currentUser?.id);
+        console.log('🎁 [Chat.jsx] Recipient User ID:', selectedConv?.other_user?.id);
 
-        // 1. Process Transaction
-        const { data: txData, error: txError } = await sendGift(currentUser.id, selectedConv.other_user.id, gift.id);
-
-        if (txError) {
-            addToast(txError, 'error');
-            setSending(false);
+        if (!selectedConv?.other_user?.id) {
+            addToast('Cannot send gift: Recipient ID missing', 'error');
+            console.error('🎁 [Chat.jsx] Error: selectedConv.other_user.id is missing!');
             return;
         }
 
-        // 2. Update Local Balance
-        setWalletBalance(txData.new_balance);
+        setShowGifts(false);
+        setSending(true);
+        const processingToastId = addToast('Processing gift transaction...', 'info');
 
-        // 3. Send Message
-        const { error } = await sendMessage(
-            selectedConv.id,
-            currentUser.id,
-            gift.emoji,
-            'gift',
-            { name: gift.name, price: gift.price }
-        );
+        try {
+            // 1. Process Transaction
+            console.log('🎁 [Chat.jsx] Calling sendGift service...');
+            const { data: txData, error: txError } = await sendGift(
+                currentUser.id,
+                selectedConv.other_user.id,
+                gift.id
+            );
 
-        if (error) addToast('Gift sent but message failed.', 'warning');
-        else addToast(`Sent ${gift.name}!`, 'success');
+            if (txError) {
+                console.error('🎁 [Chat.jsx] sendGift reported error:', txError);
+                addToast(txError, 'error');
+                setSending(false);
+                return;
+            }
 
-        setSending(false);
+            console.log('🎁 [Chat.jsx] sendGift SUCCESS:', txData);
+
+            // 2. Update Local Balance (immediately show response)
+            if (txData?.new_balance !== undefined) {
+                console.log('🎁 [Chat.jsx] Updating local wallet balance to:', txData.new_balance);
+                setWalletBalance(txData.new_balance);
+            }
+
+            // 3. Send Message to Chat (Optimistically)
+            console.log('🎁 [Chat.jsx] Sending gift message to chat...');
+            const optimisticId = `temp-${Date.now()}`;
+            const giftMsg = {
+                id: optimisticId,
+                match_id: selectedConv.id,
+                sender_id: currentUser.id,
+                content: gift.emoji,
+                type: 'gift',
+                metadata: { name: gift.name, price: gift.price },
+                created_at: new Date().toISOString(),
+                is_read: false
+            };
+            setMessages(prev => [...prev, giftMsg]);
+
+            const { data, error: msgError } = await sendMessage(
+                selectedConv.id,
+                currentUser.id,
+                gift.emoji,
+                'gift',
+                { name: gift.name, price: gift.price }
+            );
+
+            if (msgError) {
+                console.error('🎁 [Chat.jsx] sendMessage (gift) error:', msgError);
+                // Even if message fails, gift was sent!
+                addToast('Gift paid for, but chat notification failed.', 'warning');
+                setMessages(prev => prev.filter(m => m.id !== optimisticId));
+            } else if (data) {
+                setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+                console.log('🎁 [Chat.jsx] Gift message sent successfully!');
+                addToast(`Successfully sent ${gift.name}! 🎁✨`, 'success');
+            }
+        } catch (err) {
+            console.error('🎁 [Chat.jsx] CRITICAL EXCEPTION in handleGiftSend:', err);
+            addToast('Software error occurred while sending gift.', 'error');
+        } finally {
+            setSending(false);
+            console.log('🎁 [Chat.jsx] handleGiftSend finished.');
+        }
     };
 
     // Helper for Message Content rendering
@@ -453,6 +549,26 @@ export default function Chat() {
                                     onClick={() => setShowStickers(!showStickers)}
                                 >
                                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-icon btn-chat-gift"
+                                    onClick={(e) => {
+                                        console.log('🎁 Gift button clicked');
+                                        e.preventDefault();
+                                        setShowGifts(true);
+                                    }}
+                                    title="Send Gift"
+                                >
+                                    <span style={{ pointerEvents: 'none' }}>🎁</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-icon btn-snap-chat"
+                                    onClick={() => navigate('/snap', { state: { recipient: selectedConv.other_user } })}
+                                    title="Send Snap"
+                                >
+                                    👻
                                 </button>
                                 <input
                                     type="text"

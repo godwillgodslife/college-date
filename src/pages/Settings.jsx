@@ -4,10 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { getUserSettings, updateUserSettings } from '../services/notificationService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AndroidInstallButton from '../components/AndroidInstallButton';
 import './Settings.css';
 
 export default function Settings() {
-    const { currentUser, logout } = useAuth();
+    const { currentUser, userProfile, logout } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const [settings, setSettings] = useState(null);
@@ -25,8 +26,23 @@ export default function Settings() {
         const { data, error } = await getUserSettings(currentUser.id);
         if (error) {
             addToast('Failed to load settings', 'error');
+            // Provide sensible defaults so the page still renders
+            setSettings({
+                match_notifications: true,
+                email_notifications: true,
+                push_notifications: true,
+                show_online_status: true,
+                incognito_mode: false
+            });
         } else {
-            setSettings(data);
+            // If data is null (no profile row), use defaults
+            setSettings(data || {
+                match_notifications: true,
+                email_notifications: true,
+                push_notifications: true,
+                show_online_status: true,
+                incognito_mode: false
+            });
         }
         setLoading(false);
     }
@@ -58,6 +74,15 @@ export default function Settings() {
             <div className="settings-section">
                 <h2 className="section-title">Account</h2>
                 <div className="settings-list">
+                    <div className="settings-item status-item">
+                        <div className="item-info">
+                            <h3>Profile Visibility Status</h3>
+                            <p>Current reach in discovery</p>
+                        </div>
+                        <span className={`status-badge ${(userProfile?.completion_score || 0) < 60 ? 'limited' : 'optimised'}`}>
+                            {(userProfile?.completion_score || 0) < 60 ? 'Limited' : 'Optimised'}
+                        </span>
+                    </div>
                     <div className="settings-item feature-link" onClick={() => navigate('/premium')}>
                         <div className="item-info">
                             <h3>👑 Get Premium</h3>
@@ -72,6 +97,7 @@ export default function Settings() {
                         </div>
                         <span className="chevron">›</span>
                     </div>
+                    <AndroidInstallButton />
                 </div>
             </div>
 
@@ -156,6 +182,30 @@ export default function Settings() {
                             />
                             <span className="slider round"></span>
                         </label>
+                    </div>
+                </div>
+            </div>
+
+            <div className="settings-section">
+                <h2 className="section-title">Support</h2>
+                <div className="settings-list">
+                    <a
+                        href="https://wa.me/2349160264415?text=Hi%20👋%20I%20need%20help%20with%20CollegeDate"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="settings-item feature-link support-link"
+                    >
+                        <div className="item-info">
+                            <h3>💬 Contact Support</h3>
+                            <p>Chat with us on WhatsApp for fast help.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </a>
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>📧 Email Us</h3>
+                            <p>info@thecollegedate.com</p>
+                        </div>
                     </div>
                 </div>
             </div>

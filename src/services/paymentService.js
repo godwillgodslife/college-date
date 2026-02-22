@@ -9,26 +9,29 @@ export async function getWallet(userId) {
             .from('wallets')
             .select('*')
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
 
-        if (error) {
-            // If wallet doesn't exist, create it (fallback for existing users)
-            if (error.code === 'PGRST116') {
-                const { data: newWallet, error: createError } = await supabase
-                    .from('wallets')
-                    .insert({ user_id: userId })
-                    .select()
-                    .single();
+        if (error) throw error;
 
-                if (createError) throw createError;
-                return { data: newWallet, error: null };
-            }
-            throw error;
+        // If no wallet exists yet, return a default empty wallet object
+        // (The wallet row should be created by the database trigger on signup)
+        if (!data) {
+            return {
+                data: {
+                    id: null,
+                    user_id: userId,
+                    available_balance: 0,
+                    pending_balance: 0,
+                    total_earned: 0,
+                },
+                error: null
+            };
         }
+
         return { data, error: null };
     } catch (error) {
-        console.error('Error fetching wallet:', error);
-        return { data: null, error: error.message };
+        console.error('getWallet Exception:', error);
+        return { data: null, error: error.message || 'Error connecting to wallet service' };
     }
 }
 
@@ -221,8 +224,8 @@ export async function getSubscription(userId) {
             .from('subscriptions')
             .select('*')
             .eq('user_id', userId)
-            .single();
-        return { data, error };
+            .maybeSingle();
+        return { data: data || null, error };
     } catch (error) {
         return { data: null, error: error.message };
     }

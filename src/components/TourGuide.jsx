@@ -1,27 +1,40 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './TourGuide.css';
 
 export default function TourGuide() {
     const [step, setStep] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
     const location = useLocation();
+    const { currentUser, userProfile, updateProfile } = useAuth();
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         // Only show tour on Dashboard/Discover if not seen before
-        const hasSeenTour = localStorage.getItem('hasSeenAppTour');
-        if (!hasSeenTour && (location.pathname === '/discover' || location.pathname === '/dashboard')) {
+        // Check both local storage AND the actual database profile
+        const localSeen = localStorage.getItem('hasSeenAppTour');
+
+        if (userProfile && !userProfile.has_seen_tour && !localSeen && (location.pathname === '/discover' || location.pathname === '/dashboard')) {
             setIsVisible(true);
         }
-    }, [location.pathname]);
+    }, [location.pathname, userProfile]);
 
     const handleNext = () => {
         setStep(prev => prev + 1);
     };
 
-    const handleFinish = () => {
-        setIsVisible(false);
+    const handleFinish = async () => {
+        setIsSaving(true);
         localStorage.setItem('hasSeenAppTour', 'true');
+
+        if (currentUser) {
+            // Intentionally save it to the DB so it persists across device logouts
+            await updateProfile(currentUser.id, { has_seen_tour: true });
+        }
+
+        setIsVisible(false);
+        setIsSaving(false);
     };
 
     if (!isVisible) return null;
@@ -68,7 +81,9 @@ export default function TourGuide() {
                     {step < tourSteps.length - 1 ? (
                         <button className="btn-tour-next" onClick={handleNext}>Next</button>
                     ) : (
-                        <button className="btn-tour-finish" onClick={handleFinish}>Let's Go!</button>
+                        <button className="btn-tour-finish" onClick={handleFinish} disabled={isSaving}>
+                            {isSaving ? 'Saving...' : "Let's Go!"}
+                        </button>
                     )}
                 </div>
             </div>

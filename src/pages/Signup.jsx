@@ -13,7 +13,7 @@ export default function Signup() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const { signup, loginWithGoogle, loginWithFacebook, error, clearError } = useAuth();
+    const { signup, loginWithGoogle, error, clearError } = useAuth();
     const { success, error: showError } = useToast();
     const navigate = useNavigate();
 
@@ -58,7 +58,6 @@ export default function Signup() {
         }
 
         const { data, error: signupErr } = await signup(email, password, {
-            referral_code: '', // Trigger will generate new one
             referred_by: referrerId,
             role: role
         });
@@ -78,15 +77,7 @@ export default function Signup() {
             showError(signupErr);
         } else if (data?.session) {
             success('Account created! Welcome to College Date 💕');
-            navigate('/dashboard', { replace: true });
-        } else if (data?.user) {
-            // User created but email not confirmed (or manual approval needed)
-            success('Account created! Please check your email to confirm your account.');
-            navigate('/login', { replace: true });
-        } else {
-            // Fallback
-            success('Account created! Welcome to College Date 💕');
-            navigate('/dashboard', { replace: true });
+            navigate('/', { replace: true });
         }
     };
 
@@ -99,14 +90,6 @@ export default function Signup() {
         }
     };
 
-    const handleFacebookLogin = async () => {
-        setIsLoading(true);
-        const { error: err } = await loginWithFacebook();
-        if (err) {
-            showError(err);
-            setIsLoading(false);
-        }
-    };
 
     return (
         <div className="auth-page">
@@ -239,12 +222,6 @@ export default function Signup() {
                             Google
                         </button>
 
-                        <button className="btn btn-social btn-facebook" onClick={handleFacebookLogin} disabled={isLoading}>
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="#1877F2">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                            Facebook
-                        </button>
                     </div>
 
                     <p className="auth-footer">

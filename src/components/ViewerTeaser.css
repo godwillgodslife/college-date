@@ -1,0 +1,67 @@
+.viewer-teaser-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.viewer-teaser-card:hover {
+    background: rgba(255, 107, 107, 0.05);
+    border-color: rgba(255, 107, 107, 0.4);
+    transform: translateY(-2px);
+}
+
+.teaser-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.viewer-avatars-blur {
+    display: flex;
+    align-items: center;
+}
+
+.blur-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #444;
+    border: 2px solid #222;
+    filter: blur(4px);
+    margin-right: -12px;
+}
+
+.dot-1 {
+    background: linear-gradient(45deg, #FF6B6B, #FFB8B8);
+}
+
+.dot-2 {
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+}
+
+.dot-3 {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+.teaser-text {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.teaser-highlight {
+    color: #fff;
+    font-weight: 700;
+}
+
+.teaser-arrow {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.2rem;
+}

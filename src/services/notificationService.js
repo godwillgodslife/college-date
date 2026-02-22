@@ -81,7 +81,7 @@ export async function getUserSettings(userId) {
             .from('profiles')
             .select('match_notifications, email_notifications, push_notifications, show_online_status, incognito_mode')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
 
         if (error) throw error;
         return { data, error: null };

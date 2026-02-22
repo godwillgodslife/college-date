@@ -1,0 +1,28 @@
+{
+    "name": "College Date",
+    "short_name": "CollegeDate",
+    "description": "The exclusive dating app for university students.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#6c63ff",
+    "icons": [
+        {
+            "src": "/logo.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/logo.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "dating",
+        "social",
+        "lifestyle"
+    ],
+    "orientation": "portrait"
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { uploadAvatar, upsertProfile, uploadVoiceIntro } from '../services/profileService';
+import { uploadAvatar, upsertProfile, uploadVoiceIntro, uploadProfilePhoto } from '../services/profileService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VoiceRecorder from '../components/VoiceRecorder';
@@ -32,7 +32,10 @@ export default function EditProfile() {
         level: '',
         genotype: '',
         mbti: '',
-        attraction_goal: ''
+        attraction_goal: '',
+        interests: [],
+        intro_prompt: '',
+        profile_photos: []
     });
 
     useEffect(() => {
@@ -52,7 +55,10 @@ export default function EditProfile() {
                 level: userProfile.level || '',
                 genotype: userProfile.genotype || '',
                 mbti: userProfile.mbti || '',
-                attraction_goal: userProfile.attraction_goal || ''
+                attraction_goal: userProfile.attraction_goal || '',
+                interests: userProfile.interests || [],
+                intro_prompt: userProfile.intro_prompt || '',
+                profile_photos: userProfile.profile_photos || []
             });
         }
     }, [userProfile]);
@@ -69,23 +75,40 @@ export default function EditProfile() {
         fileInputRef.current?.click();
     };
 
-    const handleAvatarChange = async (e) => {
+    const handlePhotoUpload = async (e, index) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        setUploadingAvatar(true);
+        setLoading(true);
         try {
-            const { url, error } = await uploadAvatar(file, currentUser.id);
+            const { url, error } = await uploadProfilePhoto(file, currentUser.id, index);
             if (error) throw new Error(error);
 
-            setFormData(prev => ({ ...prev, avatar_url: url }));
-            addToast('Avatar uploaded! Click Save to apply.', 'success');
+            const newPhotos = [...formData.profile_photos];
+            newPhotos[index] = url;
+
+            // Auto-set first photo as avatar if avatar is missing
+            const avatarUpdate = !formData.avatar_url && index === 0 ? { avatar_url: url } : {};
+
+            setFormData(prev => ({
+                ...prev,
+                profile_photos: newPhotos,
+                ...avatarUpdate
+            }));
+
+            addToast(`Photo ${index + 1} uploaded!`, 'success');
         } catch (err) {
             console.error(err);
             addToast(err.message, 'error');
         } finally {
-            setUploadingAvatar(false);
+            setLoading(false);
         }
+    };
+
+    const removePhoto = (index) => {
+        const newPhotos = [...formData.profile_photos];
+        newPhotos[index] = null;
+        setFormData(prev => ({ ...prev, profile_photos: newPhotos }));
     };
 
     const handleVoiceRecording = (blob) => {
@@ -131,6 +154,9 @@ export default function EditProfile() {
                 genotype: formData.genotype,
                 mbti: formData.mbti,
                 attraction_goal: formData.attraction_goal,
+                interests: formData.interests,
+                intro_prompt: formData.intro_prompt,
+                profile_photos: formData.profile_photos,
                 email: currentUser.email,
                 updated_at: new Date()
             };
@@ -157,255 +183,251 @@ export default function EditProfile() {
 
     return (
         <div className="edit-profile-page">
-            <div className="edit-profile-card animated fadeIn">
-                <div className="edit-profile-header">
-                    <h1>Edit Profile</h1>
-                    <p>Update your personal information</p>
-                </div>
+            <div className="edit-profile-container animated fadeIn">
+                <header className="edit-profile-header">
+                    <h1>Profile Settings</h1>
+                    <p>Customize how you appear to others</p>
+                </header>
 
-                <div className="avatar-upload-section">
-                    <div className="avatar-preview-container" onClick={handleAvatarClick}>
-                        {uploadingAvatar ? (
-                            <LoadingSpinner size="small" />
-                        ) : formData.avatar_url ? (
-                            <img src={formData.avatar_url} alt="Avatar Preview" className="avatar-preview" />
-                        ) : (
-                            <div className="avatar-placeholder-large">
-                                {formData.full_name ? formData.full_name.charAt(0).toUpperCase() : 'U'}
-                            </div>
-                        )}
-                        <div className="avatar-overlay">
-                            <span>📷 Change</span>
+                <form onSubmit={handleSubmit} className="edit-profile-form">
+                    {/* PHOTO GRID SECTION */}
+                    <section className="form-section">
+                        <h2 className="section-title">My Gallery</h2>
+                        <div className="photo-grid-2x2">
+                            {[0, 1, 2, 3].map((idx) => (
+                                <div key={idx} className={`photo-sq-slot ${formData.profile_photos[idx] ? 'filled' : ''}`}>
+                                    {formData.profile_photos[idx] ? (
+                                        <>
+                                            <img src={formData.profile_photos[idx]} alt={`Profile ${idx + 1}`} className="slot-img" />
+                                            <button
+                                                type="button"
+                                                className="delete-sq-btn"
+                                                onClick={() => removePhoto(idx)}
+                                            >
+                                                ×
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <label className="slot-sq-empty">
+                                            <span className="plus-icon">+</span>
+                                            <input
+                                                type="file"
+                                                onChange={(e) => handlePhotoUpload(e, idx)}
+                                                accept="image/*"
+                                                hidden
+                                            />
+                                        </label>
+                                    )}
+                                    {idx === 0 && <div className="main-badge">MAIN</div>}
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleAvatarChange}
-                        accept="image/*"
-                        hidden
-                    />
-                </div>
+                        <p className="section-hint">The first photo is your main avatar used across the app.</p>
+                    </section>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="full_name">Full Name</label>
-                        <input
-                            type="text"
-                            id="full_name"
-                            name="full_name"
-                            className="form-control"
-                            value={formData.full_name}
-                            onChange={handleChange}
-                            placeholder="e.g. John Doe"
-                        />
-                    </div>
+                    {/* BASIC INFO SECTION */}
+                    <section className="form-section">
+                        <h2 className="section-title">Basic Information</h2>
 
-                    <div className="form-group">
-                        <label htmlFor="age">Age</label>
-                        <input
-                            type="number"
-                            id="age"
-                            name="age"
-                            className="form-control"
-                            value={formData.age}
-                            onChange={handleChange}
-                            min="18"
-                            max="100"
-                            placeholder="e.g. 21"
-                        />
-                    </div>
+                        <div className="form-row">
+                            <div className="form-item">
+                                <label>Full Name</label>
+                                <input
+                                    type="text"
+                                    name="full_name"
+                                    className="modern-input"
+                                    value={formData.full_name}
+                                    onChange={handleChange}
+                                    placeholder="Your name"
+                                />
+                            </div>
+                            <div className="form-item small">
+                                <label>Age</label>
+                                <input
+                                    type="number"
+                                    name="age"
+                                    className="modern-input"
+                                    value={formData.age}
+                                    onChange={handleChange}
+                                    min="18"
+                                    placeholder="21"
+                                />
+                            </div>
+                        </div>
 
-                    <div className="form-group">
-                        <label htmlFor="gender">Gender</label>
-                        <select
-                            id="gender"
-                            name="gender"
-                            className="form-control"
-                            value={formData.gender}
-                            onChange={handleChange}
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+                        <div className="form-item">
+                            <label>Gender</label>
+                            <select
+                                name="gender"
+                                className="modern-input"
+                                value={formData.gender}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
 
-                    <div className="form-group">
-                        <label htmlFor="university">University</label>
-                        <input
-                            type="text"
-                            id="university"
-                            name="university"
-                            className="form-control"
-                            value={formData.university}
-                            onChange={handleChange}
-                            placeholder="e.g. UNILAG"
-                        />
-                    </div>
+                        <div className="form-item">
+                            <label>Bio</label>
+                            <textarea
+                                name="bio"
+                                className="modern-input modern-textarea"
+                                value={formData.bio}
+                                onChange={handleChange}
+                                placeholder="Tell your story..."
+                            />
+                        </div>
+                    </section>
 
-                    {/* Student Details Section */}
-                    <div className="form-group">
-                        <label htmlFor="faculty">Faculty</label>
-                        <input
-                            type="text"
-                            id="faculty"
-                            name="faculty"
-                            className="form-control"
-                            value={formData.faculty}
-                            onChange={handleChange}
-                            placeholder="e.g. Science"
-                        />
-                    </div>
+                    {/* STUDENT LIFE SECTION */}
+                    <section className="form-section">
+                        <h2 className="section-title">Student Life</h2>
 
-                    <div className="form-group">
-                        <label htmlFor="department">Department</label>
-                        <input
-                            type="text"
-                            id="department"
-                            name="department"
-                            className="form-control"
-                            value={formData.department}
-                            onChange={handleChange}
-                            placeholder="e.g. Computer Science"
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="level">Level</label>
-                        <select
-                            id="level"
-                            name="level"
-                            className="form-control"
-                            value={formData.level}
-                            onChange={handleChange}
-                        >
-                            <option value="">Select Level</option>
-                            <option value="100 Lvl">100 Lvl</option>
-                            <option value="200 Lvl">200 Lvl</option>
-                            <option value="300 Lvl">300 Lvl</option>
-                            <option value="400 Lvl">400 Lvl</option>
-                            <option value="500 Lvl">500 Lvl</option>
-                            <option value="600+ Lvl">600+ Lvl</option>
-                            <option value="Postgrad">Postgrad</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="genotype">Genotype</label>
-                        <select
-                            id="genotype"
-                            name="genotype"
-                            className="form-control"
-                            value={formData.genotype}
-                            onChange={handleChange}
-                        >
-                            <option value="">Select Genotype</option>
-                            <option value="AA">AA</option>
-                            <option value="AS">AS</option>
-                            <option value="SS">SS</option>
-                            <option value="AC">AC</option>
-                            <option value="SC">SC</option>
-                        </select>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="mbti">MBTI Personality</label>
-                        <input
-                            type="text"
-                            id="mbti"
-                            name="mbti"
-                            className="form-control"
-                            value={formData.mbti}
-                            onChange={handleChange}
-                            placeholder="e.g. INFJ"
-                            maxLength="4"
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="attraction_goal">What are you looking for?</label>
-                        <select
-                            id="attraction_goal"
-                            name="attraction_goal"
-                            className="form-control"
-                            value={formData.attraction_goal}
-                            onChange={handleChange}
-                        >
-                            <option value="">Select Goal</option>
-                            <option value="Serious Relationship">Serious Dating</option>
-                            <option value="Study Buddy">Study Buddy</option>
-                            <option value="Just Vibes">Just Vibes</option>
-                            <option value="Networking">Networking</option>
-                        </select>
-                    </div>
-
-                    {/* NEW: Vibe Check Section */}
-                    <div className="vibe-check-section mb-6 border-t border-b border-gray-200 py-4">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">✨ Vibe Check</h3>
-
-                        <div className="form-group">
-                            <label htmlFor="anthem">My Anthem 🎵</label>
+                        <div className="form-item">
+                            <label>University</label>
                             <input
                                 type="text"
-                                id="anthem"
+                                name="university"
+                                className="modern-input"
+                                value={formData.university}
+                                onChange={handleChange}
+                                placeholder="e.g. UNILAG"
+                            />
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-item">
+                                <label>Faculty</label>
+                                <input
+                                    type="text"
+                                    name="faculty"
+                                    className="modern-input"
+                                    value={formData.faculty}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Science"
+                                />
+                            </div>
+                            <div className="form-item">
+                                <label>Level</label>
+                                <select
+                                    name="level"
+                                    className="modern-input"
+                                    value={formData.level}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Select Level</option>
+                                    <option value="100 Lvl">100 Lvl</option>
+                                    <option value="200 Lvl">200 Lvl</option>
+                                    <option value="300 Lvl">300 Lvl</option>
+                                    <option value="400 Lvl">400 Lvl</option>
+                                    <option value="500 Lvl">500 Lvl</option>
+                                    <option value="Postgrad">Postgrad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-item">
+                                <label>Genotype</label>
+                                <select
+                                    name="genotype"
+                                    className="modern-input"
+                                    value={formData.genotype}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Select</option>
+                                    <option value="AA">AA</option>
+                                    <option value="AS">AS</option>
+                                    <option value="SS">SS</option>
+                                </select>
+                            </div>
+                            <div className="form-item">
+                                <label>MBTI</label>
+                                <input
+                                    type="text"
+                                    name="mbti"
+                                    className="modern-input"
+                                    value={formData.mbti}
+                                    onChange={handleChange}
+                                    placeholder="INFJ"
+                                    maxLength="4"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* VIBE CHECK SECTION */}
+                    <section className="form-section vibe-accent">
+                        <h2 className="section-title">✨ Vibe Check</h2>
+
+                        <div className="form-item">
+                            <label>My Anthem 🎵</label>
+                            <input
+                                type="text"
                                 name="anthem"
-                                className="form-control"
+                                className="modern-input"
                                 value={formData.anthem}
                                 onChange={handleChange}
-                                placeholder="e.g. Burna Boy - Last Last"
+                                placeholder="Favorite song..."
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="location_status">Current Status 📍</label>
+                        <div className="form-item">
+                            <label>Current Status 📍</label>
                             <input
                                 type="text"
-                                id="location_status"
                                 name="location_status"
-                                className="form-control"
+                                className="modern-input"
                                 value={formData.location_status}
                                 onChange={handleChange}
-                                placeholder="e.g. At the library, Chilling at Mariere..."
+                                placeholder="What are you up to?"
                             />
                         </div>
 
-                        <div className="form-group">
+                        <div className="form-item">
                             <VoiceRecorder
                                 onRecordingComplete={handleVoiceRecording}
                                 existingAudioUrl={formData.voice_intro_url}
                             />
                         </div>
-                    </div>
 
+                        <div className="form-item">
+                            <label>Interests 🎨</label>
+                            <div className="interests-flex">
+                                {['Coding', 'Music', 'Sports', 'Art', 'Gaming', 'Travel', 'Food', 'Reading', 'Dancing', 'Tech', 'Fashion', 'Fitness'].map(interest => (
+                                    <button
+                                        key={interest}
+                                        type="button"
+                                        className={`vibe-chip ${formData.interests.includes(interest) ? 'active' : ''}`}
+                                        onClick={() => {
+                                            const newInterests = formData.interests.includes(interest)
+                                                ? formData.interests.filter(i => i !== interest)
+                                                : [...formData.interests, interest];
+                                            setFormData(prev => ({ ...prev, interests: newInterests }));
+                                        }}
+                                    >
+                                        {interest}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
 
-                    <div className="form-group">
-                        <label htmlFor="bio">Bio</label>
-                        <textarea
-                            id="bio"
-                            name="bio"
-                            className="form-control"
-                            value={formData.bio}
-                            onChange={handleChange}
-                            placeholder="Tell people about yourself..."
-                        />
-                    </div>
-
-                    <div className="form-actions">
+                    <div className="form-sticky-actions">
                         <button
                             type="button"
-                            className="btn btn-cancel"
+                            className="modern-btn secondary"
                             onClick={() => navigate('/profile')}
-                            disabled={loading}
                         >
-                            Cancel
+                            Back
                         </button>
                         <button
                             type="submit"
-                            className="btn btn-primary"
+                            className="modern-btn primary"
                             disabled={loading}
-                            style={{ flex: 1 }}
                         >
                             {loading ? <LoadingSpinner size="small" color="white" /> : 'Save Changes'}
                         </button>

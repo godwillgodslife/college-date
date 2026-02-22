@@ -26,18 +26,23 @@ export default function NotificationTray({ onClose }) {
         // Navigate based on type/metadata
         if (notification.metadata?.url) {
             navigate(notification.metadata.url);
-        } else if (notification.type === 'match') {
+        } else if (notification.type === 'match' || notification.type === 'swipe_accepted') {
             navigate('/chat');
-        } else if (notification.type === 'view') {
-            navigate('/profile'); // Or a specific 'Who viewed me' page if it existed
+        } else if (notification.type === 'swipe_received') {
+            navigate('/requests');
+        } else if (notification.type === 'view' || notification.type === 'profile_view') {
+            navigate('/viewers');
         }
     };
 
     const getIcon = (type) => {
         switch (type) {
-            case 'match': return '🔥';
+            case 'match':
+            case 'swipe_accepted': return '🔥';
+            case 'swipe_received': return '✨';
             case 'payment': return '💰';
-            case 'view': return '👀';
+            case 'view':
+            case 'profile_view': return '👀';
             case 'snapshot_reaction': return '📸';
             case 'status_update': return '⭕';
             default: return '🔔';

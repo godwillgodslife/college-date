@@ -17,9 +17,9 @@ export async function getGifts() {
 export async function sendGift(senderId, receiverId, giftId) {
     try {
         const { data, error } = await supabase.rpc('process_gift_purchase', {
-            sender_id: senderId,
-            receiver_id: receiverId,
-            gift_id: giftId
+            p_sender_id: senderId,
+            p_receiver_id: receiverId,
+            p_gift_id: giftId
         });
 
         if (error) throw error;

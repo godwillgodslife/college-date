@@ -6,6 +6,11 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
     const [exitX, setExitX] = useState(0);
     const [showPremiumNote, setShowPremiumNote] = useState(false);
     const [premiumNote, setPremiumNote] = useState('');
+    const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+
+    const photos = profile.profile_photos && profile.profile_photos.length > 0
+        ? profile.profile_photos
+        : [profile.avatar_url].filter(Boolean);
 
     const x = useMotionValue(0);
     const rotate = useTransform(x, [-200, 200], [-15, 15]);
@@ -24,6 +29,22 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
             onSwipe('left');
         }
     };
+
+    const nextPhoto = (e) => {
+        e.stopPropagation();
+        if (activePhotoIdx < photos.length - 1) {
+            setActivePhotoIdx(prev => prev + 1);
+        }
+    };
+
+    const prevPhoto = (e) => {
+        e.stopPropagation();
+        if (activePhotoIdx > 0) {
+            setActivePhotoIdx(prev => prev - 1);
+        }
+    };
+
+    const isLive = profile.is_live || (profile.last_seen_at && new Date(profile.last_seen_at) > new Date(Date.now() - 10 * 60 * 1000));
 
     const displayName = profile.full_name || profile.username || 'User';
     const age = profile.age || '';
@@ -49,17 +70,37 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
             <div className="swipe-card-inner">
                 {/* Profile Image */}
                 <div className="swipe-card-image-container">
-                    {profile.avatar_url ? (
+                    {/* Photo Carousel Indicators */}
+                    {photos.length > 1 && (
+                        <div className="photo-indicators">
+                            {photos.map((_, i) => (
+                                <div key={i} className={`indicator-bar ${i === activePhotoIdx ? 'active' : ''}`}>
+                                    <div className="indicator-progress"></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Navigation Areas */}
+                    <div className="carousel-nav nav-left" onClick={prevPhoto}></div>
+                    <div className="carousel-nav nav-right" onClick={nextPhoto}></div>
+
+                    {photos.length > 0 ? (
                         <img
-                            src={profile.avatar_url}
+                            src={photos[activePhotoIdx]}
                             alt={displayName}
                             className="swipe-card-image"
                             draggable="false"
                             onError={(e) => {
-                                console.warn(`Image failed to load for ${displayName}: ${profile.avatar_url}`);
-                                e.target.style.display = 'none';
-                                const placeholder = e.target.parentElement.querySelector('.swipe-card-placeholder');
-                                if (placeholder) placeholder.style.display = 'flex';
+                                console.warn(`Image failed to load for ${displayName}: ${photos[activePhotoIdx]}`);
+                                if (photos.length > 1) {
+                                    // Try next photo if this one fails
+                                    nextPhoto(e);
+                                } else {
+                                    e.target.style.display = 'none';
+                                    const placeholder = e.target.parentElement.querySelector('.swipe-card-placeholder');
+                                    if (placeholder) placeholder.style.display = 'flex';
+                                }
                             }}
                         />
                     ) : null}
@@ -99,7 +140,19 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
                     {/* Content */}
                     <div className="swipe-card-content">
                         <div className="swipe-card-tags">
+                            {isLive && (
+                                <div className="live-pulse-container">
+                                    <span className="pulse-dot"></span>
+                                    <span className="live-text">LIVE</span>
+                                </div>
+                            )}
                             <span className="swipe-tag uni-tag">🎓 {university}</span>
+                            {/* Recently Active Badge */}
+                            {(profile.last_active || profile.last_seen_at) && (
+                                new Date(profile.last_active || profile.last_seen_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+                            ) && (
+                                    <span className="swipe-tag active-tag">🟢 Recently Active</span>
+                                )}
                             {profile.is_top_seeker && (
                                 <span className="swipe-tag top-seeker-tag">🔥 Top Seeker</span>
                             )}

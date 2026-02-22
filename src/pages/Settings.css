@@ -159,6 +159,10 @@ input:checked+.slider:before {
     color: #ef4444;
 }
 
+.settings-item.feature-link.support-link {
+    text-decoration: none;
+}
+
 .settings-action-btn:hover {
     background: rgba(255, 255, 255, 0.05);
 }
@@ -175,4 +179,25 @@ input:checked+.slider:before {
     font-weight: 700;
     box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
     animation: fadeIn 0.3s;
+}
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.limited {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+}
+
+.status-badge.optimised {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
 }

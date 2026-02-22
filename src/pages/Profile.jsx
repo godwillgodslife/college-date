@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react'; // Add useState, useEffect
 import { useAuth } from '../contexts/AuthContext';
 import { getWallet } from '../services/paymentService'; // Add wallet service
+import AndroidInstallButton from '../components/AndroidInstallButton';
+import ProfileCompletion from '../components/ProfileCompletion';
 import './Profile.css';
 import './Profile_Earnings.css'; // Add this line
 
@@ -36,6 +38,12 @@ export default function Profile() {
     return (
         <div className="profile-page">
             <div className="profile-card">
+                <ProfileCompletion
+                    score={userProfile?.completion_score || 0}
+                    profile={userProfile}
+                    onCompleteClick={() => navigate('/profile/edit')}
+                />
+
                 <div className="profile-header">
                     <div className="profile-avatar-wrapper">
                         {avatarUrl ? (
@@ -50,6 +58,7 @@ export default function Profile() {
                     <h1 className="profile-name">{displayName}</h1>
                     <p className="profile-email">{email}</p>
                 </div>
+
 
                 <div className="profile-info-grid">
                     <div className="profile-info-item">
@@ -125,6 +134,21 @@ export default function Profile() {
                                 </div>
                             </div>
                         )}
+
+                        {userProfile?.intro_prompt && (
+                            <div className="vibe-item intro-prompt">
+                                <span className="vibe-icon">💬</span>
+                                <span className="vibe-text">"{userProfile.intro_prompt}"</span>
+                            </div>
+                        )}
+
+                        {userProfile?.interests?.length > 0 && (
+                            <div className="profile-interests">
+                                {userProfile.interests.map((interest, idx) => (
+                                    <span key={idx} className="interest-tag">{interest}</span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -148,6 +172,16 @@ export default function Profile() {
                 >
                     👑 Get Premium
                 </button>
+
+                <button
+                    className="btn btn-secondary btn-block"
+                    style={{ marginTop: '1rem' }}
+                    onClick={() => navigate('/leaderboard')}
+                >
+                    🏆 Leaderboard
+                </button>
+
+                <AndroidInstallButton />
             </div>
         </div>
     );

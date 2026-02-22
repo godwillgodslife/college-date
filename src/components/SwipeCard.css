@@ -207,6 +207,13 @@
     margin-left: 0.5rem;
 }
 
+.active-tag {
+    background: rgba(74, 222, 128, 0.2);
+    border-color: rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    margin-left: 0.5rem;
+}
+
 .top-seeker-tag {
     background: linear-gradient(135deg, rgba(255, 69, 0, 0.2) 0%, rgba(255, 140, 0, 0.2) 100%);
     border-color: rgba(255, 69, 0, 0.4);
@@ -306,4 +313,107 @@
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+/* Photo Carousel UI */
+.photo-indicators {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+
+.indicator-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.indicator-progress {
+    height: 100%;
+    background: white;
+    width: 0%;
+    transition: width 0.2s ease;
+}
+
+.indicator-bar.active .indicator-progress {
+    width: 100%;
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 0;
+    bottom: 30%;
+    /* Leave bottom for bio/actions */
+    width: 30%;
+    z-index: 11;
+    cursor: pointer;
+}
+
+.nav-left {
+    left: 0;
+}
+
+.nav-right {
+    right: 0;
+}
+
+/* Live Indicator */
+.live-pulse-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    /* Reduced gap */
+    background: rgba(0, 0, 0, 0.5);
+    /* Slightly darker */
+    backdrop-filter: blur(8px);
+    padding: 3px 8px;
+    /* Reduced padding */
+    border-radius: 100px;
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 20;
+    scale: 0.7;
+    /* Reduced scale by approx 50% visually including padding */
+    transform-origin: top right;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(74, 222, 128, 0.4);
+    animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    }
+}
+
+.live-text {
+    color: #4ade80;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
 }

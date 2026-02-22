@@ -42,7 +42,7 @@ export default function AuthCallback() {
                         }, { onConflict: 'id' });
                     }
 
-                    navigate('/dashboard', { replace: true });
+                    navigate('/', { replace: true });
                 } else {
                     navigate('/login', { replace: true });
                 }

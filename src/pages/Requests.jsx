@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { acceptRequest, declineRequest } from '../services/swipeService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AndroidInstallButton from '../components/AndroidInstallButton';
 import './Requests.css';
 
+
 export default function Requests() {
-    const { currentUser } = useAuth();
+    const { currentUser, userProfile } = useAuth();
+    const navigate = useNavigate();
     const { addToast } = useToast();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -110,7 +114,18 @@ export default function Requests() {
             <div className="requests-header">
                 <h1>Connection Requests</h1>
                 <p>Manage people who want to vibe with you.</p>
+                <AndroidInstallButton />
             </div>
+
+            {userProfile?.completion_score < 100 && (
+                <div className="completion-nudge-card card-glow" onClick={() => navigate('/profile/edit')}>
+                    <div className="nudge-icon">⚠️</div>
+                    <div className="nudge-content">
+                        <h3>Your profile is {userProfile.completion_score}% complete</h3>
+                        <p>Complete it to appear more in discovery.</p>
+                    </div>
+                </div>
+            )}
 
             {requests.length > 0 ? (
                 <div className="requests-grid">

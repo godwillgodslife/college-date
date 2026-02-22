@@ -64,6 +64,24 @@ export default function Referrals() {
                 <p>Grow the community and get exclusive rewards for every friend who joins.</p>
             </div>
 
+            <section className="referral-incentives">
+                <div className="incentive-card">
+                    <div className="incentive-icon">⚡</div>
+                    <h3>3 Free Swipes</h3>
+                    <p>Instant bonus for every friend who joins CD.</p>
+                </div>
+                <div className="incentive-card highlight">
+                    <div className="incentive-icon">💰</div>
+                    <h3>₦3,000 Cash</h3>
+                    <p>Milestone reward for every 10 successful referrals.</p>
+                </div>
+                <div className="incentive-card">
+                    <div className="incentive-icon">🎁</div>
+                    <h3>Friend's Gift</h3>
+                    <p>Your friend gets 20 free swipes to start swiping.</p>
+                </div>
+            </section>
+
             <div className="referral-card-container">
                 <div className="referral-main-card">
                     <div className="referral-code-section">

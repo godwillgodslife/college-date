@@ -1,0 +1,134 @@
+.profile-completion-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 2px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.profile-completion-card.is-complete {
+    background: linear-gradient(135deg, #6c63ff 0%, #a29bfe 100%);
+    border: none;
+    color: white;
+}
+
+.completion-header {
+    margin-bottom: 1rem;
+}
+
+.completion-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.completion-title-row h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.is-complete .completion-title-row h3 {
+    color: white;
+}
+
+.completion-percentage {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #6366f1;
+}
+
+.is-complete .completion-percentage {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.progress-bar-container {
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+    border-radius: 999px;
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.is-complete .progress-bar-container {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.is-complete .progress-bar-fill {
+    background: white;
+}
+
+.completion-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.checklist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.item-label {
+    color: #64748b;
+}
+
+.item-bonus {
+    color: #10b981;
+    font-weight: 700;
+    background: #ecfdf5;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.btn-optimize-nudge {
+    margin-top: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-optimize-nudge:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.completion-reward-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.badge-icon {
+    font-size: 1.25rem;
+}
+
+.badge-text {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+}

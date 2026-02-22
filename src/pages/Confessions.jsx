@@ -70,31 +70,29 @@ export default function Confessions() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0c] pb-28 text-white selection:bg-rose-500/30 relative overflow-hidden">
+        <div className="min-h-screen bg-[#060608] pb-28 text-white selection:bg-rose-500/30 relative overflow-hidden">
             {/* Ambient Background */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-900/20 blur-[120px] rounded-full" />
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#4c1d95]/20 blur-[140px] rounded-full" />
+                <div className="absolute top-[40%] right-[-20%] w-[50%] h-[50%] bg-[#be123c]/10 blur-[120px] rounded-full" />
             </div>
 
-            <div className="relative px-4 pt-8 max-w-lg mx-auto z-10">
+            <div className="relative px-4 pt-10 max-w-lg mx-auto z-10">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-10"
+                    className="text-center mb-12"
                 >
-                    <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
-                        className="text-5xl mb-3 inline-block filter drop-shadow-lg"
-                    >
-                        🤫
-                    </motion.div>
-                    <h1 className="text-4xl font-black italic tracking-tighter bg-gradient-to-br from-white via-gray-200 to-gray-500 bg-clip-text text-transparent mb-2">
-                        Campus Secrets
+                    <div className="inline-block px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-5 backdrop-blur-md">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300">
+                            {userProfile?.university ? `📍 ${userProfile.university}` : '📍 Campus Hub'}
+                        </span>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-black tracking-tighter bg-gradient-to-br from-white via-gray-100 to-gray-500 bg-clip-text text-transparent mb-3 drop-shadow-sm">
+                        Anonymous
                     </h1>
-                    <p className="text-gray-400 text-sm font-medium tracking-wide uppercase">
-                        {userProfile?.university ? `Anonymous @ ${userProfile.university}` : 'The walls have ears...'}
+                    <p className="text-gray-400 text-sm font-medium">
+                        Spill your secrets. Nobody will know. 🤫
                     </p>
                 </motion.div>
 
@@ -103,35 +101,35 @@ export default function Confessions() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/5 backdrop-blur-xl rounded-3xl p-5 mb-10 border border-white/10 shadow-2xl relative overflow-hidden group"
+                    className="bg-[#121216]/80 backdrop-blur-2xl rounded-[2rem] p-5 mb-12 border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative overflow-hidden group transition-all duration-500 hover:border-white/[0.15]"
                 >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-rose-500 to-indigo-500 opacity-70" />
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-purple-500/50 via-rose-500/50 to-indigo-500/50" />
 
                     <form onSubmit={handleSubmit}>
                         <textarea
-                            className="w-full resize-none bg-black/20 rounded-2xl p-4 text-gray-200 focus:outline-none focus:bg-black/40 focus:ring-1 focus:ring-rose-500/50 transition-all placeholder-gray-500 text-base leading-relaxed border border-white/5"
-                            placeholder="Spill the tea... (It's anonymous)"
+                            className="w-full resize-none bg-transparent rounded-xl p-2 text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-0 transition-all text-[17px] leading-relaxed font-medium placeholder:font-normal"
+                            placeholder="What's on your mind?..."
                             rows="3"
                             maxLength="280"
                             value={newConfession}
                             onChange={(e) => setNewConfession(e.target.value)}
                         />
 
-                        <div className="flex justify-between items-center mt-4">
-                            <span className={`text-xs font-bold tracking-wider ${newConfession.length > 250 ? 'text-rose-500' : 'text-gray-500'}`}>
-                                {280 - newConfession.length} chars
+                        <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/[0.04]">
+                            <span className={`text-[11px] font-bold tracking-wider ${newConfession.length > 250 ? 'text-rose-500' : 'text-gray-600'}`}>
+                                {280 - newConfession.length}
                             </span>
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.95 }}
                                 type="submit"
                                 disabled={!newConfession.trim() || posting}
-                                className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg ${!newConfession.trim()
-                                    ? 'bg-gray-700/50 cursor-not-allowed text-gray-400'
-                                    : 'bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 shadow-rose-500/20'
+                                className={`px-6 py-2.5 rounded-full text-[13px] font-bold text-white transition-all shadow-lg ${!newConfession.trim()
+                                    ? 'bg-white/5 border border-white/10 cursor-not-allowed text-gray-500 shadow-none'
+                                    : 'bg-white text-black hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
                                     }`}
                             >
-                                {posting ? 'Posting...' : 'Confess 🕊️'}
+                                {posting ? 'Sending...' : 'Confess'}
                             </motion.button>
                         </div>
                     </form>
@@ -146,13 +144,13 @@ export default function Confessions() {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center py-20 text-gray-500"
+                        className="text-center py-20 bg-white/[0.02] border border-white/[0.05] rounded-[2rem]"
                     >
-                        <p className="font-medium text-lg">No secrets yet.</p>
-                        <p className="text-xs mt-2 uppercase tracking-widest opacity-60">Be the first to break the silence</p>
+                        <p className="font-medium text-lg text-gray-300">It's quiet in here...</p>
+                        <p className="text-[11px] mt-2 uppercase tracking-widest text-gray-600">Be the first to break the silence</p>
                     </motion.div>
                 ) : (
-                    <motion.div layout className="space-y-4">
+                    <motion.div layout className="space-y-5">
                         <AnimatePresence mode='popLayout'>
                             {confessions.map((post, index) => (
                                 <motion.div
@@ -160,20 +158,27 @@ export default function Confessions() {
                                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: index * 0.05 }}
                                     key={post.id}
-                                    className={`relative bg-gradient-to-br ${getCardStyle(index)} backdrop-blur-md p-6 rounded-2xl border hover:border-white/20 transition-colors shadow-lg group`}
+                                    className={`relative bg-[#101014]/60 backdrop-blur-xl p-6 rounded-[2rem] border border-white/[0.06] hover:border-white/[0.12] transition-colors shadow-xl group overflow-hidden`}
                                 >
-                                    <div className="absolute top-4 left-[-4px] w-1 h-8 rounded-r-lg bg-white/20 group-hover:bg-rose-500/50 transition-colors" />
-                                    <p className="text-gray-200 font-medium leading-relaxed text-[15px] drop-shadow-sm">
-                                        "{post.content}"
+                                    {/* Subtle Ambient Glow behind card */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${getCardStyle(index)} opacity-30 pointer-events-none transition-opacity group-hover:opacity-50`} />
+
+                                    <p className="relative z-10 text-gray-100 font-medium leading-relaxed text-[16px]">
+                                        {post.content}
                                     </p>
-                                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
-                                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                            <span>🏫</span>
-                                            <span className="truncate max-w-[150px]">{post.university}</span>
+
+                                    <div className="relative z-10 flex justify-between items-center mt-6 pt-4 border-t border-white/[0.05]">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center shadow-inner">
+                                                <span className="text-[9px]">🎓</span>
+                                            </div>
+                                            <span className="text-[11px] font-bold text-gray-400 capitalize truncate max-w-[140px]">
+                                                {post.university}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] text-gray-400 font-bold bg-black/30 px-2 py-1 rounded-lg border border-white/5">
+                                        <span className="text-[10px] text-gray-500 font-bold bg-white/[0.03] px-3 py-1.5 rounded-full border border-white/[0.05]">
                                             {getTimeAgo(post.created_at)}
                                         </span>
                                     </div>

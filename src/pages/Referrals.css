@@ -206,3 +206,106 @@
         padding: 0.5rem 1.5rem;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Referral Incentives Section — High Contrast Final Fix
+   ═══════════════════════════════════════════════════════════ */
+.referral-incentives {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+}
+
+.incentive-card {
+    padding: 2.5rem 1.25rem;
+    border-radius: 36px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.incentive-card:hover {
+    transform: translateY(-8px);
+}
+
+.incentive-card h3 {
+    color: #ffffff !important;
+    font-size: 1.3rem !important;
+    font-weight: 900 !important;
+    margin: 5px 0 0 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.incentive-card p {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5;
+    margin: 0 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.incentive-icon {
+    font-size: 3.5rem !important;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* ⚡ Swipes Gradient (Indigo) */
+.incentive-card:nth-of-type(1) {
+    background: linear-gradient(135deg, #4f46e5, #312e81) !important;
+}
+
+/* 🎁 Gift Gradient (Rose/Pink) */
+.incentive-card:nth-of-type(3) {
+    background: linear-gradient(135deg, #e11d48, #881337) !important;
+}
+
+/* 💰 THE CASH REWARD (Middle Card) - Bold Gold Highlight */
+.incentive-card.highlight {
+    background: linear-gradient(135deg, #1e1b4b, #2e1065) !important;
+    /* Deep Dark Context */
+    border: 4px solid #fcd34d !important;
+    /* ULTRA BOLD GOLD BORDER */
+    transform: scale(1.05);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 20px rgba(252, 211, 77, 0.3);
+    z-index: 2;
+}
+
+.incentive-card.highlight h3,
+.incentive-card.highlight p {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+.incentive-card.highlight::after {
+    content: 'BEST';
+    position: absolute;
+    top: 15px;
+    right: -30px;
+    background: #ef4444;
+    color: #ffffff !important;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 5px 35px;
+    transform: rotate(45deg);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+    .referral-incentives {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .incentive-card.highlight {
+        transform: scale(1.02);
+    }
+}

@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 import { getWallet } from '../services/paymentService';
 import FeatureCard from '../components/FeatureCard';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import ViewerTeaser from '../components/ViewerTeaser'; // NEW
+import AndroidInstallButton from '../components/AndroidInstallButton';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -16,7 +18,8 @@ export default function Dashboard() {
         pendingBalance: 0,
         totalEarned: 0,
         freeSwipes: 0,
-        giftsReceived: 0
+        giftsReceived: 0,
+        viewerCount: 0 // Track viewers
     });
 
     useEffect(() => {
@@ -27,6 +30,7 @@ export default function Dashboard() {
 
     async function fetchStats() {
         try {
+            // ... (rest of the fetch logic is already updated in previous turn, fixing duplicate here)
             // Count Matches
             const { count: matchCount } = await supabase
                 .from('matches')
@@ -46,16 +50,6 @@ export default function Dashboard() {
                 .eq('user_id', currentUser.id)
                 .single();
 
-            setStats({
-                matches: matchCount || 0,
-                messages: msgCount || 0,
-                balance: wallet?.available_balance || 0,
-                pendingBalance: wallet?.pending_balance || 0,
-                totalEarned: wallet?.total_earned || 0,
-                freeSwipes: userProfile?.free_swipes || 0,
-                giftsReceived: 0 // Will count below
-            });
-
             // Count Gifts Received
             const { count: giftCount } = await supabase
                 .from('wallet_transactions')
@@ -63,7 +57,24 @@ export default function Dashboard() {
                 .eq('user_id', currentUser.id)
                 .eq('type', 'gift_received');
 
-            setStats(prev => ({ ...prev, giftsReceived: giftCount || 0 }));
+            // Count Profile Views (Last 24h)
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            const { count: viewCount } = await supabase
+                .from('profile_views')
+                .select('*', { count: 'exact', head: true })
+                .eq('profile_owner_id', currentUser.id)
+                .gt('created_at', twentyFourHoursAgo);
+
+            setStats({
+                matches: matchCount || 0,
+                messages: msgCount || 0,
+                balance: wallet?.available_balance || 0,
+                pendingBalance: wallet?.pending_balance || 0,
+                totalEarned: wallet?.total_earned || 0,
+                freeSwipes: userProfile?.free_swipes || 0,
+                giftsReceived: giftCount || 0,
+                viewerCount: viewCount || 0
+            });
         } catch (err) {
             console.error('Error fetching dashboard stats:', err);
         }
@@ -85,7 +96,11 @@ export default function Dashboard() {
                         {greeting}, <span className="dashboard-name">{displayName}</span> 👋
                     </h1>
                     <p className="dashboard-tagline">Ready to find your campus match?</p>
+                    <AndroidInstallButton />
                 </div>
+
+                {/* Who Viewed You Teaser (Social Proof/Curiosity) */}
+                <ViewerTeaser count={stats.viewerCount} />
 
                 <div className="dashboard-stats">
                     {userProfile?.role === 'Male' ? (

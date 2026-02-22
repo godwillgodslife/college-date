@@ -1,0 +1,75 @@
+.status-bubbles-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 1rem 0;
+    margin-bottom: 0.5rem;
+    background: transparent;
+}
+
+.status-bubbles-scroll {
+    display: flex;
+    overflow-x: auto;
+    padding: 0 1.5rem;
+    gap: 1.25rem;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+}
+
+.status-bubbles-scroll::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+}
+
+.status-bubble {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.bubble-ring {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    padding: 3px;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.status-bubble:hover .bubble-ring {
+    transform: scale(1.05);
+}
+
+.bubble-ring img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--bg-primary);
+}
+
+.add-status .bubble-ring {
+    background: var(--bg-tertiary);
+    border: 2px dashed var(--text-muted);
+}
+
+.plus-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+}
+
+.bubble-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

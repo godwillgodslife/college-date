@@ -86,66 +86,67 @@ END $$;
 
 
 -- 5. FUNCTION TO PROCESS GIFT PURCHASE
+DROP FUNCTION IF EXISTS public.process_gift_purchase(uuid,uuid,text);
+
 CREATE OR REPLACE FUNCTION process_gift_purchase(
-    sender_id UUID,
-    receiver_id UUID,
-    gift_id TEXT
+    p_sender_id UUID,
+    p_receiver_id UUID,
+    p_gift_id TEXT
 )
 RETURNS JSONB AS $$
 DECLARE
-    sender_wallet_id UUID;
-    receiver_wallet_id UUID;
-    gift_price DECIMAL;
-    sender_balance DECIMAL;
+    v_sender_wallet_id UUID;
+    v_receiver_wallet_id UUID;
+    v_gift_price DECIMAL;
+    v_gift_name TEXT;
+    v_sender_balance DECIMAL;
 BEGIN
-    -- Get gift price
-    SELECT price INTO gift_price FROM public.gifts WHERE id = gift_id;
+    -- Get gift details
+    SELECT price, name INTO v_gift_price, v_gift_name FROM public.gifts WHERE id = p_gift_id;
     IF NOT FOUND THEN
-        RETURN jsonb_build_object('success', false, 'error', 'Invalid gift');
+        RETURN jsonb_build_object('success', false, 'error', 'Invalid gift: ' || p_gift_id);
     END IF;
 
     -- Get sender wallet
-    SELECT id, available_balance INTO sender_wallet_id, sender_balance 
-    FROM public.wallets WHERE user_id = sender_id;
+    SELECT id, available_balance INTO v_sender_wallet_id, v_sender_balance 
+    FROM public.wallets WHERE user_id = p_sender_id;
 
-    IF sender_balance < gift_price THEN
-        RETURN jsonb_build_object('success', false, 'error', 'Insufficient balance');
+    IF v_sender_balance IS NULL OR v_sender_balance < v_gift_price THEN
+        RETURN jsonb_build_object('success', false, 'error', 'Insufficient balance. Current: ' || COALESCE(v_sender_balance, 0)::TEXT);
     END IF;
 
     -- Get receiver wallet (if any)
-    SELECT id INTO receiver_wallet_id FROM public.wallets WHERE user_id = receiver_id;
+    SELECT id INTO v_receiver_wallet_id FROM public.wallets WHERE user_id = p_receiver_id;
 
     -- Deduct from Sender
     UPDATE public.wallets 
-    SET available_balance = available_balance - gift_price,
-        total_spent = total_spent + gift_price,
+    SET available_balance = available_balance - v_gift_price,
+        total_spent = total_spent + v_gift_price,
         updated_at = now()
-    WHERE id = sender_wallet_id;
+    WHERE id = v_sender_wallet_id;
 
     -- Log transaction for Sender
     INSERT INTO public.wallet_transactions 
     (user_id, wallet_id, type, amount, status, description, metadata)
     VALUES 
-    (sender_id, sender_wallet_id, 'gift_purchase', gift_price, 'completed', 'Sent Gift: ' || gift_id, jsonb_build_object('receiver_id', receiver_id, 'gift_id', gift_id));
+    (p_sender_id, v_sender_wallet_id, 'gift_purchase', v_gift_price, 'completed', 'Sent Gift: ' || v_gift_name, jsonb_build_object('receiver_id', p_receiver_id, 'gift_id', p_gift_id));
 
-    -- Credit Receiver (Optional: deciding if they get cash or just the joy. 
-    -- Assuming for now they check the "Earnings" logic. Let's say they get 50% value like swipes? 
-    -- User prompt implies "connect fully with gifts and premium", creating a monetization loop.
-    -- Let's give them 50% for now to be generous/consistent with swipes).
-    
-    IF receiver_wallet_id IS NOT NULL THEN
+    -- Credit Receiver (50% value)
+    IF v_receiver_wallet_id IS NOT NULL THEN
         UPDATE public.wallets 
-        SET available_balance = available_balance + (gift_price * 0.5), -- 50% commission
-            total_earned = total_earned + (gift_price * 0.5),
+        SET available_balance = available_balance + (v_gift_price * 0.5),
+            total_earned = total_earned + (v_gift_price * 0.5),
             updated_at = now()
-        WHERE id = receiver_wallet_id;
+        WHERE id = v_receiver_wallet_id;
 
         INSERT INTO public.wallet_transactions 
         (user_id, wallet_id, type, amount, status, description, metadata)
         VALUES 
-        (receiver_id, receiver_wallet_id, 'gift_received', (gift_price * 0.5), 'completed', 'Received Gift: ' || gift_id, jsonb_build_object('sender_id', sender_id, 'gift_id', gift_id));
+        (p_receiver_id, v_receiver_wallet_id, 'gift_received', (v_gift_price * 0.5), 'completed', 'Received Gift: ' || v_gift_name, jsonb_build_object('sender_id', p_sender_id, 'gift_id', p_gift_id));
     END IF;
 
-    RETURN jsonb_build_object('success', true, 'new_balance', sender_balance - gift_price);
+    RETURN jsonb_build_object('success', true, 'new_balance', v_sender_balance - v_gift_price);
+EXCEPTION WHEN OTHERS THEN
+    RETURN jsonb_build_object('success', false, 'error', SQLERRM);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

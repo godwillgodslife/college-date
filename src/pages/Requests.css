@@ -190,3 +190,43 @@
     color: var(--text-primary);
     opacity: 0.9;
 }
+
+/* Completion Nudge */
+.completion-nudge-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    border: 2px solid #fee2e2;
+    transition: all 0.3s ease;
+}
+
+.completion-nudge-card:hover {
+    transform: translateY(-2px);
+    border-color: #fca5a5;
+}
+
+.nudge-icon {
+    font-size: 1.5rem;
+}
+
+.nudge-content h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1e293b;
+}
+
+.nudge-content p {
+    font-size: 0.875rem;
+    margin: 4px 0 0;
+    color: #64748b;
+}
+
+.card-glow {
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.15);
+}

@@ -1,43 +1,52 @@
-import OneSignal from 'react-onesignal';
+// OneSignal is now handled via script tag in index.html and window.OneSignalDeferred
+
 
 /**
  * Initialize OneSignal Push Notifications.
- * Call this in your main App.jsx or a top-level provider.
+ * Because we now init in index.html, this function just handles post-init logic
+ * like checking permissions and getting IDs.
  */
 export async function initPushNotifications() {
     try {
-        if (OneSignal.initialized) {
-            console.log('OneSignal already initialized');
+        // Skip OneSignal errors on localhost (requires HTTPS/Domain)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('OneSignal: Skipping initialization on localhost to avoid domain errors.');
             return;
         }
 
-        await OneSignal.init({
-            appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "7616182c-6872-4d2a-8991-6f81e3381a1a", // Placeholder or from env
-            allowLocalhostAsSecureOrigin: true,
-            notifyButton: {
-                enable: true,
-            },
+        // OneSignal is globally available via OneSignalDeferred
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+        window.OneSignalDeferred.push(async function (OneSignal) {
+            console.log('OneSignal accessed from React service');
+
+            // Defensive check for OneSignal objects
+            if (!OneSignal || !OneSignal.Notifications) {
+                console.warn('OneSignal Notifications API not ready');
+                return;
+            }
+
+            // v16 API Check
+            const permission = OneSignal.Notifications.permission;
+
+            if (!permission) {
+                // Defensive check for Slidedown
+                if (OneSignal.Slidedown) {
+                    await OneSignal.Slidedown.prompt();
+                }
+            }
+
+            // Defensive check for User Subscription
+            if (OneSignal.User && OneSignal.User.PushSubscription) {
+                const subscriptionId = OneSignal.User.PushSubscription.id;
+                if (subscriptionId) {
+                    console.log('OneSignal Subscription ID:', subscriptionId);
+                }
+            }
         });
-        console.log('OneSignal initialized');
-
-        // Check permission
-        const permission = await OneSignal.getNotificationPermission();
-        console.log('Notification Permission:', permission);
-
-        if (permission === 'default') {
-            await OneSignal.showSlidedownPrompt();
-        }
-
-        // Get Player ID (Device ID)
-        const deviceId = await OneSignal.getPlayerId();
-        if (deviceId) {
-            console.log('OneSignal Player ID:', deviceId);
-            // TODO: Save this deviceId to the user's profile in Supabase 
-            // if you want to target specific users from the backend
-        }
 
     } catch (error) {
-        console.error('OneSignal Init Error:', error);
+        console.error('OneSignal Service Error:', error);
     }
 }
 

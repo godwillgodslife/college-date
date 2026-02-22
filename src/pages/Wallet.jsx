@@ -11,6 +11,7 @@ import {
 } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { supabase } from '../lib/supabase';
 import './Wallet.css';
 
 export default function Wallet() {
@@ -34,10 +35,44 @@ export default function Wallet() {
     });
 
     useEffect(() => {
-        if (currentUser) {
-            loadWalletData();
-        }
+        if (!currentUser) return;
+
+        loadWalletData();
+        sweepPendingFunds();
+
+        // Subscribe to real-time wallet updates
+        const walletSubscription = supabase
+            .channel(`wallet_updates:${currentUser.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'wallets',
+                    filter: `user_id=eq.${currentUser.id}`
+                },
+                (payload) => {
+                    console.log('💰 Wallet updated via Realtime:', payload.new);
+                    setWallet(payload.new);
+                    // Also reload transactions to show the new entry
+                    loadWalletData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(walletSubscription);
+        };
     }, [currentUser]);
+
+    async function sweepPendingFunds() {
+        try {
+            // Silently attempt to unlock any funds that have passed their 30-day pending period
+            await supabase.rpc('process_pending_referral_funds', { p_user_id: currentUser.id });
+        } catch (err) {
+            console.error('Silent sweep error:', err);
+        }
+    }
 
     async function loadWalletData() {
         setLoading(true);
@@ -46,20 +81,33 @@ export default function Wallet() {
             if (walletError) throw walletError;
             setWallet(walletData);
 
-            if (walletData) {
+            // Only load transactions if wallet has a real DB id
+            if (walletData && walletData.id) {
                 const { data: txData, error: txError } = await getTransactions(walletData.id);
                 if (txError) throw txError;
                 setTransactions(txData || []);
             }
 
             // Load Payout Details
-            const { data: payoutData } = await getPayoutDetails(currentUser.id);
-            if (payoutData) {
-                setPayoutDetails(payoutData);
+            try {
+                const { data: payoutData } = await getPayoutDetails(currentUser.id);
+                if (payoutData) {
+                    setPayoutDetails(payoutData);
+                }
+            } catch (payoutErr) {
+                // Payout details are optional, don't crash
+                console.warn('Could not load payout details:', payoutErr);
             }
         } catch (err) {
             console.error('Error loading wallet data:', err);
-            addToast('Failed to load wallet information', 'error');
+            // Still set a default wallet so the page renders
+            setWallet({
+                id: null,
+                user_id: currentUser.id,
+                available_balance: 0,
+                pending_balance: 0,
+                total_earned: 0,
+            });
         } finally {
             setLoading(false);
         }
@@ -75,6 +123,12 @@ export default function Wallet() {
         }
 
         setIsProcessing(true);
+
+        if (!wallet || !wallet.id) {
+            addToast('Wallet not initialized yet. Please complete your profile or contact support.', 'error');
+            setIsProcessing(false);
+            return;
+        }
 
         try {
             // 1. Create a pending transaction record
@@ -136,6 +190,11 @@ export default function Wallet() {
         // Validation
         if (isNaN(amount) || amount < 15000) {
             addToast('Minimum withdrawal for earnings is ₦15,000', 'warning');
+            return;
+        }
+
+        if (!wallet || !wallet.id) {
+            addToast('Wallet not initialized yet. Please complete your profile or contact support.', 'error');
             return;
         }
 
@@ -203,6 +262,12 @@ export default function Wallet() {
             <div className="wallet-header">
                 <h1>{isLady ? 'Earnings Dashboard' : 'My Wallet'}</h1>
                 <p>{isLady ? 'Track your swipes and request payouts.' : 'Fund your wallet and keep swiping.'}</p>
+                <a href="https://wa.me/2349160264415?text=Hi%20👋%20I%20need%20help%20with%20my%20wallet/payout"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="wallet-support-link">
+                    Need help? Chat with Support
+                </a>
             </div>
 
             <div className="wallet-overview-grid">
@@ -211,6 +276,13 @@ export default function Wallet() {
                     <h2 className="balance-amount">
                         ₦{parseFloat(wallet?.available_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </h2>
+
+                    {parseFloat(wallet?.pending_balance || 0) > 0 && (
+                        <div className="pending-balance-info" style={{ marginTop: '10px', padding: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '14px' }}>
+                            <span style={{ display: 'block', color: 'rgba(255,255,255,0.8)' }}>🔒 Locked Referral Earnings (30 Days)</span>
+                            <span style={{ display: 'block', fontWeight: 'bold' }}>₦{parseFloat(wallet?.pending_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </div>
+                    )}
 
                     {!isLady ? (
                         <div className="wallet-actions">

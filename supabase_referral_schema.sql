@@ -46,16 +46,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION handle_new_profile_referral()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Set referral code
-    IF NEW.referral_code IS NULL THEN
+    -- Set referral code if NULL or empty
+    IF NEW.referral_code IS NULL OR NEW.referral_code = '' THEN
         NEW.referral_code := generate_referral_code();
     END IF;
     
-    -- Set referred_by from user metadata if it exists
-    IF NEW.referred_by IS NULL THEN
-        NEW.referred_by := (auth.jwt() -> 'user_metadata' ->> 'referred_by')::uuid;
-    END IF;
-    
+    -- No need to set referred_by here if it's already handled in handle_new_user trigger
+    -- but as a fallback, check NEW.referred_by
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

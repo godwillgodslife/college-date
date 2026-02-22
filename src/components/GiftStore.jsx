@@ -3,21 +3,24 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './GiftStore.css';
 
 const GIFTS = [
-    { id: 'digital_rules', name: 'Digital Rules', emoji: '📜', price: 200, color: '#64748b' },
-    { id: 'code', name: 'Code', emoji: '💻', price: 500, color: '#22c55e' },
-    { id: 'zubo', name: 'Zubo', emoji: '🍷', price: 500, color: '#9d174d' },
-    { id: 'hotsuya', name: 'Hotsuya', emoji: '🍢', price: 1000, color: '#ea580c' },
-    { id: 'l_time', name: 'L-time', emoji: '⌛', price: 5000, color: '#ffd700' },
+    { id: 'rose', name: 'Digital Rose', emoji: '🌹', price: 200, color: '#f43f5e' },
+    { id: 'zubo', name: 'Cold Zobo', emoji: '🍷', price: 200, color: '#9d174d' },
+    { id: 'suya', name: 'Hot Suya', emoji: '🍢', price: 500, color: '#ea580c' },
+    { id: 'airtime', name: 'Airtime', emoji: '📱', price: 1000, color: '#2563eb' },
+    { id: 'l_time', name: 'L-Time', emoji: '⌛', price: 5000, color: '#ffd700' },
 ];
 
 export default function GiftStore({ onSend, onClose, balance = 0 }) {
     const [selectedGift, setSelectedGift] = useState(null);
+    const [isConfirming, setIsConfirming] = useState(false);
     const navigate = useNavigate(); // Hook for navigation
 
     const handlePurchase = () => {
+        console.log('🎁 Purchase attempt:', selectedGift);
         if (!selectedGift) return;
 
         if (balance < selectedGift.price) {
+            console.log('🎁 Insufficient balance:', balance, '<', selectedGift.price);
             const confirmed = window.confirm('Insufficient wallet balance. Go to Add Funds?');
             if (confirmed) {
                 onClose(); // Close modal first
@@ -26,10 +29,14 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
             return;
         }
 
-        const confirmed = window.confirm(`Send ${selectedGift.name} for ₦${selectedGift.price}?`);
-        if (confirmed) {
-            onSend(selectedGift);
-        }
+        // Show custom confirmation instead of window.confirm
+        setIsConfirming(true);
+    };
+
+    const confirmSend = () => {
+        console.log('🎁 [GiftStore.jsx] confirmSend() triggered. Calling onSend...');
+        setIsConfirming(false); // Reset confirmation state immediately 
+        onSend(selectedGift);
     };
 
     return (
@@ -48,25 +55,40 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
                         <div
                             key={gift.id}
                             className={`gift-card ${selectedGift?.id === gift.id ? 'active' : ''}`}
-                            onClick={() => setSelectedGift(gift)}
+                            onClick={() => {
+                                console.log('🎁 Card clicked:', gift.name, gift.id);
+                                setSelectedGift(gift);
+                            }}
                             style={{ '--gift-color': gift.color }}
                         >
-                            <span className="gift-emoji">{gift.emoji}</span>
-                            <span className="gift-name">{gift.name}</span>
-                            <span className="gift-price">₦{gift.price.toLocaleString()}</span>
+                            <span className="gift-emoji" style={{ pointerEvents: 'none' }}>{gift.emoji}</span>
+                            <span className="gift-name" style={{ pointerEvents: 'none' }}>{gift.name}</span>
+                            <span className="gift-price" style={{ pointerEvents: 'none' }}>₦{gift.price.toLocaleString()}</span>
                         </div>
                     ))}
                 </div>
 
                 <div className="gift-footer">
-                    <p className="gift-hint">Gifts appear with a special animation in the chat!</p>
-                    <button
-                        className="btn-buy"
-                        disabled={!selectedGift}
-                        onClick={handlePurchase}
-                    >
-                        {selectedGift ? `Send for ₦${selectedGift.price.toLocaleString()}` : 'Select a Gift'}
-                    </button>
+                    {isConfirming ? (
+                        <div className="confirm-purchase-area">
+                            <p className="confirm-text">Confirm sending <strong>{selectedGift.name}</strong> for <strong>₦{selectedGift.price.toLocaleString()}</strong>?</p>
+                            <div className="confirm-btns">
+                                <button className="btn-cancel-buy" onClick={() => setIsConfirming(false)}>Cancel</button>
+                                <button className="btn-confirm-buy" onClick={confirmSend}>Yes, Send!</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="gift-hint">Gifts appear with a special animation in the chat!</p>
+                            <button
+                                className="btn-buy"
+                                disabled={!selectedGift}
+                                onClick={handlePurchase}
+                            >
+                                {selectedGift ? `Send for ₦${selectedGift.price.toLocaleString()}` : 'Select a Gift'}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

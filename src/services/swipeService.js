@@ -4,17 +4,19 @@ import { createNotification } from './notificationService';
 // Helper to get profiles for discovery with filters
 export async function getDiscoverProfiles(userId, filters = {}) {
     try {
-        // 1. Get IDs of users already swiped by current user
+        // 1. Get IDs to EXCLUDE:
+        const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
         const { data: swipedData, error: swipesError } = await supabase
             .from('swipes')
             .select('swiped_id')
-            .eq('swiper_id', userId);
+            .eq('swiper_id', userId)
+            .or(`direction.eq.right,and(direction.eq.left,created_at.gt.${fortyEightHoursAgo})`);
 
         if (swipesError) throw swipesError;
 
-        const swipedIds = swipedData.map(swipe => swipe.swiped_id).filter(Boolean);
-        // Also exclude self
-        if (userId) swipedIds.push(userId);
+        const excludeIds = swipedData.map(swipe => swipe.swiped_id).filter(Boolean);
+        if (userId) excludeIds.push(userId);
 
         // 2. Fetch profiles from the new discovery view (v3)
         let query = supabase
@@ -22,8 +24,8 @@ export async function getDiscoverProfiles(userId, filters = {}) {
             .select('*');
 
         // Exclude swiped profiles and self
-        if (swipedIds.length > 0) {
-            query = query.not('id', 'in', `(${swipedIds.join(',')})`);
+        if (excludeIds.length > 0) {
+            query = query.not('id', 'in', `(${excludeIds.join(',')})`);
         }
 
         // Apply Gender Filter
@@ -43,8 +45,21 @@ export async function getDiscoverProfiles(userId, filters = {}) {
             if (max) query = query.lte('age', max);
         }
 
-        // Sort by Visibility Score (Dynamic Rotation)
-        query = query.order('visibility_score', { ascending: false });
+        // LIVE MODE FILTERING (New)
+        if (filters.liveOnly) {
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            query = query.or(`is_live.eq.true,last_seen_at.gt.${oneHourAgo}`);
+        }
+
+        // Sort by Profile Completion (priority) then Visibility Score
+        // If Live Mode is ON, we also prioritize Live users at the top
+        if (filters.liveOnly) {
+            query = query.order('is_live', { ascending: false });
+        }
+
+        query = query
+            .order('completion_score', { ascending: false })
+            .order('visibility_score', { ascending: false });
 
         // Limit results
         query = query.limit(40);
@@ -65,38 +80,24 @@ export async function getDiscoverProfiles(userId, filters = {}) {
  */
 export async function checkSwipeLimit(userId) {
     try {
-        // 1. Get subscription and limit
-        const { data: sub } = await supabase
-            .from('subscriptions')
-            .select('plan_type')
-            .eq('user_id', userId)
-            .single();
-
-        if (sub?.plan_type === 'Premium') return { canSwipe: true };
-
-        // 2. Get current limit
-        const { data: limit, error } = await supabase
-            .from('swipe_limits')
-            .select('swipes_used')
-            .eq('user_id', userId)
-            .single();
+        // Use the new RPC to check and handle reset automatically
+        const { data, error } = await supabase.rpc('check_and_reset_swipe_limit', {
+            p_user_id: userId
+        });
 
         if (error) throw error;
 
-        if (limit.swipes_used >= 10) {
-            return { canSwipe: false, used: limit.swipes_used, max: 10 };
-        }
+        // data is an array of one row [ { can_swipe, used_count, max_count } ]
+        const result = Array.isArray(data) ? data[0] : data;
 
-        // 3. Increment limit
-        await supabase
-            .from('swipe_limits')
-            .update({ swipes_used: limit.swipes_used + 1 })
-            .eq('user_id', userId);
-
-        return { canSwipe: true, used: limit.swipes_used + 1, max: 10 };
+        return {
+            canSwipe: result.can_swipe,
+            used: result.used_count,
+            max: result.max_count
+        };
     } catch (err) {
         console.error('checkSwipeLimit error:', err);
-        return { canSwipe: true }; // Fallback to allow swiping if error
+        return { canSwipe: true, used: 0, max: 20 }; // Fallback to allow if error
     }
 }
 
@@ -104,46 +105,88 @@ export async function checkSwipeLimit(userId) {
 export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'standard', messageTeaser = null) {
     try {
         // 1. Record the swipe in the database (Initially PENDING)
+        // Use UPSERT to allow profile recycling (Infinite Discovery)
         const { data: swipeRecord, error } = await supabase
             .from('swipes')
-            .insert({
+            .upsert({
                 swiper_id: swiperId,
                 swiped_id: swipedId,
                 direction: direction, // 'right' or 'left'
                 type: swipeType,
-                status: direction === 'right' ? 'pending' : 'declined', // If left, it's basically a decline
+                status: direction === 'right' ? 'pending' : 'declined',
                 is_priority: swipeType === 'premium',
-                message_teaser: messageTeaser
+                message_teaser: messageTeaser,
+                created_at: new Date().toISOString() // Refresh timestamp for recycling logic
+            }, {
+                onConflict: 'swiper_id,swiped_id' // NO SPACE
             })
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('Upsert failed:', error.message);
+            throw error;
+        }
 
-        // 2. Monetization (Phase 3 Upgrade): If it's a LIKE ('right')
+        // 2. Update Streak (Atomic RPC)
+        const { data: streakResult } = await supabase.rpc('update_swipe_streak', { p_user_id: swiperId });
+
+        // 3. Monetization: If it's a LIKE ('right')
+        let paymentResult = null;
         if (direction === 'right') {
             console.log(`Processing ${swipeType.toUpperCase()} swipe...`);
 
-            const { data: result, error: rpcError } = await supabase.rpc('process_swipe_payment', {
+            const { data, error: paymentError } = await supabase.rpc('process_swipe_payment', {
                 swiper_id: swiperId,
                 swiped_id: swipedId,
                 swipe_type: swipeType
             });
 
-            if (rpcError) {
-                console.error('Monetization Error:', rpcError.message);
-            } else if (!result.success) {
-                console.warn('Monetization Failed:', result.error);
-                // In production, we might want to flag this swipe for review or revert
+            paymentResult = data;
+
+            if (paymentError) throw paymentError;
+
+            // Check if payment actually succeeded
+            if (paymentResult && paymentResult.success === false) {
+                // If payment failed, we actually want to undo the swipe status or just report it
+                // To keep it simple, we throw a specific error the UI can catch
+                throw new Error(paymentResult.error || 'Insufficient balance');
             }
         }
 
-        return { data: swipeRecord, error: null };
+        // 4. CHECK FOR MATCH (Mutual Like)
+        const { data: mutualLike } = await supabase
+            .from('swipes')
+            .select('id')
+            .eq('swiper_id', swipedId)
+            .eq('swiped_id', swiperId)
+            .eq('direction', 'right')
+            .single();
+
+        if (mutualLike) {
+            // IT'S A MATCH! Return info for UI celebration
+            return {
+                data: swipeRecord,
+                isMatch: true,
+                streak: streakResult?.streak,
+                type: (paymentResult && paymentResult.type) || (direction === 'right' ? 'standard' : 'pass'),
+                error: null
+            };
+        }
+
+        return {
+            data: swipeRecord,
+            isMatch: false,
+            streak: streakResult?.streak,
+            type: (paymentResult && paymentResult.type) || (direction === 'right' ? 'standard' : 'pass'),
+            error: null
+        };
     } catch (err) {
-        console.error('recordSwipe error:', err.message);
-        return { data: null, error: err.message };
+        console.error('recordSwipe Critical Error:', err);
+        return { data: null, isMatch: false, error: err.message || 'Payment or Database constraint failed' };
     }
 }
+
 
 /**
  * Accept a connection request (Female action)
@@ -151,7 +194,7 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
 export async function acceptRequest(swipeId) {
     try {
         const { data, error } = await supabase.rpc('accept_swipe_request', {
-            swipe_id: swipeId
+            p_swipe_id: swipeId
         });
         if (error) throw error;
         return { data, error: null };

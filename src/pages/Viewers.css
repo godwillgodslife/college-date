@@ -1,0 +1,139 @@
+.viewers-page {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 120px;
+}
+
+.viewers-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.viewers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.viewer-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewer-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.viewer-avatar.blurred img {
+    filter: blur(8px);
+}
+
+.viewer-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.blurred-text {
+    background: rgba(255, 255, 255, 0.2);
+    color: transparent;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.viewer-info p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.lock-icon {
+    margin-left: auto;
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
+.premium-upsell-sticky {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 560px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #FF6B6B, #FF4757);
+    border-radius: 24px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.premium-upsell-sticky h3 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+}
+
+.premium-upsell-sticky p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.btn-unlock-premium {
+    width: 100%;
+    padding: 14px;
+    background: #fff;
+    color: #FF4757;
+    border: none;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-unlock-premium:active {
+    transform: scale(0.98);
+}
+
+.boost-btn {
+    color: #fff;
+    background: linear-gradient(135deg, #FF6B6B, #FF4757);
+}
+
+.no-viewers {
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.6;
+}
+
+.no-viewers-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}

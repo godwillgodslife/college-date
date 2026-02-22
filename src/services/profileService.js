@@ -76,79 +76,27 @@ export async function updateProfile(userId, updates) {
  * Upsert a profile (create or update).
  */
 /**
- * Upsert a profile using Server-Side RPC (Robust).
- * Bypasses client-side RLS locks by running as security definer.
+ * Upsert a profile (create or update).
  */
 export async function upsertProfile(userId, profileData) {
     try {
-        console.log('Calling RPC update_profile_data for:', userId);
+        const safeData = { ...profileData, updated_at: new Date().toISOString() };
 
+        // Use standard client-side upsert logic. RLS supports 'Users can update own profile'
         const { data, error } = await withTimeout(
-            supabase.rpc('update_profile_data', {
-                p_full_name: profileData.full_name,
-                p_age: profileData.age,
-                p_gender: profileData.gender,
-                p_university: profileData.university,
-                p_bio: profileData.bio,
-                p_avatar_url: profileData.avatar_url,
-                p_email: profileData.email
-            })
-            , 30000); // 30s timeout
+            supabase.from('profiles').upsert({ id: userId, ...safeData }).select().single(),
+            15000
+        );
 
         if (error) {
-            console.error('RPC failed:', error);
-            // Fallback to old method just in case user didn't run SQL
-            if (error.code === '42883') { // Function not found
-                console.warn('RPC function not found, falling back to client-side upsert...');
-                return clientSideUpsertFallback(userId, profileData);
-            }
+            console.error('upsertProfile error details:', error);
             throw error;
-        }
-
-        // Check the logical result from the RPC function
-        if (data && data.success === false) {
-            throw new Error(data.error || 'RPC reported failure');
         }
 
         return { data, error: null };
     } catch (err) {
-        console.error('upsertProfile RPC error:', err.message);
-
-        // Fallback to client-side for ANY error (Database constraint, Timeout, Function missing, etc.)
-        console.warn('RPC failed or timed out, attempting client-side fallback...');
-        console.log('Fallback data check (email):', profileData?.email ? 'Present' : 'MISSING');
-
-        return clientSideUpsertFallback(userId, profileData);
-    }
-}
-
-async function clientSideUpsertFallback(userId, profileData) {
-    // ... (The previous Update/Insert logic as fallback)
-    try {
-        const safeData = { ...profileData, updated_at: new Date().toISOString() };
-        // Attempt update first
-        const { data: updateData, error: updateError } = await withTimeout(
-            supabase.from('profiles').update(safeData).eq('id', userId).select().single()
-            , 30000);
-
-        if (!updateError && updateData) {
-            console.log('Fallback: Update successful');
-            return { data: updateData, error: null };
-        }
-
-        // If update failed or no row found, attempt insert
-        console.warn('Fallback: Update failed, trying INSERT...', updateError?.message);
-        const { data: insertData, error: insertError } = await withTimeout(
-            supabase.from('profiles').insert({ id: userId, ...safeData }).select().single()
-            , 30000);
-
-        if (insertError) throw insertError;
-
-        console.log('Fallback: Insert successful');
-        return { data: insertData, error: null };
-    } catch (e) {
-        console.error('clientSideUpsertFallback error:', e.message);
-        return { data: null, error: e.message };
+        console.error('upsertProfile error:', err.message);
+        return { data: null, error: err.message };
     }
 }
 
@@ -237,5 +185,46 @@ export async function uploadVoiceIntro(blob, userId) {
     } catch (err) {
         console.error('uploadVoiceIntro error:', err.message);
         return { url: null, error: err.message };
+    }
+}
+/**
+ * Upload a profile photo for a specific slot.
+ */
+export async function uploadProfilePhoto(file, userId, index) {
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${userId}/${Date.now()}_photo_${index}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await withTimeout(
+            supabase.storage
+                .from('profile-photos')
+                .upload(filePath, file, { upsert: true })
+            , 60000);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+            .from('profile-photos')
+            .getPublicUrl(filePath);
+
+        return { url: publicUrlData.publicUrl, error: null };
+    } catch (err) {
+        console.error('uploadProfilePhoto error:', err.message);
+        return { url: null, error: err.message };
+    }
+}
+
+/**
+ * Heartbeat function to update presence and stay "Live"
+ */
+export async function updatePresence(userId) {
+    try {
+        const { error } = await supabase.rpc('update_user_presence');
+        if (error) throw error;
+        return { error: null };
+    } catch (err) {
+        console.error('updatePresence error:', err.message);
+        return { error: err.message };
     }
 }

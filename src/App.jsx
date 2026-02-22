@@ -29,6 +29,32 @@ import Requests from './pages/Requests';
 import Leaderboard from './pages/Leaderboard';
 import Confessions from './pages/Confessions';
 import PremiumUpgrade from './pages/PremiumUpgrade';
+import Viewers from './pages/Viewers';
+import MiniProfileSetup from './pages/MiniProfileSetup';
+
+/**
+ * SmartHomeRoute determines where an authenticated user should land.
+ * If they haven't finished onboarding, they go to /mini-profile-setup.
+ * If they are done, they go straight to /discover (the main app).
+ */
+function SmartHomeRoute() {
+  const { currentUser, userProfile, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner fullScreen />;
+  if (!currentUser) return <Landing />;
+
+  // Wait for profile to load
+  if (!userProfile) return <LoadingSpinner fullScreen />;
+
+  const isProfileComplete =
+    userProfile.full_name?.trim() &&
+    userProfile.bio?.length >= 10 &&
+    userProfile.university &&
+    userProfile.age &&
+    userProfile.profile_photos?.filter(Boolean).length >= 4;
+
+  return isProfileComplete ? <Navigate to="/discover" replace /> : <Navigate to="/mini-profile-setup" replace />;
+}
 
 function AppRoutes() {
   const { currentUser, loading } = useAuth();
@@ -48,15 +74,15 @@ function AppRoutes() {
       {/* Public routes */}
       <Route
         path="/"
-        element={currentUser ? <Navigate to="/dashboard" replace /> : <Landing />}
+        element={<SmartHomeRoute />}
       />
       <Route
         path="/login"
-        element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />}
+        element={currentUser ? <Navigate to="/" replace /> : <Login />}
       />
       <Route
         path="/signup"
-        element={currentUser ? <Navigate to="/dashboard" replace /> : <Signup />}
+        element={currentUser ? <Navigate to="/" replace /> : <Signup />}
       />
       <Route path="/auth/callback" element={<AuthCallback />} />
 
@@ -84,10 +110,12 @@ function AppRoutes() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/confessions" element={<Confessions />} />
         <Route path="/premium" element={<PremiumUpgrade />} />
+        <Route path="/viewers" element={<Viewers />} />
+        <Route path="/mini-profile-setup" element={<MiniProfileSetup />} />
       </Route>
 
       {/* Default redirect */}
-      <Route path="*" element={<Navigate to={currentUser ? '/dashboard' : '/login'} replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
