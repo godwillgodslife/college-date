@@ -42,4 +42,19 @@ export async function postConfession(content, university, userId) {
     }
 }
 
-// TODO: Implement Like functionality if needed (requires a separate favorites table to prevent spam likes)
+export async function toggleLikeConfession(confessionId, userId) {
+    try {
+        // First check if user already liked it (using a hypothetical likes table)
+        // For simplicity in this demo, we'll increment a counter on the confession itself
+        // In production, use a 'confession_likes' join table to prevent duplicates
+        const { data, error } = await supabase.rpc('increment_confession_likes', {
+            conf_id: confessionId
+        });
+
+        if (error) throw error;
+        return { data, error: null };
+    } catch (error) {
+        console.error('Error liking confession:', error);
+        return { error: error.message };
+    }
+}

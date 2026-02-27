@@ -1,0 +1,351 @@
+/* ═══════════════════════════════════════════════════════════
+   Confessions Page Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.confessions-page {
+    min-height: 100vh;
+    background: #060608;
+    padding-bottom: 7rem;
+    color: white;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Ambient Background Blobs */
+.confessions-ambient {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.blob-1 {
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: rgba(76, 29, 149, 0.15);
+    filter: blur(140px);
+    border-radius: 50%;
+    animation: float 20s infinite alternate ease-in-out;
+}
+
+.blob-2 {
+    position: absolute;
+    top: 40%;
+    right: -20%;
+    width: 50%;
+    height: 50%;
+    background: rgba(190, 18, 60, 0.1);
+    filter: blur(120px);
+    border-radius: 50%;
+    animation: float 25s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(5%, 10%) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-5%, 5%) scale(0.9);
+    }
+}
+
+.confessions-container {
+    position: relative;
+    padding: 2.5rem 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+    z-index: 10;
+}
+
+/* Header */
+.confessions-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.campus-tag {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+    backdrop-filter: blur(10px);
+}
+
+.campus-tag span {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--text-secondary);
+}
+
+.confessions-title {
+    font-size: 44px;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    background: linear-gradient(to bottom right, #fff, #9494a8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.confessions-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Input Card */
+.confessions-input-card {
+    background: rgba(18, 18, 22, 0.8);
+    backdrop-filter: blur(24px);
+    border-radius: 2rem;
+    padding: 1.25rem;
+    margin-bottom: 3rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.input-glow-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--gradient-primary);
+    opacity: 0.6;
+}
+
+.confessions-textarea {
+    width: 100%;
+    resize: none;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    color: var(--text-primary);
+    font-size: 17px;
+    line-height: 1.6;
+    font-weight: 500;
+    outline: none;
+}
+
+.confessions-textarea::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.char-counter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.char-counter.warning {
+    color: var(--accent-secondary);
+}
+
+.btn-confess {
+    padding: 0.6rem 1.8rem;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-confess:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
+    cursor: not-allowed;
+}
+
+.btn-confess:not(:disabled) {
+    background: white;
+    color: black;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.btn-confess:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 25px rgba(255, 255, 255, 0.3);
+}
+
+/* Confession Feed */
+.confessions-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.confession-card {
+    position: relative;
+    background: rgba(16, 16, 20, 0.6);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem;
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.confession-card:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(16, 16, 20, 0.85);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.card-ambient-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    opacity: 0.15;
+}
+
+.confession-card:hover .card-ambient-glow {
+    opacity: 0.3;
+}
+
+.confession-text {
+    position: relative;
+    z-index: 10;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.confession-footer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.uni-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uni-icon {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(to bottom right, #374151, #111827);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.uni-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+}
+
+.action-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-react {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 0.4rem 0.8rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.btn-react:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.btn-react.active {
+    background: rgba(244, 63, 94, 0.1);
+    border-color: rgba(244, 63, 94, 0.3);
+    color: #f43f5e;
+}
+
+.react-icon {
+    font-size: 14px;
+}
+
+.react-count {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.post-time {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    border: 1px solid var(--glass-border);
+}
+
+/* Empty State */
+.empty-feed {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 2rem;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.empty-subtitle {
+    font-size: 11px;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+}

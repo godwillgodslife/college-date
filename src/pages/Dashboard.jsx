@@ -23,14 +23,62 @@ export default function Dashboard() {
     });
 
     useEffect(() => {
-        if (currentUser) {
-            fetchStats();
-        }
+        if (!currentUser) return;
+
+        fetchStats();
+
+        // Subscribe to real-time updates for dashboard stats
+        const dashboardChannel = supabase
+            .channel(`dashboard_updates:${currentUser.id}`)
+            // 1. Listen for wallet updates (Balance/Earnings)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'wallets',
+                filter: `user_id=eq.${currentUser.id}`
+            }, (payload) => {
+                console.log('💳 Dashboard: Wallet updated', payload.new);
+                setStats(prev => ({
+                    ...prev,
+                    balance: payload.new.available_balance || 0,
+                    pendingBalance: payload.new.pending_balance || 0,
+                    totalEarned: payload.new.total_earned || 0
+                }));
+            })
+            // 2. Listen for new matches
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'matches'
+            }, (payload) => {
+                if (payload.new.user1_id === currentUser.id || payload.new.user2_id === currentUser.id) {
+                    console.log('💖 Dashboard: New match detected');
+                    setStats(prev => ({ ...prev, matches: prev.matches + 1 }));
+                }
+            })
+            // 3. Listen for new gifts/transactions
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'wallet_transactions',
+                filter: `user_id=eq.${currentUser.id}`
+            }, (payload) => {
+                if (payload.new.type === 'gift_received') {
+                    console.log('🎁 Dashboard: New gift received');
+                    setStats(prev => ({ ...prev, giftsReceived: prev.giftsReceived + 1 }));
+                }
+                // Also trigger a partial re-fetch to ensure sync
+                fetchStats(false);
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(dashboardChannel);
+        };
     }, [currentUser]);
 
-    async function fetchStats() {
+    async function fetchStats(showLoading = true) {
         try {
-            // ... (rest of the fetch logic is already updated in previous turn, fixing duplicate here)
             // Count Matches
             const { count: matchCount } = await supabase
                 .from('matches')

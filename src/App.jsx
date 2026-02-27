@@ -38,20 +38,18 @@ import MiniProfileSetup from './pages/MiniProfileSetup';
  * If they are done, they go straight to /discover (the main app).
  */
 function SmartHomeRoute() {
-  const { currentUser, userProfile, loading } = useAuth();
+  const { currentUser, userProfile, loading, profileLoading } = useAuth();
 
-  if (loading) return <LoadingSpinner fullScreen />;
+  if (loading || profileLoading) return <LoadingSpinner fullScreen />;
   if (!currentUser) return <Landing />;
 
-  // Wait for profile to load
-  if (!userProfile) return <LoadingSpinner fullScreen />;
-
-  const isProfileComplete =
-    userProfile.full_name?.trim() &&
-    userProfile.bio?.length >= 10 &&
-    userProfile.university &&
-    userProfile.age &&
-    userProfile.profile_photos?.filter(Boolean).length >= 4;
+  const isProfileComplete = Boolean(
+    userProfile?.full_name?.trim() &&
+    userProfile?.bio?.length >= 10 &&
+    userProfile?.university &&
+    userProfile?.age &&
+    userProfile?.profile_photos?.filter(Boolean).length >= 4
+  );
 
   return isProfileComplete ? <Navigate to="/discover" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
@@ -101,7 +99,7 @@ function AppRoutes() {
         <Route path="/status" element={<StatusUpdates />} />
         <Route path="/snap" element={<Snap />} />
         {/* <Route path="/snapshots" element={<Snapshots />} /> Removed obsolete route */}
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId?" element={<Profile />} />
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/referrals" element={<Referrals />} />

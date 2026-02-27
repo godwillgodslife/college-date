@@ -1,22 +1,63 @@
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react'; // Add useState, useEffect
+import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getWallet } from '../services/paymentService'; // Add wallet service
+import { getWallet } from '../services/paymentService';
+import { getProfile } from '../services/profileService';
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import ProfileCompletion from '../components/ProfileCompletion';
+import LoadingSpinner from '../components/LoadingSpinner';
 import './Profile.css';
-import './Profile_Earnings.css'; // Add this line
+import './Profile_Earnings.css';
+import StatusInput from '../components/StatusInput';
 
 export default function Profile() {
-    const { currentUser, userProfile } = useAuth();
+    const { userId } = useParams();
+    const { currentUser, userProfile: myProfile } = useAuth();
     const navigate = useNavigate();
+
+    const [viewingProfile, setViewingProfile] = useState(null);
     const [wallet, setWallet] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+
+    const isOwnProfile = !userId || userId === currentUser?.id;
 
     useEffect(() => {
-        if (currentUser) {
-            getWallet(currentUser.id).then(({ data }) => setWallet(data));
+        if (!currentUser) return;
+
+        async function loadData() {
+            setLoading(true);
+            try {
+                if (isOwnProfile) {
+                    setViewingProfile(myProfile);
+                    const { data } = await getWallet(currentUser.id);
+                    setWallet(data);
+                } else {
+                    const { data, error } = await getProfile(userId);
+                    if (error) throw error;
+                    setViewingProfile(data);
+                }
+            } catch (err) {
+                console.error('Profile load error:', err);
+            } finally {
+                setLoading(false);
+            }
         }
-    }, [currentUser]);
+
+        loadData();
+    }, [userId, isOwnProfile, myProfile, currentUser]);
+
+    if (loading) return <LoadingSpinner fullScreen text="Loading profile..." />;
+    if (!viewingProfile) return (
+        <div className="profile-page">
+            <div className="profile-card">
+                <h2>Profile not found</h2>
+                <button className="btn btn-primary" onClick={() => navigate(-1)}>Go Back</button>
+            </div>
+        </div>
+    );
+
+    const userProfile = viewingProfile;
 
     const displayName = userProfile?.full_name
         || userProfile?.username
@@ -157,32 +198,69 @@ export default function Profile() {
                     <p className="profile-bio">{bio}</p>
                 </div>
 
-                <button
-                    className="btn btn-primary btn-block"
-                    style={{ marginTop: '1.5rem' }}
-                    onClick={() => navigate('/profile/edit')}
-                >
-                    ✏️ Edit Profile
-                </button>
+                {isOwnProfile ? (
+                    <>
+                        <button
+                            className="btn btn-primary btn-block"
+                            style={{ marginTop: '1.5rem' }}
+                            onClick={() => setShowStatusModal(true)}
+                        >
+                            📸 Update Status
+                        </button>
 
-                <button
-                    className="btn btn-gradient btn-block"
-                    style={{ marginTop: '1rem' }}
-                    onClick={() => navigate('/premium')}
-                >
-                    👑 Get Premium
-                </button>
+                        <button
+                            className="btn btn-secondary btn-block"
+                            style={{ marginTop: '1rem' }}
+                            onClick={() => navigate('/profile/edit')}
+                        >
+                            ✏️ Edit Profile
+                        </button>
 
-                <button
-                    className="btn btn-secondary btn-block"
-                    style={{ marginTop: '1rem' }}
-                    onClick={() => navigate('/leaderboard')}
-                >
-                    🏆 Leaderboard
-                </button>
+                        <button
+                            className="btn btn-gradient btn-block"
+                            style={{ marginTop: '1rem' }}
+                            onClick={() => navigate('/premium')}
+                        >
+                            👑 Get Premium
+                        </button>
 
-                <AndroidInstallButton />
+                        <button
+                            className="btn btn-secondary btn-block"
+                            style={{ marginTop: '1rem' }}
+                            onClick={() => navigate('/leaderboard')}
+                        >
+                            🏆 Leaderboard
+                        </button>
+
+                        <AndroidInstallButton />
+                    </>
+                ) : (
+                    <button
+                        className="btn btn-primary btn-block"
+                        style={{ marginTop: '1.5rem' }}
+                        onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id } })}
+                    >
+                        💬 Send Message
+                    </button>
+                )}
             </div>
+
+            {/* Status Update Modal */}
+            {showStatusModal && (
+                <div className="modal-overlay" onClick={() => setShowStatusModal(false)} style={{ zIndex: 2000 }}>
+                    <div className="modal-content glass" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Update Status</h3>
+                            <button className="close-btn" onClick={() => setShowStatusModal(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <StatusInput onStatusPosted={() => {
+                                setShowStatusModal(false);
+                            }} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

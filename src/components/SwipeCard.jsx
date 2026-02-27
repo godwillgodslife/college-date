@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import './SwipeCard.css';
 
-export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe }) {
+function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe }) {
     const [exitX, setExitX] = useState(0);
     const [showPremiumNote, setShowPremiumNote] = useState(false);
     const [premiumNote, setPremiumNote] = useState('');
@@ -91,6 +91,7 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
                             alt={displayName}
                             className="swipe-card-image"
                             draggable="false"
+                            loading="lazy"
                             onError={(e) => {
                                 console.warn(`Image failed to load for ${displayName}: ${photos[activePhotoIdx]}`);
                                 if (photos.length > 1) {
@@ -227,3 +228,6 @@ export default function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, 
         </motion.div>
     );
 }
+
+const MemoizedSwipeCard = memo(SwipeCard);
+export default MemoizedSwipeCard;

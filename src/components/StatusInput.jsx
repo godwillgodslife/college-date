@@ -69,13 +69,17 @@ export default function StatusInput({ onStatusPosted }) {
                         type="file"
                         ref={fileInputRef}
                         onChange={handleFileChange}
-                        accept="image/*"
+                        accept="image/*,video/*"
                         hidden
                     />
                 </div>
             ) : (
                 <div className="status-preview-container">
-                    <img src={preview} alt="Preview" className="status-preview-image" />
+                    {file?.type.startsWith('video/') ? (
+                        <video src={preview} className="status-preview-image" controls />
+                    ) : (
+                        <img src={preview} alt="Preview" className="status-preview-image" />
+                    )}
                     <button
                         className="btn-close-preview"
                         onClick={handleClear}

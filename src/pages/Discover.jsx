@@ -121,42 +121,39 @@ export default function Discover() {
         try {
             console.log('Fetching discovery profiles...');
 
-            // Sync swipe limits first
-            const limitCheck = await checkSwipeLimit(currentUser.id);
+            // 1. Parallel Fetching for speed
+            const [limitCheck, profilesResult] = await Promise.all([
+                checkSwipeLimit(currentUser.id),
+                getDiscoverProfiles(
+                    currentUser.id,
+                    { ...filters, liveOnly },
+                    userProfile?.gender || null
+                )
+            ]);
+
+            // 2. Sync swipe limits
             setFreeSwipes(limitCheck.max - limitCheck.used);
             if (!limitCheck.canSwipe) {
                 setLimitReached({ used: limitCheck.used, max: limitCheck.max });
             }
 
-            const { data, error } = await getDiscoverProfiles(currentUser.id, { ...filters, liveOnly });
-
+            const { data, error } = profilesResult;
             if (error) {
                 console.error('Detailed Load Error:', error);
                 addToast('Could not load profiles.', 'error');
             } else {
-                // Shuffle photos for each profile to show different "variants"
+                // Shuffle photos for each profile
                 const processedProfiles = (data || []).map(profile => {
                     const allPhotos = [...(profile.profile_photos || [])];
                     if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
                         allPhotos.unshift(profile.avatar_url);
                     }
-
-                    // Fisher-Yates shuffle
-                    for (let i = allPhotos.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [allPhotos[i], allPhotos[j]] = [allPhotos[j], allPhotos[i]];
-                    }
-
-                    return {
-                        ...profile,
-                        profile_photos: allPhotos
-                    };
+                    return { ...profile, profile_photos: allPhotos };
                 });
 
                 if (reset) {
                     setProfiles(processedProfiles);
                 } else {
-                    // Prepend/Append based on logic, here we just filter duplicates
                     setProfiles(prev => {
                         const existingIds = new Set(prev.map(p => p.id));
                         const newProfiles = processedProfiles.filter(p => !existingIds.has(p.id));

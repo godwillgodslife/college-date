@@ -15,10 +15,12 @@ export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [profileLoading, setProfileLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Fetch user profile from Supabase
     const fetchProfile = useCallback(async (userId) => {
+        setProfileLoading(true);
         try {
             const { data, error: profileError } = await supabase
                 .from('profiles')
@@ -33,6 +35,8 @@ export function AuthProvider({ children }) {
         } catch (err) {
             console.error('Error fetching profile:', err);
             setUserProfile(null);
+        } finally {
+            setProfileLoading(false);
         }
     }, []);
 
@@ -53,6 +57,8 @@ export function AuthProvider({ children }) {
                     setCurrentUser(user);
                     if (user) {
                         fetchProfile(user.id); // Don't await, let it happen in background
+                    } else {
+                        setProfileLoading(false);
                     }
                     setLoading(false);
                 }
@@ -61,6 +67,7 @@ export function AuthProvider({ children }) {
                 if (mounted) {
                     setCurrentUser(null);
                     setUserProfile(null);
+                    setProfileLoading(false);
                     setLoading(false);
                 }
             }
@@ -80,6 +87,7 @@ export function AuthProvider({ children }) {
                     fetchProfile(user.id); // Don't await
                 } else {
                     setUserProfile(null);
+                    setProfileLoading(false);
                 }
                 setLoading(false);
             }
@@ -91,6 +99,13 @@ export function AuthProvider({ children }) {
                 setLoading((prev) => {
                     if (prev) {
                         console.warn('Auth loading timeout - forcing app load');
+                        return false;
+                    }
+                    return prev;
+                });
+                setProfileLoading((prev) => {
+                    if (prev) {
+                        console.warn('Profile loading timeout');
                         return false;
                     }
                     return prev;
@@ -216,6 +231,7 @@ export function AuthProvider({ children }) {
         currentUser,
         userProfile,
         loading,
+        profileLoading,
         error,
         login,
         signup,

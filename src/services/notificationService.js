@@ -54,6 +54,7 @@ export async function markAllNotificationsAsRead(userId) {
 // Create a notification (To be used by other services)
 export async function createNotification({ userId, actorId, type, title, content, metadata = {} }) {
     try {
+        // 1. Create In-App Notification
         const { error } = await supabase
             .from('notifications')
             .insert({
@@ -66,6 +67,18 @@ export async function createNotification({ userId, actorId, type, title, content
             });
 
         if (error) throw error;
+
+        // 2. Trigger Email Notification (if user has it enabled)
+        const { data: settings } = await getUserSettings(userId);
+        if (settings?.email_notifications) {
+            await sendEmailNotification(userId, title, content);
+        }
+
+        // 3. Trigger Push Notification (OneSignal)
+        if (settings?.push_notifications && settings?.onesignal_id) {
+            await sendPushNotification(settings.onesignal_id, title, content, metadata);
+        }
+
         return { error: null };
     } catch (error) {
         // We generally don't want to crash the app if a notification fails
@@ -74,12 +87,37 @@ export async function createNotification({ userId, actorId, type, title, content
     }
 }
 
+// Helper to trigger email via Edge Function
+async function sendEmailNotification(userId, subject, body) {
+    try {
+        // We call a Supabase Edge Function that handles the actual SMTP/SendGrid logic
+        const { error } = await supabase.functions.invoke('send-notification-email', {
+            body: { userId, subject, body }
+        });
+        if (error) console.error('Edge function email trigger failed:', error);
+    } catch (err) {
+        console.warn('Silent email failure:', err.message);
+    }
+}
+
+// Helper to trigger push via Edge Function
+async function sendPushNotification(onesignalId, title, content, data = {}) {
+    try {
+        const { error } = await supabase.functions.invoke('send-notification-push', {
+            body: { onesignalId, title, content, data }
+        });
+        if (error) console.error('Edge function push trigger failed:', error);
+    } catch (err) {
+        console.warn('Silent push failure:', err.message);
+    }
+}
+
 // Get user settings (from profiles)
 export async function getUserSettings(userId) {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('match_notifications, email_notifications, push_notifications, show_online_status, incognito_mode')
+            .select('match_notifications, email_notifications, push_notifications, show_online_status, incognito_mode, onesignal_id')
             .eq('id', userId)
             .maybeSingle();
 

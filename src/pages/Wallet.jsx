@@ -25,7 +25,6 @@ export default function Wallet() {
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Payout Details State
     const [payoutDetails, setPayoutDetails] = useState({
         bank_name: '',
         account_number: '',
@@ -33,6 +32,32 @@ export default function Wallet() {
         paypal_email: '',
         preferred_method: 'bank'
     });
+
+    const [payoutCountdown, setPayoutCountdown] = useState('');
+
+    useEffect(() => {
+        const calculateCountdown = () => {
+            const now = new Date();
+            const nextFriday = new Date();
+            // 5 is Friday
+            nextFriday.setDate(now.getDate() + (7 + 5 - now.getDay()) % 7);
+            if (now.getDay() === 5 && now.getHours() >= 12) {
+                nextFriday.setDate(nextFriday.getDate() + 7);
+            }
+            nextFriday.setHours(12, 0, 0, 0);
+
+            const diff = nextFriday - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            setPayoutCountdown(`${days}d ${hours}h ${mins}m`);
+        };
+
+        calculateCountdown();
+        const timer = setInterval(calculateCountdown, 60000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -270,6 +295,17 @@ export default function Wallet() {
                 </a>
             </div>
 
+            <div className="payout-info-banner glass animate-fade-in">
+                <div className="banner-content">
+                    <span className="banner-icon">⏳</span>
+                    <div className="banner-text">
+                        <strong>Next Payout Cycle Starts in:</strong>
+                        <span className="countdown-timer">{payoutCountdown}</span>
+                    </div>
+                </div>
+                <div className="banner-badge">Weekly Every Friday</div>
+            </div>
+
             <div className="wallet-overview-grid">
                 <div className="balance-card">
                     <span className="balance-label">{isLady ? 'Available for Withdrawal' : 'Available Balance'}</span>
@@ -278,9 +314,29 @@ export default function Wallet() {
                     </h2>
 
                     {parseFloat(wallet?.pending_balance || 0) > 0 && (
-                        <div className="pending-balance-info" style={{ marginTop: '10px', padding: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '14px' }}>
-                            <span style={{ display: 'block', color: 'rgba(255,255,255,0.8)' }}>🔒 Locked Referral Earnings (30 Days)</span>
-                            <span style={{ display: 'block', fontWeight: 'bold' }}>₦{parseFloat(wallet?.pending_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        <div className="pending-balance-info" style={{ marginTop: '10px', padding: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '12px', fontSize: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                <span style={{ color: 'rgba(255,255,255,0.8)' }}>🔒 Locked Earnings</span>
+                                <span style={{
+                                    padding: '2px 8px',
+                                    background: 'rgba(252, 182, 119, 0.2)',
+                                    color: '#fcb677',
+                                    borderRadius: '100px',
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase'
+                                }}>
+                                    {wallet?.pending_maturity_date ? (
+                                        Math.max(0, Math.ceil((new Date(wallet.pending_maturity_date) - new Date()) / (1000 * 60 * 60 * 24))) + ' Days Left'
+                                    ) : '30 Days Left'}
+                                </span>
+                            </div>
+                            <span style={{ display: 'block', fontWeight: 'bold', fontSize: '18px' }}>
+                                ₦{parseFloat(wallet?.pending_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </span>
+                            <p style={{ margin: '8px 0 0', fontSize: '11px', color: 'var(--text-dim)', lineHeight: '1.4' }}>
+                                Referral bonuses are locked for 30 days to prevent fraud. They will automatically move to your available balance once matured.
+                            </p>
                         </div>
                     )}
 
@@ -364,6 +420,24 @@ export default function Wallet() {
                             </span>
                             <span className="stat-lbl">From Gifts</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="payout-instructions-card glass animate-fade-in-up">
+                <h3>💡 How to Get Paid</h3>
+                <div className="instruction-grid">
+                    <div className="step">
+                        <span className="step-num">1</span>
+                        <p>Earn <strong>₦15,000</strong> or more from swipes and gifts.</p>
+                    </div>
+                    <div className="step">
+                        <span className="step-num">2</span>
+                        <p>Request a withdrawal below to the payout queue.</p>
+                    </div>
+                    <div className="step">
+                        <span className="step-num">3</span>
+                        <p>Payments are processed every <strong>Friday at 12 PM</strong>.</p>
                     </div>
                 </div>
             </div>

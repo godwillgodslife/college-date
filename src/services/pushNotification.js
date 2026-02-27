@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase';
+
 // OneSignal is now handled via script tag in index.html and window.OneSignalDeferred
 
 
@@ -6,7 +8,7 @@
  * Because we now init in index.html, this function just handles post-init logic
  * like checking permissions and getting IDs.
  */
-export async function initPushNotifications() {
+export async function initPushNotifications(userId) {
     try {
         // Skip OneSignal errors on localhost (requires HTTPS/Domain)
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -41,6 +43,21 @@ export async function initPushNotifications() {
                 const subscriptionId = OneSignal.User.PushSubscription.id;
                 if (subscriptionId) {
                     console.log('OneSignal Subscription ID:', subscriptionId);
+
+                    // Sync with Supabase Profile
+                    if (userId) {
+                        try {
+                            const { error } = await supabase
+                                .from('profiles')
+                                .update({ onesignal_id: subscriptionId })
+                                .eq('id', userId);
+
+                            if (error) console.error('Error syncing OneSignal ID to Supabase:', error);
+                            else console.log('Successfully synced OneSignal ID to profile');
+                        } catch (err) {
+                            console.error('Push sync error:', err);
+                        }
+                    }
                 }
             }
         });

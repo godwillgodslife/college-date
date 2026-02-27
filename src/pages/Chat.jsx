@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
     getConversations,
@@ -31,7 +31,8 @@ const ICEBREAKERS = [
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
-    const navigate = useNavigate(); // Add navigate
+    const navigate = useNavigate();
+    const location = useLocation();
     const messagesEndRef = useRef(null);
 
     const [conversations, setConversations] = useState([]);
@@ -132,6 +133,18 @@ export default function Chat() {
             addToast('Could not load chats.', 'error');
         } else {
             setConversations(data);
+
+            // Check for deep-link from Profile
+            const openChatWith = location.state?.openChatWith;
+            if (openChatWith && data.length > 0) {
+                const targetConv = data.find(c => c.other_user?.id === openChatWith);
+                if (targetConv) {
+                    setSelectedConv(targetConv);
+                    setLoading(false);
+                    return;
+                }
+            }
+
             // On mobile, don't auto-select so user stays on conversation list
             const isMobile = window.innerWidth <= 768;
             if (data.length > 0 && !selectedConv && !isMobile) {
@@ -428,22 +441,41 @@ export default function Chat() {
                                 className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''}`}
                                 onClick={() => setSelectedConv(conv)}
                             >
-                                <div className="avatar-wrapper">
+                                <div className="avatar-wrapper" onClick={(e) => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
                                     <img
                                         src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
                                         alt={conv.other_user?.full_name}
                                         className="conv-avatar"
+                                        title="View profile"
                                     />
                                     {presence[conv.other_user?.id]?.length > 0 && <span className="online-dot"></span>}
                                 </div>
                                 <div className="conv-info">
-                                    <div className="conv-name">{conv.other_user?.full_name || 'User'}</div>
+                                    <div className="conv-name-row">
+                                        <span className="conv-name">{conv.other_user?.full_name || 'User'}</span>
+                                        {conv.last_message_at && (
+                                            <span className="conv-time">
+                                                {new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="conv-last-msg">
                                         {presence[conv.other_user?.id]?.some(p => p.is_typing) ? (
                                             <span className="typing-text">typing...</span>
-                                        ) : 'Click to chat'}
+                                        ) : conv.last_message ? (
+                                            <span className="msg-snippet">{conv.last_message.slice(0, 55)}{conv.last_message.length > 55 ? '…' : ''}</span>
+                                        ) : (
+                                            <span className="msg-snippet muted">Tap to start chatting 👋</span>
+                                        )}
                                     </div>
                                 </div>
+                                <button
+                                    className="conv-msg-cta"
+                                    onClick={(e) => { e.stopPropagation(); setSelectedConv(conv); }}
+                                    title="Open chat"
+                                >
+                                    💬
+                                </button>
                             </div>
                         ))
                     )}
@@ -604,10 +636,73 @@ export default function Chat() {
                         </div>
                     </>
                 ) : (
-                    <div className="chat-empty-state">
-                        <div className="empty-chat-icon">💬</div>
-                        <h2>Your Messages</h2>
-                        <p>Select a match to start chatting.</p>
+                    <div className="chat-dashboard animate-fade-in">
+                        <div className="dashboard-header-premium">
+                            <div className="dashboard-icon-ring">
+                                <span className="icon-main">💬</span>
+                            </div>
+                            <h2>Your Conversations</h2>
+                            <p>Pick up where you left off or start something new</p>
+                        </div>
+
+                        {conversations.length > 0 ? (
+                            <div className="dashboard-sections">
+                                {/* Quick Start / New Matches */}
+                                {conversations.some(c => !c.last_message) && (
+                                    <section className="dashboard-section new-matches-section">
+                                        <h3 className="section-label">✨ New Matches</h3>
+                                        <div className="new-matches-row">
+                                            {conversations.filter(c => !c.last_message).slice(0, 5).map(conv => (
+                                                <div
+                                                    key={conv.id}
+                                                    className="new-match-avatar-card"
+                                                    onClick={() => setSelectedConv(conv)}
+                                                >
+                                                    <div className="avatar-ring">
+                                                        <img
+                                                            src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
+                                                            alt={conv.other_user?.full_name}
+                                                        />
+                                                    </div>
+                                                    <span className="match-name">{conv.other_user?.full_name?.split(' ')[0]}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* Recent Activity */}
+                                <section className="dashboard-section recent-chats-section">
+                                    <h3 className="section-label">🕒 Recent Chats</h3>
+                                    <div className="recent-chats-grid">
+                                        {conversations.filter(c => c.last_message).slice(0, 6).map(conv => (
+                                            <div
+                                                key={conv.id}
+                                                className="recent-chat-card glass"
+                                                onClick={() => setSelectedConv(conv)}
+                                            >
+                                                <img
+                                                    src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
+                                                    alt={conv.other_user?.full_name}
+                                                    className="card-avatar"
+                                                />
+                                                <div className="card-info">
+                                                    <span className="card-name">{conv.other_user?.full_name}</span>
+                                                    <p className="card-last-msg">{conv.last_message}</p>
+                                                </div>
+                                                <div className="card-arrow">→</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            </div>
+                        ) : (
+                            <div className="no-conv-fallback">
+                                <div className="fallback-emoji">💝</div>
+                                <p>No matches yet. Your next vibe is just a swipe away!</p>
+                                <button className="btn-go-swiping" onClick={() => navigate('/discover')}>Go Swiping</button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

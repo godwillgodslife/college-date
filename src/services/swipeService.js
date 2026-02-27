@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
 // Helper to get profiles for discovery with filters
-export async function getDiscoverProfiles(userId, filters = {}) {
+export async function getDiscoverProfiles(userId, filters = {}, currentUserGender = null) {
     try {
         // 1. Get IDs to EXCLUDE:
         const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
@@ -28,9 +28,15 @@ export async function getDiscoverProfiles(userId, filters = {}) {
             query = query.not('id', 'in', `(${excludeIds.join(',')})`);
         }
 
-        // Apply Gender Filter
+        // Apply Gender Filter (or default 90/10 ratio bias)
         if (filters.gender && filters.gender !== 'All') {
-            query = query.eq('gender', filters.gender);
+            // User manually set a filter — respect it exactly
+            query = query.eq('gender', filters.gender.toLowerCase());
+        } else if (currentUserGender) {
+            // Default: show opposite gender 90% by ordering opposite gender first
+            const oppositeGender = currentUserGender === 'male' ? 'female' : 'male';
+            query = query.order('gender', { ascending: currentUserGender === 'female' }); // female=false means males first for female users
+            // We pull more results then sort client-side for true 90/10 mix
         }
 
         // Apply University Filter
@@ -51,29 +57,46 @@ export async function getDiscoverProfiles(userId, filters = {}) {
             query = query.or(`is_live.eq.true,last_seen_at.gt.${oneHourAgo}`);
         }
 
-        // Sort by Profile Completion (priority) then Visibility Score
-        // If Live Mode is ON, we also prioritize Live users at the top
         if (filters.liveOnly) {
             query = query.order('is_live', { ascending: false });
         }
 
         query = query
-            .order('completion_score', { ascending: false })
-            .order('visibility_score', { ascending: false });
+            .order('completion_score', { ascending: false });
 
-        // Limit results
-        query = query.limit(40);
+        query = query.limit(60); // Fetch more so ratio mixing works
 
         const { data: profiles, error: profilesError } = await query;
 
         if (profilesError) throw profilesError;
 
-        return { data: profiles || [], error: null };
+        let results = profiles || [];
+
+        // Client-side 90/10 gender ratio mixing (when no manual filter set)
+        if ((!filters.gender || filters.gender === 'All') && currentUserGender) {
+            const oppositeGender = currentUserGender === 'male' ? 'female' : 'male';
+            const preferred = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
+            const others = results.filter(p => (p.gender || '').toLowerCase() !== oppositeGender);
+
+            // Interleave: 9 preferred + 1 other per 10 results
+            const mixed = [];
+            let pi = 0, oi = 0;
+            while (pi < preferred.length || oi < others.length) {
+                for (let i = 0; i < 9 && pi < preferred.length; i++) mixed.push(preferred[pi++]);
+                if (oi < others.length) mixed.push(others[oi++]);
+            }
+            results = mixed.slice(0, 40);
+        } else {
+            results = results.slice(0, 40);
+        }
+
+        return { data: results, error: null };
     } catch (err) {
         console.error('getDiscoverProfiles exception:', err);
         return { data: [], error: err.message || 'Internal Service Error' };
     }
 }
+
 
 /**
  * Check and increment swipe limit for free users
