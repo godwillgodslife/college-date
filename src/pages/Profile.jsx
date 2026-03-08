@@ -9,43 +9,89 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import './Profile.css';
 import './Profile_Earnings.css';
 import StatusInput from '../components/StatusInput';
+import StatusViewer from '../components/StatusViewer';
+import { getUserStatuses } from '../services/statusService';
+import { formatLastSeen } from '../utils/formatTimestamp';
+
+import useSWR from 'swr';
+import OptimizedImage from '../components/OptimizedImage';
+import { AnimatePresence } from 'framer-motion';
 
 export default function Profile() {
     const { userId } = useParams();
-    const { currentUser, userProfile: myProfile } = useAuth();
+    const { currentUser, userProfile: myProfile, onlineUserIds } = useAuth();
     const navigate = useNavigate();
 
-    const [viewingProfile, setViewingProfile] = useState(null);
-    const [wallet, setWallet] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [showStatusModal, setShowStatusModal] = useState(false);
+    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [checkingPush, setCheckingPush] = useState(true);
+    const [showStatusViewer, setShowStatusViewer] = useState(false);
 
     const isOwnProfile = !userId || userId === currentUser?.id;
+    const profileId = userId || currentUser?.id;
+
+    // 1. Resolve Profile data
+    const { data: profileResult, isLoading: SWRProfileLoading } = useSWR(
+        (!isOwnProfile && profileId) ? ['profile', profileId] : null,
+        () => getProfile(profileId),
+        { revalidateOnFocus: false }
+    );
+
+    const viewingProfile = isOwnProfile ? myProfile : profileResult?.data;
+    const profileLoading = isOwnProfile ? false : SWRProfileLoading;
+
+    console.log('[Profile Debug]', {
+        isOwnProfile,
+        profileId,
+        currentUserId: currentUser?.id,
+        hasMyProfile: !!myProfile,
+        hasSWRResult: !!profileResult,
+        viewingProfile: !!viewingProfile
+    });
+
+    const { data: walletResult, isLoading: walletLoading } = useSWR(
+        isOwnProfile && currentUser ? ['wallet', currentUser.id] : null,
+        () => getWallet(currentUser.id),
+        { revalidateOnFocus: false }
+    );
+
+    const { data: statusResult, isLoading: statusLoading } = useSWR(
+        profileId ? ['statuses', profileId] : null,
+        () => getUserStatuses(profileId),
+        { revalidateOnFocus: false }
+    );
+
+    const wallet = walletResult?.data;
+    const userStatuses = statusResult?.data || [];
+
+    const loading = (profileLoading && !viewingProfile) || (isOwnProfile && walletLoading && !wallet);
 
     useEffect(() => {
-        if (!currentUser) return;
-
-        async function loadData() {
-            setLoading(true);
-            try {
-                if (isOwnProfile) {
-                    setViewingProfile(myProfile);
-                    const { data } = await getWallet(currentUser.id);
-                    setWallet(data);
-                } else {
-                    const { data, error } = await getProfile(userId);
-                    if (error) throw error;
-                    setViewingProfile(data);
-                }
-            } catch (err) {
-                console.error('Profile load error:', err);
-            } finally {
-                setLoading(false);
-            }
+        if (!isOwnProfile) return;
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isLocal) {
+            setCheckingPush(false);
+            return;
         }
 
-        loadData();
-    }, [userId, isOwnProfile, myProfile, currentUser]);
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(function (OneSignal) {
+            const hasPermission = OneSignal.Notifications.permission;
+            setIsSubscribed(hasPermission);
+            setCheckingPush(false);
+
+            OneSignal.Notifications.addEventListener('permissionChange', (permission) => {
+                setIsSubscribed(permission);
+            });
+        });
+    }, [isOwnProfile]);
+
+    const handleEnableAlerts = () => {
+        window.OneSignalDeferred.push(async function (OneSignal) {
+            await OneSignal.Notifications.requestPermission();
+            setIsSubscribed(OneSignal.Notifications.permission);
+        });
+    };
 
     if (loading) return <LoadingSpinner fullScreen text="Loading profile..." />;
     if (!viewingProfile) return (
@@ -58,6 +104,7 @@ export default function Profile() {
     );
 
     const userProfile = viewingProfile;
+    const isOnline = onlineUserIds.has(userProfile.id);
 
     const displayName = userProfile?.full_name
         || userProfile?.username
@@ -68,8 +115,6 @@ export default function Profile() {
     const email = currentUser?.email || '';
     const university = userProfile?.university || 'Not set';
     const bio = userProfile?.bio || 'No bio yet';
-    const age = userProfile?.age || '—';
-    const gender = userProfile?.gender || 'Not set';
 
     // Vibe Check Data
     const anthem = userProfile?.anthem;
@@ -86,18 +131,59 @@ export default function Profile() {
                 />
 
                 <div className="profile-header">
-                    <div className="profile-avatar-wrapper">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} className="profile-avatar" />
+                    <div className="profile-photos-carousel">
+                        {userProfile?.profile_photos?.length > 0 ? (
+                            userProfile.profile_photos.map((photo, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`profile-carousel-item profile-avatar-wrapper ${userStatuses.length > 0 ? 'has-status' : ''}`}
+                                    onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
+                                    style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
+                                >
+                                    <OptimizedImage
+                                        src={photo || avatarUrl}
+                                        alt={`${displayName} ${idx + 1}`}
+                                        className="profile-avatar"
+                                        width={300}
+                                        priority={idx === 0}
+                                    />
+                                    {isOnline && <span className="profile-online-dot" />}
+                                </div>
+                            ))
                         ) : (
-                            <div className="profile-avatar profile-avatar-placeholder">
-                                {displayName.charAt(0).toUpperCase()}
+                            <div
+                                className={`profile-carousel-item profile-avatar-wrapper ${userStatuses.length > 0 ? 'has-status' : ''}`}
+                                onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
+                                style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
+                            >
+                                {avatarUrl ? (
+                                    <OptimizedImage
+                                        src={avatarUrl}
+                                        alt={displayName}
+                                        className="profile-avatar"
+                                        width={300}
+                                        priority
+                                    />
+                                ) : (
+                                    <div className="profile-avatar profile-avatar-placeholder">
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
+                                {isOnline && <span className="profile-online-dot" />}
                             </div>
                         )}
-                        <span className="profile-online-dot" />
                     </div>
-                    <h1 className="profile-name">{displayName}</h1>
-                    <p className="profile-email">{email}</p>
+                    <h1 className="profile-name">
+                        {displayName}
+                        {isOnline && <span className="live-badge">LIVE</span>}
+                    </h1>
+                    <p className="profile-email">
+                        {isOnline ? (
+                            <span className="online-status-text">Online now</span>
+                        ) : (
+                            <span className="last-seen-status">{formatLastSeen(userProfile?.last_seen_at)}</span>
+                        )}
+                    </p>
                 </div>
 
 
@@ -128,23 +214,32 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Earnings Section for Ladies */}
-                {userProfile?.role === 'Female' && (
-                    <div className="profile-section earnings-summary-card" onClick={() => navigate('/wallet')}>
-                        <div className="earnings-summary-header">
-                            <h3 className="profile-section-title">💰 My Earnings</h3>
-                            <button className="btn-text">View Wallet →</button>
+                {/* Earnings Section (Prominent for Female users, Wallet for others) */}
+                {isOwnProfile && (
+                    <div className="profile-section wallet-entry-card" onClick={() => navigate('/wallet')}>
+                        <div className="wallet-entry-header">
+                            <h3 className="profile-section-title">
+                                {userProfile?.role === 'Female' ? '💰 My Earnings' : '💰 My Wallet'}
+                            </h3>
+                            <button className="btn-text">Manage →</button>
                         </div>
-                        <div className="earnings-summary-grid">
-                            <div className="earn-stat">
-                                <span className="earn-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
-                                <span className="earn-lbl">Available</span>
+                        {userProfile?.role === 'Female' ? (
+                            <div className="earnings-summary-grid">
+                                <div className="earn-stat">
+                                    <span className="earn-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
+                                    <span className="earn-lbl">Available</span>
+                                </div>
+                                <div className="earn-stat">
+                                    <span className="earn-val">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
+                                    <span className="earn-lbl">Lifetime</span>
+                                </div>
                             </div>
-                            <div className="earn-stat">
-                                <span className="earn-val">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
-                                <span className="earn-lbl">Lifetime</span>
+                        ) : (
+                            <div className="wallet-balance-simple">
+                                <span className="balance-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
+                                <span className="balance-lbl">Balance</span>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
 
@@ -200,9 +295,23 @@ export default function Profile() {
 
                 {isOwnProfile ? (
                     <>
+                        <div className="push-status-container" style={{ marginTop: '1.5rem' }}>
+                            {!checkingPush && (
+                                isSubscribed ? (
+                                    <button className="btn btn-secondary btn-block" disabled style={{ opacity: 0.7 }}>
+                                        🔔 Notifications Subscribed ✓
+                                    </button>
+                                ) : (
+                                    <button className="btn btn-primary btn-block" onClick={handleEnableAlerts} style={{ animation: 'pulse 2s infinite' }}>
+                                        🔔 Enable Push Alerts
+                                    </button>
+                                )
+                            )}
+                        </div>
+
                         <button
-                            className="btn btn-primary btn-block"
-                            style={{ marginTop: '1.5rem' }}
+                            className="btn btn-secondary btn-block"
+                            style={{ marginTop: '1rem' }}
                             onClick={() => setShowStatusModal(true)}
                         >
                             📸 Update Status
@@ -261,6 +370,16 @@ export default function Profile() {
                     </div>
                 </div>
             )}
+            {/* Status Viewer Overlay */}
+            <AnimatePresence>
+                {showStatusViewer && userStatuses.length > 0 && (
+                    <StatusViewer
+                        statuses={userStatuses}
+                        profile={userProfile}
+                        onClose={() => setShowStatusViewer(false)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }

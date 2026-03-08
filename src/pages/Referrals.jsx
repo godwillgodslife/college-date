@@ -12,12 +12,24 @@ export default function Referrals() {
     const [referrals, setReferrals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [copying, setCopying] = useState(false);
+    const [checkingRewards, setCheckingRewards] = useState(false);
+    const [wallet, setWallet] = useState(null);
 
     useEffect(() => {
         if (currentUser) {
             loadReferrals();
+            loadWalletData();
         }
     }, [currentUser]);
+
+    async function loadWalletData() {
+        const { data } = await supabase
+            .from('wallets')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+        setWallet(data);
+    }
 
     async function loadReferrals() {
         setLoading(true);
@@ -55,6 +67,29 @@ export default function Referrals() {
     const handleCopyCode = () => {
         navigator.clipboard.writeText(userProfile?.referral_code || '');
         addToast('Referral code copied!', 'success');
+    };
+
+    const handleCheckRewards = async () => {
+        setCheckingRewards(true);
+        try {
+            const { data, error } = await supabase.rpc('unlock_matured_rewards', {
+                p_user_id: currentUser.id
+            });
+
+            if (error) throw error;
+
+            if (data?.unlocked_amount > 0) {
+                addToast(`₦${data.unlocked_amount} moved to your wallet! 💰`, 'success');
+                loadWalletData();
+            } else {
+                addToast('No new rewards to unlock yet.', 'info');
+            }
+        } catch (err) {
+            console.error('Error unlocking rewards:', err);
+            addToast('Failed to check for rewards.', 'error');
+        } finally {
+            setCheckingRewards(false);
+        }
     };
 
     return (
@@ -104,8 +139,14 @@ export default function Referrals() {
                         <span className="stat-name">Invites</span>
                     </div>
                     <div className="ref-stat">
-                        <span className="stat-val">{referrals.filter(r => r.status === 'rewarded').length}</span>
-                        <span className="stat-name">Rewards</span>
+                        <span className="stat-val">₦{wallet?.pending_balance || 0}</span>
+                        <span className="stat-name">Pending</span>
+                    </div>
+                    <div className="ref-stat clickable" onClick={handleCheckRewards}>
+                        <span className="stat-val">
+                            {checkingRewards ? '...' : `₦${wallet?.available_balance || 0}`}
+                        </span>
+                        <span className="stat-name">Available</span>
                     </div>
                 </div>
             </div>

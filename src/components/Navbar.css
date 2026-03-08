@@ -158,6 +158,18 @@
     transform: rotate(180deg);
 }
 
+.earning-dot-navbar {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    background: #ff4b4b;
+    border-radius: 50%;
+    border: 2px solid var(--glass-bg);
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.6);
+}
+
 .navbar-overlay {
     position: fixed;
     inset: 0;

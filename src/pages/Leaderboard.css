@@ -408,3 +408,164 @@
     pointer-events: none;
     user-select: none;
 }
+
+/* ── Weekly Countdown ───────────────────────────────────────── */
+.weekly-countdown {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 0.75rem;
+    background: rgba(251, 191, 36, 0.06);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 16px;
+    padding: 0.6rem 1.4rem;
+}
+
+.countdown-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(251, 191, 36, 0.6);
+}
+
+.countdown-value {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fbbf24;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+}
+
+/* ── League Key ─────────────────────────────────────────────── */
+.league-key {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.league-key-item {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    letter-spacing: 0.05em;
+}
+
+/* ── League Badges (per row) ────────────────────────────────── */
+.league-badge {
+    font-size: 1rem;
+    margin: 0 0.5rem;
+    flex-shrink: 0;
+}
+
+.league-crown {
+    color: #fbbf24;
+}
+
+.league-gold {
+    color: #eab308;
+}
+
+.league-silver {
+    color: #94a3b8;
+}
+
+.league-bronze {
+    color: #b87333;
+}
+
+/* ── Crown on Top 3 Avatars ─────────────────────────────────── */
+.avatar-wrapper-lb {
+    position: relative;
+    display: inline-block;
+}
+
+.crown-icon {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    z-index: 30;
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+    animation: crownBob 3s ease-in-out infinite;
+}
+
+.crown-glow .avatar-frame {
+    box-shadow: 0 0 28px rgba(251, 191, 36, 0.35),
+        0 0 60px rgba(251, 191, 36, 0.1);
+}
+
+@keyframes crownBob {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-4px);
+    }
+}
+
+/* ── My Row (Current User) ─────────────────────────────────── */
+.leaderboard-row.my-row {
+    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(99, 102, 241, 0.07);
+    box-shadow: inset 3px 0 0 var(--accent-primary),
+        0 0 20px rgba(99, 102, 241, 0.08);
+}
+
+.me-label {
+    font-size: 0.7rem;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* Rank badge on podium avatars */
+.rank-badge {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    font-weight: 900;
+    font-size: 12px;
+    border: 2px solid #060608;
+    border-radius: 100px;
+    line-height: 1;
+}
+
+.rank-badge-1 {
+    bottom: -12px;
+    background: linear-gradient(to right, #fde047, #ca8a04);
+    color: #000;
+    padding: 2px 10px;
+}
+
+.rank-badge-2 {
+    bottom: -10px;
+    background: linear-gradient(to right, #e2e8f0, #94a3b8);
+    color: #000;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-badge-3 {
+    bottom: -10px;
+    background: linear-gradient(to right, #fcb677, #b87333);
+    color: #000;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

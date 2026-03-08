@@ -6,7 +6,7 @@ export async function getNotifications(userId) {
         const { data, error } = await supabase
             .from('notifications')
             .select('*')
-            .eq('recipient_id', userId)
+            .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(50); // Fetch last 50
 
@@ -40,7 +40,7 @@ export async function markAllNotificationsAsRead(userId) {
         const { error } = await supabase
             .from('notifications')
             .update({ is_read: true })
-            .eq('recipient_id', userId)
+            .eq('user_id', userId)
             .eq('is_read', false);
 
         if (error) throw error;
@@ -58,8 +58,8 @@ export async function createNotification({ userId, actorId, type, title, content
         const { error } = await supabase
             .from('notifications')
             .insert({
-                recipient_id: userId,
-                sender_id: actorId || null,
+                user_id: userId,
+                actor_id: actorId || null,
                 type,
                 title,
                 content,

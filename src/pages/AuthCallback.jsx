@@ -29,9 +29,25 @@ export default function AuthCallback() {
                         .from('profiles')
                         .select('id')
                         .eq('id', session.user.id)
-                        .single();
+                        .maybeSingle(); // Use maybeSingle to avoid 406/error if not found
 
                     if (!profile) {
+                        // Check for referral code in localStorage
+                        const referralCode = localStorage.getItem('referral_code');
+                        let referredBy = null;
+
+                        if (referralCode) {
+                            const { data: referrerData } = await supabase
+                                .from('profiles')
+                                .select('id')
+                                .eq('referral_code', referralCode)
+                                .maybeSingle();
+
+                            if (referrerData) {
+                                referredBy = referrerData.id;
+                            }
+                        }
+
                         // Create basic profile from OAuth metadata
                         const meta = session.user.user_metadata || {};
                         await supabase.from('profiles').upsert({
@@ -39,7 +55,11 @@ export default function AuthCallback() {
                             full_name: meta.full_name || meta.name || '',
                             email: session.user.email || '',
                             avatar_url: meta.avatar_url || meta.picture || '',
+                            referred_by: referredBy,
                         }, { onConflict: 'id' });
+
+                        // Clear the code after successful use
+                        if (referralCode) localStorage.removeItem('referral_code');
                     }
 
                     navigate('/', { replace: true });

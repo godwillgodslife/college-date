@@ -135,7 +135,7 @@ export default function StatusFeed({ statuses, loading, hiddenCount = 0 }) {
                         <div className="locked-icon">🔒</div>
                         <h3>{hiddenCount} Locked {hiddenCount === 1 ? 'Update' : 'Updates'}</h3>
                         <p>Swipe in Discover to unlock hidden content from new connections!</p>
-                        <button className="btn-unlock-cta" onClick={() => window.location.href = '/discover'}>
+                        <button className="btn-unlock-cta" onClick={() => window.location.href = '/match'}>
                             Start Swiping
                         </button>
                     </div>

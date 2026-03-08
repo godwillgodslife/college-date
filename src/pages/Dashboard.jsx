@@ -196,9 +196,9 @@ export default function Dashboard() {
                 <div className="features-grid">
                     <FeatureCard
                         icon="💖"
-                        title="Discover"
+                        title="Match"
                         description="Swipe and find people you vibe with"
-                        to="/discover"
+                        to="/match"
                     />
                     <FeatureCard
                         icon="💬"

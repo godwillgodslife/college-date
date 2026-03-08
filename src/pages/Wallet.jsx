@@ -428,16 +428,13 @@ export default function Wallet() {
                 <h3>💡 How to Get Paid</h3>
                 <div className="instruction-grid">
                     <div className="step">
-                        <span className="step-num">1</span>
-                        <p>Earn <strong>₦15,000</strong> or more from swipes and gifts.</p>
+                        <p><strong>1.</strong> Earn <strong>₦15,000</strong> or more from swipes and gifts.</p>
                     </div>
                     <div className="step">
-                        <span className="step-num">2</span>
-                        <p>Request a withdrawal below to the payout queue.</p>
+                        <p><strong>2.</strong> Request a withdrawal below to the payout queue.</p>
                     </div>
                     <div className="step">
-                        <span className="step-num">3</span>
-                        <p>Payments are processed every <strong>Friday at 12 PM</strong>.</p>
+                        <p><strong>3.</strong> Payments are processed every <strong>Friday at 12 PM</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -486,7 +483,7 @@ export default function Wallet() {
                                     onChange={(e) => setPayoutDetails({ ...payoutDetails, account_number: e.target.value })}
                                 />
                             </div>
-                            <div className="payout-form-group" style={{ gridColumn: 'span 2' }}>
+                            <div className="payout-form-group payout-full-row">
                                 <label>Account Name</label>
                                 <input
                                     type="text"
@@ -527,12 +524,17 @@ export default function Wallet() {
                         {transactions.map(tx => (
                             <div key={tx.id} className="transaction-item">
                                 <div className={`tx-icon icon-${tx.type}`}>
-                                    {tx.type === 'deposit' ? '💰' : tx.type === 'swipe_reward' ? '⭐' : tx.type === 'swipe_purchase' ? '💸' : '🎁'}
+                                    {tx.type === 'deposit' ? '💰' : tx.type === 'swipe_reward' ? '⭐' : tx.type === 'swipe_purchase' ? '💸' : tx.type === 'referral_bonus' ? '🤝' : '🎁'}
                                 </div>
                                 <div className="tx-info">
                                     <span className="tx-type">{tx.type.replace('_', ' ').charAt(0).toUpperCase() + tx.type.replace('_', ' ').slice(1)}</span>
                                     <span className="tx-description">{tx.description}</span>
-                                    <span className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</span>
+                                    <div className="tx-date-row">
+                                        <span className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</span>
+                                        {tx.status === 'pending' && tx.unlocks_at && (
+                                            <span className="tx-unlock-date"> • Unlocks: {new Date(tx.unlocks_at).toLocaleDateString()}</span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="tx-amount-status">
                                     <span className={`tx-amount mont-${tx.type}`}>

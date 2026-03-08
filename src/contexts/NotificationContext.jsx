@@ -53,7 +53,7 @@ export function NotificationProvider({ children }) {
                         event: 'INSERT',
                         schema: 'public',
                         table: 'notifications',
-                        filter: `recipient_id=eq.${currentUser.id}`
+                        filter: `user_id=eq.${currentUser.id}`
                     },
                     (payload) => {
                         console.log('New Notification Received:', payload);

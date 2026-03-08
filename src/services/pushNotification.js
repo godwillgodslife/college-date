@@ -9,13 +9,11 @@ import { supabase } from '../lib/supabase';
  * like checking permissions and getting IDs.
  */
 export async function initPushNotifications(userId) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('[Dev] Skipping OneSignal init on localhost');
+        return;
+    }
     try {
-        // Skip OneSignal errors on localhost (requires HTTPS/Domain)
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('OneSignal: Skipping initialization on localhost to avoid domain errors.');
-            return;
-        }
-
         // OneSignal is globally available via OneSignalDeferred
         window.OneSignalDeferred = window.OneSignalDeferred || [];
 
@@ -32,30 +30,38 @@ export async function initPushNotifications(userId) {
             const permission = OneSignal.Notifications.permission;
 
             if (!permission) {
-                // Defensive check for Slidedown
-                if (OneSignal.Slidedown) {
-                    await OneSignal.Slidedown.prompt();
+                // Defensive check before requesting permission
+                if (OneSignal.Notifications && typeof OneSignal.Notifications.requestPermission === 'function') {
+                    await OneSignal.Notifications.requestPermission();
                 }
             }
 
             // Defensive check for User Subscription
-            if (OneSignal.User && OneSignal.User.PushSubscription) {
-                const subscriptionId = OneSignal.User.PushSubscription.id;
-                if (subscriptionId) {
-                    console.log('OneSignal Subscription ID:', subscriptionId);
+            if (OneSignal.User) {
+                // Sync Supabase UID as OneSignal External ID
+                if (userId) {
+                    console.log('Linking OneSignal External ID to:', userId);
+                    OneSignal.login(userId);
+                }
 
-                    // Sync with Supabase Profile
-                    if (userId) {
-                        try {
-                            const { error } = await supabase
-                                .from('profiles')
-                                .update({ onesignal_id: subscriptionId })
-                                .eq('id', userId);
+                if (OneSignal.User.PushSubscription) {
+                    const subscriptionId = OneSignal.User.PushSubscription.id;
+                    if (subscriptionId) {
+                        console.log('OneSignal Subscription ID:', subscriptionId);
 
-                            if (error) console.error('Error syncing OneSignal ID to Supabase:', error);
-                            else console.log('Successfully synced OneSignal ID to profile');
-                        } catch (err) {
-                            console.error('Push sync error:', err);
+                        // Sync with Supabase Profile
+                        if (userId) {
+                            try {
+                                const { error } = await supabase
+                                    .from('profiles')
+                                    .update({ onesignal_id: subscriptionId })
+                                    .eq('id', userId);
+
+                                if (error) console.error('Error syncing OneSignal ID to Supabase:', error);
+                                else console.log('Successfully synced OneSignal ID to profile');
+                            } catch (err) {
+                                console.error('Push sync error:', err);
+                            }
                         }
                     }
                 }

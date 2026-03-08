@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
+import OptimizedImage from './OptimizedImage';
 import './MatchCelebration.css';
 
 export default function MatchCelebration({ isOpen, onClose, userProfile, matchedProfile, onMessage }) {
@@ -58,7 +59,7 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
                                 animate={{ x: 20, opacity: 1, scale: 1 }}
                                 transition={{ type: "spring", stiffness: 100, delay: 0.4 }}
                             >
-                                <img src={userProfile?.avatar_url || '/default-avatar.png'} alt="You" />
+                                <OptimizedImage src={userProfile?.avatar_url} alt="You" width={120} />
                             </motion.div>
 
                             <motion.div
@@ -67,7 +68,7 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
                                 animate={{ x: -20, opacity: 1, scale: 1 }}
                                 transition={{ type: "spring", stiffness: 100, delay: 0.4 }}
                             >
-                                <img src={matchedProfile?.avatar_url || '/default-avatar.png'} alt="Match" />
+                                <OptimizedImage src={matchedProfile?.avatar_url} alt="Match" width={120} />
                             </motion.div>
 
                             <motion.div

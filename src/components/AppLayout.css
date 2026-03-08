@@ -11,13 +11,56 @@
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    transition: padding 0.3s ease;
+}
+
+.app-main.full-screen {
+    padding-top: 0;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+}
+
+.offline-status-bar {
+    background: #ef4444;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 768px) {
     .app-main {
         padding-top: var(--navbar-height-mobile);
-        /* 60px now since tabs are gone */
         padding-bottom: calc(85px + env(safe-area-inset-bottom));
-        /* Extra padding for bottom nav safely */
+    }
+
+    .app-main.full-screen {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    /* Hide navbar and reclaim that space when an active chat is open */
+    body.mobile-chat-active .navbar {
+        display: none !important;
+    }
+
+    body.mobile-chat-active .app-main {
+        padding-top: env(safe-area-inset-top, 0px) !important;
     }
 }

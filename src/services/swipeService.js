@@ -2,16 +2,18 @@ import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
 // Helper to get profiles for discovery with filters
-export async function getDiscoverProfiles(userId, filters = {}, currentUserGender = null) {
+export async function getDiscoverProfiles(userId, filters = {}, userProfile = null) {
     try {
-        // 1. Get IDs to EXCLUDE:
-        const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        const currentUserGender = userProfile?.gender;
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const cooldownHours = isLocal ? 0.16 : 48; // 10 mins for local dev, 48h for prod
+        const resetBuffer = new Date(Date.now() - cooldownHours * 60 * 60 * 1000).toISOString();
 
         const { data: swipedData, error: swipesError } = await supabase
             .from('swipes')
             .select('swiped_id')
             .eq('swiper_id', userId)
-            .or(`direction.eq.right,and(direction.eq.left,created_at.gt.${fortyEightHoursAgo})`);
+            .or(`direction.eq.right,and(direction.eq.left,created_at.gt.${resetBuffer})`);
 
         if (swipesError) throw swipesError;
 
@@ -25,6 +27,7 @@ export async function getDiscoverProfiles(userId, filters = {}, currentUserGende
 
         // Exclude swiped profiles and self
         if (excludeIds.length > 0) {
+            // Standard PostgREST 'in' syntax for UUIDs: (uuid1,uuid2,...)
             query = query.not('id', 'in', `(${excludeIds.join(',')})`);
         }
 
@@ -34,8 +37,9 @@ export async function getDiscoverProfiles(userId, filters = {}, currentUserGende
             query = query.eq('gender', filters.gender.toLowerCase());
         } else if (currentUserGender) {
             // Default: show opposite gender 90% by ordering opposite gender first
-            const oppositeGender = currentUserGender === 'male' ? 'female' : 'male';
-            query = query.order('gender', { ascending: currentUserGender === 'female' }); // female=false means males first for female users
+            const normalizedGender = currentUserGender.toLowerCase();
+            const oppositeGender = normalizedGender === 'male' ? 'female' : 'male';
+            query = query.order('gender', { ascending: normalizedGender === 'female' });
             // We pull more results then sort client-side for true 90/10 mix
         }
 
@@ -51,13 +55,26 @@ export async function getDiscoverProfiles(userId, filters = {}, currentUserGende
             if (max) query = query.lte('age', max);
         }
 
-        // LIVE MODE FILTERING (New)
-        if (filters.liveOnly) {
-            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-            query = query.or(`is_live.eq.true,last_seen_at.gt.${oneHourAgo}`);
+        // CATEGORY FILTERING (New)
+        if (filters.category === 'Serious') {
+            query = query.eq('attraction_goal', 'Serious');
+        } else if (filters.category === 'Casual') {
+            query = query.eq('attraction_goal', 'Casual');
+        } else if (filters.category === 'Newest') {
+            query = query.order('created_at', { ascending: false });
+        } else if (filters.category === 'Trending') {
+            query = query.order('completion_score', { ascending: false });
+        } else if (filters.category === 'Near Me') {
+            // Near Me defaults to same university for now
+            if (userProfile?.university) {
+                query = query.eq('university', userProfile.university);
+            }
         }
 
-        if (filters.liveOnly) {
+        // Live Mode (preserved as a capability)
+        if (filters.category === 'Live' || filters.liveOnly) {
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            query = query.or(`is_live.eq.true,last_seen_at.gt.${oneHourAgo}`);
             query = query.order('is_live', { ascending: false });
         }
 
@@ -74,7 +91,7 @@ export async function getDiscoverProfiles(userId, filters = {}, currentUserGende
 
         // Client-side 90/10 gender ratio mixing (when no manual filter set)
         if ((!filters.gender || filters.gender === 'All') && currentUserGender) {
-            const oppositeGender = currentUserGender === 'male' ? 'female' : 'male';
+            const oppositeGender = (currentUserGender || '').toLowerCase() === 'male' ? 'female' : 'male';
             const preferred = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
             const others = results.filter(p => (p.gender || '').toLowerCase() !== oppositeGender);
 
@@ -85,10 +102,45 @@ export async function getDiscoverProfiles(userId, filters = {}, currentUserGende
                 for (let i = 0; i < 9 && pi < preferred.length; i++) mixed.push(preferred[pi++]);
                 if (oi < others.length) mixed.push(others[oi++]);
             }
-            results = mixed.slice(0, 40);
-        } else {
-            results = results.slice(0, 40);
+            results = mixed;
         }
+
+        // ── Geo Proximity: Live Near Me ───────────────────────────────────
+        // When user passes lat/lng, boost same-university profiles first.
+        // Full haversine distance filtering requires lat/lng columns in DB — coming soon.
+        if (filters.liveOnly && userProfile?.university) {
+            const sameUni = results.filter(p => p.university === userProfile.university);
+            const others = results.filter(p => p.university !== userProfile.university);
+            results = [...sameUni, ...others]; // same university = "near me"
+        }
+
+        // ── PRIORITIZATION: same University/Faculty ───────────────────────
+        if (!filters.liveOnly && userProfile?.university) {
+            results.sort((a, b) => {
+                if (a.university === userProfile.university && b.university !== userProfile.university) return -1;
+                if (b.university === userProfile.university && a.university !== userProfile.university) return 1;
+                return 0;
+            });
+        }
+
+        // ── SPOTLIGHT ROTATION: First 3 cards = hottest/newest ───────────
+        // Spotlight pool: recently updated photos (7 days) OR high completion score
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const spotlightPool = results.filter(p =>
+            (p.photo_updated_at && new Date(p.photo_updated_at).getTime() > sevenDaysAgo) ||
+            (p.completion_score >= 80)
+        );
+        const regularPool = results.filter(p => !spotlightPool.find(s => s.id === p.id));
+
+        // Inject up to 3 spotlight profiles at top, then fill with regular
+        const spotlightSlots = spotlightPool.slice(0, 3);
+        results = [
+            ...spotlightSlots,
+            ...regularPool,
+            ...spotlightPool.slice(3) // append remaining spotlight at end
+        ];
+
+        results = results.slice(0, 40);
 
         return { data: results, error: null };
     } catch (err) {
@@ -184,13 +236,20 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             .eq('swiper_id', swipedId)
             .eq('swiped_id', swiperId)
             .eq('direction', 'right')
-            .single();
+            .maybeSingle();
 
         if (mutualLike) {
-            // IT'S A MATCH! Return info for UI celebration
+            // IT'S A MATCH! Fetch the match_id for chat navigation
+            const { data: matchData } = await supabase
+                .from('matches')
+                .select('id')
+                .contains('user_ids', [swiperId, swipedId])
+                .maybeSingle();
+
             return {
                 data: swipeRecord,
                 isMatch: true,
+                match_id: matchData?.id || null, // ADDED THIS
                 streak: streakResult?.streak,
                 type: (paymentResult && paymentResult.type) || (direction === 'right' ? 'standard' : 'pass'),
                 error: null
@@ -245,12 +304,13 @@ export async function declineRequest(swipeId) {
 }
 
 /**
- * Track a profile view in Discovery
+ * Track a profile view in Discovery.
+ * This is a best-effort, fire-and-forget operation — it NEVER throws or blocks the UI.
  */
 export async function trackProfileView(viewerId, ownerId, source = 'discovery') {
+    // Non-blocking: wrap everything so a DB trigger failure can't break swiping
+    if (!viewerId || !ownerId || viewerId === ownerId) return { success: true };
     try {
-        if (!viewerId || !ownerId || viewerId === ownerId) return { success: true };
-
         const { error } = await supabase
             .from('profile_views')
             .insert({
@@ -259,12 +319,16 @@ export async function trackProfileView(viewerId, ownerId, source = 'discovery') 
                 source: source
             });
 
-        if (error) throw error;
-        return { success: true };
+        if (error) {
+            // Silently ignore trigger-related errors (pg_net, net schema, etc.)
+            // These are background notification failures, not data failures
+            console.warn('trackProfileView (non-critical):', error.message);
+        }
     } catch (err) {
-        console.error('trackProfileView error:', err.message);
-        return { success: false, error: err.message };
+        // Never surface this error to the user
+        console.warn('trackProfileView (silent):', err.message);
     }
+    return { success: true };
 }
 
 
@@ -272,15 +336,16 @@ export async function trackProfileView(viewerId, ownerId, source = 'discovery') 
 export async function checkMatch(userId, targetId) {
     try {
         // 1. Check if target user has liked current user
+        // .maybeSingle() returns null (not an error) when no row is found
         const { data: mutualLike, error: swipeError } = await supabase
             .from('swipes')
-            .select('*')
+            .select('id')
             .eq('swiper_id', targetId)
             .eq('swiped_id', userId)
             .eq('direction', 'right')
-            .single();
+            .maybeSingle();
 
-        if (swipeError && swipeError.code !== 'PGRST116') throw swipeError;
+        if (swipeError) throw swipeError;
 
         const isMatch = !!mutualLike;
 
@@ -358,5 +423,23 @@ export async function superSwipe(swiperId, swipedProfile) {
     } catch (err) {
         console.error('superSwipe error:', err.message);
         return { data: null, error: err.message };
+    }
+}
+
+/**
+ * Reset all swipes for a user (Dev/Test only)
+ */
+export async function resetDiscovery(userId) {
+    try {
+        const { error } = await supabase
+            .from('swipes')
+            .delete()
+            .eq('swiper_id', userId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (err) {
+        console.error('resetDiscovery error:', err.message);
+        return { success: false, error: err.message };
     }
 }

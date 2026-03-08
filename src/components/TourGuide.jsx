@@ -15,7 +15,7 @@ export default function TourGuide() {
         // Check both local storage AND the actual database profile
         const localSeen = localStorage.getItem('hasSeenAppTour');
 
-        if (userProfile && !userProfile.has_seen_tour && !localSeen && (location.pathname === '/discover' || location.pathname === '/dashboard')) {
+        if (userProfile && !userProfile.has_seen_tour && !localSeen && (location.pathname === '/match' || location.pathname === '/dashboard')) {
             setIsVisible(true);
         }
     }, [location.pathname, userProfile]);

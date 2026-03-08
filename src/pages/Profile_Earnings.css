@@ -1,6 +1,7 @@
 /* Add to Profile.css */
 
-.earnings-summary-card {
+.earnings-summary-card,
+.wallet-entry-card {
     background: var(--gradient-primary);
     border-radius: 20px;
     padding: 1.5rem !important;
@@ -8,6 +9,7 @@
     color: white;
     cursor: pointer;
     transition: transform 0.2s;
+    border: none;
 }
 
 .earnings-summary-card:hover {
@@ -55,4 +57,26 @@
 .earn-lbl {
     font-size: 0.75rem;
     opacity: 0.8;
+}
+
+.wallet-balance-simple {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.5rem;
+}
+
+.balance-val {
+    font-size: 1.75rem;
+    font-weight: 900;
+}
+
+.balance-lbl {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.wallet-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

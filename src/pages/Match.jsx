@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getDiscoverProfiles, recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
-import { updatePresence } from '../services/profileService';
+import { useDiscoveryProfiles } from '../hooks/useSWRData';
+import { updatePresence, saveGenderPreference } from '../services/profileService';
 import { supabase } from '../lib/supabase';
 import { getActiveBoosts } from '../services/paymentService';
 import SwipeCard from '../components/SwipeCard';
@@ -12,16 +14,21 @@ import LeaderboardPreview from '../components/LeaderboardPreview';
 import MatchCelebration from '../components/MatchCelebration'; // NEW
 import StreakIndicator from '../components/StreakIndicator'; // NEW
 import { useToast } from '../components/Toast';
-import './Discover.css';
+import './Match.css';
 
-export default function Discover() {
+export default function Match() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
 
+    const [matchData, setMatchData] = useState(null);
+    const { data: swrProfiles, mutate: mutateProfiles, isValidating: profilesValidating } = useDiscoveryProfiles(
+        currentUser?.id,
+        { ...filters, liveOnly },
+        userProfile
+    );
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [matchData, setMatchData] = useState(null); // Updated state for celebration
     const [showFilters, setShowFilters] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
     const [superSwipesAvailable, setSuperSwipesAvailable] = useState(0);
@@ -29,7 +36,10 @@ export default function Discover() {
     const [freeSwipes, setFreeSwipes] = useState(20); // Default to 20, synced in loadProfiles
     const [swipeCount, setSwipeCount] = useState(0); // For Nudge A
     const [showNudge, setShowNudge] = useState(false); // For popup
+    const [sessionSwipes, setSessionSwipes] = useState(0); // For Premium Nudge
+    const [showPremiumNudge, setShowPremiumNudge] = useState(false); // Premium Nudge Modal
     const [liveOnly, setLiveOnly] = useState(false);
+    const [showGenderMenu, setShowGenderMenu] = useState(false);
     const [filters, setFilters] = useState({
         gender: 'All',
         university: 'All',
@@ -41,20 +51,37 @@ export default function Discover() {
     const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
-        loadProfiles(true); // Reset load on filter change
-        loadBoosts();
-        if (userProfile) setFreeSwipes(userProfile.free_swipes);
-    }, [currentUser, filters, userProfile?.free_swipes, liveOnly]);
+        if (userProfile) {
+            // Auto-filter to opposite gender on load
+            const savedGender = userProfile.interest_gender;
+            if (savedGender && savedGender !== 'All') {
+                setFilters(prev => ({ ...prev, gender: savedGender }));
+            } else if (userProfile.gender) {
+                const defaultOpposite = userProfile.gender.toLowerCase() === 'male' ? 'Female' : 'Male';
+                setFilters(prev => ({ ...prev, gender: defaultOpposite }));
+            }
+        }
+    }, [userProfile?.id]);
 
-    // Heartbeat Presence
     useEffect(() => {
-        if (!currentUser) return;
-        const interval = setInterval(() => {
-            updatePresence(currentUser.id);
-        }, 60000 * 4); // Every 4 mins
-        updatePresence(currentUser.id);
-        return () => clearInterval(interval);
+        // Sync SWR data to local profiles stack
+        if (swrProfiles) {
+            const processedProfiles = (swrProfiles || []).map(profile => {
+                const allPhotos = [...(profile.profile_photos || [])];
+                if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
+                    allPhotos.unshift(profile.avatar_url);
+                }
+                return { ...profile, profile_photos: allPhotos };
+            });
+            setProfiles(processedProfiles);
+            setLoading(false);
+        }
+    }, [swrProfiles]);
+
+    useEffect(() => {
+        loadBoosts();
     }, [currentUser]);
+
 
     // Realtime Subscription
     useEffect(() => {
@@ -114,74 +141,47 @@ export default function Discover() {
         return () => clearInterval(timer);
     }, [limitReached]);
 
-    const loadProfiles = async (reset = false) => {
-        if (!currentUser) return;
-        if (reset) setLoading(true);
+    // SWR for Boosts & Limits
+    const { data: boostsRes } = useSWR(currentUser ? ['boosts', currentUser.id] : null, () => getActiveBoosts(currentUser.id));
+    const { data: limitsRes } = useSWR(currentUser ? ['limits', currentUser.id] : null, () => checkSwipeLimit(currentUser.id));
 
-        try {
-            console.log('Fetching discovery profiles...');
-
-            // 1. Parallel Fetching for speed
-            const [limitCheck, profilesResult] = await Promise.all([
-                checkSwipeLimit(currentUser.id),
-                getDiscoverProfiles(
-                    currentUser.id,
-                    { ...filters, liveOnly },
-                    userProfile?.gender || null
-                )
-            ]);
-
-            // 2. Sync swipe limits
-            setFreeSwipes(limitCheck.max - limitCheck.used);
-            if (!limitCheck.canSwipe) {
-                setLimitReached({ used: limitCheck.used, max: limitCheck.max });
+    useEffect(() => {
+        if (limitsRes) {
+            setFreeSwipes(limitsRes.max - limitsRes.used);
+            if (!limitsRes.canSwipe) {
+                setLimitReached({ used: limitsRes.used, max: limitsRes.max });
             }
-
-            const { data, error } = profilesResult;
-            if (error) {
-                console.error('Detailed Load Error:', error);
-                addToast('Could not load profiles.', 'error');
-            } else {
-                // Shuffle photos for each profile
-                const processedProfiles = (data || []).map(profile => {
-                    const allPhotos = [...(profile.profile_photos || [])];
-                    if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
-                        allPhotos.unshift(profile.avatar_url);
-                    }
-                    return { ...profile, profile_photos: allPhotos };
-                });
-
-                if (reset) {
-                    setProfiles(processedProfiles);
-                } else {
-                    setProfiles(prev => {
-                        const existingIds = new Set(prev.map(p => p.id));
-                        const newProfiles = processedProfiles.filter(p => !existingIds.has(p.id));
-                        return [...prev, ...newProfiles];
-                    });
-                }
-            }
-        } catch (err) {
-            console.error('Load Exception:', err);
-        } finally {
-            if (reset) setLoading(false);
         }
+    }, [limitsRes]);
+
+    const loadProfiles = async (reset = false) => {
+        // SWR handles this automatically now, but we keep the name for 
+        // backwards compatibility with the "threshold" reload logic.
+        mutateProfiles();
     };
 
     const handleSwipe = async (direction, swipedProfile, type = 'standard', teaser = null) => {
         // 1. Check Limits for Free Users (Only for RIGHT swipe)
-        if (direction === 'right') {
+        if (direction === 'right' && type === 'standard') {
             const { canSwipe, used, max } = await checkSwipeLimit(currentUser.id);
-            // We no longer BLOCK the swipe here, because recordSwipe will handle the payment
-            // if free swipes are exhausted. We just update the state for UI display.
+
             if (!canSwipe) {
-                // Optional: You could show a small toast here like "Free swipes used. This will cost ₦500."
+                // Block the swipe completely, show the limit overlay, and return early
+                setLimitReached({ used, max });
+                addToast('Free swipes exhausted for today!', 'error');
+                return; // DO NOT remove profile from screen or record swipe
             }
         }
 
-        // 2. Optimistically remove from list
+        // 2. Optimistic Update (Local State & SWR Cache)
         const updatedProfiles = profiles.filter(p => p.id !== swipedProfile.id);
         setProfiles(updatedProfiles);
+        mutateProfiles(updatedProfiles, false); // Update SWR cache without re-fetching yet
+
+        // Optimistically update free swipes to make it feel instant
+        if (direction === 'right' && freeSwipes > 0 && type === 'standard') {
+            setFreeSwipes(prev => Math.max(0, prev - 1));
+        }
 
         // 3. Trigger preloading if running low (Phase 1 Fix)
         if (updatedProfiles.length < 5) {
@@ -210,12 +210,10 @@ export default function Discover() {
 
         if (result.isMatch) {
             // Trigger the High-Fidelity Celebrity Overlay!
-            setMatchData(swipedProfile);
+            // Attach the DB match_id so the "Send Message" button can route there directly
+            setMatchData({ ...swipedProfile, match_id: result.match_id });
         } else if (direction === 'right') {
-            // Update free swipes counter locally for real-time feel
-            if (freeSwipes > 0 && type === 'standard') {
-                setFreeSwipes(prev => Math.max(0, prev - 1));
-            }
+            // Free swipes counter was optimistically updated at the top
 
             if (result.type === 'free') {
                 addToast('Standard request sent for free!', 'success');
@@ -230,6 +228,13 @@ export default function Discover() {
         setSwipeCount(newCount);
         if (newCount === 5 && (userProfile?.completion_score || 0) < 60) {
             setShowNudge(true);
+        }
+
+        // Premium Upgrade Nudge on 10th Swipe
+        const newSessionCount = sessionSwipes + 1;
+        setSessionSwipes(newSessionCount);
+        if (newSessionCount === 10 && userProfile?.role !== 'premium') {
+            setShowPremiumNudge(true);
         }
     };
 
@@ -250,26 +255,66 @@ export default function Discover() {
 
     if (loading) return <LoadingSpinner fullScreen text="Finding matches..." />;
 
+    // Quick Gender Menu (rendered inline)
+    const QuickGenderMenu = () => (
+        <div className="gender-quick-menu" onClick={e => e.stopPropagation()}>
+            {['Female', 'Male', 'All'].map(g => (
+                <button
+                    key={g}
+                    className={`gender-opt-btn ${filters.gender === g ? 'active' : ''}`}
+                    onClick={async () => {
+                        setFilters(prev => ({ ...prev, gender: g }));
+                        setShowGenderMenu(false);
+                        if (currentUser) await saveGenderPreference(currentUser.id, g);
+                    }}
+                >
+                    {g === 'Female' ? '👩 Women' : g === 'Male' ? '👨 Men' : '✨ All'}
+                </button>
+            ))}
+        </div>
+    );
+
+    const handleLiveNearMe = () => {
+        if (!liveOnly) {
+            // Request geolocation permission when enabling
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const { latitude, longitude } = pos.coords;
+                        console.log('📍 Location acquired:', latitude, longitude);
+                        setLiveOnly(true);
+                    },
+                    (_err) => {
+                        // Permission denied or unavailable — fall back to university proximity silently
+                        setLiveOnly(true); // Still enable "near me" via university matching
+                    },
+                    { timeout: 10000, enableHighAccuracy: false, maximumAge: 60000 }
+                );
+            } else {
+                setLiveOnly(true);
+            }
+        } else {
+            setLiveOnly(false);
+        }
+    };
+
     return (
         <div className="discover-page">
-            <button className="filter-toggle-btn" onClick={() => setShowFilters(true)}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="4" y1="21" x2="4" y2="14"></line>
-                    <line x1="4" y1="10" x2="4" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12" y2="3"></line>
-                    <line x1="20" y1="21" x2="20" y2="16"></line>
-                    <line x1="20" y1="12" x2="20" y2="3"></line>
-                    <line x1="1" y1="14" x2="7" y2="14"></line>
-                    <line x1="9" y1="8" x2="15" y2="8"></line>
-                    <line x1="17" y1="16" x2="23" y2="16"></line>
+            {/* Top Right Floating Filter Toggle */}
+            <button className="floating-filter-btn" onClick={() => setShowGenderMenu(prev => !prev)} title="Filter by gender">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="7" r="4" />
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 </svg>
+                {filters.gender !== 'All' && <span className="gender-active-dot" />}
             </button>
+            {showGenderMenu && <QuickGenderMenu />}
+            {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
 
             <div className="swipe-container">
                 <div className="live-mode-bar">
-                    <div className="live-toggle-pill" onClick={() => setLiveOnly(!liveOnly)}>
-                        <div className="live-badge-glow"></div>
+                    <div className={`live-toggle-pill ${liveOnly ? 'live-active' : ''}`} onClick={handleLiveNearMe}>
+                        <div className={`live-badge-glow ${liveOnly ? 'glow-active' : ''}`}></div>
                         <span className="live-label">Live Near Me</span>
                         <div className={`live-toggle-switch ${liveOnly ? 'active' : ''}`}>
                             <div className="toggle-circle"></div>
@@ -337,6 +382,7 @@ export default function Discover() {
                                 onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
                                 superSwipesAvailable={superSwipesAvailable}
                                 onSuperSwipe={handleSuperSwipe}
+                                priority={index === 1}
                             />
                         ))}
 
@@ -360,7 +406,10 @@ export default function Discover() {
                                         <button
                                             key={g}
                                             className={`filter-opt ${filters.gender === g ? 'active' : ''}`}
-                                            onClick={() => setFilters(prev => ({ ...prev, gender: g }))}
+                                            onClick={() => {
+                                                setFilters(prev => ({ ...prev, gender: g }));
+                                                saveGenderPreference(currentUser.id, g);
+                                            }}
                                         >
                                             {g}
                                         </button>
@@ -379,7 +428,8 @@ export default function Discover() {
                 matchedProfile={matchData}
                 userProfile={userProfile}
                 onClose={() => setMatchData(null)}
-                onMessage={() => navigate('/chat')}
+                // Use the match_id that we now store in matchData
+                onMessage={() => navigate(`/chat/${matchData.match_id}`)}
             />
 
             {/* Limit Reached Overlay */}
@@ -437,6 +487,33 @@ export default function Discover() {
                         </div>
                         <button className="limit-close" onClick={() => setShowNudge(false)}>
                             Maybe Later
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Premium Nudge Overlay (10th swipe) */}
+            {showPremiumNudge && (
+                <div className="limit-overlay">
+                    <div className="limit-card animate-fade-in-up">
+                        <div className="limit-header">
+                            <span className="limit-icon">🔥</span>
+                            <h2>Get the Full Experience!</h2>
+                        </div>
+                        <div className="limit-body">
+                            <p className="limit-message">
+                                You are on a roll! Upgrade to <strong>Premium</strong> for infinite swipes,
+                                priority visibility, and direct messaging without matching.
+                            </p>
+                            <div className="premium-upsell">
+                                <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
+                                    🔓 Upgrade to Premium
+                                </button>
+                                <p className="premium-price">₦2,900 / Month</p>
+                            </div>
+                        </div>
+                        <button className="limit-close" onClick={() => setShowPremiumNudge(false)}>
+                            Keep Swiping Free
                         </button>
                     </div>
                 </div>

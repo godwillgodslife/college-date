@@ -2,15 +2,17 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useState } from 'react';
+import { usePrefetch } from '../hooks/usePrefetch';
 import NotificationTray from './NotificationTray';
 import './Navbar.css';
 
 export default function Navbar() {
-    const { currentUser, userProfile, logout } = useAuth();
+    const { currentUser, userProfile, walletBalance, logout } = useAuth();
     const { unreadCount } = useNotifications();
     const [menuOpen, setMenuOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const location = useLocation();
+    const { prefetch } = usePrefetch();
 
     const handleLogout = async () => {
         setMenuOpen(false);
@@ -34,19 +36,39 @@ export default function Navbar() {
 
                 {/* Desktop Nav */}
                 <div className="navbar-links">
-                    <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+                    <Link
+                        to="/dashboard"
+                        onMouseEnter={() => prefetch('/dashboard')}
+                        className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                    >
                         Home
                     </Link>
-                    <Link to="/discover" className={`nav-link ${location.pathname === '/discover' ? 'active' : ''}`}>
-                        Discover
+                    <Link
+                        to="/match"
+                        onMouseEnter={() => prefetch('/match')}
+                        className={`nav-link ${location.pathname === '/match' ? 'active' : ''}`}
+                    >
+                        Match
                     </Link>
-                    <Link to="/chat" className={`nav-link ${location.pathname === '/chat' ? 'active' : ''}`}>
+                    <Link
+                        to="/chat"
+                        onMouseEnter={() => prefetch('/chat')}
+                        className={`nav-link ${location.pathname === '/chat' ? 'active' : ''}`}
+                    >
                         Chat
                     </Link>
-                    <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>
+                    <Link
+                        to="/leaderboard"
+                        onMouseEnter={() => prefetch('/leaderboard')}
+                        className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}
+                    >
                         Leaderboard
                     </Link>
-                    <Link to="/confessions" className={`nav-link ${location.pathname === '/confessions' ? 'active' : ''}`}>
+                    <Link
+                        to="/confessions"
+                        onMouseEnter={() => prefetch('/confessions')}
+                        className={`nav-link ${location.pathname === '/confessions' ? 'active' : ''}`}
+                    >
                         Confessions
                     </Link>
                     <Link to="/premium" className={`nav-link premium-nav-link ${location.pathname === '/premium' ? 'active' : ''}`}>
@@ -81,6 +103,7 @@ export default function Navbar() {
                         <svg className={`navbar-chevron ${menuOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none">
                             <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
+                        {walletBalance > 0 && <span className="earning-dot-navbar" />}
                     </button>
 
                     {menuOpen && (
@@ -128,19 +151,49 @@ export default function Navbar() {
                 <>
                     <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)} />
                     <div className="mobile-menu">
-                        <Link to="/dashboard" className={`mobile-menu-item ${location.pathname === '/dashboard' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                        <Link
+                            to="/dashboard"
+                            className={`mobile-menu-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/dashboard')}
+                            onTouchStart={() => prefetch('/dashboard')}
+                        >
                             <span>🏠</span> Home
                         </Link>
-                        <Link to="/discover" className={`mobile-menu-item ${location.pathname === '/discover' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
-                            <span>🔍</span> Discover
+                        <Link
+                            to="/match"
+                            className={`mobile-menu-item ${location.pathname === '/match' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/match')}
+                            onTouchStart={() => prefetch('/match')}
+                        >
+                            <span>🔍</span> Match
                         </Link>
-                        <Link to="/chat" className={`mobile-menu-item ${location.pathname === '/chat' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                        <Link
+                            to="/chat"
+                            className={`mobile-menu-item ${location.pathname === '/chat' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/chat')}
+                            onTouchStart={() => prefetch('/chat')}
+                        >
                             <span>💬</span> Chat
                         </Link>
-                        <Link to="/leaderboard" className={`mobile-menu-item ${location.pathname === '/leaderboard' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                        <Link
+                            to="/leaderboard"
+                            className={`mobile-menu-item ${location.pathname === '/leaderboard' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/leaderboard')}
+                            onTouchStart={() => prefetch('/leaderboard')}
+                        >
                             <span>🏆</span> Leaderboard
                         </Link>
-                        <Link to="/confessions" className={`mobile-menu-item ${location.pathname === '/confessions' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
+                        <Link
+                            to="/confessions"
+                            className={`mobile-menu-item ${location.pathname === '/confessions' ? 'active' : ''}`}
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/confessions')}
+                            onTouchStart={() => prefetch('/confessions')}
+                        >
                             <span>🎭</span> Confessions
                         </Link>
                         <Link to="/premium" className="mobile-menu-item premium-menu-item" onClick={() => setMenuOpen(false)}>
@@ -152,7 +205,13 @@ export default function Navbar() {
                             </Link>
                         )}
                         <hr className="mobile-menu-divider" />
-                        <Link to="/profile" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
+                        <Link
+                            to="/profile"
+                            className="mobile-menu-item"
+                            onClick={() => setMenuOpen(false)}
+                            onMouseEnter={() => prefetch('/profile')}
+                            onTouchStart={() => prefetch('/profile')}
+                        >
                             <span>👤</span> Profile
                         </Link>
                         <Link to="/referrals" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>

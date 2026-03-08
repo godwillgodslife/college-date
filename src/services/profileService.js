@@ -228,3 +228,22 @@ export async function updatePresence(userId) {
         return { error: err.message };
     }
 }
+
+/**
+ * Save the user's gender interest preference to the database.
+ * @param {string} userId
+ * @param {'Male'|'Female'|'All'} gender
+ */
+export async function saveGenderPreference(userId, gender) {
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ interest_gender: gender })
+            .eq('id', userId);
+        if (error) throw error;
+        return { error: null };
+    } catch (err) {
+        console.error('saveGenderPreference error:', err.message);
+        return { error: err.message };
+    }
+}

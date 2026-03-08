@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecentStatuses } from '../services/statusService';
+import OptimizedImage from './OptimizedImage';
 import './StatusBubbles.css';
 
 export default function StatusBubbles() {
@@ -49,7 +50,11 @@ export default function StatusBubbles() {
                         onClick={() => navigate('/status')}
                     >
                         <div className="bubble-ring">
-                            <img src={status.user?.avatar_url || 'https://via.placeholder.com/60'} alt={status.user?.full_name} />
+                            <OptimizedImage
+                                src={status.user?.avatar_url || 'https://via.placeholder.com/60'}
+                                alt={status.user?.full_name}
+                                width={60}
+                            />
                         </div>
                         <span className="bubble-label">
                             {(status.user?.full_name || 'User').split(' ')[0]}

@@ -1,8 +1,8 @@
 .discover-page {
-    height: calc(100vh - var(--navbar-height));
-    /* Fallback */
-    height: calc(100dvh - var(--navbar-height));
-    /* Desktop default */
+    /* Using the custom vh property set in AppRoutes to prevent mobile URL bar jump */
+    height: calc(var(--vh, 1vh) * 100);
+    padding-top: env(safe-area-inset-top);
+    /* Notch safe area */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,12 +24,16 @@
 .swipe-container {
     width: 100%;
     max-width: 400px;
-    height: 70vh;
+    /* narrowed back to 400px */
+    height: calc(var(--vh, 1vh) * 82);
+    /* slightly reduced from 88vh */
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     perspective: 1000px;
+    margin-top: -1rem;
+    /* Offset any built-in layout margins */
 }
 
 .no-profiles {
@@ -42,9 +46,66 @@
     font-size: 5rem;
     margin-bottom: 1.5rem;
     display: inline-block;
-    filter: drop-shadow(0 0 15px var(--primary-color));
+    filter: drop-shadow(0 0 20px var(--accent-primary));
     animation: floating 3s ease-in-out infinite;
 }
+
+.no-profiles h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.no-profiles p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.profile-nudge-mini {
+    background: rgba(108, 99, 255, 0.1);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    backdrop-filter: blur(10px);
+}
+
+.profile-nudge-mini p {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.profile-nudge-mini .btn-link {
+    color: var(--accent-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: rgba(108, 99, 255, 0.1);
+    border-radius: 100px;
+    transition: all 0.3s ease;
+}
+
+.profile-nudge-mini .btn-link:hover {
+    background: rgba(108, 99, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.retry-btn {
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+    padding: 1rem 2.5rem !important;
+    font-size: 1rem !important;
+}
+
 
 @keyframes floating {
 
@@ -69,6 +130,41 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
+}
+
+/* Top Right Floating Filter Toggle */
+.floating-filter-btn {
+    position: absolute;
+    top: max(env(safe-area-inset-top, 10px), 10px);
+    right: 15px;
+    z-index: 50;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.floating-filter-btn:active {
+    transform: scale(0.9);
+}
+
+.gender-active-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    border: 2px solid #000;
 }
 
 .match-content {
@@ -545,5 +641,251 @@
     100% {
         opacity: 0.5;
         transform: scale(1);
+    }
+}
+
+/* ── Live Near Me Active State ─────────────────────────────── */
+.live-toggle-pill.live-active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(74, 222, 128, 0.5);
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.2);
+}
+
+.live-badge-glow.glow-active {
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+    animation: glow-soft 1s infinite;
+}
+
+/* ── Gender Quick Menu ─────────────────────────────────────── */
+.gender-quick-menu {
+    position: absolute;
+    top: 4.5rem;
+    right: 1.5rem;
+    z-index: 500;
+    background: rgba(18, 18, 28, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    animation: dropIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gender-opt-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 0.65rem 1.4rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.gender-opt-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.gender-opt-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* Active gender filter indicator dot on the button */
+.filter-toggle-btn {
+    position: relative;
+}
+
+.gender-active-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.6);
+}
+
+.gender-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Floating Stats Area ───────────────────────────────────── */
+.discovery-floating-stats {
+    position: absolute;
+    top: 70px;
+    right: 15px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.discovery-floating-stats>* {
+    pointer-events: auto;
+}
+
+.swipes-counter-pill {
+    background: rgba(15, 15, 20, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.swipes-counter-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.pill-icon {
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.4));
+}
+
+.pill-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.pill-number {
+    font-weight: 900;
+    font-size: 0.95rem;
+    font-family: 'Outfit', sans-serif;
+    color: white;
+}
+
+.pill-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ── Premium Info Tooltip ──────────────────────────────────── */
+.premium-info-container {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 150;
+}
+
+.info-trigger {
+    background: rgba(255, 255, 255, 0.08);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.info-trigger:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+}
+
+.swipe-tooltip {
+    position: absolute;
+    top: 35px;
+    left: 0;
+    width: 280px;
+    background: rgba(18, 18, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    animation: dropIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.swipe-tooltip h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+.swipe-tooltip p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.tooltip-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tooltip-features li {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.3;
+}
+
+.tooltip-features li strong {
+    color: white;
+}
+
+/* Animations */
+.animate-fade-in-right {
+    animation: fadeInRight 0.5s cubic-bezier(0.21, 1.02, 0.73, 1);
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }

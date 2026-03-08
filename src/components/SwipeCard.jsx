@@ -1,8 +1,9 @@
 import { useState, memo } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
+import OptimizedImage from './OptimizedImage';
 import './SwipeCard.css';
 
-function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe }) {
+function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false }) {
     const [exitX, setExitX] = useState(0);
     const [showPremiumNote, setShowPremiumNote] = useState(false);
     const [premiumNote, setPremiumNote] = useState('');
@@ -44,16 +45,26 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe })
         }
     };
 
-    const isLive = profile.is_live || (profile.last_seen_at && new Date(profile.last_seen_at) > new Date(Date.now() - 10 * 60 * 1000));
+    const isLive = profile.is_live || (profile.last_seen_at && new Date(profile.last_seen_at) > new Date(Date.now() - 90 * 1000));
 
     const displayName = profile.full_name || profile.username || 'User';
     const age = profile.age || '';
     const university = profile.university || 'University Student';
     const bio = profile.bio || 'No bio yet';
 
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const toggleExpand = (e) => {
+        // Only toggle if they aren't clicking a specific button
+        if (e.target.closest('button') || e.target.closest('.photo-indicators') || e.target.closest('.carousel-nav') || e.target.closest('.premium-note-container')) {
+            return;
+        }
+        setIsExpanded(prev => !prev);
+    };
+
     return (
         <motion.div
-            className="swipe-card"
+            className={`swipe-card ${isExpanded ? 'expanded-mode' : ''}`}
             style={{ x, rotate, opacity }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -64,8 +75,8 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe })
                 scale: exitX !== 0 ? 0.8 : 1
             }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            whileTap={{ cursor: 'grabbing', scale: 1.05 }}
-            whileHover={{ scale: 1.02 }}
+            whileTap={{ cursor: 'grabbing', scale: 1.02 }}
+            onClick={toggleExpand}
         >
             <div className="swipe-card-inner">
                 {/* Profile Image */}
@@ -85,33 +96,19 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe })
                     <div className="carousel-nav nav-left" onClick={prevPhoto}></div>
                     <div className="carousel-nav nav-right" onClick={nextPhoto}></div>
 
-                    {photos.length > 0 ? (
-                        <img
+                    {photos.length > 0 && photos[activePhotoIdx] ? (
+                        <OptimizedImage
                             src={photos[activePhotoIdx]}
                             alt={displayName}
                             className="swipe-card-image"
-                            draggable="false"
-                            loading="lazy"
-                            onError={(e) => {
-                                console.warn(`Image failed to load for ${displayName}: ${photos[activePhotoIdx]}`);
-                                if (photos.length > 1) {
-                                    // Try next photo if this one fails
-                                    nextPhoto(e);
-                                } else {
-                                    e.target.style.display = 'none';
-                                    const placeholder = e.target.parentElement.querySelector('.swipe-card-placeholder');
-                                    if (placeholder) placeholder.style.display = 'flex';
-                                }
-                            }}
+                            width={400}
+                            priority={priority && activePhotoIdx === 0}
                         />
-                    ) : null}
-
-                    <div
-                        className="swipe-card-placeholder"
-                        style={{ display: profile.avatar_url ? 'none' : 'flex' }}
-                    >
-                        {displayName.charAt(0).toUpperCase()}
-                    </div>
+                    ) : (
+                        <div className="swipe-card-placeholder flex">
+                            {displayName.charAt(0).toUpperCase()}
+                        </div>
+                    )}
 
                     {/* Highly Visible Overlays (Stamps) */}
                     <motion.div
@@ -165,63 +162,85 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe })
                             {displayName}
                             {age && <span className="swipe-card-age">, {age}</span>}
                         </h2>
-                        <p className="swipe-card-bio">{bio}</p>
 
-                        <div className="swipe-card-actions">
-                            {/* Super Swipe Button */}
-                            {superSwipesAvailable > 0 && onSuperSwipe && (
-                                <button
-                                    className="super-swipe-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setExitX(300);
-                                        onSuperSwipe(profile);
-                                    }}
-                                >
-                                    <span>⭐ Super Swipe</span>
-                                    <span className="badge">{superSwipesAvailable}</span>
-                                </button>
-                            )}
+                        <div className={`swipe-card-bio-wrapper ${isExpanded ? 'expanded' : ''}`}>
+                            <p className="swipe-card-bio">{bio}</p>
 
-                            {!showPremiumNote ? (
-                                <button
-                                    className="action-btn premium-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowPremiumNote(true);
-                                    }}
-                                >
-                                    <span className="btn-icon">⭐</span>
-                                    <div className="btn-label">
-                                        <span className="main-text">Premium Swipe</span>
-                                        <span className="price-text">₦5,000</span>
-                                    </div>
-                                </button>
-                            ) : (
-                                <div className="premium-note-container" onClick={e => e.stopPropagation()}>
-                                    <textarea
-                                        className="premium-note-input"
-                                        placeholder="Add a personal note... (max 160 chars)"
-                                        maxLength={160}
-                                        value={premiumNote}
-                                        onChange={(e) => setPremiumNote(e.target.value)}
-                                        autoFocus
-                                    />
-                                    <div className="premium-note-actions">
-                                        <button className="btn-cancel-note" onClick={() => setShowPremiumNote(false)}>Cancel</button>
-                                        <button
-                                            className="btn-send-premium"
-                                            onClick={() => {
-                                                setExitX(300);
-                                                onSwipe('right', 'premium', premiumNote);
-                                            }}
-                                        >
-                                            Send Note + Swipe
-                                        </button>
-                                    </div>
+                            {/* Extra Info only shown in expanded mode */}
+                            {isExpanded && (
+                                <div className="swipe-card-extra-info fade-in mt-4">
+                                    {profile.department && <p><strong>Dept:</strong> {profile.department}</p>}
+                                    {profile.level && <p><strong>Level:</strong> {profile.level}</p>}
+                                    {profile.attraction_goal && <p><strong>Looking for:</strong> {profile.attraction_goal}</p>}
+                                    {profile.interests && profile.interests.length > 0 && (
+                                        <div className="mt-2">
+                                            <strong>Interests:</strong>
+                                            <div className="flex flex-wrap gap-2 mt-1">
+                                                {profile.interests.map(i => <span key={i} className="swipe-tag text-xs">{i}</span>)}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
+
+                        {!isExpanded && (
+                            <div className="swipe-card-actions mt-3">
+                                {/* Super Swipe Button */}
+                                {superSwipesAvailable > 0 && onSuperSwipe && (
+                                    <button
+                                        className="super-swipe-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExitX(300);
+                                            onSuperSwipe(profile);
+                                        }}
+                                    >
+                                        <span>⭐ Super Swipe</span>
+                                        <span className="badge">{superSwipesAvailable}</span>
+                                    </button>
+                                )}
+
+                                {!showPremiumNote ? (
+                                    <button
+                                        className="action-btn premium-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowPremiumNote(true);
+                                        }}
+                                    >
+                                        <span className="btn-icon">⭐</span>
+                                        <div className="btn-label">
+                                            <span className="main-text">Premium Swipe</span>
+                                            <span className="price-text">₦500</span>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <div className="premium-note-container" onClick={e => e.stopPropagation()}>
+                                        <textarea
+                                            className="premium-note-input"
+                                            placeholder="Add a personal note... (max 160 chars)"
+                                            maxLength={160}
+                                            value={premiumNote}
+                                            onChange={(e) => setPremiumNote(e.target.value)}
+                                            autoFocus
+                                        />
+                                        <div className="premium-note-actions">
+                                            <button className="btn-cancel-note" onClick={() => setShowPremiumNote(false)}>Cancel</button>
+                                            <button
+                                                className="btn-send-premium"
+                                                onClick={() => {
+                                                    setExitX(300);
+                                                    onSwipe('right', 'premium', premiumNote);
+                                                }}
+                                            >
+                                                Send Note + Swipe
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -3,18 +3,20 @@ import { supabase } from '../lib/supabase';
 // Fetch key gamification stats
 export async function getLeaderboards() {
     try {
-        // Fetch both in parallel
-        const [mostWanted, bigSpenders] = await Promise.all([
-            supabase.from('leaderboard_most_wanted').select('*'),
-            supabase.from('leaderboard_big_spenders').select('*')
-        ]);
+        // Fetch from the unified view which handles both types of rankings
+        const { data, error } = await supabase
+            .from('leaderboard_unified')
+            .select('*');
 
-        if (mostWanted.error) throw mostWanted.error;
-        if (bigSpenders.error) throw bigSpenders.error;
+        if (error) throw error;
+
+        // Separate most wanted and big spenders in JS (cheap)
+        const sortedBySwipes = [...data].sort((a, b) => (b.premium_swipes_received || 0) - (a.premium_swipes_received || 0));
+        const sortedBySpent = [...data].sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0));
 
         return {
-            mostWanted: mostWanted.data || [],
-            bigSpenders: bigSpenders.data || [],
+            mostWanted: sortedBySwipes.slice(0, 50),
+            bigSpenders: sortedBySpent.slice(0, 50),
             error: null
         };
     } catch (error) {

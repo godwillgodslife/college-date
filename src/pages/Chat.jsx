@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { formatSidebarTimestamp, formatChatTimestamp } from '../utils/formatTimestamp';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -9,15 +10,20 @@ import {
     setupPresence,
     updateTypingStatus,
     markMessageAsRead,
-    uploadVoiceNote
+    markConversationRead,
+    uploadVoiceNote,
+    uploadChatImage,
+    addReaction,
 } from '../services/chatService';
-import { getWallet } from '../services/paymentService'; // Import wallet service
-import { sendGift } from '../services/giftService'; // Import gift service
+import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
+import { getWallet } from '../services/paymentService';
+import { sendGift } from '../services/giftService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
-import VoiceRecorder from '../components/VoiceRecorder';
+import VoiceRecorder from '../components/ChatVoiceRecorder';
 import StickerDrawer from '../components/StickerDrawer';
 import GiftStore from '../components/GiftStore';
+import MessageReactionBar from '../components/MessageReactionBar';
 import './Chat.css';
 
 const ICEBREAKERS = [
@@ -28,138 +34,167 @@ const ICEBREAKERS = [
     "What's your go-to campus snack? 🍕"
 ];
 
+import { useConversations } from '../hooks/useSWRData';
+import { Virtuoso } from 'react-virtuoso';
+import OptimizedImage from '../components/OptimizedImage';
+
+// ── Tick Read-Receipt Icons ────────────────────────────────────────────
+function ReadReceipt({ msg, isSender }) {
+    if (!isSender) return null;
+    if (msg._pending) {
+        return <span className="read-receipt pending" title="Sending">⏳</span>;
+    }
+    if (msg.is_read) {
+        return (
+            <span className="read-receipt blue" title="Read">
+                <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12.122 18.232l-5.657-5.657-1.414 1.414 7.071 7.071 11.314-11.314-1.414-1.414zm0-2.828L19.192 8.334l-1.414-1.414-7.07 7.071-3.536-3.535-1.414 1.414z" /></svg>
+            </span>
+        );
+    }
+    return (
+        <span className="read-receipt gray" title="Sent">
+            <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9.707 18.707l-5.657-5.657 1.414-1.414 4.243 4.243 9.899-9.899 1.414 1.414z" /></svg>
+        </span>
+    );
+}
+
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
     const messagesEndRef = useRef(null);
+    const messagesTopRef = useRef(null);
 
-    const [conversations, setConversations] = useState([]);
+
     const [selectedConv, setSelectedConv] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [presence, setPresence] = useState({});
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
-    // Use Ref for typing status to avoid stale closures in setTimeout
+    // SWR for Conversations Sidebar via custom hook
+    const { data: conversations = [], isLoading: convsLoading } = useConversations(currentUser?.id);
+
     const isTypingRef = useRef(false);
-    const [isTyping, setIsTyping] = useState(false); // Keep state for UI if needed locally
+    const typingTimeoutRef = useRef(null);
+    const presenceChannelRef = useRef(null);
 
     const [showStickers, setShowStickers] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [showGifts, setShowGifts] = useState(false);
-    const [walletBalance, setWalletBalance] = useState(1000);
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [tick, setTick] = useState(0);
 
-    const typingTimeoutRef = useRef(null);
-    const presenceChannelRef = useRef(null);
+    // Reaction bar state
+    const [reactionBar, setReactionBar] = useState(null);
+    const longPressTimer = useRef(null);
 
-    // Initial Load: Conversations & Wallet
+    // ── Initial Load ───────────────────────────────────────────────────
     useEffect(() => {
         if (currentUser) {
-            loadConversations();
             loadWallet();
         }
     }, [currentUser]);
+
+    // ── Midnight/Minute Sync: keeps timestamps fresh ──────────────────
+    useEffect(() => {
+        const interval = setInterval(() => setTick(t => t + 1), 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     async function loadWallet() {
         const { data } = await getWallet(currentUser.id);
         if (data) setWalletBalance(data.available_balance);
     }
 
-    // Load Messages & Setup Presence when conversation selected
+    // ── Deep-link check (only when convsRes changes) ─────────
     useEffect(() => {
-        if (selectedConv && currentUser && userProfile) {
-            loadMessages(selectedConv.id);
+        if (!conversations.length || selectedConv) return;
+        const params = new URLSearchParams(location.search);
+        const chatId = params.get('chatId') || location.state?.chatId;
+        const openChatWith = location.state?.openChatWith;
 
-            // Subscribe to real-time message updates
-            const msgSubscription = subscribeToMessages(
-                selectedConv.id,
-                (payload) => {
-                    setMessages((prev) => {
-                        // Avoid duplicates if insert comes from both local and realtime
-                        if (prev.find(m => m.id === payload.id)) return prev;
-                        return [...prev, payload];
-                    });
-                    if (payload.sender_id !== currentUser.id) {
-                        markMessageAsRead(payload.id);
-                    }
-                },
-                (payload) => {
-                    // Handle message updates (like read receipts)
-                    setMessages((prev) => prev.map(m => m.id === payload.id ? payload : m));
-                }
-            );
-
-            // Setup Presence (Online/Typing) - Use userProfile for display info
-            presenceChannelRef.current = setupPresence(
-                selectedConv.id,
-                currentUser.id,
-                userProfile,
-                (state) => setPresence(state)
-            );
-
-            return () => {
-                msgSubscription.unsubscribe();
-                if (presenceChannelRef.current) {
-                    presenceChannelRef.current.unsubscribe();
-                }
-                // Reset typing ref on unmount/switch
-                isTypingRef.current = false;
-                setIsTyping(false);
-            };
+        if (chatId) {
+            const target = conversations.find(c => c.id === chatId);
+            if (target) setSelectedConv(target);
+        } else if (openChatWith) {
+            const target = conversations.find(c => c.other_user?.id === openChatWith);
+            if (target) setSelectedConv(target);
+        } else if (window.innerWidth > 768 && conversations.length > 0) {
+            setSelectedConv(conversations[0]);
         }
+    }, [conversations, location, selectedConv]);
+
+    // ── Hide Navbar on Mobile during active chat ───────
+    useEffect(() => {
+        if (selectedConv) {
+            document.body.classList.add('mobile-chat-active');
+        } else {
+            document.body.classList.remove('mobile-chat-active');
+        }
+
+        return () => {
+            document.body.classList.remove('mobile-chat-active');
+        };
+    }, [selectedConv]);
+
+    // ── Messages + Presence ─────────────────────
+    useEffect(() => {
+        if (!selectedConv || !currentUser || !userProfile) return;
+        setPage(0);
+        setMessages([]);
+        loadMessages(selectedConv.id, 0, true);
+        markConversationRead(selectedConv.id, currentUser.id);
+
+        const msgSub = subscribeToMessages(
+            selectedConv.id,
+            (payload) => {
+                setMessages(prev => {
+                    if (prev.find(m => m.id === payload.id)) return prev;
+                    const newMsgs = [...prev, payload];
+                    // Cache Limit: 100 messages to save RAM
+                    return newMsgs.length > 100 ? newMsgs.slice(-100) : newMsgs;
+                });
+                if (payload.sender_id !== currentUser.id) {
+                    markMessageAsRead(payload.id);
+                }
+            },
+            (payload) => {
+                setMessages(prev => prev.map(m => m.id === payload.id ? payload : m));
+            }
+        );
+
+        presenceChannelRef.current = setupPresence(
+            selectedConv.id,
+            currentUser.id,
+            userProfile,
+            (state) => setPresence(state)
+        );
+
+        return () => {
+            msgSub.unsubscribe();
+            presenceChannelRef.current?.unsubscribe();
+            isTypingRef.current = false;
+        };
     }, [selectedConv, currentUser, userProfile]);
 
-    // Scroll to bottom on new messages
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    // ── Load messages (paginated) ──────────────────────────────────────
+    async function loadMessages(matchId, pageNum = 0, reset = false) {
+        const { data, total } = await getMessages(matchId, pageNum);
 
-    // Mark existing unread messages as read when joining chat
-    useEffect(() => {
-        if (selectedConv && messages.length > 0) {
-            const unread = messages.filter(m => m.sender_id !== currentUser.id && !m.is_read);
-            unread.forEach(m => markMessageAsRead(m.id));
-        }
-    }, [selectedConv, messages.length]);
-
-    async function loadConversations() {
-        setLoading(true);
-        const { data, error } = await getConversations(currentUser.id);
-        if (error) {
-            console.error('Failed to load conversations:', error);
-            addToast('Could not load chats.', 'error');
-        } else {
-            setConversations(data);
-
-            // Check for deep-link from Profile
-            const openChatWith = location.state?.openChatWith;
-            if (openChatWith && data.length > 0) {
-                const targetConv = data.find(c => c.other_user?.id === openChatWith);
-                if (targetConv) {
-                    setSelectedConv(targetConv);
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            // On mobile, don't auto-select so user stays on conversation list
-            const isMobile = window.innerWidth <= 768;
-            if (data.length > 0 && !selectedConv && !isMobile) {
-                setSelectedConv(data[0]);
-            }
-        }
-        setLoading(false);
-    }
-
-    async function loadMessages(matchId) {
-        const { data, error } = await getMessages(matchId);
-        if (error) {
-            console.error('Failed to load messages:', error);
-        } else {
+        if (reset) {
             setMessages(data);
+            setHasMore(total > data.length);
+        } else {
+            setMessages(prev => {
+                const combined = [...data, ...prev];
+                return combined.length > 200 ? combined.slice(-200) : combined;
+            });
+            setHasMore(total > (pageNum + 1) * 20 + messages.length);
         }
     }
 
@@ -169,527 +204,386 @@ export default function Chat() {
 
         const content = newMessage.trim();
         const optimisticId = `temp-${Date.now()}`;
-
-        // Optimistic Update
         const optimisticMsg = {
-            id: optimisticId,
-            match_id: selectedConv.id,
-            sender_id: currentUser.id,
-            content: content,
-            type: 'text',
-            metadata: {},
-            created_at: new Date().toISOString(),
-            is_read: false
+            id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+            content, type: 'text', metadata: {}, created_at: new Date().toISOString(),
+            is_read: false, _pending: true
         };
-        setMessages(prev => [...prev, optimisticMsg]);
 
+        setMessages(prev => {
+            const newMsgs = [...prev, optimisticMsg];
+            return newMsgs.length > 100 ? newMsgs.slice(-100) : newMsgs;
+        });
         setNewMessage('');
         setSending(true);
         stopTyping();
 
         const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content);
-
         if (error) {
-            console.error('Send message failure:', error);
-            addToast(error.message || 'Failed to send message.', 'error');
-            setNewMessage(content);
-            // Remove optimistic message on failure
             setMessages(prev => prev.filter(m => m.id !== optimisticId));
-        } else if (data) {
-            // Replace optimistic message with real one
-            setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
-        }
-        setSending(false);
-    };
-
-    const handleVoiceStop = async (blob) => {
-        setIsRecording(false);
-        setSending(true);
-
-        const { url, error: uploadError } = await uploadVoiceNote(blob);
-        if (uploadError) {
-            addToast('Failed to upload voice note.', 'error');
-            setSending(false);
-            return;
-        }
-
-        const { error: sendError } = await sendMessage(selectedConv.id, currentUser.id, url, 'voice');
-        if (sendError) {
-            addToast('Failed to send voice note.', 'error');
-        }
-        setSending(false);
-    };
-
-    const handleStickerSelect = async (sticker, type) => {
-        setShowStickers(false);
-        setSending(true);
-
-        const content = type === 'sticker' ? sticker.emoji : sticker;
-        const metadata = type === 'sticker' ? { label: sticker.label } : {};
-        const optimisticId = `temp-${Date.now()}`;
-
-        // Optimistic Update
-        const optimisticMsg = {
-            id: optimisticId,
-            match_id: selectedConv.id,
-            sender_id: currentUser.id,
-            content: content,
-            type: type,
-            metadata: metadata,
-            created_at: new Date().toISOString(),
-            is_read: false
-        };
-        setMessages(prev => [...prev, optimisticMsg]);
-
-        const { data, error } = await sendMessage(
-            selectedConv.id,
-            currentUser.id,
-            content,
-            type,
-            metadata
-        );
-
-        if (error) {
             addToast('Failed to send.', 'error');
-            setMessages(prev => prev.filter(m => m.id !== optimisticId));
         } else if (data) {
             setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
         }
         setSending(false);
     };
 
-    const handleInputChange = (e) => {
-        setNewMessage(e.target.value);
+    const handleTyping = () => {
         if (!selectedConv || !currentUser || !userProfile) return;
-
-        // Typing logic using Ref to prevent stale closure issues
         if (!isTypingRef.current) {
             isTypingRef.current = true;
-            setIsTyping(true);
             updateTypingStatus(presenceChannelRef.current, currentUser.id, userProfile, true);
         }
-
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-
-        typingTimeoutRef.current = setTimeout(() => {
-            stopTyping();
-        }, 3000);
+        typingTimeoutRef.current = setTimeout(stopTyping, 3000);
     };
 
     const stopTyping = () => {
         if (isTypingRef.current) {
             isTypingRef.current = false;
-            setIsTyping(false);
-            if (userProfile) { // Guard against null profile
-                updateTypingStatus(presenceChannelRef.current, currentUser.id, userProfile, false);
-            }
+            if (userProfile) updateTypingStatus(presenceChannelRef.current, currentUser.id, userProfile, false);
         }
     };
 
-    const handleGiftSend = async (gift) => {
-        console.log('🎁 [Chat.jsx] handleGiftSend triggered with:', gift);
-        console.log('🎁 [Chat.jsx] Current User ID:', currentUser?.id);
-        console.log('🎁 [Chat.jsx] Recipient User ID:', selectedConv?.other_user?.id);
+    const handleVoiceStop = async (blob) => {
+        setIsRecording(false);
+        setSending(true);
+        const { url, error } = await uploadVoiceNote(blob);
+        if (error) { addToast('Upload failed', 'error'); setSending(false); return; }
+        await sendMessage(selectedConv.id, currentUser.id, url, 'voice');
+        setSending(false);
+    };
 
-        if (!selectedConv?.other_user?.id) {
-            addToast('Cannot send gift: Recipient ID missing', 'error');
-            console.error('🎁 [Chat.jsx] Error: selectedConv.other_user.id is missing!');
-            return;
+    const handleImageSelect = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !selectedConv) return;
+        setSending(true);
+        try {
+            const placeholder = await generateBlurPlaceholder(file);
+            const optimisticId = `temp-${Date.now()}`;
+            setMessages(prev => [...prev, {
+                id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+                content: URL.createObjectURL(file), type: 'image', metadata: { placeholder },
+                created_at: new Date().toISOString(), is_read: false, _pending: true
+            }]);
+
+            const compressed = await compressImage(file, { targetSizeKB: 100 });
+            const { url, error } = await uploadChatImage(compressed);
+            if (error) throw new Error(error);
+
+            const { data } = await sendMessage(selectedConv.id, currentUser.id, url, 'image', { placeholder });
+            if (data) setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+        } catch (err) {
+            addToast('Failed to send image: ' + err.message, 'error');
+        } finally {
+            setSending(false);
+            e.target.value = '';
         }
+    };
 
+    const handleStickerSelect = async (sticker, type) => {
+        setShowStickers(false);
+        setSending(true);
+        const content = type === 'sticker' ? sticker.emoji : sticker;
+        const metadata = type === 'sticker' ? { label: sticker.label } : {};
+
+        const optimisticId = `temp-${Date.now()}`;
+        setMessages(prev => [...prev, {
+            id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+            content, type, metadata, created_at: new Date().toISOString(), is_read: false, _pending: true
+        }]);
+
+        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, type, metadata);
+        if (error) { setMessages(prev => prev.filter(m => m.id !== optimisticId)); }
+        else if (data) { setMessages(prev => prev.map(m => m.id === optimisticId ? data : m)); }
+        setSending(false);
+    };
+
+    const handleGiftSend = async (gift) => {
+        if (!selectedConv?.other_user?.id) { addToast('Recipient ID missing', 'error'); return; }
         setShowGifts(false);
         setSending(true);
-        const processingToastId = addToast('Processing gift transaction...', 'info');
-
         try {
-            // 1. Process Transaction
-            console.log('🎁 [Chat.jsx] Calling sendGift service...');
-            const { data: txData, error: txError } = await sendGift(
-                currentUser.id,
-                selectedConv.other_user.id,
-                gift.id
-            );
+            const { data: txData, error: txError } = await sendGift(currentUser.id, selectedConv.other_user.id, gift.id);
+            if (txError) { addToast(txError, 'error'); return; }
+            if (txData?.new_balance !== undefined) setWalletBalance(txData.new_balance);
 
-            if (txError) {
-                console.error('🎁 [Chat.jsx] sendGift reported error:', txError);
-                addToast(txError, 'error');
-                setSending(false);
-                return;
-            }
-
-            console.log('🎁 [Chat.jsx] sendGift SUCCESS:', txData);
-
-            // 2. Update Local Balance (immediately show response)
-            if (txData?.new_balance !== undefined) {
-                console.log('🎁 [Chat.jsx] Updating local wallet balance to:', txData.new_balance);
-                setWalletBalance(txData.new_balance);
-            }
-
-            // 3. Send Message to Chat (Optimistically)
-            console.log('🎁 [Chat.jsx] Sending gift message to chat...');
             const optimisticId = `temp-${Date.now()}`;
             const giftMsg = {
-                id: optimisticId,
-                match_id: selectedConv.id,
-                sender_id: currentUser.id,
-                content: gift.emoji,
-                type: 'gift',
+                id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+                content: gift.emoji, type: 'gift',
                 metadata: { name: gift.name, price: gift.price },
-                created_at: new Date().toISOString(),
-                is_read: false
+                created_at: new Date().toISOString(), is_read: false, _pending: true
             };
             setMessages(prev => [...prev, giftMsg]);
 
             const { data, error: msgError } = await sendMessage(
-                selectedConv.id,
-                currentUser.id,
-                gift.emoji,
-                'gift',
-                { name: gift.name, price: gift.price }
+                selectedConv.id, currentUser.id, gift.emoji, 'gift', { name: gift.name, price: gift.price }
             );
-
             if (msgError) {
-                console.error('🎁 [Chat.jsx] sendMessage (gift) error:', msgError);
-                // Even if message fails, gift was sent!
-                addToast('Gift paid for, but chat notification failed.', 'warning');
                 setMessages(prev => prev.filter(m => m.id !== optimisticId));
+                addToast('Gift paid, but chat notification failed.', 'warning');
             } else if (data) {
                 setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
-                console.log('🎁 [Chat.jsx] Gift message sent successfully!');
-                addToast(`Successfully sent ${gift.name}! 🎁✨`, 'success');
+                addToast(`Sent ${gift.name}! 🎁`, 'success');
             }
         } catch (err) {
-            console.error('🎁 [Chat.jsx] CRITICAL EXCEPTION in handleGiftSend:', err);
-            addToast('Software error occurred while sending gift.', 'error');
+            addToast('Error sending gift.', 'error');
         } finally {
             setSending(false);
-            console.log('🎁 [Chat.jsx] handleGiftSend finished.');
         }
     };
 
-    // Helper for Message Content rendering
+    // Reactions
+    const handleLongPressStart = (e, msgId) => {
+        const touch = e.touches ? e.touches[0] : e;
+        longPressTimer.current = setTimeout(() => {
+            setReactionBar({ msgId, x: Math.min(touch.clientX - 80, window.innerWidth - 200), y: touch.clientY - 80 });
+        }, 500);
+    };
+    const handleLongPressEnd = () => {
+        if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    };
+
+    const handleReact = async (emoji) => {
+        if (!reactionBar) return;
+        await addReaction(reactionBar.msgId, emoji, currentUser.id);
+        // Optimistic local update
+        setMessages(prev => prev.map(m => {
+            if (m.id !== reactionBar.msgId) return m;
+            const reactions = { ...(m.metadata?.reactions || {}) };
+            const existing = reactions[emoji] || [];
+            if (existing.includes(currentUser.id)) {
+                reactions[emoji] = existing.filter(id => id !== currentUser.id);
+                if (!reactions[emoji].length) delete reactions[emoji];
+            } else {
+                reactions[emoji] = [...existing, currentUser.id];
+            }
+            return { ...m, metadata: { ...m.metadata, reactions } };
+        }));
+        setReactionBar(null);
+    };
+
     const renderMessageContent = (msg) => {
         switch (msg.type) {
-            case 'voice':
-                return (
-                    <div className="voice-message">
-                        <audio src={msg.content} controls controlsList="nodownload" />
-                    </div>
-                );
-            case 'sticker':
-                return (
-                    <div className="sticker-message">
-                        <span className="sticker-emoji-large">{msg.content}</span>
-                        <span className="sticker-label">{msg.metadata?.label}</span>
-                    </div>
-                );
-            case 'gift':
-                return (
-                    <div className="gift-message">
-                        <div className="gift-animation">🎁</div>
-                        <span className="gift-emoji-large">{msg.content}</span>
-                        <span className="gift-label">SENT A {msg.metadata?.name}</span>
-                    </div>
-                );
-            case 'snapshot':
-                return (
-                    <div className="snapshot-message">
-                        <div className="snapshot-thumbnail">📸 Snapshot</div>
-                        <p className="snapshot-hint">Expires in 24h</p>
-                    </div>
-                );
-            case 'emoji':
-                return <span className="emoji-message-large">{msg.content}</span>;
-            default:
-                return <div className="message-content-text">{msg.content}</div>;
+            case 'voice': return <div className="voice-message"><audio src={msg.content} controls controlsList="nodownload" /></div>;
+            case 'image': return (
+                <div className="image-message">
+                    <OptimizedImage
+                        src={msg.content}
+                        placeholder={msg.metadata?.placeholder}
+                        alt="Chat media"
+                        width={250}
+                    />
+                </div>
+            );
+            case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
+            case 'gift': return <div className="gift-message"><div className="gift-animation">🎁</div><span className="gift-emoji-large">{msg.content}</span><span className="gift-label">SENT A {msg.metadata?.name}</span></div>;
+            case 'emoji': return <span className="emoji-message-large">{msg.content}</span>;
+            default: return <div className="message-content-text">{msg.content}</div>;
         }
     };
 
-    // Helper for Read Receipt Icons
-    const renderReadReceipt = (msg) => {
-        if (msg.sender_id !== currentUser.id) return null;
+    const renderReactions = (msg) => {
+        const reactions = msg.metadata?.reactions;
+        if (!reactions || Object.keys(reactions).length === 0) return null;
         return (
-            <span className={`read-receipt ${msg.is_read ? 'blue' : ''}`}>
-                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12.122 18.232l-5.657-5.657-1.414 1.414 7.071 7.071 11.314-11.314-1.414-1.414zM12.122 15.404L19.192 8.334l-1.414-1.414-7.07 7.071-3.536-3.535-1.414 1.414z" /></svg>
-            </span>
+            <div className="reaction-pills">
+                {Object.entries(reactions).map(([emoji, users]) => (
+                    <span
+                        key={emoji}
+                        className={`reaction-pill ${users.includes(currentUser.id) ? 'mine' : ''}`}
+                        onClick={() => handleReact(emoji)}
+                    >
+                        {emoji} <span>{users.length}</span>
+                    </span>
+                ))}
+            </div>
         );
     };
 
-    // Derived State: Is the other user online or typing?
+    // ── Derived Presence State ─────────────────────────────────────────
     const otherUserId = selectedConv?.other_user?.id;
     const opponentPresences = presence[otherUserId] || [];
     const isOtherOnline = opponentPresences.length > 0;
     const isOtherTyping = opponentPresences.some(p => p.is_typing);
 
-    if (loading) return <LoadingSpinner fullScreen text="Opening messages..." />;
+    if (convsLoading && conversations.length === 0) return <LoadingSpinner fullScreen text="Opening messages..." />;
 
     return (
         <div className="chat-page">
+            {reactionBar && <MessageReactionBar position={{ x: reactionBar.x, y: reactionBar.y }} onReact={handleReact} onClose={() => setReactionBar(null)} />}
+            {showGifts && <GiftStore onClose={() => setShowGifts(false)} onSend={handleGiftSend} balance={walletBalance} />}
+
             <div className={`chat-sidebar ${selectedConv ? 'hide' : 'show'}`}>
-                <div className="chat-sidebar-header">
-                    <h1>Messages</h1>
-                </div>
+                <div className="chat-sidebar-header"><h1>Messages</h1></div>
                 <div className="conversation-list">
                     {conversations.length === 0 ? (
-                        <div className="chat-empty-state">
-                            <p>No matches yet. Keep swiping!</p>
-                        </div>
+                        <div className="chat-empty-state"><p>No matches yet.</p></div>
                     ) : (
-                        conversations.map((conv) => (
-                            <div
-                                key={conv.id}
-                                className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''}`}
-                                onClick={() => setSelectedConv(conv)}
-                            >
-                                <div className="avatar-wrapper" onClick={(e) => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
-                                    <img
-                                        src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
-                                        alt={conv.other_user?.full_name}
-                                        className="conv-avatar"
-                                        title="View profile"
-                                    />
-                                    {presence[conv.other_user?.id]?.length > 0 && <span className="online-dot"></span>}
-                                </div>
-                                <div className="conv-info">
-                                    <div className="conv-name-row">
-                                        <span className="conv-name">{conv.other_user?.full_name || 'User'}</span>
-                                        {conv.last_message_at && (
-                                            <span className="conv-time">
-                                                {new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        )}
+                        conversations.map((conv) => {
+                            const isTypingNow = presence[conv.other_user?.id]?.some(p => p.is_typing);
+                            const isOnline = (presence[conv.other_user?.id]?.length || 0) > 0;
+                            const isSentByMe = conv.last_message_sender_id === currentUser?.id;
+                            const hasUnread = conv.has_unread && selectedConv?.id !== conv.id;
+                            const typePrefix = conv.last_message_type === 'voice' ? '🎙️ ' : conv.last_message_type === 'gift' ? '🎁 ' : conv.last_message_type === 'sticker' ? '😊 ' : '';
+                            return (
+                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => setSelectedConv(conv)}>
+                                    <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
+                                        <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
+                                        {isOnline && <span className="online-dot" />}
                                     </div>
-                                    <div className="conv-last-msg">
-                                        {presence[conv.other_user?.id]?.some(p => p.is_typing) ? (
-                                            <span className="typing-text">typing...</span>
-                                        ) : conv.last_message ? (
-                                            <span className="msg-snippet">{conv.last_message.slice(0, 55)}{conv.last_message.length > 55 ? '…' : ''}</span>
-                                        ) : (
-                                            <span className="msg-snippet muted">Tap to start chatting 👋</span>
-                                        )}
+                                    <div className="conv-info">
+                                        <div className="conv-name-row">
+                                            <span className={`conv-name ${hasUnread ? 'bold' : ''}`}>{conv.other_user?.full_name || 'User'}</span>
+                                            <span className="conv-time">{formatSidebarTimestamp(conv.last_message_at)}</span>
+                                        </div>
+                                        <div className="conv-last-msg">
+                                            {isTypingNow ? <span className="typing-text">typing...</span> : <span className={`msg-snippet ${hasUnread ? 'unread-text' : ''}`}>{isSentByMe ? 'You: ' : ''}{typePrefix}{conv.last_message || 'Say hi 👋'}</span>}
+                                        </div>
                                     </div>
+                                    <div className="conv-meta-right">{hasUnread && <span className="unread-badge">●</span>}</div>
                                 </div>
-                                <button
-                                    className="conv-msg-cta"
-                                    onClick={(e) => { e.stopPropagation(); setSelectedConv(conv); }}
-                                    title="Open chat"
-                                >
-                                    💬
-                                </button>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
             </div>
 
-            <div className="chat-window">
+            <div className={`chat-window ${!selectedConv ? 'hide-mobile' : 'show'}`}>
                 {selectedConv ? (
                     <>
                         <div className="chat-header">
-                            <button className="btn-back-mobile" onClick={() => setSelectedConv(null)}>
-                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M15 18l-6-6 6-6" /></svg>
-                            </button>
-                            <div className="chat-header-info">
-                                <img
-                                    src={selectedConv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + selectedConv.id}
-                                    alt={selectedConv.other_user?.full_name}
-                                    className="chat-header-avatar"
-                                    onClick={() => setShowGifts(true)}
-                                />
-                                <div className="chat-header-name-wrapper">
-                                    <span className="chat-header-name">{selectedConv.other_user?.full_name}</span>
-                                    <div className="vibe-meter-container">
-                                        <div
-                                            className="vibe-meter-fill"
-                                            style={{ width: `${Math.min((messages.length / 20) * 100, 100)}%` }}
-                                        ></div>
-                                        <span className="vibe-text">Vibe: {Math.min(Math.floor((messages.length / 20) * 100), 100)}%</span>
-                                    </div>
-                                    <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>
-                                        {isOtherOnline ? 'Online' : (selectedConv.other_user?.last_seen_at ? `Last seen ${new Date(selectedConv.other_user.last_seen_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Offline')}
-                                    </span>
+                            <button className="back-btn" onClick={() => setSelectedConv(null)}>←</button>
+                            <div className="header-info" onClick={() => navigate(`/profile/${selectedConv.other_user?.id}`)}>
+                                <div className="header-avatar-container">
+                                    <img src={selectedConv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv.id}`} alt="" className="header-avatar" />
+                                    {isOtherOnline && <span className="online-dot-large" />}
+                                </div>
+                                <div className="header-text">
+                                    <span className="header-name">{selectedConv.other_user?.full_name}</span>
+                                    <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>{isOtherTyping ? 'typing...' : isOtherOnline ? 'Online' : (selectedConv.other_user?.last_seen_at ? formatChatTimestamp(selectedConv.other_user.last_seen_at) : 'Offline')}</span>
                                 </div>
                             </div>
-                            {isOtherTyping && <div className="typing-indicator">typing...</div>}
                         </div>
 
                         <div className="messages-container">
-                            {messages.length === 0 ? (
-                                <div className="chat-empty-state">
-                                    <div className="empty-chat-icon">💬</div>
-                                    <p>Start the conversation! Say hi to {selectedConv.other_user?.full_name}.</p>
-                                    <div className="icebreakers-container">
-                                        <p className="icebreaker-title">Try an icebreaker:</p>
-                                        <div className="icebreaker-list">
-                                            {ICEBREAKERS.map((text, i) => (
-                                                <button
-                                                    key={i}
-                                                    className="icebreaker-chip"
-                                                    onClick={() => {
-                                                        setNewMessage(text);
-                                                        // Focus the input
-                                                        document.querySelector('.chat-input')?.focus();
-                                                    }}
-                                                >
-                                                    {text}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                messages.map((msg) => (
+                            <Virtuoso
+                                style={{ height: '100%' }}
+                                data={messages}
+                                initialTopMostItemIndex={messages.length - 1}
+                                followOutput="smooth"
+                                startReached={() => {
+                                    if (hasMore && !loadingMore) {
+                                        const nextPage = page + 1;
+                                        setPage(nextPage);
+                                        loadMessages(selectedConv.id, nextPage, false);
+                                    }
+                                }}
+                                itemContent={(index, msg) => (
                                     <div
                                         key={msg.id}
                                         className={`message-bubble ${msg.sender_id === currentUser.id ? 'message-sent' : 'message-received'} type-${msg.type || 'text'}`}
+                                        onMouseDown={e => handleLongPressStart(e, msg.id)}
+                                        onTouchStart={e => handleLongPressStart(e, msg.id)}
+                                        onMouseUp={handleLongPressEnd}
+                                        onTouchEnd={handleLongPressEnd}
+                                        style={{}}
                                     >
-                                        <div className="message-body">
-                                            {renderMessageContent(msg)}
-                                        </div>
-                                        <div className="message-meta">
-                                            <span className="message-time">
-                                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                            {renderReadReceipt(msg)}
-                                        </div>
+                                        {renderMessageContent(msg)}
+                                        <div className="message-info"><span className="message-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><ReadReceipt msg={msg} isSender={msg.sender_id === currentUser.id} /></div>
+                                        {renderReactions(msg)}
                                     </div>
-                                ))
-                            )}
-                            <div ref={messagesEndRef} />
+                                )}
+                            />
                         </div>
 
-                        {showStickers && (
-                            <StickerDrawer
-                                onSelectSticker={handleStickerSelect}
-                                onClose={() => setShowStickers(false)}
-                            />
-                        )}
-
-                        {showGifts && (
-                            <GiftStore
-                                onSend={handleGiftSend}
-                                onClose={() => setShowGifts(false)}
-                                balance={walletBalance}
-                            />
-                        )}
-
                         <div className="chat-input-area">
+                            <input type="file" id="chat-image-input" accept="image/*" hidden onChange={handleImageSelect} />
                             <form className="chat-input-form" onSubmit={handleSendMessage}>
                                 <button
                                     type="button"
-                                    className={`btn-icon btn-attachment ${showStickers ? 'active' : ''}`}
-                                    onClick={() => setShowStickers(!showStickers)}
+                                    className="btn-icon"
+                                    onClick={() => document.getElementById('chat-image-input').click()}
+                                    title="Send Image"
                                 >
-                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                        <circle cx="12" cy="13" r="4"></circle>
+                                    </svg>
                                 </button>
                                 <button
                                     type="button"
-                                    className="btn-icon btn-chat-gift"
-                                    onClick={(e) => {
-                                        console.log('🎁 Gift button clicked');
-                                        e.preventDefault();
-                                        setShowGifts(true);
-                                    }}
+                                    className="btn-icon"
+                                    onClick={() => setShowStickers(!showStickers)}
+                                    title="Stickers & Emojis"
+                                >
+                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                    </svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-icon"
+                                    onClick={() => setShowGifts(!showGifts)}
                                     title="Send Gift"
                                 >
-                                    <span style={{ pointerEvents: 'none' }}>🎁</span>
+                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                                        <rect x="2" y="7" width="20" height="5"></rect>
+                                        <line x1="12" y1="22" x2="12" y2="7"></line>
+                                        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                    </svg>
                                 </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon btn-snap-chat"
-                                    onClick={() => navigate('/snap', { state: { recipient: selectedConv.other_user } })}
-                                    title="Send Snap"
-                                >
-                                    👻
-                                </button>
-                                <input
-                                    type="text"
-                                    className="chat-input"
-                                    placeholder="Type a message..."
-                                    value={newMessage}
-                                    onChange={handleInputChange}
-                                    onBlur={stopTyping}
-                                />
+                                <input type="text" className="chat-input" placeholder="Type a message..." value={newMessage} onChange={e => { setNewMessage(e.target.value); handleTyping(); }} />
                                 {newMessage.trim() ? (
-                                    <button type="submit" className="btn-send" disabled={sending}>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <button type="submit" className="btn-send">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                             <line x1="22" y1="2" x2="11" y2="13"></line>
                                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                         </svg>
                                     </button>
                                 ) : (
-                                    <button
-                                        type="button"
-                                        className="btn-icon btn-voice"
-                                        onClick={() => setIsRecording(true)}
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>
-                                    </button>
+                                    <VoiceRecorder onRecordingComplete={handleVoiceStop} isSending={sending} variant="chat" />
                                 )}
                             </form>
-                            {isRecording && (
-                                <VoiceRecorder
-                                    onStop={handleVoiceStop}
-                                    onCancel={() => setIsRecording(false)}
-                                />
-                            )}
+
+                            {showStickers && <StickerDrawer onSelectSticker={handleStickerSelect} onClose={() => setShowStickers(false)} />}
                         </div>
                     </>
                 ) : (
                     <div className="chat-dashboard animate-fade-in">
                         <div className="dashboard-header-premium">
-                            <div className="dashboard-icon-ring">
-                                <span className="icon-main">💬</span>
-                            </div>
+                            <div className="dashboard-icon-ring"><span className="icon-main">💬</span></div>
                             <h2>Your Conversations</h2>
                             <p>Pick up where you left off or start something new</p>
                         </div>
-
                         {conversations.length > 0 ? (
                             <div className="dashboard-sections">
-                                {/* Quick Start / New Matches */}
                                 {conversations.some(c => !c.last_message) && (
                                     <section className="dashboard-section new-matches-section">
                                         <h3 className="section-label">✨ New Matches</h3>
                                         <div className="new-matches-row">
                                             {conversations.filter(c => !c.last_message).slice(0, 5).map(conv => (
-                                                <div
-                                                    key={conv.id}
-                                                    className="new-match-avatar-card"
-                                                    onClick={() => setSelectedConv(conv)}
-                                                >
-                                                    <div className="avatar-ring">
-                                                        <img
-                                                            src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
-                                                            alt={conv.other_user?.full_name}
-                                                        />
-                                                    </div>
+                                                <div key={conv.id} className="new-match-avatar-card" onClick={() => setSelectedConv(conv)}>
+                                                    <div className="avatar-ring"><img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name} /></div>
                                                     <span className="match-name">{conv.other_user?.full_name?.split(' ')[0]}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
                                 )}
-
-                                {/* Recent Activity */}
                                 <section className="dashboard-section recent-chats-section">
                                     <h3 className="section-label">🕒 Recent Chats</h3>
                                     <div className="recent-chats-grid">
                                         {conversations.filter(c => c.last_message).slice(0, 6).map(conv => (
-                                            <div
-                                                key={conv.id}
-                                                className="recent-chat-card glass"
-                                                onClick={() => setSelectedConv(conv)}
-                                            >
-                                                <img
-                                                    src={conv.other_user?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + conv.id}
-                                                    alt={conv.other_user?.full_name}
-                                                    className="card-avatar"
-                                                />
-                                                <div className="card-info">
-                                                    <span className="card-name">{conv.other_user?.full_name}</span>
-                                                    <p className="card-last-msg">{conv.last_message}</p>
-                                                </div>
+                                            <div key={conv.id} className="recent-chat-card glass" onClick={() => setSelectedConv(conv)}>
+                                                <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name} className="card-avatar" />
+                                                <div className="card-info"><span className="card-name">{conv.other_user?.full_name}</span><p className="card-last-msg">{conv.last_message}</p></div>
                                                 <div className="card-arrow">→</div>
                                             </div>
                                         ))}
@@ -700,7 +594,7 @@ export default function Chat() {
                             <div className="no-conv-fallback">
                                 <div className="fallback-emoji">💝</div>
                                 <p>No matches yet. Your next vibe is just a swipe away!</p>
-                                <button className="btn-go-swiping" onClick={() => navigate('/discover')}>Go Swiping</button>
+                                <button className="btn-go-swiping" onClick={() => navigate('/match')}>Go Swiping</button>
                             </div>
                         )}
                     </div>

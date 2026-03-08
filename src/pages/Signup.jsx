@@ -17,10 +17,14 @@ export default function Signup() {
     const { success, error: showError } = useToast();
     const navigate = useNavigate();
 
-    // Extract referral code from URL
+    // Extract referral code from URL and persist in localStorage
     const [referralCode, setReferralCode] = useState(() => {
         const params = new URLSearchParams(window.location.search);
-        return params.get('ref') || '';
+        const code = params.get('ref') || localStorage.getItem('referral_code') || '';
+        if (params.get('ref')) {
+            localStorage.setItem('referral_code', params.get('ref'));
+        }
+        return code;
     });
 
     const handleSubmit = async (e) => {
@@ -62,13 +66,10 @@ export default function Signup() {
             role: role
         });
 
-        if (!signupErr && (data?.user) && referrerId) {
-            // Create a record in the referrals table
-            await supabase.from('referrals').insert({
-                referrer_id: referrerId,
-                referred_id: data.user.id,
-                status: 'completed'
-            });
+        if (!signupErr && data?.user) {
+            // Referral attribution is now handled by the backend trigger `on_referred_profile_created`
+            // and `sync_referral_from_profile` which fires when a profile is created with referred_by
+            localStorage.removeItem('referral_code');
         }
 
         setIsLoading(false);

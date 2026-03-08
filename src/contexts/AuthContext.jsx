@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
+import { updatePresence } from '../services/profileService';
 
 const AuthContext = createContext(null);
 
@@ -14,9 +15,11 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
+    const [walletBalance, setWalletBalance] = useState(0);
     const [loading, setLoading] = useState(true);
     const [profileLoading, setProfileLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [onlineUserIds, setOnlineUserIds] = useState(new Set());
 
     // Fetch user profile from Supabase
     const fetchProfile = useCallback(async (userId) => {
@@ -40,6 +43,23 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
+    // Fetch wallet balance
+    const fetchWallet = useCallback(async (userId) => {
+        try {
+            const { data, error } = await supabase
+                .from('wallets')
+                .select('available_balance')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (!error && data) {
+                setWalletBalance(data.available_balance || 0);
+            }
+        } catch (err) {
+            console.error('Error fetching wallet:', err);
+        }
+    }, []);
+
     // Initialize auth state
     useEffect(() => {
         let mounted = true;
@@ -56,7 +76,8 @@ export function AuthProvider({ children }) {
                     const user = session?.user ?? null;
                     setCurrentUser(user);
                     if (user) {
-                        fetchProfile(user.id); // Don't await, let it happen in background
+                        fetchProfile(user.id);
+                        fetchWallet(user.id);
                     } else {
                         setProfileLoading(false);
                     }
@@ -84,9 +105,11 @@ export function AuthProvider({ children }) {
                 setCurrentUser(user);
 
                 if (user) {
-                    fetchProfile(user.id); // Don't await
+                    fetchProfile(user.id);
+                    fetchWallet(user.id);
                 } else {
                     setUserProfile(null);
+                    setWalletBalance(0);
                     setProfileLoading(false);
                 }
                 setLoading(false);
@@ -119,6 +142,43 @@ export function AuthProvider({ children }) {
             clearTimeout(timer);
         };
     }, [fetchProfile]);
+
+    // Global Presence & Heartbeat
+    useEffect(() => {
+        if (!currentUser || !userProfile) return;
+
+        // 1. Presence Channel
+        const channel = supabase.channel('presence-global', {
+            config: { presence: { key: currentUser.id } }
+        });
+
+        channel
+            .on('presence', { event: 'sync' }, () => {
+                const state = channel.presenceState();
+                const ids = new Set(Object.keys(state));
+                setOnlineUserIds(ids);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.track({
+                        id: currentUser.id,
+                        full_name: userProfile.full_name,
+                        online_at: new Date().toISOString()
+                    });
+                }
+            });
+
+        // 2. Database Heartbeat (Last Seen)
+        const heartbeat = setInterval(() => {
+            updatePresence(currentUser.id);
+        }, 60000);
+        updatePresence(currentUser.id);
+
+        return () => {
+            supabase.removeChannel(channel);
+            clearInterval(heartbeat);
+        };
+    }, [currentUser, userProfile]);
 
     // Auth actions
     const login = async (email, password) => {
@@ -230,6 +290,7 @@ export function AuthProvider({ children }) {
     const value = {
         currentUser,
         userProfile,
+        walletBalance,
         loading,
         profileLoading,
         error,
@@ -241,6 +302,8 @@ export function AuthProvider({ children }) {
         clearError,
         fetchProfile,
         updateProfile,
+        fetchWallet,
+        onlineUserIds
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -33,6 +33,29 @@
     font-size: 1.25rem;
     line-height: 1;
     transition: transform 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottom-nav-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    display: block;
+}
+
+.earning-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #ff4b4b;
+    border-radius: 50%;
+    border: 2px solid var(--glass-bg);
+    box-shadow: 0 0 5px rgba(255, 75, 75, 0.5);
 }
 
 .bottom-nav-item.active .bottom-nav-icon {

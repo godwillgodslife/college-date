@@ -1,0 +1,38 @@
+.opt-image-container {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.opt-image-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px);
+    transform: scale(1.1);
+}
+
+.opt-image-main {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.opt-image-main.hidden {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.opt-image-main.visible {
+    opacity: 1;
+}
+
+.opt-image-container.loaded .opt-image-placeholder {
+    display: none;
+}

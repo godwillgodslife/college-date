@@ -97,6 +97,13 @@ export default function Settings() {
                         </div>
                         <span className="chevron">›</span>
                     </div>
+                    <div className="settings-item feature-link" onClick={() => navigate('/wallet')}>
+                        <div className="item-info">
+                            <h3>💰 Wallet & Earnings</h3>
+                            <p>Funds, withdrawals, and transactions.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
                     <AndroidInstallButton />
                 </div>
             </div>

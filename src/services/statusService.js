@@ -74,6 +74,24 @@ export async function getRecentStatuses() {
         return { data: [], error: error.message };
     }
 }
+
+// Get active statuses for a specific user
+export async function getUserStatuses(userId) {
+    try {
+        const { data, error } = await supabase
+            .from('status_updates')
+            .select('*')
+            .eq('user_id', userId)
+            .gt('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return { data, error: null };
+    } catch (error) {
+        console.error('Error fetching user statuses:', error);
+        return { data: [], error: error.message };
+    }
+}
 // ...
 
 // Get counts of hidden content for connectivity FOMO
