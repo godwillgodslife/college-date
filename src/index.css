@@ -289,14 +289,43 @@ a:focus:not(:focus-visible) {
 }
 
 .btn-gradient {
-  background: var(--gradient-primary);
+  background: linear-gradient(90deg, #6C63FF, #FF6B9D, #00D2FF, #6C63FF);
+  background-size: 300% 100%;
   color: white;
   border: none;
+  position: relative;
+  overflow: hidden;
+  animation: premiumShimmer 5s linear infinite, premiumPulse 3s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+}
+
+@keyframes premiumShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+@keyframes premiumPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+  }
+
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(108, 99, 255, 0.5);
+  }
 }
 
 .btn-gradient:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
+  filter: brightness(1.2);
+  transform: translateY(-3px) scale(1.04) !important;
 }
 
 .btn-block {
