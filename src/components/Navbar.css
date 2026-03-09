@@ -149,6 +149,26 @@
     font-size: 0.875rem;
 }
 
+.premium-nav-link {
+    color: #FF6B9D !important;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(90deg, #6C63FF, #FF6B9D, #00D2FF, #6C63FF);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: premiumShimmer 5s linear infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 107, 157, 0.3));
+}
+
+.premium-nav-link:hover {
+    filter: brightness(1.2) drop-shadow(0 0 8px rgba(255, 107, 157, 0.5));
+    transform: scale(1.05);
+}
+
 .navbar-chevron {
     transition: transform 0.2s;
     color: var(--text-muted);

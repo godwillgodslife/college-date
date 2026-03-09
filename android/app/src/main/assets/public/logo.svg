@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle (Optional, for a cleaner icon feel) -->
+  <circle cx="256" cy="256" r="240" fill="url(#paint0_linear)" />
+  
+  <!-- Stylized Heart -->
+  <path d="M256 380C256 380 120 300 120 180C120 124.77 164.77 80 220 80C250.36 80 277.63 93.3 296 114.45C314.37 93.3 341.64 80 372 80C427.23 80 472 124.77 472 180C472 300 336 380 336 380" fill="white" fill-opacity="0.2" />
+  
+  <!-- Graduation Cap Icon -->
+  <path d="M256 160L96 240L256 320L416 240L256 160Z" fill="white" />
+  <path d="M160 272V336C160 336 200 368 256 368C312 368 352 336 352 336V272" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M416 240V320" stroke="white" stroke-width="12" stroke-linecap="round" />
+  <circle cx="416" cy="336" r="16" fill="white" />
+
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="512" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF4B8B" />
+      <stop offset="1" stop-color="#8B4BFF" />
+    </linearGradient>
+  </defs>
+</svg>
