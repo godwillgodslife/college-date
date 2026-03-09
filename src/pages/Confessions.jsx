@@ -146,9 +146,9 @@ export default function Confessions() {
     const [newConfession, setNewConfession] = useState('');
     const [selectedPost, setSelectedPost] = useState(null);
 
-    // SWR for confessions using custom hook
-    const { data: confessions, isLoading, mutate: mutateConfessions } = useConfessions(
-        userProfile?.university,
+    // SWR for confessions using custom hook - trim university to avoid casing/space mismatches
+    const { data: confessions = [], isLoading, mutate: mutateConfessions } = useConfessions(
+        userProfile?.university?.trim(),
         currentUser?.id
     );
 
@@ -204,14 +204,33 @@ export default function Confessions() {
         if (!newConfession.trim()) return;
         setPosting(true);
         try {
-            const uni = userProfile?.university || 'Unknown University';
-            const { error } = await postConfession(newConfession, uni, currentUser.id);
+            const uni = userProfile?.university?.trim() || 'Unknown University';
+            const { data: newPost, error } = await postConfession(newConfession, uni, currentUser.id);
             if (error) throw new Error(error);
+
+            // Optimistically prepend the new confession to the local SWR cache
+            mutateConfessions((current = []) => {
+                const optimisticPost = {
+                    ...(newPost || {}),
+                    id: newPost?.id || `optimistic-${Date.now()}`,
+                    content: newConfession,
+                    university: uni,
+                    created_at: new Date().toISOString(),
+                    reactionCounts: { '🔥': 0, '🙊': 0, '👀': 0, '🙏': 0 },
+                    userReactions: [],
+                    hasClaimed: false,
+                    totalReactions: 0,
+                    commentCount: 0,
+                    isViral: false,
+                };
+                return [optimisticPost, ...current];
+            }, false); // false = no re-fetch
+
             setNewConfession('');
             addToast('Secret posted! 🤫', 'success');
-            mutateConfessions();
         } catch (err) {
             addToast('Failed to post secret', 'error');
+            mutateConfessions(); // on error, re-fetch to get clean state
         } finally {
             setPosting(false);
         }

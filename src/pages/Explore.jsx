@@ -19,6 +19,14 @@ export default function Explore() {
     const [category, setCategory] = useState('All');
     const categories = ['All', 'Newest', 'Near Me', 'Serious', 'Casual', 'Trending'];
 
+    const [filters, setFilters] = useState({
+        gender: 'All',
+        university: 'All',
+        ageRange: [18, 50]
+    });
+
+    const [selectedProfile, setSelectedProfile] = useState(null);
+
     const { data: swrProfiles, mutate: mutateProfiles, isLoading: profilesLoading } = useDiscoveryProfiles(
         currentUser?.id,
         { ...filters, category },
@@ -26,12 +34,6 @@ export default function Explore() {
     );
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const [filters, setFilters] = useState({
-        gender: 'All',
-        university: 'All',
-        ageRange: [18, 50]
-    });
 
     // Use a stable filters object for the effect
     const stableFilters = JSON.stringify(filters);
@@ -172,13 +174,11 @@ export default function Explore() {
             </div>
 
             {/* Profile Drawer */}
-            {selectedProfile && (
-                <ProfileDrawer
-                    isOpen={!!selectedProfile}
-                    profile={selectedProfile}
-                    onClose={() => setSelectedProfile(null)}
-                />
-            )}
+            <ProfileDrawer
+                isOpen={!!selectedProfile}
+                profile={selectedProfile}
+                onClose={() => setSelectedProfile(null)}
+            />
         </div>
     );
 }

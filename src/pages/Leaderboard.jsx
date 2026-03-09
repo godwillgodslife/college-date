@@ -88,12 +88,13 @@ export default function Leaderboard() {
     const { data: lbData, error, isLoading } = useLeaderboards();
 
     const data = lbData || { mostWanted: [], bigSpenders: [] };
-
     const displayList = activeTab === 'wanted' ? data.mostWanted : data.bigSpenders;
+
+    // Only show loading spinner on initial load when there is NO data
+    if (isLoading && !lbData) return <LoadingSpinner fullScreen text="Ranking University Elite..." />;
+
     const topThree = displayList.slice(0, 3);
     const runnersUp = displayList.slice(3);
-
-    if (isLoading && !lbData) return <LoadingSpinner fullScreen text="Ranking University Elite..." />;
 
     return (
         <div className="leaderboard-page">

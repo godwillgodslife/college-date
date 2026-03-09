@@ -38,22 +38,25 @@ LEFT JOIN (
 -- 2. Enhanced Leaderboard View (Single-fetch optimized)
 -- This allows us to fetch both "Most Wanted" and "Big Spenders" in one query if needed,
 -- or just provides a more efficient source than the current multiple joins.
+DROP VIEW IF EXISTS public.leaderboard_unified;
 CREATE OR REPLACE VIEW public.leaderboard_unified AS
 SELECT 
     p.id,
     p.full_name,
     p.avatar_url,
     p.university,
-    p.premium_swipes_received,
-    COALESCE(wallet_stats.total_spent, 0) as total_spent,
+    p.gender,
+    COALESCE(swipe_stats.premium_swipes_received, 0) as premium_swipes_received,
+    COALESCE(w.total_spent, 0) as total_spent,
     p.completion_score
 FROM profiles p
 LEFT JOIN (
-    SELECT swiper_id, SUM(amount) as total_spent
-    FROM wallet_transactions
-    WHERE status = 'completed'
-    GROUP BY swiper_id
-) wallet_stats ON p.id = wallet_stats.swiper_id
+    SELECT swiped_id, COUNT(id) as premium_swipes_received
+    FROM public.swipes
+    WHERE type = 'premium' OR type = 'super_swipe'
+    GROUP BY swiped_id
+) swipe_stats ON p.id = swipe_stats.swiped_id
+LEFT JOIN public.wallets w ON p.id = w.user_id
 WHERE p.is_banned = false AND p.is_shadow_banned = false;
 
 -- Grant access to these views

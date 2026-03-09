@@ -13,6 +13,8 @@ const GIFTS = [
 export default function GiftStore({ onSend, onClose, balance = 0 }) {
     const [selectedGift, setSelectedGift] = useState(null);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const navigate = useNavigate(); // Hook for navigation
 
     const handlePurchase = () => {
@@ -33,10 +35,18 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
         setIsConfirming(true);
     };
 
-    const confirmSend = () => {
+    const confirmSend = async () => {
         console.log('🎁 [GiftStore.jsx] confirmSend() triggered. Calling onSend...');
         setIsConfirming(false); // Reset confirmation state immediately 
-        onSend(selectedGift);
+        setIsSending(true);
+        const success = await onSend(selectedGift);
+        setIsSending(false);
+        if (success) {
+            setShowSuccess(true);
+            setTimeout(() => {
+                onClose();
+            }, 2000); // Close after showing success for 2s
+        }
     };
 
     return (
@@ -69,7 +79,17 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
                 </div>
 
                 <div className="gift-footer">
-                    {isConfirming ? (
+                    {showSuccess ? (
+                        <div className="success-celebration">
+                            <div className="success-icon">✨🎁✨</div>
+                            <p className="success-text">Gift Sent Successfully!</p>
+                        </div>
+                    ) : isSending ? (
+                        <div className="confirm-purchase-area">
+                            <p className="confirm-text">Sending <strong>{selectedGift.name}</strong>...</p>
+                            <button className="btn-buy" disabled>Processing...</button>
+                        </div>
+                    ) : isConfirming ? (
                         <div className="confirm-purchase-area">
                             <p className="confirm-text">Confirm sending <strong>{selectedGift.name}</strong> for <strong>₦{selectedGift.price.toLocaleString()}</strong>?</p>
                             <div className="confirm-btns">

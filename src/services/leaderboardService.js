@@ -10,9 +10,14 @@ export async function getLeaderboards() {
 
         if (error) throw error;
 
-        // Separate most wanted and big spenders in JS (cheap)
-        const sortedBySwipes = [...data].sort((a, b) => (b.premium_swipes_received || 0) - (a.premium_swipes_received || 0));
-        const sortedBySpent = [...data].sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0));
+        // Filter out individuals with 0, restrict by gender (case-insensitive), and sort
+        const sortedBySwipes = data
+            .filter(u => u.premium_swipes_received > 0 && u.gender?.toLowerCase() === 'female')
+            .sort((a, b) => (b.premium_swipes_received || 0) - (a.premium_swipes_received || 0));
+
+        const sortedBySpent = data
+            .filter(u => u.total_spent > 0 && u.gender?.toLowerCase() === 'male')
+            .sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0));
 
         return {
             mostWanted: sortedBySwipes.slice(0, 50),

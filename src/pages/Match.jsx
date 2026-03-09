@@ -22,6 +22,13 @@ export default function Match() {
     const navigate = useNavigate();
 
     const [matchData, setMatchData] = useState(null);
+    const [liveOnly, setLiveOnly] = useState(false);
+    const [filters, setFilters] = useState({
+        gender: 'All',
+        university: 'All',
+        ageRange: [18, 50]
+    });
+
     const { data: swrProfiles, mutate: mutateProfiles, isValidating: profilesValidating } = useDiscoveryProfiles(
         currentUser?.id,
         { ...filters, liveOnly },
@@ -38,13 +45,7 @@ export default function Match() {
     const [showNudge, setShowNudge] = useState(false); // For popup
     const [sessionSwipes, setSessionSwipes] = useState(0); // For Premium Nudge
     const [showPremiumNudge, setShowPremiumNudge] = useState(false); // Premium Nudge Modal
-    const [liveOnly, setLiveOnly] = useState(false);
     const [showGenderMenu, setShowGenderMenu] = useState(false);
-    const [filters, setFilters] = useState({
-        gender: 'All',
-        university: 'All',
-        ageRange: [18, 50]
-    });
 
     // Limit Reached State
     const [limitReached, setLimitReached] = useState(null);
@@ -281,7 +282,7 @@ export default function Match() {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
                         const { latitude, longitude } = pos.coords;
-                        console.log('📍 Location acquired:', latitude, longitude);
+
                         setLiveOnly(true);
                     },
                     (_err) => {
@@ -375,7 +376,7 @@ export default function Match() {
                                 </div>
                             )}
                         </div>
-                        {profiles.slice(0, 2).reverse().map((profile) => (
+                        {profiles.slice(0, 2).reverse().map((profile, index) => (
                             <SwipeCard
                                 key={profile.id}
                                 profile={profile}

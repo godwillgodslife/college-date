@@ -40,14 +40,7 @@ export default function Profile() {
     const viewingProfile = isOwnProfile ? myProfile : profileResult?.data;
     const profileLoading = isOwnProfile ? false : SWRProfileLoading;
 
-    console.log('[Profile Debug]', {
-        isOwnProfile,
-        profileId,
-        currentUserId: currentUser?.id,
-        hasMyProfile: !!myProfile,
-        hasSWRResult: !!profileResult,
-        viewingProfile: !!viewingProfile
-    });
+
 
     const { data: walletResult, isLoading: walletLoading } = useSWR(
         isOwnProfile && currentUser ? ['wallet', currentUser.id] : null,

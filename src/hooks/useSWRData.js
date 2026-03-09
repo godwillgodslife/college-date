@@ -47,9 +47,9 @@ export function useLeaderboards() {
     const key = 'leaderboards';
 
     return useSWR(key, async () => {
-        const { mostWanted, bigSpenders, error } = await getLeaderboards();
-        if (error) throw new Error(error);
-        return { mostWanted, bigSpenders };
+        const response = await getLeaderboards();
+        if (response.error) throw new Error(response.error);
+        return { mostWanted: response.mostWanted, bigSpenders: response.bigSpenders };
     }, {
         revalidateOnFocus: false,
         dedupingInterval: 60000, // 1 minute dedupe for leaderboards

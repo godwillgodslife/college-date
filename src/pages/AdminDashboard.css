@@ -703,3 +703,384 @@
     cursor: not-allowed;
     transform: none;
 }
+
+/* ── Sub-tab Navigation ─────────────────────────────────── */
+.sub-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: #0f1115;
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid #334155;
+    width: fit-content;
+}
+
+.sub-tab-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sub-tab-btn.active {
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+.badge-red {
+    background: #ef4444;
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ── Analytics Grid ─────────────────────────────────────── */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+}
+
+.analytics-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+/* ── Bar Chart ──────────────────────────────────────────── */
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 120px;
+    padding-top: 10px;
+}
+
+.bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: 4px;
+    height: 100%;
+}
+
+.bar-track {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.4s ease;
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.bar-fill:hover {
+    opacity: 1;
+}
+
+.bar-label {
+    font-size: 10px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+/* ── Gender Split Bars ──────────────────────────────────── */
+.gender-split {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 8px 0;
+}
+
+.gender-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.gender-bar-row>span:first-child {
+    width: 50px;
+}
+
+.gender-bar-row>span:last-child {
+    width: 40px;
+    text-align: right;
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.gender-bar-bg {
+    flex: 1;
+    height: 12px;
+    background: #0f1115;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.gender-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.gender-bar.male {
+    background: linear-gradient(90deg, #38bdf8, #0284c7);
+}
+
+.gender-bar.female {
+    background: linear-gradient(90deg, #ec4899, #db2777);
+}
+
+/* ── Top Spenders ───────────────────────────────────────── */
+.top-spenders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.top-spender-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #0f1115;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+.ts-rank {
+    font-weight: 800;
+    color: #fbbf24;
+    width: 24px;
+}
+
+.ts-name {
+    flex: 1;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.ts-uni {
+    font-size: 0.8rem;
+    color: #64748b;
+    flex: 1;
+}
+
+.ts-amount {
+    font-weight: 700;
+    color: #4ade80;
+    font-size: 0.95rem;
+}
+
+/* ── Bulk Action Bar ────────────────────────────────────── */
+.bulk-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(56, 189, 248, 0.05);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    flex-wrap: wrap;
+}
+
+/* ── User Profile Drawer ────────────────────────────────── */
+.user-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.user-drawer {
+    width: 380px;
+    background: #1e293b;
+    border-left: 1px solid #334155;
+    height: 100%;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+    animation: slideInRight 0.25s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.drawer-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #334155;
+    border: none;
+    color: #f8fafc;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawer-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-top: 10px;
+}
+
+.drawer-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #334155;
+}
+
+.drawer-avatar-row h2 {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+    color: #f8fafc;
+}
+
+.drawer-avatar-row p {
+    margin: 2px 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.drawer-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.drawer-stat {
+    background: #0f1115;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dstat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dstat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.drawer-txn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.drawer-txn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #0f1115;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.txn-desc {
+    color: #94a3b8;
+    flex: 1;
+}
+
+.txn-amount {
+    font-weight: 700;
+}
+
+.txn-amount.credit {
+    color: #4ade80;
+}
+
+.txn-amount.debit {
+    color: #f87171;
+}
+
+/* ── Keyword Chips ──────────────────────────────────────── */
+.keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.keyword-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.keyword-chip button {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+    line-height: 1;
+}
+
+/* ── No-data placeholder ────────────────────────────────── */
+.no-data {
+    text-align: center;
+    padding: 3rem;
+    color: #475569;
+    font-style: italic;
+}

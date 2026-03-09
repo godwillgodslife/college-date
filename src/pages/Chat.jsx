@@ -300,12 +300,11 @@ export default function Chat() {
     };
 
     const handleGiftSend = async (gift) => {
-        if (!selectedConv?.other_user?.id) { addToast('Recipient ID missing', 'error'); return; }
-        setShowGifts(false);
+        if (!selectedConv?.other_user?.id) { addToast('Recipient ID missing', 'error'); return false; }
         setSending(true);
         try {
             const { data: txData, error: txError } = await sendGift(currentUser.id, selectedConv.other_user.id, gift.id);
-            if (txError) { addToast(txError, 'error'); return; }
+            if (txError) { addToast(txError, 'error'); return false; }
             if (txData?.new_balance !== undefined) setWalletBalance(txData.new_balance);
 
             const optimisticId = `temp-${Date.now()}`;
@@ -323,12 +322,15 @@ export default function Chat() {
             if (msgError) {
                 setMessages(prev => prev.filter(m => m.id !== optimisticId));
                 addToast('Gift paid, but chat notification failed.', 'warning');
+                return true;
             } else if (data) {
                 setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
                 addToast(`Sent ${gift.name}! 🎁`, 'success');
+                return true;
             }
         } catch (err) {
             addToast('Error sending gift.', 'error');
+            return false;
         } finally {
             setSending(false);
         }

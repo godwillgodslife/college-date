@@ -212,7 +212,7 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                                         <span className="btn-icon">⭐</span>
                                         <div className="btn-label">
                                             <span className="main-text">Premium Swipe</span>
-                                            <span className="price-text">₦500</span>
+                                            <span className="price-text">₦5,000</span>
                                         </div>
                                     </button>
                                 ) : (

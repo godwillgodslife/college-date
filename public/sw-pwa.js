@@ -1,4 +1,4 @@
-const CACHE_NAME = 'college-date-v3';
+const CACHE_NAME = 'college-date-v4';
 const STATIC_ASSETS = ['/', '/index.html', '/logo.svg', '/manifest.webmanifest'];
 
 // 1. Installation: Cache the basic app shell
@@ -28,13 +28,14 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET' || url.hostname.includes('supabase.co')) return;
 
     // STRATEGY: Stale-While-Revalidate (SWR) for JS/CSS and Shell
-    // This allows instant load from cache while updating in background
     if (url.origin === self.location.origin) {
         event.respondWith(
             caches.open(CACHE_NAME).then((cache) => {
                 return cache.match(request).then((cachedResponse) => {
                     const fetchedResponse = fetch(request).then((networkResponse) => {
-                        cache.put(request, networkResponse.clone());
+                        if (networkResponse.status === 200) {
+                            cache.put(request, networkResponse.clone());
+                        }
                         return networkResponse;
                     });
                     return cachedResponse || fetchedResponse;
@@ -46,8 +47,12 @@ self.addEventListener('fetch', (event) => {
     else if (request.destination === 'font' || request.url.includes('google-fonts')) {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
-                return cachedResponse || fetch(request).then((networkResponse) => {
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse.clone()));
+                if (cachedResponse) return cachedResponse;
+                return fetch(request).then((networkResponse) => {
+                    if (networkResponse.status === 200) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+                    }
                     return networkResponse;
                 });
             })

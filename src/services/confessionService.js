@@ -10,7 +10,10 @@ export async function getConfessions(university = null, userId = null) {
             .order('created_at', { ascending: false })
             .limit(50);
 
-        if (university) query = query.eq('university', university);
+        if (university) {
+            // Use case-insensitive matching and trim spaces to prevent "Uni " !== "Uni" bugs
+            query = query.ilike('university', university.trim());
+        }
 
         const { data, error } = await query;
         if (error) throw error;
@@ -50,9 +53,10 @@ export async function getConfessions(university = null, userId = null) {
 
 export async function postConfession(content, university, userId) {
     try {
+        const cleanUni = university ? university.trim() : 'Unknown University';
         const { data, error } = await supabase
             .from('confessions')
-            .insert({ content, university, user_id: userId })
+            .insert({ content, university: cleanUni, user_id: userId })
             .select()
             .single();
 
