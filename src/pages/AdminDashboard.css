@@ -1084,3 +1084,178 @@
     color: #475569;
     font-style: italic;
 }
+
+/* ──────────────────────────────────────────────────────────
+   MOBILE RESPONSIVE STYLES
+   ────────────────────────────────────────────────────────── */
+
+/* Hamburger Toggle */
+.sidebar-toggle {
+    display: none;
+    background: #334155;
+    border: 1px solid #475569;
+    color: #f8fafc;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.sidebar-toggle:hover {
+    background: #475569;
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: flex;
+    }
+
+    .admin-header {
+        padding: 12px 16px;
+    }
+
+    .admin-logo-area h1 {
+        font-size: 1rem;
+    }
+
+    .admin-user {
+        display: none;
+        /* Hide admin email on mobile header to save space */
+    }
+
+    .admin-content {
+        position: relative;
+    }
+
+    /* Mobile Sidebar */
+    .admin-sidebar {
+        position: fixed;
+        top: 65px;
+        /* header height */
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        top: 65px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        z-index: 90;
+    }
+
+    /* Main Content area on mobile */
+    .admin-main {
+        padding: 20px 16px;
+    }
+
+    .admin-panel h2 {
+        font-size: 1.4rem;
+    }
+
+    .panel-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    /* Grids */
+    .metric-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .analytics-grid,
+    .admin-controls-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .admin-confession-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tables */
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+    }
+
+    /* Finance Sub-tabs */
+    .sub-tab-bar {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 8px;
+        /* Room for scrollbar */
+        justify-content: flex-start;
+    }
+
+    /* Actions in Table */
+    .actions-cell {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .btn-action {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Search Bar */
+    .user-search-bar {
+        flex-direction: column;
+    }
+
+    .admin-search-input {
+        max-width: none;
+    }
+
+    .btn-search {
+        width: 100%;
+    }
+
+    /* User Management Table - specific adjustments */
+    .admin-table .admin-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* User Profile Drawer on mobile */
+    .user-drawer {
+        width: 100%;
+        max-width: none;
+    }
+
+    .drawer-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Small devices - even tighter */
+@media (max-width: 480px) {
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .admin-card {
+        padding: 16px;
+    }
+}

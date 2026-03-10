@@ -165,10 +165,16 @@ export async function checkSwipeLimit(userId) {
         // data is an array of one row [ { can_swipe, used_count, max_count } ]
         const result = Array.isArray(data) ? data[0] : data;
 
+        // CRITICAL BUG FIX: If user has used 0 swipes, they MUST be able to swipe.
+        // This handles cases where brand new accounts might trigger the limit RPC incorrectly.
+        const usedCount = result.used_count || 0;
+        const maxCount = result.max_count || 20;
+        const canSwipe = usedCount === 0 ? true : result.can_swipe;
+
         return {
-            canSwipe: result.can_swipe,
-            used: result.used_count,
-            max: result.max_count
+            canSwipe: canSwipe,
+            used: usedCount,
+            max: maxCount
         };
     } catch (err) {
         console.error('checkSwipeLimit error:', err);

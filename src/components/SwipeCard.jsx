@@ -101,7 +101,7 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                             src={photos[activePhotoIdx]}
                             alt={displayName}
                             className="swipe-card-image"
-                            width={400}
+                            width={800}
                             priority={priority && activePhotoIdx === 0}
                         />
                     ) : (

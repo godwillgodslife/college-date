@@ -387,7 +387,8 @@ export default function Match() {
                             />
                         ))}
 
-                        <LeaderboardPreview />
+                        {/* Removed LeaderboardPreview as its dots (1, 2, 3) were distracting users */}
+                        {/* <LeaderboardPreview /> */}
                     </>
                 )}
             </div>
@@ -443,10 +444,7 @@ export default function Match() {
                         </div>
 
                         <div className="limit-body">
-                            <p className="limit-message">
-                                You’ve reached today’s limit.<br />
-                                <strong>7 people</strong> are still waiting to be discovered 👀
-                            </p>
+                            <strong>More people</strong> are waiting to be discovered 👀
 
                             <div className="reset-timer">
                                 <span className="timer-label">Next reset in:</span>

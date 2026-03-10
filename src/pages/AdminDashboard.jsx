@@ -103,6 +103,7 @@ export default function AdminDashboard() {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
     const [activeTab, setActiveTab] = useState('overview');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // ── Overview State
     const [stats, setStats] = useState(null);
@@ -155,6 +156,8 @@ export default function AdminDashboard() {
         else if (activeTab === 'content') loadConfessions();
         else if (activeTab === 'finance') loadFinance();
         else if (activeTab === 'controls') loadConfig();
+        // Auto-close sidebar on mobile when tab changes
+        if (window.innerWidth <= 768) setIsSidebarOpen(false);
     }, [activeTab]);
 
     // ── Data Loaders ──────────────────────────────────────────
@@ -384,14 +387,24 @@ export default function AdminDashboard() {
         <div className="admin-dashboard">
             <header className="admin-header">
                 <div className="admin-logo-area">
+                    <button
+                        className="sidebar-toggle"
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        aria-label="Toggle Sidebar"
+                    >
+                        {isSidebarOpen ? '✕' : '☰'}
+                    </button>
                     <span className="admin-icon">🛡️</span>
                     <h1>Control Tower</h1>
                 </div>
                 <div className="admin-user">Admin: {currentUser?.email}</div>
             </header>
 
-            <div className="admin-content">
-                <nav className="admin-sidebar">
+            <div className={`admin-content ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+                {isSidebarOpen && (
+                    <div className="admin-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+                )}
+                <nav className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                     {[
                         ['overview', '📊', 'Overview'],
                         ['analytics', '📈', 'Analytics'],
