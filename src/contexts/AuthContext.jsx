@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
             if (mounted) {
                 setLoading((prev) => {
                     if (prev) {
-                        console.warn('Auth loading timeout - forcing app load');
+                        console.warn('Auth loading timeout - forcing app load. This may be due to slow network or Supabase response.');
                         return false;
                     }
                     return prev;
@@ -134,7 +134,7 @@ export function AuthProvider({ children }) {
                     return prev;
                 });
             }
-        }, 30000);
+        }, 15000);
 
         return () => {
             mounted = false;
