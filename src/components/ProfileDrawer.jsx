@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './Toast';
-import { recordSwipe } from '../services/swipeService'; // or whatever handles payment
+import { recordSwipe, trackProfileView } from '../services/swipeService';
 import { supabase } from '../lib/supabase';
 import StatusViewer from './StatusViewer';
 import { getUserStatuses } from '../services/statusService';
@@ -19,11 +19,17 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
     const [userStatuses, setUserStatuses] = useState([]);
     const [showStatusViewer, setShowStatusViewer] = useState(false);
 
-    // Prevent body scroll when drawer is open
+    // Prevent body scroll when drawer is open + fire profile view tracking
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-            if (profile) setActiveProfile(profile);
+            if (profile) {
+                setActiveProfile(profile);
+                // Fire-and-forget: record the profile view so the owner gets notified
+                if (currentUser?.id && profile.id && currentUser.id !== profile.id) {
+                    trackProfileView(currentUser.id, profile.id, 'explore');
+                }
+            }
         } else {
             document.body.style.overflow = 'unset';
             // Do not clear activeProfile immediately so it can animate out
@@ -31,7 +37,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isOpen, profile]);
+    }, [isOpen, profile, currentUser]);
 
     // Check for active statuses when profile changes
     useEffect(() => {

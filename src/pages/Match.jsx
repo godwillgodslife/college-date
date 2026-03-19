@@ -14,6 +14,7 @@ import LeaderboardPreview from '../components/LeaderboardPreview';
 import MatchCelebration from '../components/MatchCelebration'; // NEW
 import StreakIndicator from '../components/StreakIndicator'; // NEW
 import { useToast } from '../components/Toast';
+import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import './Match.css';
 
 export default function Match() {
@@ -72,9 +73,13 @@ export default function Match() {
                 if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
                     allPhotos.unshift(profile.avatar_url);
                 }
-                return { ...profile, profile_photos: allPhotos };
+                return { ...profile, profile_photos: allPhotos.filter(Boolean) };
             });
-            setProfiles(processedProfiles);
+
+            // STRICT CLIENT-SIDE GATEKEEPING
+            const validProfiles = processedProfiles.filter(p => p.profile_photos && p.profile_photos.length > 0);
+
+            setProfiles(validProfiles);
             setLoading(false);
         }
     }, [swrProfiles]);
@@ -301,221 +306,228 @@ export default function Match() {
 
     return (
         <div className="discover-page">
-            {/* Top Right Floating Filter Toggle */}
-            <button className="floating-filter-btn" onClick={() => setShowGenderMenu(prev => !prev)} title="Filter by gender">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="7" r="4" />
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                </svg>
-                {filters.gender !== 'All' && <span className="gender-active-dot" />}
-            </button>
-            {showGenderMenu && <QuickGenderMenu />}
-            {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
+            {/* GATEKEEPING: Show 'invisible' state if user has no photos */}
+            {((!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url) ? (
+                <HiddenProfileBanner />
+            ) : (
+                <>
+                    {/* Top Right Floating Filter Toggle */}
+                    <button className="floating-filter-btn" onClick={() => setShowGenderMenu(prev => !prev)} title="Filter by gender">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="7" r="4" />
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        </svg>
+                        {filters.gender !== 'All' && <span className="gender-active-dot" />}
+                    </button>
+                    {showGenderMenu && <QuickGenderMenu />}
+                    {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
 
-            <div className="swipe-container">
-                <div className="live-mode-bar">
-                    <div className={`live-toggle-pill ${liveOnly ? 'live-active' : ''}`} onClick={handleLiveNearMe}>
-                        <div className={`live-badge-glow ${liveOnly ? 'glow-active' : ''}`}></div>
-                        <span className="live-label">Live Near Me</span>
-                        <div className={`live-toggle-switch ${liveOnly ? 'active' : ''}`}>
-                            <div className="toggle-circle"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <StatusBubbles />
-
-                {/* Floating Stats Area */}
-                <div className="discovery-floating-stats">
-                    <StreakIndicator streak={userStreak} badge={userProfile?.current_badge} />
-                    <div className="swipes-counter-pill animate-fade-in-right">
-                        <span className="pill-icon">⚡</span>
-                        <div className="pill-content">
-                            <span className="pill-number">{freeSwipes}</span>
-                            <span className="pill-label">Swipes Left</span>
-                        </div>
-                    </div>
-                </div>
-
-                {profiles.length === 0 ? (
-                    <div className="no-profiles">
-                        <div className="pulse-icon">🔍</div>
-                        <h2>No more profiles</h2>
-                        <p>We couldn't find anyone new matching your filters right now.</p>
-
-                        {(userProfile?.completion_score || 0) < 60 && (
-                            <div className="profile-nudge-mini">
-                                <p>💡 <strong>Tip:</strong> Profiles under 60% completion appear less often in discovery.</p>
-                                <button onClick={() => navigate('/profile/edit')} className="btn btn-link">
-                                    Improve Profile
-                                </button>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => setShowFilters(true)}
-                            className="btn btn-primary retry-btn"
-                        >
-                            Adjust Filters
-                        </button>
-                    </div>
-                ) : (
-                    <>
-                        <div className="premium-info-container">
-                            <button className="info-trigger" onClick={() => setShowInfo(!showInfo)}>i</button>
-                            {showInfo && (
-                                <div className="swipe-tooltip animate-fade-in-up">
-                                    <h4>💎 Swipe Types</h4>
-                                    <p>Choosing the right swipe increases your matching chance.</p>
-                                    <ul className="tooltip-features">
-                                        <li>✅ <strong>Standard (₦500)</strong>: Normal request sent.</li>
-                                        <li>🚀 <strong>Premium (₦5,000)</strong>: Direct notification, higher visibility.</li>
-                                        <li>⭐ <strong>Super Swipe</strong>: Instant notification to the person!</li>
-                                        <li>👑 <strong>Monthly Subscription</strong>: Get 100 free standard swipes!</li>
-                                    </ul>
+                    <div className="swipe-container">
+                        <div className="live-mode-bar">
+                            <div className={`live-toggle-pill ${liveOnly ? 'live-active' : ''}`} onClick={handleLiveNearMe}>
+                                <div className={`live-badge-glow ${liveOnly ? 'glow-active' : ''}`}></div>
+                                <span className="live-label">Live Near Me</span>
+                                <div className={`live-toggle-switch ${liveOnly ? 'active' : ''}`}>
+                                    <div className="toggle-circle"></div>
                                 </div>
-                            )}
+                            </div>
                         </div>
-                        {profiles.slice(0, 2).reverse().map((profile, index) => (
-                            <SwipeCard
-                                key={profile.id}
-                                profile={profile}
-                                onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
-                                superSwipesAvailable={superSwipesAvailable}
-                                onSuperSwipe={handleSuperSwipe}
-                                priority={index === 1}
-                            />
-                        ))}
 
-                        {/* Removed LeaderboardPreview as its dots (1, 2, 3) were distracting users */}
-                        {/* <LeaderboardPreview /> */}
-                    </>
-                )}
-            </div>
+                        <StatusBubbles />
 
-            {showFilters && (
-                <div className="filter-overlay">
-                    <div className="filter-box animate-fade-in-up">
-                        <div className="filter-header">
-                            <h2>Discovery Settings</h2>
-                            <button className="close-filters" onClick={() => setShowFilters(false)}>×</button>
+                        {/* Floating Stats Area */}
+                        <div className="discovery-floating-stats">
+                            <StreakIndicator streak={userStreak} badge={userProfile?.current_badge} />
+                            <div className="swipes-counter-pill animate-fade-in-right">
+                                <span className="pill-icon">⚡</span>
+                                <div className="pill-content">
+                                    <span className="pill-number">{freeSwipes}</span>
+                                    <span className="pill-label">Swipes Left</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="filter-body">
-                            <div className="filter-section">
-                                <label>I'm interested in</label>
-                                <div className="filter-options">
-                                    {['All', 'Male', 'Female'].map(g => (
-                                        <button
-                                            key={g}
-                                            className={`filter-opt ${filters.gender === g ? 'active' : ''}`}
-                                            onClick={() => {
-                                                setFilters(prev => ({ ...prev, gender: g }));
-                                                saveGenderPreference(currentUser.id, g);
-                                            }}
-                                        >
-                                            {g}
+
+                        {profiles.length === 0 ? (
+                            <div className="no-profiles">
+                                <div className="pulse-icon">🔍</div>
+                                <h2>No more profiles</h2>
+                                <p>We couldn't find anyone new matching your filters right now.</p>
+
+                                {(userProfile?.completion_score || 0) < 60 && (
+                                    <div className="profile-nudge-mini">
+                                        <p>💡 <strong>Tip:</strong> Profiles under 60% completion appear less often in discovery.</p>
+                                        <button onClick={() => navigate('/profile/edit')} className="btn btn-link">
+                                            Improve Profile
                                         </button>
-                                    ))}
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={() => setShowFilters(true)}
+                                    className="btn btn-primary retry-btn"
+                                >
+                                    Adjust Filters
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="premium-info-container">
+                                    <button className="info-trigger" onClick={() => setShowInfo(!showInfo)}>i</button>
+                                    {showInfo && (
+                                        <div className="swipe-tooltip animate-fade-in-up">
+                                            <h4>💎 Swipe Types</h4>
+                                            <p>Choosing the right swipe increases your matching chance.</p>
+                                            <ul className="tooltip-features">
+                                                <li>✅ <strong>Standard (₦500)</strong>: Normal request sent.</li>
+                                                <li>🚀 <strong>Premium (₦5,000)</strong>: Direct notification, higher visibility.</li>
+                                                <li>⭐ <strong>Super Swipe</strong>: Instant notification to the person!</li>
+                                                <li>👑 <strong>Monthly Subscription</strong>: Get 100 free standard swipes!</li>
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        </div>
-                        <button className="btn btn-primary btn-apply" onClick={() => setShowFilters(false)}>Show Results</button>
+                                {profiles.slice(0, 2).reverse().map((profile, index) => (
+                                    <SwipeCard
+                                        key={profile.id}
+                                        profile={profile}
+                                        onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
+                                        superSwipesAvailable={superSwipesAvailable}
+                                        onSuperSwipe={handleSuperSwipe}
+                                        priority={index === 1}
+                                    />
+                                ))}
+
+                                {/* Removed LeaderboardPreview as its dots (1, 2, 3) were distracting users */}
+                                {/* <LeaderboardPreview /> */}
+                            </>
+                        )}
                     </div>
-                </div>
-            )}
 
-            {/* High-Fidelity Match Celebration */}
-            <MatchCelebration
-                isOpen={!!matchData}
-                matchedProfile={matchData}
-                userProfile={userProfile}
-                onClose={() => setMatchData(null)}
-                // Use the match_id that we now store in matchData
-                onMessage={() => navigate(`/chat/${matchData.match_id}`)}
-            />
-
-            {/* Limit Reached Overlay */}
-            {limitReached && (
-                <div className="limit-overlay">
-                    <div className="limit-card animate-fade-in-up">
-                        <div className="limit-header">
-                            <span className="limit-icon">⌛</span>
-                            <h2>Daily Limit Reached</h2>
-                        </div>
-
-                        <div className="limit-body">
-                            <strong>More people</strong> are waiting to be discovered 👀
-
-                            <div className="reset-timer">
-                                <span className="timer-label">Next reset in:</span>
-                                <span className="timer-value">{timeLeft || 'calculating...'}</span>
+                    {showFilters && (
+                        <div className="filter-overlay">
+                            <div className="filter-box animate-fade-in-up">
+                                <div className="filter-header">
+                                    <h2>Discovery Settings</h2>
+                                    <button className="close-filters" onClick={() => setShowFilters(false)}>×</button>
+                                </div>
+                                <div className="filter-body">
+                                    <div className="filter-section">
+                                        <label>I'm interested in</label>
+                                        <div className="filter-options">
+                                            {['All', 'Male', 'Female'].map(g => (
+                                                <button
+                                                    key={g}
+                                                    className={`filter-opt ${filters.gender === g ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        setFilters(prev => ({ ...prev, gender: g }));
+                                                        saveGenderPreference(currentUser.id, g);
+                                                    }}
+                                                >
+                                                    {g}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button className="btn btn-primary btn-apply" onClick={() => setShowFilters(false)}>Show Results</button>
                             </div>
+                        </div>
+                    )}
 
-                            <div className="premium-upsell">
-                                <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
-                                    🔓 Unlock Unlimited Swipes
+                    {/* High-Fidelity Match Celebration */}
+                    <MatchCelebration
+                        isOpen={!!matchData}
+                        matchedProfile={matchData}
+                        userProfile={userProfile}
+                        onClose={() => setMatchData(null)}
+                        // Use the match_id that we now store in matchData
+                        onMessage={() => navigate(`/chat/${matchData.match_id}`)}
+                    />
+
+                    {/* Limit Reached Overlay */}
+                    {limitReached && (
+                        <div className="limit-overlay">
+                            <div className="limit-card animate-fade-in-up">
+                                <div className="limit-header">
+                                    <span className="limit-icon">⌛</span>
+                                    <h2>Daily Limit Reached</h2>
+                                </div>
+
+                                <div className="limit-body">
+                                    <strong>More people</strong> are waiting to be discovered 👀
+
+                                    <div className="reset-timer">
+                                        <span className="timer-label">Next reset in:</span>
+                                        <span className="timer-value">{timeLeft || 'calculating...'}</span>
+                                    </div>
+
+                                    <div className="premium-upsell">
+                                        <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
+                                            🔓 Unlock Unlimited Swipes
+                                        </button>
+                                        <p className="premium-price">₦2,900 Premium</p>
+                                    </div>
+                                </div>
+
+                                <button className="limit-close" onClick={() => setLimitReached(null)}>
+                                    Maybe Later
                                 </button>
-                                <p className="premium-price">₦2,900 Premium</p>
                             </div>
                         </div>
+                    )}
 
-                        <button className="limit-close" onClick={() => setLimitReached(null)}>
-                            Maybe Later
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Touchpoint A: Session Nudge Overlay */}
-            {showNudge && (
-                <div className="limit-overlay">
-                    <div className="limit-card animate-fade-in-up">
-                        <div className="limit-header">
-                            <span className="limit-icon">🚀</span>
-                            <h2>Boost Your Visibility!</h2>
-                        </div>
-                        <div className="limit-body">
-                            <p className="limit-message">
-                                Complete your profile to increase your visibility by <strong>3x</strong>. People naturally want to reach 100%!
-                            </p>
-                            <div className="premium-upsell">
-                                <button className="btn btn-primary btn-block" onClick={() => navigate('/profile/edit')}>
-                                    Complete Profile
+                    {/* Touchpoint A: Session Nudge Overlay */}
+                    {showNudge && (
+                        <div className="limit-overlay">
+                            <div className="limit-card animate-fade-in-up">
+                                <div className="limit-header">
+                                    <span className="limit-icon">🚀</span>
+                                    <h2>Boost Your Visibility!</h2>
+                                </div>
+                                <div className="limit-body">
+                                    <p className="limit-message">
+                                        Complete your profile to increase your visibility by <strong>3x</strong>. People naturally want to reach 100%!
+                                    </p>
+                                    <div className="premium-upsell">
+                                        <button className="btn btn-primary btn-block" onClick={() => navigate('/profile/edit')}>
+                                            Complete Profile
+                                        </button>
+                                    </div>
+                                </div>
+                                <button className="limit-close" onClick={() => setShowNudge(false)}>
+                                    Maybe Later
                                 </button>
                             </div>
                         </div>
-                        <button className="limit-close" onClick={() => setShowNudge(false)}>
-                            Maybe Later
-                        </button>
-                    </div>
-                </div>
-            )}
+                    )}
 
-            {/* Premium Nudge Overlay (10th swipe) */}
-            {showPremiumNudge && (
-                <div className="limit-overlay">
-                    <div className="limit-card animate-fade-in-up">
-                        <div className="limit-header">
-                            <span className="limit-icon">🔥</span>
-                            <h2>Get the Full Experience!</h2>
-                        </div>
-                        <div className="limit-body">
-                            <p className="limit-message">
-                                You are on a roll! Upgrade to <strong>Premium</strong> for infinite swipes,
-                                priority visibility, and direct messaging without matching.
-                            </p>
-                            <div className="premium-upsell">
-                                <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
-                                    🔓 Upgrade to Premium
+                    {/* Premium Nudge Overlay (10th swipe) */}
+                    {showPremiumNudge && (
+                        <div className="limit-overlay">
+                            <div className="limit-card animate-fade-in-up">
+                                <div className="limit-header">
+                                    <span className="limit-icon">🔥</span>
+                                    <h2>Get the Full Experience!</h2>
+                                </div>
+                                <div className="limit-body">
+                                    <p className="limit-message">
+                                        You are on a roll! Upgrade to <strong>Premium</strong> for infinite swipes,
+                                        priority visibility, and direct messaging without matching.
+                                    </p>
+                                    <div className="premium-upsell">
+                                        <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
+                                            🔓 Upgrade to Premium
+                                        </button>
+                                        <p className="premium-price">₦2,900 / Month</p>
+                                    </div>
+                                </div>
+                                <button className="limit-close" onClick={() => setShowPremiumNudge(false)}>
+                                    Keep Swiping Free
                                 </button>
-                                <p className="premium-price">₦2,900 / Month</p>
                             </div>
                         </div>
-                        <button className="limit-close" onClick={() => setShowPremiumNudge(false)}>
-                            Keep Swiping Free
-                        </button>
-                    </div>
-                </div>
+                    )}
+                </>
             )}
         </div>
     );

@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserSettings, updateUserSettings } from '../services/notificationService';
+import { verifyAndRestorePremium } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import './Settings.css';
 
 export default function Settings() {
-    const { currentUser, userProfile, logout } = useAuth();
+    const { currentUser, userProfile, logout, fetchProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const [settings, setSettings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [restoring, setRestoring] = useState(false);
 
     useEffect(() => {
         if (currentUser) {
@@ -189,6 +191,47 @@ export default function Settings() {
                             />
                             <span className="slider round"></span>
                         </label>
+                    </div>
+                </div>
+            </div>
+
+            {/* Subscription & Restore Purchase Section */}
+            <div className="settings-section">
+                <h2 className="section-title">Subscription</h2>
+                <div className="settings-list">
+                    <div className="settings-item status-item">
+                        <div className="item-info">
+                            <h3>Premium Status</h3>
+                            <p>{userProfile?.is_premium ? '👑 Active Premium Member' : 'Free Account'}</p>
+                        </div>
+                        <span className={`status-badge ${userProfile?.is_premium ? 'optimised' : 'limited'}`}>
+                            {userProfile?.is_premium ? 'Premium' : 'Free'}
+                        </span>
+                    </div>
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>🔄 Restore Purchase</h3>
+                            <p>Paid but Premium not activated? Tap to re-verify your Paystack transaction.</p>
+                        </div>
+                        <button
+                            className="restore-btn"
+                            disabled={restoring}
+                            onClick={async () => {
+                                setRestoring(true);
+                                const { data, error } = await verifyAndRestorePremium(currentUser.id);
+                                setRestoring(false);
+                                if (error) {
+                                    addToast('Verification failed. Contact support if this persists.', 'error');
+                                } else if (data?.restored) {
+                                    addToast('Premium restored successfully! ✅', 'success');
+                                    fetchProfile(currentUser.id);
+                                } else {
+                                    addToast(data?.message || 'No confirmed subscription found.', 'info');
+                                }
+                            }}
+                        >
+                            {restoring ? '⏳' : '🔄'}
+                        </button>
                     </div>
                 </div>
             </div>

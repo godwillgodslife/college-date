@@ -115,17 +115,29 @@ export async function completeTransaction(transactionId, status, reference, meta
                 if (walletError) throw walletError;
             }
             else if (tx.type === 'subscription') {
-                // Update subscription level to Premium
+                const premiumExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+                // Update subscriptions table
                 const { error: subError } = await supabase
                     .from('subscriptions')
                     .update({
                         plan_type: 'Premium',
                         status: 'active',
-                        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+                        current_period_end: premiumExpiry,
                         updated_at: new Date().toISOString()
                     })
                     .eq('user_id', tx.user_id);
                 if (subError) throw subError;
+
+                // CRITICAL FIX: Also set profiles.is_premium so in-app checks work
+                const { error: profilePremiumError } = await supabase
+                    .from('profiles')
+                    .update({
+                        is_premium: true,
+                        premium_expires_at: premiumExpiry
+                    })
+                    .eq('id', tx.user_id);
+                if (profilePremiumError) console.error('profile is_premium update error:', profilePremiumError);
             }
         }
 
@@ -322,5 +334,27 @@ export async function getActiveBoosts(userId) {
             data: { all: [], activeBoost: null, superSwipeCount: 0, hasBoosted: false },
             error: error.message
         };
+    }
+}
+
+/**
+ * Restore Purchase / Manually verify Paystack subscription status.
+ * Calls a Supabase Edge Function that re-checks the user's last transaction
+ * against the Paystack API and updates is_premium if it is confirmed.
+ * @param {string} userId
+ */
+export async function verifyAndRestorePremium(userId) {
+    try {
+        const { data, error } = await supabase.functions.invoke('verify-paystack-status', {
+            body: { userId }
+        });
+
+        if (error) throw error;
+
+        // The edge function returns { restored: bool, message: string }
+        return { data, error: null };
+    } catch (err) {
+        console.error('verifyAndRestorePremium error:', err);
+        return { data: null, error: err.message };
     }
 }

@@ -117,6 +117,44 @@ export default function Profile() {
     return (
         <div className="profile-page">
             <div className="profile-card">
+                {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
+                {isOwnProfile && (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url && (
+                    <div className="go-live-alert">
+                        <span className="go-live-icon">📸</span>
+                        <div className="go-live-text">
+                            <strong>You're invisible!</strong> Upload a photo to Go Live and start matching.
+                        </div>
+                        <button
+                            className="go-live-btn"
+                            onClick={() => navigate('/profile/edit')}
+                        >
+                            Add Photo
+                        </button>
+                    </div>
+                )}
+
+                {/* VERIFICATION BANNER: Encourage users to verify they are real */}
+                {isOwnProfile && !userProfile?.is_verified && (userProfile?.profile_photos?.length > 0 || userProfile?.avatar_url) && (
+                    <div className="verification-alert">
+                        <div className="verification-text-block">
+                            <span className="verify-shield">🛡️</span>
+                            <div className="verify-text">
+                                <strong>Verify Your Profile</strong> Let others know your photos are really you!
+                            </div>
+                        </div>
+                        <button
+                            className="btn btn-primary verify-btn-sm"
+                            onClick={() => {
+                                // For now, could open a mailto or a support chat
+                                window.open('https://wa.me/2349160264415?text=Hi%20👋%20I%20want%20to%20verify%20my%20profile%20on%20CollegeDate!', '_blank');
+                            }}
+                        >
+                            Get Verified
+                        </button>
+                    </div>
+                )}
+
+
                 <ProfileCompletion
                     score={userProfile?.completion_score || 0}
                     profile={userProfile}

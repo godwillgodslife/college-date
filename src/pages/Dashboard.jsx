@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getWallet } from '../services/paymentService';
+import { initPushNotifications } from '../services/pushNotification';
 import FeatureCard from '../components/FeatureCard';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import ViewerTeaser from '../components/ViewerTeaser'; // NEW
@@ -26,6 +27,19 @@ export default function Dashboard() {
         if (!currentUser) return;
 
         fetchStats();
+
+        // Feature 3: Deferred Notification Permission
+        // Only prompt for push notifications ONCE, on first dashboard visit after signup.
+        // This prevents the double-popup (app UI + browser native) during the signup flow.
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (!isLocal && !localStorage.getItem('cd_notif_prompted')) {
+            // Small delay so the dashboard fully renders before the browser prompt
+            const notifTimer = setTimeout(() => {
+                initPushNotifications(currentUser.id);
+                localStorage.setItem('cd_notif_prompted', '1');
+            }, 2500);
+            return () => clearTimeout(notifTimer);
+        }
 
         // Subscribe to real-time updates for dashboard stats
         const dashboardChannel = supabase

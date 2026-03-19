@@ -77,8 +77,10 @@ export function NotificationProvider({ children }) {
                     }
                 )
                 .subscribe((status) => {
-                    if (status !== 'SUBSCRIBED') {
-                        // Handle subscription error if needed
+                    if (status === 'SUBSCRIBED') {
+                        console.log('[Notifications] Realtime channel subscribed ✓');
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                        console.warn('[Notifications] Realtime channel error:', status, '— will retry on next mount.');
                     }
                 });
         } catch (err) {

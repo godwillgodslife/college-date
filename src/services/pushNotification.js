@@ -13,6 +13,14 @@ export async function initPushNotifications(userId) {
         console.log('[Dev] Skipping OneSignal init on localhost');
         return;
     }
+
+    // Route guard: never prompt for notifications during signup/auth flows
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/signup') || currentPath.includes('/login') || currentPath.includes('/auth')) {
+        console.log('[OneSignal] Skipping permission prompt on auth page:', currentPath);
+        return;
+    }
+
     try {
         // OneSignal is globally available via OneSignalDeferred
         window.OneSignalDeferred = window.OneSignalDeferred || [];

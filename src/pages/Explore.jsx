@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import ProfileDrawer from '../components/ProfileDrawer'; // NEW
+import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import './Explore.css';
 
 export default function Explore() {
@@ -45,9 +46,13 @@ export default function Explore() {
                 if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
                     allPhotos.unshift(profile.avatar_url);
                 }
-                return { ...profile, profile_photos: allPhotos };
+                return { ...profile, profile_photos: allPhotos.filter(Boolean) };
             });
-            setProfiles(processedProfiles);
+
+            // STRICT CLIENT-SIDE GATEKEEPING: Filter out anyone who still has 0 photos
+            const validProfiles = processedProfiles.filter(p => p.profile_photos && p.profile_photos.length > 0);
+
+            setProfiles(validProfiles);
             setLoading(false);
         }
     }, [swrProfiles]);
@@ -107,6 +112,14 @@ export default function Explore() {
     };
 
     if (loading) return <LoadingSpinner fullScreen text="Exploring campus..." />;
+
+    // GATEKEEPING: If the current user has no photos, they can't appear in discovery.
+    // Show them the 'hidden profile' state instead of the grid.
+    const userHasNoPhotos =
+        (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) &&
+        !userProfile?.avatar_url;
+
+    if (userHasNoPhotos) return <HiddenProfileBanner />;
 
     const isLocal = window.location.hostname === 'localhost';
 

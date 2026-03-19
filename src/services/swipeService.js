@@ -23,7 +23,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         // 2. Fetch profiles from the new discovery view (v3)
         let query = supabase
             .from('discovery_feed_v3')
-            .select('*');
+            .select('*')
+            // GATEKEEPING: Only show profiles that have at least one photo
+            .or('avatar_url.not.is.null,profile_photos.not.eq.{}');
 
         // Exclude swiped profiles and self
         if (excludeIds.length > 0) {
@@ -251,6 +253,26 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 .select('id')
                 .contains('user_ids', [swiperId, swipedId])
                 .maybeSingle();
+
+            // Notify both users about the match
+            await Promise.allSettled([
+                createNotification({
+                    userId: swipedId,
+                    actorId: swiperId,
+                    type: 'match',
+                    title: '🔥 It\'s a Match!',
+                    content: 'You have a new connection! Say hello.',
+                    metadata: { match_id: matchData?.id, url: '/chat' }
+                }),
+                createNotification({
+                    userId: swiperId,
+                    actorId: swipedId,
+                    type: 'match',
+                    title: '🔥 It\'s a Match!',
+                    content: 'You have a new connection! Say hello.',
+                    metadata: { match_id: matchData?.id, url: '/chat' }
+                })
+            ]);
 
             return {
                 data: swipeRecord,
