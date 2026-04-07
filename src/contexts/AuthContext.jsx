@@ -15,11 +15,25 @@ export function useAuth() {
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
+
     const [walletBalance, setWalletBalance] = useState(0);
     const [loading, setLoading] = useState(true);
     const [profileLoading, setProfileLoading] = useState(true);
     const [error, setError] = useState(null);
     const [onlineUserIds, setOnlineUserIds] = useState(new Set());
+
+    // Helper to inject defaults for missing DB columns (Existing User Repair)
+    const repairProfile = useCallback((profile) => {
+        if (!profile) return null;
+        return {
+            ...profile,
+            call_minutes_today: profile.call_minutes_today ?? 0,
+            last_call_reset_at: profile.last_call_reset_at ?? new Date().toISOString(),
+            is_premium: profile.is_premium ?? false,
+            free_swipes: profile.free_swipes ?? 20,
+            completion_score: profile.completion_score ?? 0
+        };
+    }, []);
 
     // Fetch user profile from Supabase
     const fetchProfile = useCallback(async (userId) => {
@@ -34,7 +48,7 @@ export function AuthProvider({ children }) {
             if (profileError) {
                 console.warn('Profile fetch warning:', profileError.message);
             }
-            setUserProfile(data || null);
+            setUserProfile(repairProfile(data));
         } catch (err) {
             console.error('Error fetching profile:', err);
             setUserProfile(null);
@@ -63,85 +77,79 @@ export function AuthProvider({ children }) {
     // Initialize auth state
     useEffect(() => {
         let mounted = true;
+        let lastUserId = null;
 
-        async function initializeAuth() {
-            try {
-                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        async function syncState(user) {
+            if (!mounted) return;
+            
+            // Deduplicate: Don't re-fetch if we already have this user's profile
+            if (user && user.id === lastUserId) return;
+            lastUserId = user?.id || null;
 
-                if (sessionError) {
-                    console.error('Session error:', sessionError.message);
-                }
+            setCurrentUser(user);
 
-                if (mounted) {
-                    const user = session?.user ?? null;
-                    setCurrentUser(user);
-                    if (user) {
-                        fetchProfile(user.id);
-                        fetchWallet(user.id);
-                    } else {
-                        setProfileLoading(false);
+            if (user) {
+                try {
+                    const [{ data: profile }, { data: wallet }] = await Promise.all([
+                        supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
+                        supabase.from('wallets').select('available_balance').eq('user_id', user.id).maybeSingle()
+                    ]);
+
+                    if (mounted) {
+                        setUserProfile(repairProfile(profile));
+                        setWalletBalance(wallet?.available_balance || 0);
                     }
-                    setLoading(false);
+                    if (mounted) {
+                        setUserProfile(repairProfile(profile));
+                        setWalletBalance(wallet?.available_balance || 0);
+                    }
+                } catch (err) {
+                    console.error("Profile fetch error in syncState:", err);
+                    if (mounted) {
+                        setProfileLoading(false);
+                        setLoading(false);
+                    }
                 }
-            } catch (err) {
-                console.error('Auth initialization error:', err);
-                if (mounted) {
-                    setCurrentUser(null);
-                    setUserProfile(null);
-                    setProfileLoading(false);
-                    setLoading(false);
-                }
+            } else {
+                setUserProfile(null);
+                setWalletBalance(0);
+            }
+            
+            if (mounted) {
+                setProfileLoading(false);
+                setLoading(false);
             }
         }
 
-        initializeAuth();
+        // 1. Initial Load
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            syncState(session?.user || null);
+        });
 
-        // Listen for auth state changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                if (!mounted) return;
-
-                const user = session?.user ?? null;
-                setCurrentUser(user);
-
-                if (user) {
-                    fetchProfile(user.id);
-                    fetchWallet(user.id);
-                } else {
-                    setUserProfile(null);
-                    setWalletBalance(0);
-                    setProfileLoading(false);
-                }
-                setLoading(false);
+        // 2. Auth Listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                syncState(null);
+            } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                syncState(session?.user || null);
             }
-        );
+        });
 
-        // Safety timeout to prevent infinite loading
+        // 3. Safety Timeout (Shortened for faster failover)
         const timer = setTimeout(() => {
-            if (mounted) {
-                setLoading((prev) => {
-                    if (prev) {
-                        console.warn('Auth loading timeout - forcing app load. This may be due to slow network or Supabase response.');
-                        return false;
-                    }
-                    return prev;
-                });
-                setProfileLoading((prev) => {
-                    if (prev) {
-                        console.warn('Profile loading timeout');
-                        return false;
-                    }
-                    return prev;
-                });
+            if (mounted && loading) {
+                console.warn('[Auth] Safety timeout triggered — proceeding to app.');
+                setLoading(false);
+                setProfileLoading(false);
             }
-        }, 15000);
+        }, 4000);
 
         return () => {
             mounted = false;
             subscription?.unsubscribe();
             clearTimeout(timer);
         };
-    }, [fetchProfile]);
+    }, []);
 
     // Global Presence & Heartbeat
     useEffect(() => {

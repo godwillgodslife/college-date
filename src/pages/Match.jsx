@@ -13,6 +13,7 @@ import StatusBubbles from '../components/StatusBubbles';
 import LeaderboardPreview from '../components/LeaderboardPreview';
 import MatchCelebration from '../components/MatchCelebration'; // NEW
 import StreakIndicator from '../components/StreakIndicator'; // NEW
+import useSoundEffect from '../hooks/useSoundEffect';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import './Match.css';
@@ -21,6 +22,7 @@ export default function Match() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
+    const playSound = useSoundEffect();
 
     const [matchData, setMatchData] = useState(null);
     const [liveOnly, setLiveOnly] = useState(false);
@@ -179,6 +181,8 @@ export default function Match() {
             }
         }
 
+        playSound('swipe');
+
         // 2. Optimistic Update (Local State & SWR Cache)
         const updatedProfiles = profiles.filter(p => p.id !== swipedProfile.id);
         setProfiles(updatedProfiles);
@@ -203,7 +207,11 @@ export default function Match() {
             // Only show payment error if it was a RIGHT swipe
             if (direction === 'right') {
                 const isInsufficient = result.error.includes('balance') || result.error.includes('funds') || result.error.includes('Insufficient');
-                addToast(isInsufficient ? 'Insufficient balance. Top up your wallet!' : 'Transaction failed. Please try again.', 'error');
+                if (isInsufficient) {
+                    addToast('Insufficient balance. Top up your wallet!', 'error');
+                } else {
+                    addToast(`Swipe failed: ${result.error}`, 'error');
+                }
             } else {
                 // For left swipes (passes), show a more generic error if it truly fails
                 addToast('Could not record pass. Please try again.', 'error');
@@ -379,7 +387,6 @@ export default function Match() {
                                             <p>Choosing the right swipe increases your matching chance.</p>
                                             <ul className="tooltip-features">
                                                 <li>✅ <strong>Standard (₦500)</strong>: Normal request sent.</li>
-                                                <li>🚀 <strong>Premium (₦5,000)</strong>: Direct notification, higher visibility.</li>
                                                 <li>⭐ <strong>Super Swipe</strong>: Instant notification to the person!</li>
                                                 <li>👑 <strong>Monthly Subscription</strong>: Get 100 free standard swipes!</li>
                                             </ul>
@@ -441,7 +448,7 @@ export default function Match() {
                         userProfile={userProfile}
                         onClose={() => setMatchData(null)}
                         // Use the match_id that we now store in matchData
-                        onMessage={() => navigate(`/chat/${matchData.match_id}`)}
+                        onMessage={() => navigate(`/chat?chatId=${matchData.match_id}`)}
                     />
 
                     {/* Limit Reached Overlay */}

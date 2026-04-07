@@ -196,10 +196,11 @@ export async function addReaction(messageId, emoji, userId) {
  */
 export async function uploadChatImage(file) {
     try {
-        const fileName = `images/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+        const fileExt = file.type === 'image/webp' ? 'webp' : 'jpg';
+        const fileName = `images/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { data, error } = await supabase.storage
             .from('chat-media')
-            .upload(fileName, file, { contentType: 'image/jpeg' });
+            .upload(fileName, file, { contentType: file.type || 'image/jpeg' });
 
         if (error) throw error;
 

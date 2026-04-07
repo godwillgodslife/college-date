@@ -1,0 +1,239 @@
+.voice-call-room {
+    width: 100vw;
+    height: 100dvh; /* Dynamic viewport for mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+}
+
+.voice-call-container {
+    width: 100%;
+    height: 100%;
+    /* Ensure Zego controls don't get cut off on mobile */
+    min-height: 100dvh;
+}
+
+/* Mobile-Specific Overrides */
+@media (max-width: 600px) {
+    .calling-avatar {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 2rem !important;
+    }
+    .calling-avatar-ring {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    .calling-name {
+        font-size: 1.4rem !important;
+        text-align: center;
+    }
+    .calling-status {
+        font-size: 0.9rem !important;
+        text-align: center;
+    }
+    .btn-cancel-call {
+        padding: 14px 30px !important;
+        font-size: 1.1rem !important;
+        width: 80% !important;
+        justify-content: center;
+    }
+}
+
+/* ── Calling Overlay ─────────────────────────────────── */
+.calling-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+}
+
+.calling-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 20px;
+}
+
+.calling-avatar-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calling-avatar {
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    font-weight: 800;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 30px rgba(108, 99, 255, 0.4);
+}
+
+.avatar-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(108, 99, 255, 0.4);
+    border-radius: 50%;
+    animation: callingPulse 2s infinite ease-out;
+}
+
+.avatar-pulse.two {
+    animation-delay: 1s;
+}
+
+@keyframes callingPulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+.calling-name {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+.calling-status {
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.btn-cancel-call {
+    margin-top: 40px;
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 100px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+    transition: transform 0.2s;
+}
+
+.btn-cancel-call:active {
+    transform: scale(0.95);
+}
+
+.btn-icon {
+    font-size: 1.4rem;
+    transform: rotate(135deg);
+}
+
+
+/* ── Limit Reached Overlay ────────────────────────────── */
+.limit-reached-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.limit-card {
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 40px 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.limit-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.limit-card h2 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.limit-card p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.btn-upgrade {
+    width: 100%;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: transform 0.2s;
+}
+
+.btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
+}
+
+.btn-back {
+    width: 100%;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+

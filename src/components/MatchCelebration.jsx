@@ -1,11 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import OptimizedImage from './OptimizedImage';
+import useSoundEffect from '../hooks/useSoundEffect';
 import './MatchCelebration.css';
 
 export default function MatchCelebration({ isOpen, onClose, userProfile, matchedProfile, onMessage }) {
+    const playSound = useSoundEffect();
+
     useEffect(() => {
         if (isOpen && window.confetti) {
+            playSound('match');
             // Trigger confetti
             const duration = 3 * 1000;
             const animationEnd = Date.now() + duration;

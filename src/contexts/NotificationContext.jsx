@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notificationService';
 import { useToast } from '../components/Toast'; // Assuming you have this, or we can use a simpler alert
+import useSoundEffect from '../hooks/useSoundEffect';
 
 const NotificationContext = createContext();
 
@@ -13,6 +14,7 @@ export function useNotifications() {
 export function NotificationProvider({ children }) {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
+    const playSound = useSoundEffect();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
@@ -42,11 +44,16 @@ export function NotificationProvider({ children }) {
 
         loadNotifications();
 
-        // Subscribe to Realtime Insert events
+        // Subscribe to Realtime Insert events with Auto-Retry logic
         let channel;
-        try {
+        let retryTimeout;
+
+        const subscribeWithRetry = () => {
+            if (!currentUser) return;
+            
+            console.log('[Notifications] Attempting realtime subscription...');
             channel = supabase
-                .channel('public:notifications')
+                .channel(`public:notifications:${currentUser.id}`)
                 .on(
                     'postgres_changes',
                     {
@@ -58,37 +65,31 @@ export function NotificationProvider({ children }) {
                     (payload) => {
                         console.log('New Notification Received:', payload);
                         const newNotification = payload.new;
-
-                        // Add to list safely
                         setNotifications(prev => [newNotification, ...prev]);
                         setUnreadCount(prev => prev + 1);
-
-                        // Show Toast Alert if function exists
                         if (typeof addToast === 'function') {
                             addToast(newNotification.title || 'New Notification', 'info');
                         }
-
-                        // Optional: Play a sound
-                        try {
-                            const audio = new Audio('/assets/sounds/notification.mp3');
-                            audio.volume = 0.5;
-                            audio.play().catch(e => console.log('Audio play failed', e));
-                        } catch (e) { }
+                        playSound('pop');
                     }
                 )
                 .subscribe((status) => {
                     if (status === 'SUBSCRIBED') {
                         console.log('[Notifications] Realtime channel subscribed ✓');
                     } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                        console.warn('[Notifications] Realtime channel error:', status, '— will retry on next mount.');
+                        console.warn(`[Notifications] Realtime ${status} - retrying in 5s...`);
+                        // Clean up old channel and retry
+                        supabase.removeChannel(channel);
+                        retryTimeout = setTimeout(subscribeWithRetry, 5000);
                     }
                 });
-        } catch (err) {
-            console.error('Realtime subscription error:', err);
-        }
+        };
+
+        subscribeWithRetry();
 
         return () => {
             if (channel) supabase.removeChannel(channel);
+            if (retryTimeout) clearTimeout(retryTimeout);
         };
     }, [currentUser, addToast]);
 

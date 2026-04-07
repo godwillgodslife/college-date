@@ -5,7 +5,6 @@ import { uploadProfilePhoto, upsertProfile } from '../services/profileService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
-import imageCompression from 'browser-image-compression';
 import confetti from 'canvas-confetti';
 import './MiniProfileSetup.css';
 
@@ -224,15 +223,7 @@ export default function MiniProfileSetup() {
 
         setLoading(true);
         try {
-            // RAM Management: Image Compression
-            const options = {
-                maxSizeMB: 0.5,
-                maxWidthOrHeight: 1200,
-                useWebWorker: true
-            };
-            const compressedFile = await imageCompression(file, options);
-
-            const { url, error } = await uploadProfilePhoto(compressedFile, currentUser.id, index);
+            const { url, error } = await uploadProfilePhoto(file, currentUser.id, index);
             if (error) throw new Error(error);
 
             setFormData(prev => {

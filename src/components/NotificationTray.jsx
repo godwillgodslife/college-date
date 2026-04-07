@@ -28,10 +28,22 @@ export default function NotificationTray({ onClose }) {
             navigate(notification.metadata.url);
         } else if (notification.type === 'match' || notification.type === 'swipe_accepted') {
             navigate('/chat');
-        } else if (notification.type === 'swipe_received') {
+        } else if (notification.type === 'swipe_received' || notification.type === 'like') {
             navigate('/requests');
-        } else if (notification.type === 'view' || notification.type === 'profile_view') {
+        } else if (notification.type === 'view' || notification.type === 'profile_view' || notification.type === 'checked_out') {
             navigate('/viewers');
+        } else if (notification.type === 'message') {
+            navigate('/chat');
+        } else if (notification.type === 'trending' || notification.type === 'leaderboard') {
+            navigate('/leaderboard');
+        } else if (notification.type === 'confession') {
+            navigate('/confessions');
+        } else if (notification.type === 'verified') {
+            navigate('/profile');
+        } else if (notification.type === 'nearby') {
+            navigate('/explore');
+        } else if (notification.type === 'funds' || notification.type === 'payment') {
+            navigate('/wallet');
         }
     };
 
@@ -39,12 +51,21 @@ export default function NotificationTray({ onClose }) {
         switch (type) {
             case 'match':
             case 'swipe_accepted': return '🔥';
-            case 'swipe_received': return '✨';
-            case 'payment': return '💰';
+            case 'swipe_received':
+            case 'like': return '✨';
+            case 'payment':
+            case 'funds': return '💰';
             case 'view':
+            case 'checked_out':
             case 'profile_view': return '👀';
             case 'snapshot_reaction': return '📸';
             case 'status_update': return '⭕';
+            case 'message': return '💬';
+            case 'trending':
+            case 'leaderboard': return '📈';
+            case 'confession': return '🤫';
+            case 'verified': return '✅';
+            case 'nearby': return '📍';
             default: return '🔔';
         }
     };

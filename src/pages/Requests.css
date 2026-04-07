@@ -230,3 +230,21 @@
 .card-glow {
     box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.15);
 }
+
+/* Freemium Blurring */
+.blurred-freemium img {
+    filter: blur(12px) opacity(0.8) grayscale(50%);
+    transform: scale(1.1);
+}
+
+.blurred-freemium-text h3 {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    color: transparent;
+    user-select: none;
+}
+
+.blurred-freemium-text p {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    color: transparent;
+    user-select: none;
+}

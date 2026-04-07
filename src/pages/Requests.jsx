@@ -135,16 +135,16 @@ export default function Requests() {
                                 <div className="priority-badge">💎 PREMIUM</div>
                             )}
                             <div className="request-user">
-                                <div className="user-avatar-small">
+                                <div className={`user-avatar-small ${!req.is_priority && userProfile?.role !== 'premium' ? 'blurred-freemium' : ''}`}>
                                     {req.swiper.avatar_url ? (
-                                        <img src={req.swiper.avatar_url} alt={req.swiper.full_name} />
+                                        <img src={req.swiper.avatar_url} alt="Admirer" />
                                     ) : (
-                                        <div className="avatar-placeholder">{req.swiper.full_name?.charAt(0)}</div>
+                                        <div className="avatar-placeholder">?</div>
                                     )}
                                 </div>
-                                <div className="user-details">
-                                    <h3>{req.swiper.full_name}</h3>
-                                    <p>{req.swiper.university}</p>
+                                <div className={`user-details ${!req.is_priority && userProfile?.role !== 'premium' ? 'blurred-freemium-text' : ''}`}>
+                                    <h3>{(!req.is_priority && userProfile?.role !== 'premium') ? 'Hidden Admirer' : req.swiper.full_name}</h3>
+                                    <p>{(!req.is_priority && userProfile?.role !== 'premium') ? 'Match to reveal' : req.swiper.university}</p>
                                 </div>
                             </div>
 

@@ -220,9 +220,9 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             console.log(`Processing ${swipeType.toUpperCase()} swipe...`);
 
             const { data, error: paymentError } = await supabase.rpc('process_swipe_payment', {
-                swiper_id: swiperId,
-                swiped_id: swipedId,
-                swipe_type: swipeType
+                p_swiper_id: swiperId,
+                p_swiped_id: swipedId,
+                p_swipe_type: swipeType
             });
 
             paymentResult = data;
@@ -246,7 +246,8 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             .eq('direction', 'right')
             .maybeSingle();
 
-        if (mutualLike) {
+        const isMatch = !!mutualLike;
+        if (isMatch) {
             // IT'S A MATCH! Fetch the match_id for chat navigation
             const { data: matchData } = await supabase
                 .from('matches')
@@ -282,6 +283,19 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 type: (paymentResult && paymentResult.type) || (direction === 'right' ? 'standard' : 'pass'),
                 error: null
             };
+        }
+
+        // 5. If it's a LIKE but NOT a Match, notify User B (Standard/Premium request sent)
+        if (direction === 'right' && !isMatch) {
+            // It's a fire-and-forget notification
+            createNotification({
+                userId: swipedId,
+                actorId: swiperId,
+                type: 'like',
+                title: 'New Like! 👀',
+                content: swipeType === 'premium' ? 'Someone sent you a premium request!' : 'Someone just right-swiped you. Check your requests!',
+                metadata: { swipe_id: swipeRecord.id, url: '/requests' }
+            }).catch(e => console.warn('Notification failed silently:', e));
         }
 
         return {

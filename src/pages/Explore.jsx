@@ -121,6 +121,8 @@ export default function Explore() {
 
     if (userHasNoPhotos) return <HiddenProfileBanner />;
 
+
+
     const isLocal = window.location.hostname === 'localhost';
 
     return (

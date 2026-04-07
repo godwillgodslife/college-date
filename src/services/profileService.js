@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { compressImage } from '../utils/imageCompressor';
 
 // Helper for timeout
 const withTimeout = (promise, ms = 10000) => {
@@ -105,7 +106,8 @@ export async function upsertProfile(userId, profileData) {
  */
 export async function uploadAvatar(file, userId) {
     try {
-        const fileExt = file.name.split('.').pop();
+        const compressedFile = await compressImage(file, { maxWidth: 800, targetSizeKB: 80 });
+        const fileExt = compressedFile.type === 'image/webp' ? 'webp' : file.name.split('.').pop();
         const fileName = `${userId}/${Date.now()}_avatar.${fileExt}`;
         const filePath = `${fileName}`;
 
@@ -124,7 +126,7 @@ export async function uploadAvatar(file, userId) {
         const { data, error: uploadError } = await withTimeout(
             supabase.storage
                 .from('avatars')
-                .upload(filePath, file, {
+                .upload(filePath, compressedFile, {
                     code: 'upsert',
                     upsert: true
                 })
@@ -192,14 +194,15 @@ export async function uploadVoiceIntro(blob, userId) {
  */
 export async function uploadProfilePhoto(file, userId, index) {
     try {
-        const fileExt = file.name.split('.').pop();
+        const compressedFile = await compressImage(file, { maxWidth: 800, targetSizeKB: 90 });
+        const fileExt = compressedFile.type === 'image/webp' ? 'webp' : file.name.split('.').pop();
         const fileName = `${userId}/${Date.now()}_photo_${index}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await withTimeout(
             supabase.storage
                 .from('profile-photos')
-                .upload(filePath, file, { upsert: true })
+                .upload(filePath, compressedFile, { upsert: true })
             , 60000);
 
         if (uploadError) throw uploadError;
@@ -247,3 +250,47 @@ export async function saveGenderPreference(userId, gender) {
         return { error: err.message };
     }
 }
+
+/**
+ * Increments the call duration for a user and handles daily reset.
+ */
+export async function incrementCallMinutes(userId, minutes) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 1. Get current stats
+        const { data: profile, error: getError } = await supabase
+            .from('profiles')
+            .select('call_minutes_today, last_call_reset_at, is_premium')
+            .eq('id', userId)
+            .single();
+
+        if (getError) throw getError;
+
+        let currentMinutes = profile.call_minutes_today || 0;
+        const lastReset = profile.last_call_reset_at ? new Date(profile.last_call_reset_at).toISOString().split('T')[0] : null;
+
+        // 2. Handle Daily Reset
+        if (lastReset !== today) {
+            currentMinutes = 0;
+        }
+
+        // 3. Update
+        const { data, error } = await supabase
+            .from('profiles')
+            .update({ 
+                call_minutes_today: currentMinutes + minutes,
+                last_call_reset_at: new Date().toISOString()
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return { data, error: null };
+    } catch (err) {
+        console.error('Error incrementing call minutes:', err);
+        return { data: null, error: err.message };
+    }
+}
+

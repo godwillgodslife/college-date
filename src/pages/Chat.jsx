@@ -24,6 +24,7 @@ import VoiceRecorder from '../components/ChatVoiceRecorder';
 import StickerDrawer from '../components/StickerDrawer';
 import GiftStore from '../components/GiftStore';
 import MessageReactionBar from '../components/MessageReactionBar';
+import AudioMessage from '../components/AudioMessage';
 import './Chat.css';
 
 const ICEBREAKERS = [
@@ -79,9 +80,11 @@ export default function Chat() {
     // SWR for Conversations Sidebar via custom hook
     const { data: conversations = [], isLoading: convsLoading } = useConversations(currentUser?.id);
 
-    const isTypingRef = useRef(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [callChoiceOpen, setCallChoiceOpen] = useState(false);
     const typingTimeoutRef = useRef(null);
     const presenceChannelRef = useRef(null);
+    const isTypingRef = useRef(false);
 
     const [showStickers, setShowStickers] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -111,23 +114,36 @@ export default function Chat() {
         if (data) setWalletBalance(data.available_balance);
     }
 
-    // ── Deep-link check (only when convsRes changes) ─────────
+    // ── Deep-link check (only when data is ready) ─────────
     useEffect(() => {
-        if (!conversations.length || selectedConv) return;
+        if (!conversations.length) return;
+        
         const params = new URLSearchParams(location.search);
         const chatId = params.get('chatId') || location.state?.chatId;
         const openChatWith = location.state?.openChatWith;
 
         if (chatId) {
+            console.log('[Chat] Deep-linking to match:', chatId);
             const target = conversations.find(c => c.id === chatId);
-            if (target) setSelectedConv(target);
-        } else if (openChatWith) {
+            if (target) {
+                setSelectedConv(target);
+                return; // Prioritize URL match
+            }
+        } 
+        
+        if (openChatWith) {
             const target = conversations.find(c => c.other_user?.id === openChatWith);
-            if (target) setSelectedConv(target);
-        } else if (window.innerWidth > 768 && conversations.length > 0) {
+            if (target) {
+                setSelectedConv(target);
+                return;
+            }
+        }
+
+        // Default: If no deep-link and on desktop, select first conversation
+        if (!selectedConv && window.innerWidth > 768 && conversations.length > 0) {
             setSelectedConv(conversations[0]);
         }
-    }, [conversations, location, selectedConv]);
+    }, [conversations, location.search, location.state]);
 
     // ── Hide Navbar on Mobile during active chat ───────
     useEffect(() => {
@@ -242,6 +258,37 @@ export default function Chat() {
         if (isTypingRef.current) {
             isTypingRef.current = false;
             if (userProfile) updateTypingStatus(presenceChannelRef.current, currentUser.id, userProfile, false);
+        }
+    };
+
+    // ── Call Signaling ──────────────────────────────────────────────
+    const initiateCall = async (type) => {
+        setCallChoiceOpen(false);
+        const name = encodeURIComponent(selectedConv.other_user?.full_name || 'User');
+        const roomId = selectedConv.id;
+        
+        try {
+            // 1. Send Signaling Message (The "Ring")
+            const callTypeLabel = type === 'video' ? 'Video Call' : 'Voice Call';
+            const { error } = await sendMessage(roomId, currentUser.id, `Started a ${callTypeLabel}`, 'call_log', {
+                callType: type,
+                roomId: roomId,
+                startTime: new Date().toISOString()
+            });
+
+            if (error) {
+                console.error('Call signaling error:', error);
+                addToast('Failed to start call log: ' + error, 'error');
+                // We still proceed to navigate because the call itself might still work, 
+                // but this explains why logs are missing.
+            }
+
+            // 2. Navigate to Room
+            navigate(`/call/${roomId}?type=${type}&name=${name}`);
+        } catch (err) {
+            console.error('initiateCall exception:', err);
+            addToast('Connection error starting call', 'error');
+            navigate(`/call/${roomId}?type=${type}&name=${name}`);
         }
     };
 
@@ -368,7 +415,7 @@ export default function Chat() {
 
     const renderMessageContent = (msg) => {
         switch (msg.type) {
-            case 'voice': return <div className="voice-message"><audio src={msg.content} controls controlsList="nodownload" /></div>;
+            case 'voice': return <AudioMessage src={msg.content} isSent={msg.sender_id === currentUser.id} />;
             case 'image': return (
                 <div className="image-message">
                     <OptimizedImage
@@ -382,6 +429,33 @@ export default function Chat() {
             case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
             case 'gift': return <div className="gift-message"><div className="gift-animation">🎁</div><span className="gift-emoji-large">{msg.content}</span><span className="gift-label">SENT A {msg.metadata?.name}</span></div>;
             case 'emoji': return <span className="emoji-message-large">{msg.content}</span>;
+            case 'call_log': {
+                const isRecent = (Date.now() - new Date(msg.created_at).getTime()) < (10 * 60 * 1000); // 10 mins
+                const isMe = msg.sender_id === currentUser.id;
+                const callType = msg.metadata?.callType || 'voice';
+
+                return (
+                    <div className="call-log-bubble">
+                        <div className="call-log-header">
+                            <span className="call-log-icon">{callType === 'video' ? '📹' : '📞'}</span>
+                            <div className="call-log-details">
+                                <span className="call-log-title">{callType === 'video' ? 'Video Call' : 'Voice Call'}</span>
+                                <span className="call-log-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
+                        {isRecent && !isMe ? (
+                            <button 
+                                className="btn-join-call" 
+                                onClick={() => navigate(`/call/${msg.match_id}?type=${callType}&name=${encodeURIComponent(selectedConv.other_user?.full_name || 'User')}`)}
+                            >
+                                Join Call
+                            </button>
+                        ) : (
+                            <span className="call-status-tag">{isMe ? 'Call Started' : 'Call ended'}</span>
+                        )}
+                    </div>
+                );
+            }
             default: return <div className="message-content-text">{msg.content}</div>;
         }
     };
@@ -466,6 +540,37 @@ export default function Chat() {
                                     <span className="header-name">{selectedConv.other_user?.full_name}</span>
                                     <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>{isOtherTyping ? 'typing...' : isOtherOnline ? 'Online' : (selectedConv.other_user?.last_seen_at ? formatChatTimestamp(selectedConv.other_user.last_seen_at) : 'Offline')}</span>
                                 </div>
+                            </div>
+                            <div className="chat-header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+                                <button 
+                                    className={`btn-call ${callChoiceOpen ? 'active' : ''}`} 
+                                    onClick={() => setCallChoiceOpen(!callChoiceOpen)} 
+                                    title="Call Options"
+                                >
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                </button>
+
+                                {callChoiceOpen && (
+                                    <div className="call-selection-popover">
+                                        <button className="call-option" onClick={() => initiateCall('voice')}>
+                                            <span className="option-icon">📞</span>
+                                            <div className="option-text">
+                                                <strong>Voice Call</strong>
+                                                <span>Audio only connection</span>
+                                            </div>
+                                        </button>
+                                        <button className="call-option video" onClick={() => initiateCall('video')}>
+                                            <span className="option-icon">📹</span>
+                                            <div className="option-text">
+                                                <strong>Video Call</strong>
+                                                <span>Face-to-face hangout</span>
+                                            </div>
+                                        </button>
+                                        <div className="call-selection-arrow"></div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

@@ -36,6 +36,7 @@ const PremiumUpgrade = lazy(() => import('./pages/PremiumUpgrade'));
 const Viewers = lazy(() => import('./pages/Viewers'));
 const MiniProfileSetup = lazy(() => import('./pages/MiniProfileSetup'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const VoiceCallRoom = lazy(() => import('./pages/VoiceCallRoom'));
 
 
 
@@ -53,17 +54,21 @@ function SmartHomeRoute() {
   if (loading || profileLoading) return <LoadingSpinner fullScreen />;
   if (!currentUser) return <Landing />;
 
-  const isProfileComplete = Boolean(
-    userProfile?.full_name?.trim() &&
-    userProfile?.university &&
-    userProfile?.level &&
-    userProfile?.age &&
-    userProfile?.attraction_goal &&
-    userProfile?.profile_photos?.filter(Boolean).length >= 1
-  );
+  // 1. Basic field check (Only essentials)
+  const hasBasicInfo = userProfile?.full_name?.trim() && userProfile?.university;
+  
+  // 2. Photo check
+  const hasPhoto = (userProfile?.profile_photos?.filter(Boolean)?.length >= 1) || userProfile?.avatar_url;
+
+  const isProfileComplete = Boolean(hasBasicInfo && hasPhoto);
 
   return isProfileComplete ? <Navigate to="/match" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
+
+
+
+
+
 
 function AppRoutes() {
   const { currentUser, loading } = useAuth();
@@ -168,6 +173,16 @@ function AppRoutes() {
           <Route path="/viewers" element={<Viewers />} />
           <Route path="/mini-profile-setup" element={<MiniProfileSetup />} />
         </Route>
+
+        {/* Full screen voice call room */}
+        <Route
+          path="/call/:roomID"
+          element={
+            <ProtectedRoute>
+              <VoiceCallRoom />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin Route */}
         <Route

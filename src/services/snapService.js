@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { compressImage } from '../utils/imageCompressor';
 
 /**
  * Get snaps received by the current user
@@ -22,14 +23,22 @@ export async function getReceivedSnaps(userId) {
  */
 export async function sendSnap(senderId, receiverId, file, mediaType = 'image') {
     try {
-        // 1. Upload Media
-        const fileExt = file.name.split('.').pop();
+        // 1. Compress if image
+        let uploadFile = file;
+        let fileExt = file.name?.split('.')?.pop() || 'tmp';
+        
+        if (mediaType === 'image') {
+            uploadFile = await compressImage(file, { maxWidth: 1000, targetSizeKB: 100 });
+            fileExt = uploadFile.type === 'image/webp' ? 'webp' : fileExt;
+        }
+
+        // 2. Upload Media
         const fileName = `${senderId}/${Date.now()}.${fileExt}`;
         const filePath = `snaps/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
             .from('snap_media')
-            .upload(filePath, file);
+            .upload(filePath, uploadFile);
 
         if (uploadError) throw uploadError;
 

@@ -5,8 +5,6 @@ import './SwipeCard.css';
 
 function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false }) {
     const [exitX, setExitX] = useState(0);
-    const [showPremiumNote, setShowPremiumNote] = useState(false);
-    const [premiumNote, setPremiumNote] = useState('');
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
 
     const photos = profile.profile_photos && profile.profile_photos.length > 0
@@ -199,45 +197,6 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                                         <span>⭐ Super Swipe</span>
                                         <span className="badge">{superSwipesAvailable}</span>
                                     </button>
-                                )}
-
-                                {!showPremiumNote ? (
-                                    <button
-                                        className="action-btn premium-btn"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setShowPremiumNote(true);
-                                        }}
-                                    >
-                                        <span className="btn-icon">⭐</span>
-                                        <div className="btn-label">
-                                            <span className="main-text">Premium Swipe</span>
-                                            <span className="price-text">₦5,000</span>
-                                        </div>
-                                    </button>
-                                ) : (
-                                    <div className="premium-note-container" onClick={e => e.stopPropagation()}>
-                                        <textarea
-                                            className="premium-note-input"
-                                            placeholder="Add a personal note... (max 160 chars)"
-                                            maxLength={160}
-                                            value={premiumNote}
-                                            onChange={(e) => setPremiumNote(e.target.value)}
-                                            autoFocus
-                                        />
-                                        <div className="premium-note-actions">
-                                            <button className="btn-cancel-note" onClick={() => setShowPremiumNote(false)}>Cancel</button>
-                                            <button
-                                                className="btn-send-premium"
-                                                onClick={() => {
-                                                    setExitX(300);
-                                                    onSwipe('right', 'premium', premiumNote);
-                                                }}
-                                            >
-                                                Send Note + Swipe
-                                            </button>
-                                        </div>
-                                    </div>
                                 )}
                             </div>
                         )}

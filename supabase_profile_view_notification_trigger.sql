@@ -41,8 +41,8 @@ BEGIN
     NEW.profile_owner_id,
     NEW.viewer_id,
     'profile_view',
-    '👀 Someone viewed your profile',
-    v_viewer_name || ' just checked out your profile!',
+    'New Profile View 👀',
+    'Someone just checked out your profile. Match to reveal who!',
     jsonb_build_object(
       'viewer_id', NEW.viewer_id,
       'source',    COALESCE(NEW.source, 'discovery'),

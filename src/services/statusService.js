@@ -1,15 +1,24 @@
 import { supabase } from '../lib/supabase';
+import { compressImage } from '../utils/imageCompressor';
 
 // Upload media for status
 export async function uploadStatusMedia(file, userId) {
     try {
-        const fileExt = file.name.split('.').pop();
+        let uploadFile = file;
+        let fileExt = file.name?.split('.')?.pop() || 'tmp';
+
+        // Compress if image (status media is usually photos)
+        if (file.type?.startsWith('image/')) {
+            uploadFile = await compressImage(file, { maxWidth: 1080, targetSizeKB: 120 });
+            fileExt = uploadFile.type === 'image/webp' ? 'webp' : fileExt;
+        }
+
         const fileName = `${userId}/${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
             .from('status-media')
-            .upload(filePath, file);
+            .upload(filePath, uploadFile);
 
         if (uploadError) throw uploadError;
 
