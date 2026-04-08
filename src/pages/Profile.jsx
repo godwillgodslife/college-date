@@ -340,13 +340,6 @@ export default function Profile() {
                             )}
                         </div>
 
-                        <button
-                            className="btn btn-secondary btn-block"
-                            style={{ marginTop: '1rem' }}
-                            onClick={() => setShowStatusModal(true)}
-                        >
-                            📸 Update Status
-                        </button>
 
                         <button
                             className="btn btn-secondary btn-block"

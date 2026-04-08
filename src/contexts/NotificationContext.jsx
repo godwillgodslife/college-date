@@ -137,12 +137,12 @@ export function NotificationProvider({ children }) {
         await markAllNotificationsAsRead(currentUser.id);
     };
 
-    const value = {
+    const value = useMemo(() => ({
         notifications,
         unreadCount,
         markRead,
         markAllRead
-    };
+    }), [notifications, unreadCount]);
 
     return (
         <NotificationContext.Provider value={value}>

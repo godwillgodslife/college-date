@@ -99,10 +99,6 @@ export function AuthProvider({ children }) {
                         setUserProfile(repairProfile(profile));
                         setWalletBalance(wallet?.available_balance || 0);
                     }
-                    if (mounted) {
-                        setUserProfile(repairProfile(profile));
-                        setWalletBalance(wallet?.available_balance || 0);
-                    }
                 } catch (err) {
                     console.error("Profile fetch error in syncState:", err);
                     if (mounted) {
@@ -295,7 +291,7 @@ export function AuthProvider({ children }) {
 
     const clearError = () => setError(null);
 
-    const value = {
+    const value = useMemo(() => ({
         currentUser,
         userProfile,
         walletBalance,
@@ -312,7 +308,24 @@ export function AuthProvider({ children }) {
         updateProfile,
         fetchWallet,
         onlineUserIds
-    };
+    }), [
+        currentUser,
+        userProfile,
+        walletBalance,
+        loading,
+        profileLoading,
+        error,
+        login,
+        signup,
+        loginWithGoogle,
+        loginWithFacebook,
+        logout,
+        clearError,
+        fetchProfile,
+        updateProfile,
+        fetchWallet,
+        onlineUserIds
+    ]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
