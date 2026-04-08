@@ -2,8 +2,16 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notificationService';
-import { useToast } from '../components/Toast'; // Assuming you have this, or we can use a simpler alert
-import useSoundEffect from '../hooks/useSoundEffect';
+import { useToast } from '../components/Toast';
+import { 
+    playNotificationDing, 
+    playMatchSuccess, 
+    playLikePop, 
+    playViewChime, 
+    playSocialFlutter, 
+    playMoneySound, 
+    playSystemPock 
+} from '../lib/audioContext';
 
 const NotificationContext = createContext();
 
@@ -11,10 +19,23 @@ export function useNotifications() {
     return useContext(NotificationContext);
 }
 
+const SOUND_MAP = {
+    message: playNotificationDing,
+    match: playMatchSuccess,
+    like: playLikePop,
+    super_swipe: playLikePop,
+    view: playViewChime,
+    profile_view: playViewChime,
+    payment: playMoneySound,
+    goal_reached: playMoneySound,
+    snapshot_reaction: playSocialFlutter,
+    status_update: playSocialFlutter,
+    system: playSystemPock
+};
+
 export function NotificationProvider({ children }) {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
-    const playSound = useSoundEffect();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
@@ -70,7 +91,10 @@ export function NotificationProvider({ children }) {
                         if (typeof addToast === 'function') {
                             addToast(newNotification.title || 'New Notification', 'info');
                         }
-                        playSound('pop');
+                        
+                        // Specialized Sound Signature
+                        const playSound = SOUND_MAP[newNotification.type] || playNotificationDing;
+                        playSound();
                     }
                 )
                 .subscribe((status) => {

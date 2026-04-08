@@ -5,6 +5,15 @@ import './OptimizedImage.css';
  * OptimizedImage component for high performance on 1GB RAM devices.
  * Uses Supabase image transformation and lazy loading.
  */
+export function getOptimizedUrl(src, width, quality = 60) {
+    if (!src) return src;
+    
+    // Supabase Free Tier actively blocks requests that contain 'width' or 'quality' 
+    // query parameters, returning a 400 Bad Request instead of ignoring them.
+    // We must return the raw URL exactly as it is for Free tier compatibility.
+    return src;
+}
+
 export default function OptimizedImage({
     src,
     alt,
@@ -15,58 +24,30 @@ export default function OptimizedImage({
     quality = 60,
     priority = false
 }) {
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [currentSrc, setCurrentSrc] = useState(null);
-
-    useEffect(() => {
-        if (!src) return;
-
-        // Detect low-end device (crude but effective for RAM optimization)
-        const isLowEnd = (navigator.deviceMemory && navigator.deviceMemory < 2) ||
-            (navigator.connection && (navigator.connection.saveData || ['slow-2g', '2g', '3g'].includes(navigator.connection.effectiveType)));
-
-        let optimizedUrl = src;
-
-        // If it's a Supabase URL, we can inject transformation parameters
-        if (src.includes('supabase.co/storage/v1/object/public/')) {
-            const transformParams = ['format=webp']; // Force WebP for all
-
-            if (isLowEnd) {
-                transformParams.push('width=150');
-                transformParams.push('quality=50');
-            } else {
-                if (width) transformParams.push(`width=${width}`);
-                transformParams.push(`quality=${quality}`);
-            }
-
-            // Check if URL already has query params
-            const separator = src.includes('?') ? '&' : '?';
-            optimizedUrl = `${src}${separator}${transformParams.join('&')}`;
-        }
-
-        setCurrentSrc(optimizedUrl);
-    }, [src, width, quality]);
-
+    const optimizedUrl = getOptimizedUrl(src, width, quality);
+    
+    // isLoaded state removed to prevent infinite blanks on cache hits
     return (
-        <div className={`opt-image-container ${className} ${isLoaded ? 'loaded' : ''}`}>
-            {placeholder && !isLoaded && (
+        <div className={`opt-image-container ${className}`}>
+            {placeholder && (
                 <img
                     src={placeholder}
                     className="opt-image-placeholder"
                     alt=""
                     aria-hidden="true"
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
                 />
             )}
-            {currentSrc && (
+            {optimizedUrl && (
                 <img
-                    src={currentSrc}
+                    src={optimizedUrl}
                     alt={alt}
-                    onLoad={() => setIsLoaded(true)}
-                    className={`opt-image-main ${isLoaded ? 'visible' : 'hidden'}`}
+                    className="opt-image-main visible"
                     loading={priority ? "eager" : "lazy"}
                     fetchPriority={priority ? "high" : "auto"}
                     width={width}
                     height={height}
+                    style={{ position: 'relative', zIndex: 2 }}
                 />
             )}
         </div>

@@ -53,20 +53,25 @@ export async function markAllNotificationsAsRead(userId) {
 
 // Create a notification (To be used by other services)
 export async function createNotification({ userId, actorId, type, title, content, metadata = {} }) {
+    console.log('[NotificationService] Creating notification for:', userId, 'Type:', type);
+    
     try {
-        // 1. Create In-App Notification
-        const { error } = await supabase
-            .from('notifications')
-            .insert({
-                user_id: userId,
-                actor_id: actorId || null,
-                type,
-                title,
-                content,
-                metadata
-            });
+        // 1. Create In-App Notification via RPC (bypasses RLS)
+        const { data, error } = await supabase.rpc('insert_notification', {
+            p_user_id: userId,
+            p_actor_id: actorId || null,
+            p_type: type,
+            p_title: title,
+            p_content: content,
+            p_metadata: metadata
+        });
 
-        if (error) throw error;
+        if (error) {
+            console.error('[NotificationService] RPC Insert Error:', error);
+            throw error;
+        } else {
+            console.log('[NotificationService] Insert Success!', data);
+        }
 
         // 2. Trigger Email Notification (if user has it enabled)
         const { data: settings } = await getUserSettings(userId);
@@ -82,7 +87,7 @@ export async function createNotification({ userId, actorId, type, title, content
         return { error: null };
     } catch (error) {
         // We generally don't want to crash the app if a notification fails
-        console.error('Error sending notification:', error);
+        console.error('[NotificationService] Fatal error sending notification:', error);
         return { error: error.message };
     }
 }

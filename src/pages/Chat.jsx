@@ -38,6 +38,8 @@ const ICEBREAKERS = [
 import { useConversations } from '../hooks/useSWRData';
 import { Virtuoso } from 'react-virtuoso';
 import OptimizedImage from '../components/OptimizedImage';
+import { playSendSwoosh, playNotificationDing } from '../lib/audioContext';
+
 
 // ── Tick Read-Receipt Icons ────────────────────────────────────────────
 function ReadReceipt({ msg, isSender }) {
@@ -78,7 +80,7 @@ export default function Chat() {
     const [loadingMore, setLoadingMore] = useState(false);
 
     // SWR for Conversations Sidebar via custom hook
-    const { data: conversations = [], isLoading: convsLoading } = useConversations(currentUser?.id);
+    const { data: conversations = [], isLoading: convsLoading, mutate: revalidateConvs } = useConversations(currentUser?.id);
 
     const [isTyping, setIsTyping] = useState(false);
     const [callChoiceOpen, setCallChoiceOpen] = useState(false);
@@ -114,36 +116,48 @@ export default function Chat() {
         if (data) setWalletBalance(data.available_balance);
     }
 
-    // ── Deep-link check (only when data is ready) ─────────
+    // ── Deep-link check (with robust retry for fresh matches) ─────────
     useEffect(() => {
-        if (!conversations.length) return;
-        
         const params = new URLSearchParams(location.search);
         const chatId = params.get('chatId') || location.state?.chatId;
         const openChatWith = location.state?.openChatWith;
 
-        if (chatId) {
-            console.log('[Chat] Deep-linking to match:', chatId);
-            const target = conversations.find(c => c.id === chatId);
-            if (target) {
-                setSelectedConv(target);
-                return; // Prioritize URL match
+        if (!chatId && !openChatWith) {
+            // Default: If no deep-link and on desktop, select first conversation
+            if (!selectedConv && window.innerWidth > 768 && conversations.length > 0) {
+                setSelectedConv(conversations[0]);
             }
-        } 
-        
-        if (openChatWith) {
-            const target = conversations.find(c => c.other_user?.id === openChatWith);
-            if (target) {
-                setSelectedConv(target);
-                return;
-            }
+            return;
         }
 
-        // Default: If no deep-link and on desktop, select first conversation
-        if (!selectedConv && window.innerWidth > 768 && conversations.length > 0) {
-            setSelectedConv(conversations[0]);
+        const target = chatId 
+            ? conversations.find(c => c.id === chatId)
+            : conversations.find(c => c.other_user?.id === openChatWith);
+
+        if (target) {
+            setSelectedConv(target);
+        } else if (!convsLoading) {
+            // ID provided but not in current list (common for fresh matches in prod)
+            console.log('[Chat] target not found in initial list, revalidating...');
+            revalidateConvs();
+            
+            // Re-check after a short delay to allow SWR/DB to catch up
+            const timer = setTimeout(() => {
+                const refreshedTarget = chatId 
+                    ? conversations.find(c => c.id === chatId)
+                    : conversations.find(c => c.other_user?.id === openChatWith);
+                
+                if (refreshedTarget) {
+                    console.log('[Chat] target found after revalidation ✓');
+                    setSelectedConv(refreshedTarget);
+                } else {
+                    console.warn('[Chat] target still not found after retry');
+                }
+            }, 800);
+
+            return () => clearTimeout(timer);
         }
-    }, [conversations, location.search, location.state]);
+    }, [conversations, location.search, location.state, convsLoading]);
 
     // ── Hide Navbar on Mobile during active chat ───────
     useEffect(() => {
@@ -177,6 +191,7 @@ export default function Chat() {
                 });
                 if (payload.sender_id !== currentUser.id) {
                     markMessageAsRead(payload.id);
+                    playNotificationDing(); // Ding when a message arrives
                 }
             },
             (payload) => {
@@ -240,6 +255,7 @@ export default function Chat() {
             addToast('Failed to send.', 'error');
         } else if (data) {
             setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+            playSendSwoosh(); // Audible "sent" confirmation
         }
         setSending(false);
     };

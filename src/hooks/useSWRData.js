@@ -27,7 +27,8 @@ export function useDiscoveryProfiles(userId, filters, userProfile) {
  * SWR Hook for the Confessions feed
  */
 export function useConfessions(university, userId) {
-    const key = ['confessions', university, userId];
+    // Prevent double-fetching by waiting until user profile data (university) is resolved
+    const key = (university !== undefined && userId) ? ['confessions', university, userId] : null;
 
     return useSWR(key, async () => {
         const { data, error } = await getConfessions(university, userId);
@@ -63,7 +64,7 @@ export function useLeaderboards() {
 export function useConversations(userId) {
     const key = userId ? ['conversations', userId] : null;
 
-    return useSWR(key, async () => {
+    const { data, error, isLoading, mutate } = useSWR(key, async () => {
         const { data, error } = await getConversations(userId);
         if (error) throw new Error(error);
         return data;
@@ -71,6 +72,8 @@ export function useConversations(userId) {
         revalidateOnFocus: true,
         dedupingInterval: 3000,
     });
+
+    return { data, error, isLoading, mutate };
 }
 
 /**

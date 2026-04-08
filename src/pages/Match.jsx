@@ -13,23 +13,33 @@ import StatusBubbles from '../components/StatusBubbles';
 import LeaderboardPreview from '../components/LeaderboardPreview';
 import MatchCelebration from '../components/MatchCelebration'; // NEW
 import StreakIndicator from '../components/StreakIndicator'; // NEW
-import useSoundEffect from '../hooks/useSoundEffect';
+import { playCardSwipe } from '../lib/audioContext';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
+import { getOptimizedUrl } from '../components/OptimizedImage';
 import './Match.css';
 
 export default function Match() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
-    const playSound = useSoundEffect();
 
     const [matchData, setMatchData] = useState(null);
     const [liveOnly, setLiveOnly] = useState(false);
-    const [filters, setFilters] = useState({
-        gender: 'All',
-        university: 'All',
-        ageRange: [18, 50]
+    const [filters, setFilters] = useState(() => {
+        let initialGender = 'All';
+        if (userProfile) {
+            if (userProfile.interest_gender && userProfile.interest_gender !== 'All') {
+                initialGender = userProfile.interest_gender;
+            } else if (userProfile.gender) {
+                initialGender = userProfile.gender.toLowerCase() === 'male' ? 'Female' : 'Male';
+            }
+        }
+        return {
+            gender: initialGender,
+            university: 'All',
+            ageRange: [18, 50]
+        };
     });
 
     const { data: swrProfiles, mutate: mutateProfiles, isValidating: profilesValidating } = useDiscoveryProfiles(
@@ -53,19 +63,6 @@ export default function Match() {
     // Limit Reached State
     const [limitReached, setLimitReached] = useState(null);
     const [timeLeft, setTimeLeft] = useState('');
-
-    useEffect(() => {
-        if (userProfile) {
-            // Auto-filter to opposite gender on load
-            const savedGender = userProfile.interest_gender;
-            if (savedGender && savedGender !== 'All') {
-                setFilters(prev => ({ ...prev, gender: savedGender }));
-            } else if (userProfile.gender) {
-                const defaultOpposite = userProfile.gender.toLowerCase() === 'male' ? 'Female' : 'Male';
-                setFilters(prev => ({ ...prev, gender: defaultOpposite }));
-            }
-        }
-    }, [userProfile?.id]);
 
     useEffect(() => {
         // Sync SWR data to local profiles stack
@@ -181,22 +178,24 @@ export default function Match() {
             }
         }
 
-        playSound('swipe');
+        playCardSwipe();
 
-        // 2. Optimistic Update (Local State & SWR Cache)
+        // 2. Optimistic Update (Local State ONLY)
         const updatedProfiles = profiles.filter(p => p.id !== swipedProfile.id);
         setProfiles(updatedProfiles);
-        mutateProfiles(updatedProfiles, false); // Update SWR cache without re-fetching yet
-
+        
         // Optimistically update free swipes to make it feel instant
         if (direction === 'right' && freeSwipes > 0 && type === 'standard') {
             setFreeSwipes(prev => Math.max(0, prev - 1));
         }
 
-        // 3. Trigger preloading if running low (Phase 1 Fix)
-        if (updatedProfiles.length < 5) {
-            loadProfiles(false);
-        }
+        // 3. Defer heavy SWR mutations & preloading to protect swipe animation FPS
+        setTimeout(() => {
+            mutateProfiles(updatedProfiles, false); 
+            if (updatedProfiles.length < 5) {
+                loadProfiles(false);
+            }
+        }, 300); // 300ms allows standard CSS transitions to complete
 
         // 4. Record Swipe and Check for Match/Streak
         const result = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser);
@@ -404,8 +403,19 @@ export default function Match() {
                                     />
                                 ))}
 
-                                {/* Removed LeaderboardPreview as its dots (1, 2, 3) were distracting users */}
-                                {/* <LeaderboardPreview /> */}
+                                {/* HIDDEN PRELOADER: Silently download the next 5 profiles in the background */}
+                                <div style={{ display: 'none' }}>
+                                    {profiles.slice(2, 7).map(profile => {
+                                        const photos = profile.profile_photos && profile.profile_photos.length > 0 
+                                            ? profile.profile_photos 
+                                            : [profile.avatar_url].filter(Boolean);
+                                        
+                                        if (!photos[0]) return null;
+                                        // Use identical URL format so browser cache matches EXACTLY
+                                        const preloadUrl = typeof getOptimizedUrl === 'function' ? getOptimizedUrl(photos[0], 800) : photos[0];
+                                        return <img key={`preload-${profile.id}`} src={preloadUrl} alt="" />;
+                                    })}
+                                </div>
                             </>
                         )}
                     </div>

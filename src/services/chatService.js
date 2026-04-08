@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { createNotification } from './notificationService';
 
 const PAGE_SIZE = 20;
 
@@ -93,6 +94,7 @@ export async function getMessages(matchId, page = 0) {
  * Send a message.
  */
 export async function sendMessage(matchId, senderId, content, type = 'text', metadata = {}) {
+    console.log(`[CHAT-TRACE] sendMessage fired! matchId: ${matchId}, senderId: ${senderId}`);
     try {
         const { data, error } = await supabase
             .from('messages')
@@ -107,6 +109,32 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
             .single();
 
         if (error) throw error;
+
+        // AGGRESSIVE NOTIFICATION: Fetch the recipient ID and immediately ping their device/UI
+        try {
+            const { data: matchObj } = await supabase
+                .from('matches')
+                .select('user1_id, user2_id')
+                .eq('id', matchId)
+                .single();
+            
+            if (matchObj) {
+                const recipientId = matchObj.user1_id === senderId ? matchObj.user2_id : matchObj.user1_id;
+                
+                // Fire and forget (don't block the chat return on notification success)
+                createNotification({
+                    userId: recipientId,
+                    actorId: senderId,
+                    type: 'message',
+                    title: 'New Message 💬',
+                    content: type === 'text' ? content : `Sent a ${type}`,
+                    metadata: { match_id: matchId, url: `/chat?chatId=${matchId}` }
+                }).catch(err => console.warn('Silent chat notification error:', err));
+            }
+        } catch (notifErr) {
+            console.error('Failed to trigger aggressive push for message:', notifErr);
+        }
+
         return { data, error: null };
     } catch (err) {
         console.error('sendMessage error:', JSON.stringify(err, null, 2));
