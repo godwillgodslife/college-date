@@ -69,6 +69,9 @@ export async function getConversations(userId) {
  * Returns messages in ascending chronological order for display.
  */
 export async function getMessages(matchId, page = 0) {
+    if (!matchId || matchId === 'null') {
+        return { data: [], error: 'Invalid match ID', total: 0 };
+    }
     try {
         const from = page * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
@@ -164,6 +167,7 @@ export async function markMessageAsRead(messageId) {
  * Bulk-mark all messages in a conversation as read.
  */
 export async function markConversationRead(matchId, userId) {
+    if (!matchId || matchId === 'null') return { error: 'Invalid match ID' };
     try {
         const { error } = await supabase
             .from('messages')

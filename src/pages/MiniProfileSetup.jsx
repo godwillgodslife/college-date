@@ -247,6 +247,8 @@ export default function MiniProfileSetup() {
                 throw new Error("You must be at least 18 years old to use College Date.");
             }
 
+            console.log('[Setup] Finishing onboarding for:', currentUser.id);
+
             const profileData = {
                 full_name: formData.full_name,
                 age: parsedAge,
@@ -257,13 +259,17 @@ export default function MiniProfileSetup() {
                 profile_photos: formData.profile_photos,
                 avatar_url: formData.profile_photos[0],
                 email: currentUser.email,
+                is_onboarded: true, // Explicitly mark as done
                 updated_at: new Date()
             };
 
-            const { error } = await upsertProfile(currentUser.id, profileData);
+            const { data: updatedProfile, error } = await upsertProfile(currentUser.id, profileData);
             if (error) throw new Error(error);
 
+            console.log('[Setup] Upsert success. Verifying profile state...');
             await fetchProfile(currentUser.id);
+            
+            // Clean up ONLY after we are sure we've saved
             localStorage.removeItem('onboarding_data');
             localStorage.removeItem('onboarding_step');
 
@@ -277,11 +283,13 @@ export default function MiniProfileSetup() {
 
             handleNext(); // Move to success screen
         } catch (err) {
+            console.error('[Setup] handleFinish error:', err);
             addToast(err.message, 'error');
         } finally {
             setLoading(false);
         }
     };
+
 
     const isStepValid = () => {
         switch (currentStep) {

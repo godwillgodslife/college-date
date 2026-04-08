@@ -152,24 +152,33 @@ export default function Chat() {
             setSelectedConv(target);
             setPendingSelection(null); 
         } else if (location.state?.matchData && location.state.matchData.full_name) {
-            // Synthetic conversation for instant UI response (prevents waiting for SWR DB sync)
-            // CRITICAL: Only use a real UUID as id — never a temp- string, or sendMessage will fail
-            const syntheticId = finalChatId || null; // null if we don't have a real match_id yet
-            console.log('[Chat] Target NOT in list yet. Using synthetic conversation from route state. match_id:', syntheticId);
-            setSelectedConv({
-                 id: syntheticId,          // Real UUID or null — never 'temp-*'
-                 match_id: syntheticId,
-                 _isSynthetic: true,       // Flag so send button can show a wait state
-                 _targetUserId: finalTargetId,
-                 created_at: new Date().toISOString(),
-                 other_user: location.state.matchData,
-                 has_unread: false,
-                 last_message: null
-            });
-            // Immediately queue a pending selection so the real conv replaces this when it arrives
+            // Robust ID sanitization
+            const syntheticId = (finalChatId && finalChatId !== 'null') ? finalChatId : null; 
+            
+            console.log('[Chat] Synthetic target state:', { finalChatId, syntheticId });
+
+            if (!syntheticId) {
+                console.log('[Chat] Match record not found yet. Using placeholder synthetic context.');
+                setSelectedConv({
+                    id: null,
+                    other_user: location.state?.matchData || { full_name: 'Member' },
+                    _isSynthetic: true,
+                    _isPendingMatch: true
+                });
+            } else {
+                console.log('[Chat] Using synthetic conversation with real match_id:', syntheticId);
+                setSelectedConv({
+                    id: syntheticId,
+                    match_id: syntheticId,
+                    _isSynthetic: true,
+                    other_user: location.state?.matchData || { full_name: 'Member' },
+                });
+            }
+            
             setPendingSelection({ chatId: finalChatId, openChatWith: finalTargetId });
             if (!convsLoading) revalidateConvs();
         } else {
+
             console.log('[Chat] Target NOT in list yet. Setting pending and requesting revalidation.');
             setPendingSelection({ chatId: finalChatId, openChatWith: finalTargetId });
             if (!convsLoading) {
@@ -196,17 +205,18 @@ export default function Chat() {
         }
     }, [conversations, pendingSelection]);
 
-    // Safety: If we have a pending selection but conversations never arrive, 
-    // we should at least try to fetch them again after a delay.
+    // ── Polling: Revalidate if pending selection exists ──────────
     useEffect(() => {
+        let pollTimer;
         if (pendingSelection && !convsLoading) {
-            const timer = setTimeout(() => {
-                console.log('[Chat] Pending selection still active, retrying revalidation...');
+            pollTimer = setInterval(() => {
+                console.log('[Chat] Pending selection active. Polling for real conversation...');
                 revalidateConvs();
-            }, 2000);
-            return () => clearTimeout(timer);
+            }, 3000);
         }
+        return () => clearInterval(pollTimer);
     }, [pendingSelection, convsLoading]);
+
 
     // Robust Retry: Watch conversations and pick up pending selection once it arrives
     useEffect(() => {
@@ -237,13 +247,13 @@ export default function Chat() {
         };
     }, [selectedConv]);
 
-    // ── Messages + Presence ─────────────────────
     useEffect(() => {
-        if (!selectedConv || !currentUser || !userProfile) return;
+        if (!selectedConv || !selectedConv.id || selectedConv.id === 'null' || !currentUser || !userProfile) return;
         setPage(0);
         setMessages([]);
         loadMessages(selectedConv.id, 0, true);
         markConversationRead(selectedConv.id, currentUser.id);
+
 
         const msgSub = subscribeToMessages(
             selectedConv.id,
@@ -298,12 +308,15 @@ export default function Chat() {
         e.preventDefault();
         if (!newMessage.trim() || !selectedConv || sending) return;
 
-        // Block sending if the match hasn't been confirmed by the DB yet (synthetic conv without a real UUID)
-        if (!selectedConv.id || selectedConv._isSynthetic) {
+        // Block sending ONLY if we truly don't have a database ID yet
+        const isInvalidId = !selectedConv.id || (typeof selectedConv.id === 'string' && selectedConv.id.startsWith('temp-'));
+        
+        if (isInvalidId) {
             addToast('⏳ Match is still syncing… please wait a moment and try again!', 'info');
             revalidateConvs(); // force a refresh to try to get the real match
             return;
         }
+
 
         const content = newMessage.trim();
         const optimisticId = `temp-${Date.now()}`;

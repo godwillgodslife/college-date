@@ -55,12 +55,26 @@ function SmartHomeRoute() {
   if (!currentUser) return <Landing />;
 
   // 1. Basic field check (Only essentials)
-  const hasBasicInfo = userProfile?.full_name?.trim() && userProfile?.university;
+  // We use a more resilient check that allows for slight data variations
+  const hasFullName = userProfile?.full_name && userProfile?.full_name.trim().length > 1;
+  const hasUniversity = userProfile?.university && userProfile?.university !== 'None';
   
   // 2. Photo check
-  const hasPhoto = (userProfile?.profile_photos?.filter(Boolean)?.length >= 1) || userProfile?.avatar_url;
+  const hasPhoto = (userProfile?.profile_photos?.filter(p => p && p !== '').length >= 1) || 
+                   (userProfile?.avatar_url && userProfile?.avatar_url.startsWith('http'));
 
-  const isProfileComplete = Boolean(hasBasicInfo && hasPhoto);
+  // 3. New: Explicit marked-complete flag (optional backup)
+  const isManuallyComplete = userProfile?.is_onboarded === true;
+
+  const isProfileComplete = isManuallyComplete || (hasFullName && hasUniversity && hasPhoto);
+
+  console.log('[Auth] SmartHomeRoute Evaluation:', { 
+    isProfileComplete, 
+    hasFullName, 
+    hasUniversity, 
+    hasPhoto,
+    isManuallyComplete
+  });
 
   return isProfileComplete ? <Navigate to="/match" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }

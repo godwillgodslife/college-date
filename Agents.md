@@ -6,33 +6,29 @@
 - **Netlify Admin**: [app.netlify.com/projects/collegedate4](https://app.netlify.com/projects/collegedate4)
 
 ## 📌 Overall Project State
-The project "TheCollegeDATE" (CD2.0) is structurally stable with newly optimized front-end data fetching and stabilized authentication state management. We have resolved critical production race conditions in Match-to-Chat navigation and eliminated the pervasive 6-8x visual reload flickering during login by deduplicating auth synchronization and decoupling the app layout from global loading states.
+The project "TheCollegeDATE" (CD2.0) is structurally stable with newly optimized front-end data fetching and stabilized authentication state management. We have securely isolated the core matching financial economy to safeguard against fake inflation from free swipes, eradicated restrictive backend notification constraints blocking match acceptances, and implemented a zero-latency Synthetic Chat system for instant messaging initialization from match pop-ups.
 
 ## ✅ Recently Completed Work
-1. **Swipe Dual-State Bug Fix (Critical):**
-   - **Resolution**: Created `fix_swipe_sync.sql` patching both standard swipe payments and limit checkers to enforce a single source of truth.
+1. **Onboarding Loop & Profile Stabilization:**
+   - **Resolution**: Refactored `SmartHomeRoute` in `App.jsx` to be resilient against state flickers and implemented an explicit `is_onboarded` boolean in the `profiles` table. Updated `MiniProfileSetup.jsx` to set this flag upon completion, ensuring users aren't redirected back to setup after finishing.
 
-2. **Global Notification System Restoration:**
-   - **Security Definer RPC**: Implemented `insert_notification` RPC to bypass RLS, allowing programmatic cross-user notification creation.
-   - **Realtime Activation**: Enabled Supabase Realtime for the `notifications` table to push instant updates.
-   - **Sound Fix**: Corrected profile-based sound check logic in `NotificationContext.jsx` and stabilized the listener with a `Ref` to prevent connection drops during profile updates.
+2. **Database Security & Constraint Resolution:**
+   - **RLS Fix**: Implemented an updated RLS policy for the `matches` table allowing authenticated users to `INSERT` and `SELECT` their own matches, resolving 403 Forbidden errors during record swipes.
+   - **Notification Nuke**: Dropped all `notifications_type_check` constraints via `nuke_notifications_constraints.sql` to support dynamic user engagement types.
 
-3. **Performance & UX Stabilization (Critical):**
-   - **Auth Deduplication**: Implemented a `syncLock` in `AuthContext.jsx` to stop redundant profile fetches and state flickering.
-   - **Root Layout Decoupling**: Refactored `App.jsx` to prevent the entire route tree from unmounting during login transitions.
+3. **Match-to-Chat & Null Safety:**
+   - **Resolution**: Hardened `Chat.jsx` and `chatService.js` against invalid UUID syntax errors. The UI now gracefully handles `null` match IDs by polling for database arrival instead of crashing, allowing instant "Match-to-Chat" transitions.
 
-4. **Match-to-Chat Navigation Bug Fix:**
-   - **Robust Deep-linking**: Replaced legacy timers with a reactive `pendingSelection` system in `Chat.jsx`, ensuring fresh matches open reliably in high-latency environments.
-
-5. **Deployment:**
-   - **Netlify Sync**: Successfully committed and pushed all stability updates to master, triggering a production deployment.
+4. **Edge Function Live Deployment:**
+   - **Status**: Successfully authenticated the Supabase CLI and deployed all Edge Functions (`send-notification-email`, `send-notification-push`, `notify-on-event`, `verify-paystack-status`) to the remote project.
 
 ## 🚧 Currently In Progress
-1. **Edge Function Connectivity**: Optimized CORS configuration (`_shared/cors.ts`) and created deployment-ready skeletons for Email and Push notifications.
+1. **Production Verification**: Monitoring live logs on Supabase and Netlify to ensure the transition from local to remote is seamless.
 
 ## 🚀 Next Steps (To-Do)
-1. **Edge Function Deployment**: Deploy the prepared functions to the Supabase cloud using `npx supabase functions deploy`.
-2. **Push/Email Verification**: Confirm that external alerts are firing correctly once the edge functions are live.
+1. **Push/Email Verification**: Confirm that external alerts are firing correctly during live matches.
+2. **User Acceptance**: Final confirmation from the user that the onboarding redirect loop is fully resolved on their device.
+
 
 ---
 *Note: Keep this file updated at the end of every session to maintain seamless handoffs.*
