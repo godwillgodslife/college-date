@@ -23,17 +23,31 @@ export default function NotificationTray({ onClose }) {
         markRead(notification.id);
         onClose();
 
+        const actorId = notification.actor_id;
+        const matchId = notification.metadata?.match_id;
+
         // Navigate based on type/metadata
-        if (notification.metadata?.url) {
+        if (notification.type === 'match' || notification.type === 'swipe_accepted') {
+            // Pass the matched user's ID so Chat.jsx opens the right conversation instantly
+            navigate('/chat', {
+                state: {
+                    openChatWith: actorId,
+                    chatId: matchId || null,
+                }
+            });
+        } else if (notification.type === 'message' || notification.type === 'new_message') {
+            navigate('/chat', {
+                state: {
+                    openChatWith: actorId,
+                    chatId: matchId || null,
+                }
+            });
+        } else if (notification.metadata?.url) {
             navigate(notification.metadata.url);
-        } else if (notification.type === 'match' || notification.type === 'swipe_accepted') {
-            navigate('/chat');
         } else if (notification.type === 'swipe_received' || notification.type === 'like') {
             navigate('/requests');
         } else if (notification.type === 'view' || notification.type === 'profile_view' || notification.type === 'checked_out') {
             navigate('/viewers');
-        } else if (notification.type === 'message') {
-            navigate('/chat');
         } else if (notification.type === 'trending' || notification.type === 'leaderboard') {
             navigate('/leaderboard');
         } else if (notification.type === 'confession') {
@@ -46,6 +60,7 @@ export default function NotificationTray({ onClose }) {
             navigate('/wallet');
         }
     };
+
 
     const getIcon = (type) => {
         switch (type) {
