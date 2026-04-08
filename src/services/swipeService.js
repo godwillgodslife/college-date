@@ -41,7 +41,7 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             // Default: show opposite gender 90% by ordering opposite gender first
             const normalizedGender = currentUserGender.toLowerCase();
             const oppositeGender = normalizedGender === 'male' ? 'female' : 'male';
-            query = query.order('gender', { ascending: normalizedGender === 'female' });
+            query = query.order('gender', { ascending: normalizedGender === 'male' });
             // We pull more results then sort client-side for true 90/10 mix
         }
 
@@ -362,9 +362,32 @@ export async function trackProfileView(viewerId, ownerId, source = 'discovery') 
             });
 
         if (error) {
-            // Silently ignore trigger-related errors (pg_net, net schema, etc.)
-            // These are background notification failures, not data failures
             console.warn('trackProfileView (non-critical):', error.message);
+        } else {
+            // Trigger Real-Time Notification (Radar Chirp)
+            // We fetch the profile to check if they want these alerts
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('view_notifications, full_name')
+                .eq('id', ownerId)
+                .single();
+
+            if (profile?.view_notifications !== false) {
+                const { data: viewer } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', viewerId)
+                    .single();
+
+                createNotification({
+                    userId: ownerId,
+                    actorId: viewerId,
+                    type: 'view',
+                    title: 'New Profile View! 👀',
+                    content: `${viewer?.full_name || 'Someone'} just viewed your profile.`,
+                    metadata: { url: '/viewers' }
+                }).catch(e => console.warn('Silent view notification fail:', e));
+            }
         }
     } catch (err) {
         // Never surface this error to the user

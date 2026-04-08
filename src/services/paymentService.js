@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { createNotification } from './notificationService';
 
 /**
  * Get the current user's wallet
@@ -113,6 +114,15 @@ export async function completeTransaction(transactionId, status, reference, meta
                     })
                     .eq('id', tx.wallet_id);
                 if (walletError) throw walletError;
+
+                // Notify user about Deposit
+                createNotification({
+                    userId: tx.user_id,
+                    type: 'payment',
+                    title: '💰 Deposit Successful!',
+                    content: `₦${tx.amount.toLocaleString()} has been added to your wallet.`,
+                    metadata: { tx_id: tx.id, url: '/wallet' }
+                }).catch(e => console.warn('Silent deposit notification fail:', e));
             }
             else if (tx.type === 'subscription') {
                 const premiumExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -138,6 +148,15 @@ export async function completeTransaction(transactionId, status, reference, meta
                     })
                     .eq('id', tx.user_id);
                 if (profilePremiumError) console.error('profile is_premium update error:', profilePremiumError);
+
+                // Notify user about Premium Activation
+                createNotification({
+                    userId: tx.user_id,
+                    type: 'payment',
+                    title: '👑 Premium Activated!',
+                    content: 'Your account has been upgraded to Premium. Enjoy your new features!',
+                    metadata: { tx_id: tx.id, url: '/settings' }
+                }).catch(e => console.warn('Silent payment notification fail:', e));
             }
         }
 
@@ -200,6 +219,15 @@ export async function payWithWallet(userId, amount, type, description) {
                 .eq('user_id', userId);
             if (subError) throw subError;
         }
+
+        // Notify user about Wallet Payment
+        createNotification({
+            userId: userId,
+            type: 'payment',
+            title: '💸 Payment Successful',
+            content: `₦${amount.toLocaleString()} paid for ${description}`,
+            metadata: { tx_id: tx.id, url: '/wallet' }
+        }).catch(e => console.warn('Silent wallet payment notification error:', e));
 
         return { data: tx, error: null };
     } catch (error) {

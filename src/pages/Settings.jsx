@@ -40,8 +40,11 @@ export default function Settings() {
             // If data is null (no profile row), use defaults
             setSettings(data || {
                 match_notifications: true,
+                view_notifications: true,
+                confession_notifications: true,
                 email_notifications: true,
                 push_notifications: true,
+                sound_enabled: true,
                 show_online_status: true,
                 incognito_mode: false
             });
@@ -153,6 +156,51 @@ export default function Settings() {
                                 type="checkbox"
                                 checked={settings?.push_notifications}
                                 onChange={() => handleToggle('push_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>🔊 In-App Sounds</h3>
+                            <p>Enable unique synthesized tones for alerts.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                checked={settings?.sound_enabled !== false}
+                                onChange={() => handleToggle('sound_enabled')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>👀 Profile View Alerts</h3>
+                            <p>Get notified when someone views your profile.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                checked={settings?.view_notifications !== false}
+                                onChange={() => handleToggle('view_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>💬 Confession Alerts</h3>
+                            <p>Get notified when people react to your confessions.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                checked={settings?.confession_notifications !== false}
+                                onChange={() => handleToggle('confession_notifications')}
                             />
                             <span className="slider round"></span>
                         </label>

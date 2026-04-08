@@ -94,7 +94,11 @@ export function NotificationProvider({ children }) {
                         
                         // Specialized Sound Signature
                         const playSound = SOUND_MAP[newNotification.type] || playNotificationDing;
-                        playSound();
+                        
+                        // Check master sound toggle before playing
+                        if (userProfile?.sound_enabled !== false) {
+                            playSound();
+                        }
                     }
                 )
                 .subscribe((status) => {

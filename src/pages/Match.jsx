@@ -458,7 +458,9 @@ export default function Match() {
                         userProfile={userProfile}
                         onClose={() => setMatchData(null)}
                         // Use the match_id that we now store in matchData
-                        onMessage={() => navigate(`/chat?chatId=${matchData.match_id}`)}
+                        onMessage={() => navigate(`/chat?chatId=${matchData.match_id}`, { 
+                            state: { openChatWith: matchData.id } 
+                        })}
                     />
 
                     {/* Limit Reached Overlay */}

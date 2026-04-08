@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { createNotification } from './notificationService';
 
 const REACTION_EMOJIS = ['🔥', '🙊', '👀', '🙏'];
 
@@ -96,6 +97,33 @@ export async function addEmojiReaction(confessionId, userId, emoji) {
                 emoji
             });
             if (error) throw error;
+
+            // Notify the poster
+            const { data: confession } = await supabase
+                .from('confessions')
+                .select('user_id, content')
+                .eq('id', confessionId)
+                .single();
+
+            if (confession && confession.user_id) {
+                const { data: poster } = await supabase
+                    .from('profiles')
+                    .select('confession_notifications')
+                    .eq('id', confession.user_id)
+                    .single();
+
+                if (poster?.confession_notifications !== false) {
+                    createNotification({
+                        userId: confession.user_id,
+                        actorId: userId,
+                        type: 'snapshot_reaction',
+                        title: `${emoji} New Reaction!`,
+                        content: `Someone reacted with ${emoji} to your confession: "${confession.content.substring(0, 30)}..."`,
+                        metadata: { confession_id: confessionId, url: '/confessions' }
+                    }).catch(e => console.warn('Silent confession notification fail:', e));
+                }
+            }
+
             return { toggled: true, error: null };
         }
     } catch (err) {
@@ -118,6 +146,33 @@ export async function claimConfession(confessionId, claimerId) {
             if (error.code === '23505') return { alreadyClaimed: true, error: null }; // duplicate
             throw error;
         }
+
+        // Notify the poster about the claim
+        const { data: confession } = await supabase
+            .from('confessions')
+            .select('user_id, content')
+            .eq('id', confessionId)
+            .single();
+
+        if (confession && confession.user_id) {
+            const { data: poster } = await supabase
+                .from('profiles')
+                .select('confession_notifications')
+                .eq('id', confession.user_id)
+                .single();
+
+            if (poster?.confession_notifications !== false) {
+                createNotification({
+                    userId: confession.user_id,
+                    actorId: claimerId,
+                    type: 'snapshot_reaction',
+                    title: 'Someone Claimed It! 🫢',
+                    content: `Someone says this confession is about them: "${confession.content.substring(0, 30)}..."`,
+                    metadata: { confession_id: confessionId, url: '/confessions' }
+                }).catch(e => console.warn('Silent claim notification fail:', e));
+            }
+        }
+
         return { alreadyClaimed: false, error: null };
     } catch (err) {
         console.error('claimConfession error:', err.message);
