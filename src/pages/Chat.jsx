@@ -153,16 +153,21 @@ export default function Chat() {
             setPendingSelection(null); 
         } else if (location.state?.matchData && location.state.matchData.full_name) {
             // Synthetic conversation for instant UI response (prevents waiting for SWR DB sync)
-            console.log('[Chat] Target NOT in list yet. Using synthetic conversation from route state.');
+            // CRITICAL: Only use a real UUID as id — never a temp- string, or sendMessage will fail
+            const syntheticId = finalChatId || null; // null if we don't have a real match_id yet
+            console.log('[Chat] Target NOT in list yet. Using synthetic conversation from route state. match_id:', syntheticId);
             setSelectedConv({
-                 id: finalChatId || `temp-${finalTargetId}`,
-                 match_id: finalChatId,
+                 id: syntheticId,          // Real UUID or null — never 'temp-*'
+                 match_id: syntheticId,
+                 _isSynthetic: true,       // Flag so send button can show a wait state
+                 _targetUserId: finalTargetId,
                  created_at: new Date().toISOString(),
                  other_user: location.state.matchData,
                  has_unread: false,
                  last_message: null
             });
-            setPendingSelection(null); 
+            // Immediately queue a pending selection so the real conv replaces this when it arrives
+            setPendingSelection({ chatId: finalChatId, openChatWith: finalTargetId });
             if (!convsLoading) revalidateConvs();
         } else {
             console.log('[Chat] Target NOT in list yet. Setting pending and requesting revalidation.');
@@ -292,6 +297,13 @@ export default function Chat() {
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!newMessage.trim() || !selectedConv || sending) return;
+
+        // Block sending if the match hasn't been confirmed by the DB yet (synthetic conv without a real UUID)
+        if (!selectedConv.id || selectedConv._isSynthetic) {
+            addToast('⏳ Match is still syncing… please wait a moment and try again!', 'info');
+            revalidateConvs(); // force a refresh to try to get the real match
+            return;
+        }
 
         const content = newMessage.trim();
         const optimisticId = `temp-${Date.now()}`;
