@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notificationService';
@@ -34,10 +35,17 @@ const SOUND_MAP = {
 };
 
 export function NotificationProvider({ children }) {
-    const { currentUser } = useAuth();
+    const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+
+    // Use a ref for userProfile to keep the realtime callback 'fresh' without re-subscribing
+    const profileRef = useRef(userProfile);
+    useEffect(() => {
+        profileRef.current = userProfile;
+    }, [userProfile]);
 
     // Load initial notifications
     useEffect(() => {
@@ -54,7 +62,6 @@ export function NotificationProvider({ children }) {
                     console.error('Failed to load notifications:', error);
                     return;
                 }
-                // Ensure data is an array
                 const validData = Array.isArray(data) ? data : [];
                 setNotifications(validData);
                 setUnreadCount(validData.filter(n => !n.is_read).length);
@@ -72,7 +79,7 @@ export function NotificationProvider({ children }) {
         const subscribeWithRetry = () => {
             if (!currentUser) return;
             
-            console.log('[Notifications] Attempting realtime subscription...');
+            console.log('[Notifications] Initializing stable realtime channel...');
             channel = supabase
                 .channel(`public:notifications:${currentUser.id}`)
                 .on(
@@ -84,29 +91,46 @@ export function NotificationProvider({ children }) {
                         filter: `user_id=eq.${currentUser.id}`
                     },
                     (payload) => {
-                        console.log('New Notification Received:', payload);
                         const newNotification = payload.new;
+                        console.log('[Notifications] New entry:', newNotification.type);
+                        
                         setNotifications(prev => [newNotification, ...prev]);
                         setUnreadCount(prev => prev + 1);
+                        
                         if (typeof addToast === 'function') {
-                            addToast(newNotification.title || 'New Notification', 'info');
+                            const url = newNotification.metadata?.url;
+                            const matchId = newNotification.metadata?.match_id;
+                            const actorId = newNotification.actor_id;
+
+                            addToast(newNotification.title || 'New Notification', 'info', 5000, {
+                                onClick: () => {
+                                    if (url === '/chat') {
+                                        navigate(matchId ? `/chat?chatId=${matchId}` : '/chat', {
+                                            state: { 
+                                                chatId: matchId,
+                                                openChatWith: actorId
+                                            }
+                                        });
+                                    } else if (url) {
+                                        navigate(url);
+                                    }
+                                }
+                            });
                         }
                         
-                        // Specialized Sound Signature
+                        // Specialized Sound Signature using REFRESHED profile via Ref
                         const playSound = SOUND_MAP[newNotification.type] || playNotificationDing;
                         
-                        // Check master sound toggle before playing
-                        if (userProfile?.sound_enabled !== false) {
+                        if (profileRef.current?.sound_enabled !== false) {
                             playSound();
                         }
                     }
                 )
                 .subscribe((status) => {
                     if (status === 'SUBSCRIBED') {
-                        console.log('[Notifications] Realtime channel subscribed ✓');
+                        console.log('[Notifications] Stable channel active ✓');
                     } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                         console.warn(`[Notifications] Realtime ${status} - retrying in 5s...`);
-                        // Clean up old channel and retry
                         supabase.removeChannel(channel);
                         retryTimeout = setTimeout(subscribeWithRetry, 5000);
                     }
@@ -119,7 +143,7 @@ export function NotificationProvider({ children }) {
             if (channel) supabase.removeChannel(channel);
             if (retryTimeout) clearTimeout(retryTimeout);
         };
-    }, [currentUser, addToast]);
+    }, [currentUser, addToast]); // Only re-subscribe if user or toast system changes
 
     const markRead = async (id) => {
         // Optimistic update

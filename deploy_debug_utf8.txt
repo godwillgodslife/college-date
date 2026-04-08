@@ -1,0 +1,50 @@
+﻿node.exe : open C:\Users\HP
+\.supabase\profile: The 
+system cannot find the 
+file specified.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (ope  
+  n C:\Users\H...file sp   
+ ecified.:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+Using access token for 
+profile: supabase
+Loading project ref from 
+flag: gedoyoleoscgxgdqszzc
+Supabase CLI 2.88.1
+Using profile: supabase 
+(supabase.co)
+Using access token for 
+profile: supabase
+2026/04/08 15:48:50 HTTP 
+POST: https://api.supabase.
+com/v1/projects/gedoyoleosc
+gxgdqszzc/functions/deploy?
+slug=verify-paystack-status
+Uploading asset 
+(verify-paystack-status): s
+upabase/functions/verify-pa
+ystack-status/index.ts
+2026/04/08 15:48:51 HTTP 
+POST: https://eu.i.posthog.
+com/batch/
+unexpected deploy status 
+403: {"message":"Your 
+account does not have the 
+necessary privileges to 
+access this endpoint. For 
+more details, refer to our 
+documentation https://supab
+ase.com/docs/guides/platfor
+m/access-control"}

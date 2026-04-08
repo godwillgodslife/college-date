@@ -98,6 +98,8 @@ export default function Chat() {
     const [reactionBar, setReactionBar] = useState(null);
     const longPressTimer = useRef(null);
 
+    const [pendingSelection, setPendingSelection] = useState(null);
+
     // ── Initial Load ───────────────────────────────────────────────────
     useEffect(() => {
         if (currentUser) {
@@ -116,48 +118,106 @@ export default function Chat() {
         if (data) setWalletBalance(data.available_balance);
     }
 
-    // ── Deep-link check (with robust retry for fresh matches) ─────────
+    // ── Deep-link check & Pending selection handler ────────────────────
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const chatId = params.get('chatId') || location.state?.chatId;
-        const openChatWith = location.state?.openChatWith;
+        const openChatWith = (location.state?.openChatWith && location.state.openChatWith !== 'undefined') 
+            ? location.state.openChatWith 
+            : location.state?.matchData?.id;
 
-        if (!chatId && !openChatWith) {
-            // Default: If no deep-link and on desktop, select first conversation
+        // Filter out bad artifacts from URL params ("null", "undefined" as strings)
+        const sanitize = (val) => (val && val !== 'undefined' && val !== 'null') ? val : null;
+        const finalChatId = sanitize(chatId);
+        const finalTargetId = sanitize(openChatWith);
+
+        if (!finalChatId && !finalTargetId) {
+            // Default selection for desktop: select first conversation if none selected
             if (!selectedConv && window.innerWidth > 768 && conversations.length > 0) {
+                console.log('[Chat] Standard desktop auto-selection');
                 setSelectedConv(conversations[0]);
             }
             return;
         }
 
+        console.log('[Chat] Deep-link detect:', { chatId: finalChatId, openChatWith: finalTargetId });
+
+        // First attempt: Check if target exists in current list
+        const target = finalChatId 
+            ? conversations.find(c => c.id === finalChatId || c.match_id === finalChatId)
+            : conversations.find(c => (c.other_user?.id || c.other_user_id) === finalTargetId);
+
+        if (target) {
+            console.log('[Chat] Target found! Selecting:', target.id);
+            setSelectedConv(target);
+            setPendingSelection(null); 
+        } else if (location.state?.matchData && location.state.matchData.full_name) {
+            // Synthetic conversation for instant UI response (prevents waiting for SWR DB sync)
+            console.log('[Chat] Target NOT in list yet. Using synthetic conversation from route state.');
+            setSelectedConv({
+                 id: finalChatId || `temp-${finalTargetId}`,
+                 match_id: finalChatId,
+                 created_at: new Date().toISOString(),
+                 other_user: location.state.matchData,
+                 has_unread: false,
+                 last_message: null
+            });
+            setPendingSelection(null); 
+            if (!convsLoading) revalidateConvs();
+        } else {
+            console.log('[Chat] Target NOT in list yet. Setting pending and requesting revalidation.');
+            setPendingSelection({ chatId: finalChatId, openChatWith: finalTargetId });
+            if (!convsLoading) {
+                revalidateConvs();
+            }
+        }
+    }, [location.search, location.state]); // Only run when navigation context changes
+
+    // Resolver: Watch conversations for arrivals that match pending selections
+    useEffect(() => {
+        if (!pendingSelection || conversations.length === 0) return;
+
+        console.log('[Chat] Evaluating pending selection against new conversations list...');
+        const { chatId, openChatWith } = pendingSelection;
+        
+        const target = chatId 
+            ? conversations.find(c => c.id === chatId || c.match_id === chatId)
+            : conversations.find(c => (c.other_user?.id || c.other_user_id) === openChatWith);
+
+        if (target) {
+            console.log('[Chat] RESOLVED: Pending target found in updated list!', target.id);
+            setSelectedConv(target);
+            setPendingSelection(null);
+        }
+    }, [conversations, pendingSelection]);
+
+    // Safety: If we have a pending selection but conversations never arrive, 
+    // we should at least try to fetch them again after a delay.
+    useEffect(() => {
+        if (pendingSelection && !convsLoading) {
+            const timer = setTimeout(() => {
+                console.log('[Chat] Pending selection still active, retrying revalidation...');
+                revalidateConvs();
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [pendingSelection, convsLoading]);
+
+    // Robust Retry: Watch conversations and pick up pending selection once it arrives
+    useEffect(() => {
+        if (!pendingSelection || conversations.length === 0) return;
+
+        const { chatId, openChatWith } = pendingSelection;
         const target = chatId 
             ? conversations.find(c => c.id === chatId)
             : conversations.find(c => c.other_user?.id === openChatWith);
 
         if (target) {
+            console.log('[Chat] Pending target found! Selecting...');
             setSelectedConv(target);
-        } else if (!convsLoading) {
-            // ID provided but not in current list (common for fresh matches in prod)
-            console.log('[Chat] target not found in initial list, revalidating...');
-            revalidateConvs();
-            
-            // Re-check after a short delay to allow SWR/DB to catch up
-            const timer = setTimeout(() => {
-                const refreshedTarget = chatId 
-                    ? conversations.find(c => c.id === chatId)
-                    : conversations.find(c => c.other_user?.id === openChatWith);
-                
-                if (refreshedTarget) {
-                    console.log('[Chat] target found after revalidation ✓');
-                    setSelectedConv(refreshedTarget);
-                } else {
-                    console.warn('[Chat] target still not found after retry');
-                }
-            }, 800);
-
-            return () => clearTimeout(timer);
+            setPendingSelection(null);
         }
-    }, [conversations, location.search, location.state, convsLoading]);
+    }, [conversations, pendingSelection]);
 
     // ── Hide Navbar on Mobile during active chat ───────
     useEffect(() => {
@@ -520,7 +580,7 @@ export default function Chat() {
                             const hasUnread = conv.has_unread && selectedConv?.id !== conv.id;
                             const typePrefix = conv.last_message_type === 'voice' ? '🎙️ ' : conv.last_message_type === 'gift' ? '🎁 ' : conv.last_message_type === 'sticker' ? '😊 ' : '';
                             return (
-                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => setSelectedConv(conv)}>
+                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => { setSelectedConv(conv); setPendingSelection(null); }}>
                                     <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
                                         <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
                                         {isOnline && <span className="online-dot" />}

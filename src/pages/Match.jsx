@@ -456,11 +456,26 @@ export default function Match() {
                         isOpen={!!matchData}
                         matchedProfile={matchData}
                         userProfile={userProfile}
-                        onClose={() => setMatchData(null)}
-                        // Use the match_id that we now store in matchData
-                        onMessage={() => navigate(`/chat?chatId=${matchData.match_id}`, { 
-                            state: { openChatWith: matchData.id } 
-                        })}
+                        onClose={() => {
+                            console.log('[Match] Celebration closed manually');
+                            setMatchData(null);
+                        }}
+                        onMessage={() => {
+                            const cid = matchData?.match_id;
+                            const uid = matchData?.id;
+                            
+                            console.log('[Match] Navigating to Chat. IDs:', { cid, uid });
+                            
+                            // Robust navigation: Pass everything so Chat.jsx can find the target
+                            navigate(cid ? `/chat?chatId=${cid}` : '/chat', { 
+                                state: { 
+                                    openChatWith: uid, // Fallback profile ID
+                                    matchData: matchData,
+                                    chatId: cid
+                                } 
+                            });
+                            setMatchData(null);
+                        }}
                     />
 
                     {/* Limit Reached Overlay */}

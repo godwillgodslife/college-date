@@ -248,14 +248,27 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
 
         const isMatch = !!mutualLike;
         if (isMatch) {
-            // IT'S A MATCH! Fetch the match_id for chat navigation
-            const { data: matchData } = await supabase
+            // IT'S A MATCH! 
+            // 1. Create persistent match record if it doesn't exist
+            const participants = [swiperId, swipedId].sort();
+            const { data: newMatch, error: matchError } = await supabase
                 .from('matches')
+                .upsert({
+                    user_ids: participants,
+                    user1_id: participants[0],
+                    user2_id: participants[1],
+                    created_at: new Date().toISOString()
+                }, { onConflict: 'user1_id,user2_id' })
                 .select('id')
-                .contains('user_ids', [swiperId, swipedId])
-                .maybeSingle();
+                .single();
 
-            // Notify both users about the match
+            if (matchError) {
+                console.warn('Persistent match creation error:', matchError.message);
+            }
+            
+            const matchId = newMatch?.id;
+
+            // 2. Notify both users about the match
             await Promise.allSettled([
                 createNotification({
                     userId: swipedId,
@@ -263,7 +276,7 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
-                    metadata: { match_id: matchData?.id, url: '/chat' }
+                    metadata: { match_id: matchId, url: '/chat' }
                 }),
                 createNotification({
                     userId: swiperId,
@@ -271,14 +284,14 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
-                    metadata: { match_id: matchData?.id, url: '/chat' }
+                    metadata: { match_id: matchId, url: '/chat' }
                 })
             ]);
 
             return {
                 data: swipeRecord,
                 isMatch: true,
-                match_id: matchData?.id || null, // ADDED THIS
+                match_id: matchId, // Confirmed ID from DB
                 streak: streakResult?.streak,
                 type: (paymentResult && paymentResult.type) || (direction === 'right' ? 'standard' : 'pass'),
                 error: null

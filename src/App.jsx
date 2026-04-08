@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
@@ -124,9 +124,9 @@ function AppRoutes() {
     }
   }, [currentUser]);
 
-  if (loading) {
-    return <LoadingSpinner fullScreen />;
-  }
+  // Global loading gatekeeper removed to prevent "6-8 reloads" flicker.
+  // We now let the individual routes (SmartHomeRoute, ProtectedRoute) handle 
+  // their own loading states without unmounting the entire application tree.
 
   return (
     <Suspense fallback={<LoadingSpinner fullScreen text="Loading..." />}>
@@ -146,32 +146,35 @@ function AppRoutes() {
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
 
-        {/* Protected routes with AppLayout */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-              <TourGuide />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/match" element={<Match />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/status" element={<StatusUpdates />} />
-          <Route path="/snap" element={<Snap />} />
-          <Route path="/profile/:userId?" element={<Profile />} />
-          <Route path="/profile/edit" element={<EditProfile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/referrals" element={<Referrals />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/requests" element={<Requests />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/confessions" element={<Confessions />} />
-          <Route path="/premium" element={<PremiumUpgrade />} />
-          <Route path="/viewers" element={<Viewers />} />
-          <Route path="/mini-profile-setup" element={<MiniProfileSetup />} />
+        {/* Protected routes with AppLayout shell always mounted */}
+        <Route element={<AppLayout />}>
+          {/* Inner Guard: Gated contents only, shell remains stable */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <TourGuide />
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/match" element={<Match />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/status" element={<StatusUpdates />} />
+            <Route path="/snap" element={<Snap />} />
+            <Route path="/profile/:userId?" element={<Profile />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/referrals" element={<Referrals />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/confessions" element={<Confessions />} />
+            <Route path="/premium" element={<PremiumUpgrade />} />
+            <Route path="/viewers" element={<Viewers />} />
+            <Route path="/mini-profile-setup" element={<MiniProfileSetup />} />
+          </Route>
         </Route>
 
         {/* Full screen voice call room */}

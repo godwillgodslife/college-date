@@ -30,6 +30,16 @@
     animation: toastSlideOut 0.3s ease forwards;
 }
 
+.toast-clickable {
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.toast-clickable:hover {
+    transform: scale(1.02);
+    background: var(--bg-hover);
+}
+
 .toast-success {
     border-left: 4px solid #10b981;
 }

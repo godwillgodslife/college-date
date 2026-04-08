@@ -78,17 +78,32 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let mounted = true;
         let lastUserId = null;
+        const syncLock = { current: false };
 
         async function syncState(user) {
             if (!mounted) return;
             
-            // Deduplicate: Don't re-fetch if we already have this user's profile
-            if (user && user.id === lastUserId) return;
+            // Concurrency Guard: Prevent overlapping syncs from rattling the UI
+            if (syncLock.current) {
+                console.log('[Auth Audit] Sync Lock active - ignoring redundant event');
+                return;
+            }
+
+            // Deduplication: If user hasn't changed and profile is already here, just ensure loading is off
+            if (user && user.id === lastUserId && userProfile) {
+                setLoading(false);
+                setProfileLoading(false);
+                return;
+            }
+
+            syncLock.current = true;
             lastUserId = user?.id || null;
 
+            // Update user immediately so simple checks (is user logged in?) pass
             setCurrentUser(user);
 
             if (user) {
+                console.log('[Auth Audit] Starting profile sync for:', user.id);
                 try {
                     const [{ data: profile }, { data: wallet }] = await Promise.all([
                         supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
@@ -100,13 +115,10 @@ export function AuthProvider({ children }) {
                         setWalletBalance(wallet?.available_balance || 0);
                     }
                 } catch (err) {
-                    console.error("Profile fetch error in syncState:", err);
-                    if (mounted) {
-                        setProfileLoading(false);
-                        setLoading(false);
-                    }
+                    console.error("[Auth Audit] Sync error:", err);
                 }
             } else {
+                console.log('[Auth Audit] Clearing auth state (Logout)');
                 setUserProfile(null);
                 setWalletBalance(0);
             }
@@ -114,6 +126,8 @@ export function AuthProvider({ children }) {
             if (mounted) {
                 setProfileLoading(false);
                 setLoading(false);
+                syncLock.current = false;
+                console.log('[Auth Audit] Sync Complete ✓');
             }
         }
 

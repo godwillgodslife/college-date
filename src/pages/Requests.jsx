@@ -83,8 +83,25 @@ export default function Requests() {
             if (data && !data.success) throw new Error(data.error || 'Failed to accept');
 
             addToast('Request accepted! Chat unlocked.', 'success');
+            const targetRequest = requests.find(r => r.id === swipeId);
             setRequests(prev => prev.filter(r => r.id !== swipeId));
-            setTimeout(() => navigate('/chat'), 1500);
+            
+            // Redirect to chat with the new match context (Robust strategy)
+            const targetId = targetRequest?.swiper_id;
+            const matchId = data?.match_id;
+            const targetProfile = targetRequest?.swiper;
+            
+            console.log('[Requests] Accepted. Navigating with:', { targetId, matchId });
+            
+            setTimeout(() => {
+                navigate(matchId ? `/chat?chatId=${matchId}` : '/chat', { 
+                    state: { 
+                        openChatWith: targetId,
+                        matchData: { ...targetProfile, match_id: matchId },
+                        chatId: matchId
+                    } 
+                });
+            }, 1000);
         } catch (err) {
             addToast(err.message, 'error');
         } finally {

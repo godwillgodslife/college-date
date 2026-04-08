@@ -14,9 +14,9 @@ export function useToast() {
 export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([]);
 
-    const addToast = useCallback((message, type = 'info', duration = 4000) => {
+    const addToast = useCallback((message, type = 'info', duration = 4000, options = {}) => {
         const id = Date.now() + Math.random();
-        setToasts((prev) => [...prev, { id, message, type, duration }]);
+        setToasts((prev) => [...prev, { id, message, type, duration, ...options }]);
     }, []);
 
     const removeToast = useCallback((id) => {
@@ -60,10 +60,26 @@ function ToastItem({ toast, onRemove }) {
     };
 
     return (
-        <div className={`toast toast-${toast.type} ${exiting ? 'toast-exit' : ''}`}>
+        <div 
+            className={`toast toast-${toast.type} ${exiting ? 'toast-exit' : ''} ${toast.onClick ? 'toast-clickable' : ''}`}
+            onClick={() => {
+                if (toast.onClick) {
+                    toast.onClick();
+                    setExiting(true);
+                    setTimeout(() => onRemove(toast.id), 300);
+                }
+            }}
+        >
             <span className="toast-icon">{icons[toast.type]}</span>
             <span className="toast-message">{toast.message}</span>
-            <button className="toast-close" onClick={() => { setExiting(true); setTimeout(() => onRemove(toast.id), 300); }}>
+            <button 
+                className="toast-close" 
+                onClick={(e) => { 
+                    e.stopPropagation(); // Don't trigger toast click
+                    setExiting(true); 
+                    setTimeout(() => onRemove(toast.id), 300); 
+                }}
+            >
                 ✕
             </button>
         </div>

@@ -3,10 +3,16 @@ import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function ProtectedRoute({ children }) {
-    const { currentUser, loading } = useAuth();
+    const { currentUser, loading, profileLoading } = useAuth();
 
-    if (loading) {
-        return <LoadingSpinner fullScreen />;
+    if (loading || profileLoading) {
+        return (
+            <>
+                <LoadingSpinner fullScreen />
+                {/* Stay matched in the route tree but wait for data */}
+                <div style={{ display: 'none' }}>{children}</div>
+            </>
+        );
     }
 
     if (!currentUser) {
