@@ -1,7 +1,7 @@
 {
     "name": "College Date",
     "short_name": "CollegeDate",
-    "description": "The exclusive dating app for university students.",
+    "description": "College Date 2.0 - Optimized campus dating with stabilized matching and high-speed chat.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0f172a",

@@ -91,15 +91,22 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
 
         let results = profiles || [];
 
-        // Client-side 90/10 gender ratio mixing (when no manual filter set)
+        // ── GENDER BALANCING: 90/10 Ratio with Strict Top ──────────────────
+        // When no manual filter set, we mix but heavily prioritize opposite gender at the top.
         if ((!filters.gender || filters.gender === 'All') && currentUserGender) {
             const oppositeGender = (currentUserGender || '').toLowerCase() === 'male' ? 'female' : 'male';
             const preferred = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
             const others = results.filter(p => (p.gender || '').toLowerCase() !== oppositeGender);
 
-            // Interleave: 9 preferred + 1 other per 10 results
             const mixed = [];
             let pi = 0, oi = 0;
+
+            // 1. HARD GATE: First 8-10 profiles must be opposite gender (if available)
+            while (mixed.length < 8 && pi < preferred.length) {
+                mixed.push(preferred[pi++]);
+            }
+
+            // 2. MIXED FLOW: 9 preferred + 1 other per 10 results
             while (pi < preferred.length || oi < others.length) {
                 for (let i = 0; i < 9 && pi < preferred.length; i++) mixed.push(preferred[pi++]);
                 if (oi < others.length) mixed.push(others[oi++]);
@@ -108,38 +115,52 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         }
 
         // ── Geo Proximity: Live Near Me ───────────────────────────────────
-        // When user passes lat/lng, boost same-university profiles first.
-        // Full haversine distance filtering requires lat/lng columns in DB — coming soon.
         if (filters.liveOnly && userProfile?.university) {
-            const sameUni = results.filter(p => p.university === userProfile.university);
-            const others = results.filter(p => p.university !== userProfile.university);
-            results = [...sameUni, ...others]; // same university = "near me"
+            // Stability check: Only reorder within the already mixed results if it doesn't break top priority too much
+            // Actually, keep it simple: push university matches slightly higher but don't break the first row
+            const topRow = results.slice(0, 4);
+            const remaining = results.slice(4);
+            remaining.sort((a, b) => (a.university === userProfile.university ? -1 : 1));
+            results = [...topRow, ...remaining];
         }
 
-        // ── PRIORITIZATION: same University/Faculty ───────────────────────
+        // ── PRIORITIZATION: same University ───────────────────────
         if (!filters.liveOnly && userProfile?.university) {
-            results.sort((a, b) => {
+            // Instead of a hard sort that kills gender mixing, we promote university matches
+            // but ONLY within the existing gender groups or with a small boost.
+            // For now, let's keep the first 8 opposite-gender profiles as "True North"
+            const topGuard = results.slice(0, 8);
+            const rest = results.slice(8);
+            
+            // Re-sort the rest stably by university
+            rest.sort((a, b) => {
                 if (a.university === userProfile.university && b.university !== userProfile.university) return -1;
                 if (b.university === userProfile.university && a.university !== userProfile.university) return 1;
                 return 0;
             });
+
+            results = [...topGuard, ...rest];
         }
 
         // ── SPOTLIGHT ROTATION: First 3 cards = hottest/newest ───────────
-        // Spotlight pool: recently updated photos (7 days) OR high completion score
         const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        
+        // Ensure Spotlight only takes opposite gender for the top slots
+        const oppositeGender = (currentUserGender || '').toLowerCase() === 'male' ? 'female' : 'male';
+        
         const spotlightPool = results.filter(p =>
-            (p.photo_updated_at && new Date(p.photo_updated_at).getTime() > sevenDaysAgo) ||
-            (p.completion_score >= 80)
+            ((p.photo_updated_at && new Date(p.photo_updated_at).getTime() > sevenDaysAgo) ||
+            (p.completion_score >= 80)) && 
+            (currentUserGender ? (p.gender || '').toLowerCase() === oppositeGender : true)
         );
+        
         const regularPool = results.filter(p => !spotlightPool.find(s => s.id === p.id));
 
-        // Inject up to 3 spotlight profiles at top, then fill with regular
         const spotlightSlots = spotlightPool.slice(0, 3);
         results = [
             ...spotlightSlots,
             ...regularPool,
-            ...spotlightPool.slice(3) // append remaining spotlight at end
+            ...spotlightPool.slice(3) 
         ];
 
         results = results.slice(0, 40);

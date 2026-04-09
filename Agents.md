@@ -10,17 +10,20 @@ The project "TheCollegeDATE" (CD2.0) is structurally stable with newly optimized
 
 ## ✅ Recently Completed Work
 1. **Onboarding Loop & Profile Stabilization:**
-   - **Resolution**: Refactored `SmartHomeRoute` in `App.jsx` to be resilient against state flickers and implemented an explicit `is_onboarded` boolean in the `profiles` table. Updated `MiniProfileSetup.jsx` to set this flag upon completion, ensuring users aren't redirected back to setup after finishing.
+   - **Resolution**: Refactored `SmartHomeRoute` in `App.jsx` to be resilient against state flickers and implemented an explicit `is_onboarded` boolean in the `profiles` table. Updated `MiniProfileSetup.jsx` to set this flag upon completion.
 
 2. **Database Security & Constraint Resolution:**
-   - **RLS Fix**: Implemented an updated RLS policy for the `matches` table allowing authenticated users to `INSERT` and `SELECT` their own matches, resolving 403 Forbidden errors during record swipes.
-   - **Notification Nuke**: Dropped all `notifications_type_check` constraints via `nuke_notifications_constraints.sql` to support dynamic user engagement types.
+   - **RLS Fix**: Implemented an updated RLS policy for the `matches` table following record swipes.
+   - **Notification Nuke**: Dropped all `notifications_type_check` constraints via `nuke_notifications_constraints.sql`.
 
-3. **Match-to-Chat & Null Safety:**
-   - **Resolution**: Hardened `Chat.jsx` and `chatService.js` against invalid UUID syntax errors. The UI now gracefully handles `null` match IDs by polling for database arrival instead of crashing, allowing instant "Match-to-Chat" transitions.
+3. **Explore Gender Prioritization (CD2.0 Refinement):**
+   - **Resolution**: Implemented a tiered discovery algorithm in `swipeService.js` that strictly prioritizes opposite-gender profiles at the top of the feed (first 8-10 cards) while maintaining a 90/10 mix as the user scrolls.
 
-4. **Edge Function Live Deployment:**
-   - **Status**: Successfully authenticated the Supabase CLI and deployed all Edge Functions (`send-notification-email`, `send-notification-push`, `notify-on-event`, `verify-paystack-status`) to the remote project.
+4. **PWA App Wrapper Stabilization (v2.0):**
+   - **Resolution**: Updated `index.html`, `manifest.webmanifest`, and incremented the service worker cache version to `v2.0`. This forces a refresh on all installed devices to ensure users have the latest stabilized chat and matching features.
+
+5. **Edge Function Live Deployment:**
+   - **Status**: Successfully deployed all core Edge Functions (`send-notification-email`, `notify-on-event`, etc.) to the remote project.
 
 ## 🚧 Currently In Progress
 1. **Production Verification**: Monitoring live logs on Supabase and Netlify to ensure the transition from local to remote is seamless.
