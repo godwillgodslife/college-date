@@ -185,6 +185,22 @@ export default function MiniProfileSetup() {
         if (savedStep) setCurrentStep(parseInt(savedStep));
     }, []);
 
+    // 🚀 Auto-Redirect Escape Hatch: If user is already complete, don't trap them here!
+    useEffect(() => {
+        if (!authLoading && userProfile) {
+            const hasFullName = userProfile.full_name && userProfile.full_name.trim().length > 1;
+            const hasUniversity = userProfile.university && userProfile.university !== 'None';
+            const hasPhoto = (userProfile.profile_photos?.filter(p => p && p !== '').length >= 1) || 
+                             (userProfile.avatar_url && userProfile.avatar_url.startsWith('http'));
+            const isManuallyComplete = userProfile.is_onboarded === true;
+
+            if (isManuallyComplete || (hasFullName && hasUniversity && hasPhoto)) {
+                console.log('[Setup] User is already fully onboarded. Escaping to /match');
+                navigate('/match', { replace: true });
+            }
+        }
+    }, [userProfile, authLoading, navigate]);
+
     const triggerHaptic = () => {
         if (window.navigator?.vibrate) {
             window.navigator.vibrate(20);

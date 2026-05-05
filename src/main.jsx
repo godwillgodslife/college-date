@@ -39,7 +39,8 @@ if (!isNative && 'serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true;
-      window.location.reload();
+      console.log('Service Worker controller changed. New version active.');
+      // window.location.reload(); // Removed to prevent infinite reload loops
     }
   });
 }
