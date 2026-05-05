@@ -30,8 +30,12 @@ The project "TheCollegeDATE" (CD2.0) is structurally stable with newly optimized
    - **App Signing**: Configured `android/keystore.properties` and the `build.gradle` signing configs. Documented the `keytool` generation step in `SIGNING_SETUP.md`.
 
 ## 🚧 Currently In Progress
-1. **App Store Readiness**: Preparing the release bundle (`app-release.aab`) and generating the physical Keystore `.jks` file using the host environment's Java JDK.
-2. **Live Environment QC**: Verifying that the `v2.0` service worker is correctly forcing cache refreshes on user devices to prevent state stalling.
+1. **App Store Readiness**: The user is running the manual GitHub Action (`workflow_dispatch`) to compile the Android app and generate the `.aab` and `.jks` keystore files in the cloud.
+2. **RevenueCat Dashboard**: Set up the product packages in the RevenueCat dashboard and map them to the Google Play Console in-app products.
+
+## ✅ Recently Resolved Bugs (This Session)
+1. **PWA Auto-Reload Loop**: Fixed a bug where the service worker `controllerchange` event was spamming `window.location.reload()`, causing the `/match` page to refresh 5-10 times on Android devices.
+2. **Onboarding Redirect Trap**: Fixed a race condition where fully-onboarded users were being briefly thrown into `/mini-profile-setup` due to a delay in the `userProfile` state fetching, and getting trapped there. Added an "Escape Hatch" redirect logic inside `MiniProfileSetup` to safely bounce fully-completed users straight back to `/match`.
 
 ## 🚀 Next Steps (To-Do)
 1. **Generate JKS**: The user must run the `keytool` command locally to generate `college-date-release.jks` as the current PowerShell environment lacks the JDK path.
