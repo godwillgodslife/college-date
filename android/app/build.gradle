@@ -48,9 +48,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            // Use release signing if keystore is configured, otherwise debug
+            // Use release signing if keystore is configured (properties file OR environment variables)
             def keystorePropsFile = rootProject.file("keystore.properties")
-            signingConfig keystorePropsFile.exists() ? signingConfigs.release : signingConfigs.debug
+            def hasEnv = System.getenv("KEYSTORE_STORE_PASSWORD") != null
+            signingConfig (keystorePropsFile.exists() || hasEnv) ? signingConfigs.release : signingConfigs.debug
         }
         debug {
             applicationIdSuffix ".debug"
