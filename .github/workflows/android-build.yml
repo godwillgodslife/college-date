@@ -1,0 +1,59 @@
+name: Build Android App
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the GitHub UI
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Generate Upload Keystore
+        # This generates your signing key on the cloud server since your local PC lacks the JDK
+        run: |
+          keytool -genkey -v -keystore android/app/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias collegedate -dname "CN=TheCollegeDate, OU=Mobile, O=CollegeDate, L=Lagos, S=Lagos, C=NG" -storepass Collegedate123 -keypass Collegedate123
+
+      - name: Capacitor Sync
+        run: npx cap sync android
+
+      - name: Build Release AAB
+        env:
+          KEYSTORE_PATH: upload-keystore.jks
+          KEYSTORE_STORE_PASSWORD: Collegedate123
+          KEYSTORE_KEY_ALIAS: collegedate
+          KEYSTORE_KEY_PASSWORD: Collegedate123
+        run: |
+          cd android
+          ./gradlew bundleRelease
+
+      - name: Upload AAB Artifact (For Play Console)
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload Keystore Artifact (KEEP THIS SAFE)
+        uses: actions/upload-artifact@v4
+        with:
+          name: your-signing-keystore.jks
+          path: android/app/upload-keystore.jks

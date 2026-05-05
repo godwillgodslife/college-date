@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors -->
+    <color name="colorPrimary">#6C63FF</color>
+    <color name="colorPrimaryDark">#5751d5</color>
+    <color name="colorAccent">#ff6584</color>
+    <color name="colorBackground">#0f172a</color>
+    <color name="colorSurface">#1e293b</color>
+
+    <!-- Icon Background -->
+    <color name="ic_launcher_background">#0f172a</color>
+
+    <!-- Splash Screen Background -->
+    <color name="splash_background">#0f172a</color>
+</resources>

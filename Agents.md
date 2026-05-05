@@ -20,18 +20,23 @@ The project "TheCollegeDATE" (CD2.0) is structurally stable with newly optimized
    - **Resolution**: Implemented a tiered discovery algorithm in `swipeService.js` that strictly prioritizes opposite-gender profiles at the top of the feed (first 8-10 cards) while maintaining a 90/10 mix as the user scrolls.
 
 4. **PWA App Wrapper Stabilization (v2.0):**
-   - **Resolution**: Updated `index.html`, `manifest.webmanifest`, and incremented the service worker cache version to `v2.0`. This forces a refresh on all installed devices to ensure users have the latest stabilized chat and matching features.
+   - **Resolution**: Updated `index.html`, `manifest.webmanifest`, and incremented the service worker cache version to `v2.0`. Successfully deployed to production via Netlify manual CLI override to bypass manual drop limitations.
 
 5. **Edge Function Live Deployment:**
    - **Status**: Successfully deployed all core Edge Functions (`send-notification-email`, `notify-on-event`, etc.) to the remote project.
 
+6. **Android Native Configuration & Payment Integration:**
+   - **Resolution**: Installed `@revenuecat/purchases-capacitor` and implemented Google Play Billing to comply with store policies. Added a dual-payment system (`PremiumUpgrade.jsx`) that uses Google Play in the native app and Paystack on the web.
+   - **App Signing**: Configured `android/keystore.properties` and the `build.gradle` signing configs. Documented the `keytool` generation step in `SIGNING_SETUP.md`.
+
 ## 🚧 Currently In Progress
-1. **Production Verification**: Monitoring live logs on Supabase and Netlify to ensure the transition from local to remote is seamless.
+1. **App Store Readiness**: Preparing the release bundle (`app-release.aab`) and generating the physical Keystore `.jks` file using the host environment's Java JDK.
+2. **Live Environment QC**: Verifying that the `v2.0` service worker is correctly forcing cache refreshes on user devices to prevent state stalling.
 
 ## 🚀 Next Steps (To-Do)
-1. **Push/Email Verification**: Confirm that external alerts are firing correctly during live matches.
-2. **User Acceptance**: Final confirmation from the user that the onboarding redirect loop is fully resolved on their device.
-
+1. **Generate JKS**: The user must run the `keytool` command locally to generate `college-date-release.jks` as the current PowerShell environment lacks the JDK path.
+2. **RevenueCat Dashboard**: Set up the product packages in the RevenueCat dashboard and map them to the Google Play Console in-app products.
+3. **Push/Email Verification**: Confirm that external alerts are firing correctly during live matches.
 
 ---
 *Note: Keep this file updated at the end of every session to maintain seamless handoffs.*

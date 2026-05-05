@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { initPushNotifications } from './services/pushNotification.js';
+import { initializeRevenueCat } from './services/paymentService.js';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AppLayout from './components/AppLayout.jsx';
@@ -37,8 +38,6 @@ const Viewers = lazy(() => import('./pages/Viewers'));
 const MiniProfileSetup = lazy(() => import('./pages/MiniProfileSetup'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const VoiceCallRoom = lazy(() => import('./pages/VoiceCallRoom'));
-
-
 
 // Components that can be lazy loaded
 const TourGuide = lazy(() => import('./components/TourGuide'));
@@ -79,11 +78,6 @@ function SmartHomeRoute() {
   return isProfileComplete ? <Navigate to="/match" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
 
-
-
-
-
-
 function AppRoutes() {
   const { currentUser, loading } = useAuth();
 
@@ -107,18 +101,22 @@ function AppRoutes() {
           window.requestIdleCallback(() => {
             initPushNotifications(currentUser.id);
             setupOneSignal(currentUser.id);
+            initializeRevenueCat(currentUser.id);
           });
         } else {
           setTimeout(() => {
             initPushNotifications(currentUser.id);
             setupOneSignal(currentUser.id);
+            initializeRevenueCat(currentUser.id);
           }, 2000); // 2s delay fallback
         }
       };
 
       const setupOneSignal = (uid) => {
+        // OneSignal web SDK is only available in browser, not in Capacitor native
+        const isNativePlatform = window.Capacitor?.isNativePlatform?.();
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        if (!isLocal) {
+        if (!isNativePlatform && !isLocal) {
           window.OneSignalDeferred = window.OneSignalDeferred || [];
           window.OneSignalDeferred.push(function (OneSignal) {
             const handleClick = (event) => {

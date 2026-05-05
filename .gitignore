@@ -25,3 +25,22 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# ─── Android / Capacitor ───────────────────────
+# Keystore — NEVER commit these
+*.jks
+*.keystore
+android/keystore.properties
+
+# Firebase / Google Services — contains API keys
+android/app/google-services.json
+
+# Android build outputs
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+
+# iOS
+ios/App/Pods/
+ios/.xcode.env.local

@@ -381,8 +381,107 @@ export async function verifyAndRestorePremium(userId) {
 
         // The edge function returns { restored: bool, message: string }
         return { data, error: null };
-    } catch (err) {
+} catch (err) {
         console.error('verifyAndRestorePremium error:', err);
         return { data: null, error: err.message };
     }
 }
+
+// ─────────────────────────────────────────────
+// REVENUECAT (GOOGLE PLAY BILLING FOR NATIVE)
+// ─────────────────────────────────────────────
+
+/**
+ * Detect if running natively (Android/iOS)
+ */
+const isNative = () => {
+    return typeof window !== 'undefined' &&
+        window.Capacitor !== undefined &&
+        window.Capacitor.isNativePlatform();
+};
+
+/**
+ * Initialize RevenueCat SDK
+ * @param {string} userId - Supabase User ID to map purchases
+ */
+export async function initializeRevenueCat(userId) {
+    if (!isNative()) return;
+    
+    try {
+        const { Purchases, LOG_LEVEL } = await import('@revenuecat/purchases-capacitor');
+        await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+
+        // IMPORTANT: Replace with your actual RevenueCat public API key for Android
+        const REVENUECAT_API_KEY_ANDROID = import.meta.env.VITE_REVENUECAT_ANDROID_KEY || 'goog_placeholder_key';
+        
+        await Purchases.configure({ 
+            apiKey: REVENUECAT_API_KEY_ANDROID,
+            appUserID: userId // Links purchase to Supabase user
+        });
+        
+        console.log('[RevenueCat] Initialized for user:', userId);
+    } catch (error) {
+        console.error('[RevenueCat] Initialization error:', error);
+    }
+}
+
+/**
+ * Fetch available premium packages from RevenueCat
+ */
+export async function getRevenueCatPackages() {
+    if (!isNative()) return null;
+    
+    try {
+        const { Purchases } = await import('@revenuecat/purchases-capacitor');
+        const offerings = await Purchases.getOfferings();
+        if (offerings.current !== null && offerings.current.availablePackages.length !== 0) {
+            return offerings.current.availablePackages;
+        }
+        return [];
+    } catch (error) {
+        console.error('[RevenueCat] Error fetching packages:', error);
+        return [];
+    }
+}
+
+/**
+ * Purchase a RevenueCat package (Google Play / App Store)
+ */
+export async function purchaseRevenueCatPackage(pkg) {
+    if (!isNative()) throw new Error('In-app purchases are only available in the mobile app.');
+    
+    try {
+        const { Purchases } = await import('@revenuecat/purchases-capacitor');
+        const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+        
+        // Assuming your entitlement in RevenueCat is called "Premium"
+        if (typeof customerInfo.entitlements.active['Premium'] !== "undefined") {
+            return { success: true, customerInfo };
+        }
+        return { success: false, error: 'Purchase completed but entitlement not active.' };
+    } catch (error) {
+        console.error('[RevenueCat] Purchase failed:', error);
+        throw error;
+    }
+}
+
+/**
+ * Restore previous purchases (e.g., if user reinstalled the app)
+ */
+export async function restoreRevenueCatPurchases() {
+    if (!isNative()) return { success: false, error: 'Not on native platform' };
+    
+    try {
+        const { Purchases } = await import('@revenuecat/purchases-capacitor');
+        const customerInfo = await Purchases.restorePurchases();
+        
+        if (typeof customerInfo.entitlements.active['Premium'] !== "undefined") {
+            return { success: true, customerInfo };
+        }
+        return { success: false, error: 'No active subscription found.' };
+    } catch (error) {
+        console.error('[RevenueCat] Restore failed:', error);
+        throw error;
+    }
+}
+

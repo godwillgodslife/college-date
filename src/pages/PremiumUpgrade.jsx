@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { initializePaystack, createTransaction, completeTransaction, getSubscription, getWallet, payWithWallet, purchaseBoost, getActiveBoosts } from '../services/paymentService';
+import { initializePaystack, createTransaction, completeTransaction, getSubscription, getWallet, payWithWallet, purchaseBoost, getActiveBoosts, getRevenueCatPackages, purchaseRevenueCatPackage, restoreRevenueCatPurchases } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import './PremiumUpgrade.css';
+
+const isNative = () => {
+    return typeof window !== 'undefined' &&
+        window.Capacitor !== undefined &&
+        window.Capacitor.isNativePlatform();
+};
 
 export default function PremiumUpgrade() {
     const { currentUser, userProfile } = useAuth();
@@ -16,14 +22,25 @@ export default function PremiumUpgrade() {
     const [boostData, setBoostData] = useState({ hasBoosted: false, activeBoost: null, superSwipeCount: 0 });
     const [processingBoost, setProcessingBoost] = useState(null);
     const [expandedFeature, setExpandedFeature] = useState(null);
+    const [rcPackages, setRcPackages] = useState([]);
 
     useEffect(() => {
         if (currentUser) {
             loadSubscription();
             loadWallet();
             loadBoosts();
+            if (isNative()) {
+                loadRevenueCatOfferings();
+            }
         }
     }, [currentUser]);
+
+    async function loadRevenueCatOfferings() {
+        const pkgs = await getRevenueCatPackages();
+        if (pkgs && pkgs.length > 0) {
+            setRcPackages(pkgs);
+        }
+    }
 
     async function loadWallet() {
         try {
@@ -57,6 +74,41 @@ export default function PremiumUpgrade() {
     }
 
     const handleSubscribe = async () => {
+        if (isNative()) {
+            await handleNativeSubscribe();
+        } else {
+            await handleWebSubscribe();
+        }
+    };
+
+    const handleNativeSubscribe = async () => {
+        if (rcPackages.length === 0) {
+            addToast('In-app purchases are not configured yet. Please check back later.', 'warning');
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            // Assume the first package is the monthly premium offering
+            const pkgToBuy = rcPackages[0];
+            const { success, customerInfo, error } = await purchaseRevenueCatPackage(pkgToBuy);
+            
+            if (success) {
+                addToast('Welcome to Premium! Your features are now unlocked.', 'success');
+                loadSubscription(); // Supabase should be updated via webhook
+            } else {
+                addToast(error || 'Purchase failed.', 'error');
+            }
+        } catch (err) {
+            if (!err.userCancelled) {
+                addToast(err.message || 'Error communicating with app store.', 'error');
+            }
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleWebSubscribe = async () => {
         setIsProcessing(true);
         try {
             const { data: tx, error: txError } = await createTransaction({
@@ -145,20 +197,43 @@ export default function PremiumUpgrade() {
         }
 
         setProcessingBoost(boostType);
+        
         try {
-            const { data, error } = await purchaseBoost(currentUser.id, boostType);
+            if (isNative()) {
+                // Find matching package in RevenueCat offerings
+                const rcPackage = rcPackages.find(p => p.identifier.includes(boostType));
+                if (!rcPackage) {
+                    addToast('This item is currently unavailable for in-app purchase.', 'warning');
+                    setProcessingBoost(null);
+                    return;
+                }
+                
+                const { success, error } = await purchaseRevenueCatPackage(rcPackage);
+                if (success) {
+                    addToast(`${label} purchased successfully! 🎉`, 'success');
+                    loadWallet();
+                    loadBoosts();
+                } else {
+                    addToast(error || 'Purchase failed', 'error');
+                }
+            } else {
+                // Web/Paystack Flow (Uses Wallet balance)
+                const { data, error } = await purchaseBoost(currentUser.id, boostType);
 
-            if (error) {
-                addToast(error, 'error');
-                return;
+                if (error) {
+                    addToast(error, 'error');
+                    return;
+                }
+
+                addToast(`${label} purchased for ₦${cost.toLocaleString()}! 🎉`, 'success');
+                loadWallet();
+                loadBoosts();
             }
-
-            addToast(`${label} purchased for ₦${cost.toLocaleString()}! 🎉`, 'success');
-            loadWallet();
-            loadBoosts();
         } catch (err) {
-            console.error(`Error purchasing ${label}:`, err);
-            addToast(err.message || 'Purchase failed', 'error');
+            if (!err.userCancelled) {
+                console.error(`Error purchasing ${label}:`, err);
+                addToast(err.message || 'Purchase failed', 'error');
+            }
         } finally {
             setProcessingBoost(null);
         }

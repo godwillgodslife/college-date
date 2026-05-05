@@ -1,0 +1,102 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "com.collegedate.app"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.collegedate.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "2.2.4"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the APK, modeled after .gitignore files.
+             // The default rules are defined in aapt, mostly targeting Android-specific
+             // temporary files.
+             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // SIGNING CONFIG
+    // To sign for release, set these environment variables OR create
+    // a keystore.properties file (see SIGNING_SETUP.md in project root)
+    // ─────────────────────────────────────────────
+    signingConfigs {
+        release {
+            def keystorePropsFile = rootProject.file("keystore.properties")
+            if (keystorePropsFile.exists()) {
+                def keystoreProps = new Properties()
+                keystoreProps.load(new FileInputStream(keystorePropsFile))
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            } else {
+                // Fallback: use environment variables (CI/CD)
+                storeFile file(System.getenv("KEYSTORE_PATH") ?: "keystore.jks")
+                storePassword System.getenv("KEYSTORE_STORE_PASSWORD") ?: ""
+                keyAlias System.getenv("KEYSTORE_KEY_ALIAS") ?: "collegedate"
+                keyPassword System.getenv("KEYSTORE_KEY_PASSWORD") ?: ""
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Use release signing if keystore is configured, otherwise debug
+            def keystorePropsFile = rootProject.file("keystore.properties")
+            signingConfig keystorePropsFile.exists() ? signingConfigs.release : signingConfigs.debug
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // SPLITS — Build separate APKs per ABI for smaller size
+    // Comment out when using AAB (bundleRelease) for Play Store
+    // ─────────────────────────────────────────────
+    // splits {
+    //     abi {
+    //         enable true
+    //         reset()
+    //         include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+    //         universalApk false
+    //     }
+    // }
+}
+
+repositories {
+    flatDir {
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info('google-services.json not found, google-services plugin not applied. Push Notifications will not work.')
+}
