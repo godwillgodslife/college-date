@@ -51,7 +51,11 @@ android {
             // Use release signing if keystore is configured (properties file OR environment variables)
             def keystorePropsFile = rootProject.file("keystore.properties")
             def hasEnv = System.getenv("KEYSTORE_STORE_PASSWORD") != null
-            signingConfig (keystorePropsFile.exists() || hasEnv) ? signingConfigs.release : signingConfigs.debug
+            if (keystorePropsFile.exists() || hasEnv) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
         debug {
             applicationIdSuffix ".debug"
