@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - master
-  workflow_dispatch: # Allows you to run this manually from the GitHub UI
+  workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
   build-android:
@@ -15,31 +15,72 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ── Node.js Setup ──────────────────────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
+      # ── Install Dependencies ───────────────────────────────────────────────
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: npm ci
 
+      # ── Build Vite Web App (inject all VITE_ secrets) ─────────────────────
       - name: Build Web App
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_ONESIGNAL_APP_ID: ${{ secrets.VITE_ONESIGNAL_APP_ID }}
+          VITE_PAYSTACK_PUBLIC_KEY: ${{ secrets.VITE_PAYSTACK_PUBLIC_KEY }}
+          VITE_ZEGO_APP_ID: ${{ secrets.VITE_ZEGO_APP_ID }}
+          VITE_ZEGO_SERVER_SECRET: ${{ secrets.VITE_ZEGO_SERVER_SECRET }}
+          VITE_REVENUECAT_ANDROID_KEY: ${{ secrets.VITE_REVENUECAT_ANDROID_KEY }}
         run: npm run build
 
+      # ── Java 17 Setup ──────────────────────────────────────────────────────
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
+      # ── Generate Upload Keystore (since local JDK is unavailable) ──────────
       - name: Generate Upload Keystore
-        # This generates your signing key on the cloud server since your local PC lacks the JDK
         run: |
-          keytool -genkey -v -keystore android/app/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias collegedate -dname "CN=TheCollegeDate, OU=Mobile, O=CollegeDate, L=Lagos, S=Lagos, C=NG" -storepass Collegedate123 -keypass Collegedate123
+          keytool -genkey -v \
+            -keystore android/app/upload-keystore.jks \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -alias collegedate \
+            -dname "CN=TheCollegeDate, OU=Mobile, O=CollegeDate, L=Lagos, S=Lagos, C=NG" \
+            -storepass Collegedate123 \
+            -keypass Collegedate123
+          echo "✅ Keystore generated at android/app/upload-keystore.jks"
 
-      - name: Capacitor Sync
-        run: npx cap sync android
+      # ── Capacitor Sync ─────────────────────────────────────────────────────
+      - name: Capacitor Copy & Sync
+        run: |
+          npx cap copy android
+          npx cap sync android
 
+      # ── Cache Gradle ───────────────────────────────────────────────────────
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # ── Make gradlew executable ────────────────────────────────────────────
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # ── Build Release AAB ──────────────────────────────────────────────────
       - name: Build Release AAB
         env:
           KEYSTORE_PATH: upload-keystore.jks
@@ -48,16 +89,20 @@ jobs:
           KEYSTORE_KEY_PASSWORD: Collegedate123
         run: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --no-daemon --stacktrace
 
-      - name: Upload AAB Artifact (For Play Console)
+      # ── Upload AAB to GitHub Artifacts ─────────────────────────────────────
+      - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.aab
+          name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
 
-      - name: Upload Keystore Artifact (KEEP THIS SAFE)
+      # ── Upload Keystore to GitHub Artifacts (KEEP SAFE) ───────────────────
+      - name: Upload Keystore Artifact (KEEP SAFE)
         uses: actions/upload-artifact@v4
         with:
-          name: your-signing-keystore.jks
+          name: upload-keystore-jks
           path: android/app/upload-keystore.jks
+          retention-days: 30
