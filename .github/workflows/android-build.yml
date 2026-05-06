@@ -7,6 +7,9 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -38,8 +41,8 @@ jobs:
           VITE_REVENUECAT_ANDROID_KEY: ${{ secrets.VITE_REVENUECAT_ANDROID_KEY }}
         run: |
           npm run build
-          echo "✅ Vite build complete. Contents of dist/:"
-          ls -la dist/
+          echo "✅ Vite build complete. dist/ contents:"
+          ls dist/
 
       # ── Java 17 Setup ──────────────────────────────────────────────────────
       - name: Setup Java
@@ -47,6 +50,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      # ── Android SDK Setup ──────────────────────────────────────────────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       # ── Generate Upload Keystore ───────────────────────────────────────────
       - name: Generate Upload Keystore
@@ -60,22 +67,15 @@ jobs:
             -dname "CN=TheCollegeDate, OU=Mobile, O=CollegeDate, L=Lagos, S=Lagos, C=NG" \
             -storepass Collegedate123 \
             -keypass Collegedate123
-          echo "✅ Keystore generated"
+          echo "✅ Keystore generated at android/app/upload-keystore.jks"
 
       # ── Capacitor: Copy web assets into Android ────────────────────────────
       - name: Capacitor Copy
-        run: |
-          echo "Running cap copy..."
-          npx cap copy android --verbose 2>&1 || true
-          echo "Verifying assets were copied:"
-          ls -la android/app/src/main/assets/public/ || echo "Assets dir not found"
+        run: npx cap copy android
 
-      # ── Capacitor: Sync plugins ────────────────────────────────────────────
+      # ── Capacitor: Sync native plugins ────────────────────────────────────
       - name: Capacitor Sync
-        run: |
-          echo "Running cap sync..."
-          npx cap sync android --verbose 2>&1
-          echo "✅ cap sync complete"
+        run: npx cap sync android
 
       # ── Cache Gradle ───────────────────────────────────────────────────────
       - name: Cache Gradle packages
@@ -101,7 +101,7 @@ jobs:
           KEYSTORE_KEY_PASSWORD: Collegedate123
         run: |
           cd android
-          ./gradlew bundleRelease --no-daemon --stacktrace 2>&1
+          ./gradlew bundleRelease --no-daemon --stacktrace
 
       # ── Upload AAB Artifact ────────────────────────────────────────────────
       - name: Upload AAB Artifact
@@ -111,8 +111,8 @@ jobs:
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
 
-      # ── Upload Keystore Artifact ───────────────────────────────────────────
-      - name: Upload Keystore Artifact (KEEP SAFE)
+      # ── Upload Keystore Artifact (KEEP SAFE) ──────────────────────────────
+      - name: Upload Keystore Artifact
         uses: actions/upload-artifact@v4
         with:
           name: upload-keystore-jks
