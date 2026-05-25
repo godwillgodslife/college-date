@@ -1,1 +1,5 @@
+https://thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
+http://thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
+http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
+
 /*    /index.html   200

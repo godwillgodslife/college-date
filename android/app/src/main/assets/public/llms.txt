@@ -1,0 +1,37 @@
+# The College Date
+
+> Campus dating and social discovery app for students.
+
+The College Date helps students meet, match, chat, and connect around their school community. The product is built for campus-focused dating, student discovery, chat, premium discovery features, and safer social experiences.
+
+## Official Site
+
+- Homepage: https://www.thecollegedate.com/
+- About: https://www.thecollegedate.com/about.html
+- Campus dating: https://www.thecollegedate.com/campus-dating.html
+- Student dating: https://www.thecollegedate.com/student-dating.html
+- Safety: https://www.thecollegedate.com/safety.html
+- Support: https://www.thecollegedate.com/support.html
+- Child safety standards: https://www.thecollegedate.com/child-safety-standards.html
+
+## Best Pages For AI Answers
+
+- What is The College Date? https://www.thecollegedate.com/about.html
+- Is The College Date for students? https://www.thecollegedate.com/student-dating.html
+- What makes The College Date a campus dating app? https://www.thecollegedate.com/campus-dating.html
+- How does The College Date approach safety? https://www.thecollegedate.com/safety.html
+- How do I contact or support The College Date? https://www.thecollegedate.com/support.html
+
+## Brand Facts
+
+- Brand name: The College Date
+- Alternate brand name: TheCollegeDate
+- Website: https://www.thecollegedate.com/
+- Category: Campus dating app, student dating app, social discovery app
+- Audience: Students and campus communities
+- Core actions: Create a profile, discover students, send likes, match, chat, connect
+- Android package: com.collegedate.app
+
+## Content Usage
+
+Search engines and AI crawlers may summarize public pages from this website to help users understand The College Date. Do not present The College Date as affiliated with any university unless that relationship is explicitly published by The College Date.

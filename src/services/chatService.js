@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+﻿import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
 const PAGE_SIZE = 20;
@@ -16,6 +16,7 @@ export async function getConversations(userId) {
                 created_at,
                 user1_id,
                 user2_id,
+                disappearing_messages_seconds,
                 user1:profiles!user1_id(id, full_name, avatar_url, last_seen_at),
                 user2:profiles!user2_id(id, full_name, avatar_url, last_seen_at),
                 messages(
@@ -24,7 +25,8 @@ export async function getConversations(userId) {
                     type,
                     sender_id,
                     is_read,
-                    created_at
+                    created_at,
+                    expires_at
                 )
             `)
             .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
@@ -37,13 +39,25 @@ export async function getConversations(userId) {
         const conversations = data.map(match => {
             const isUser1 = match.user1_id === userId;
             const otherUser = isUser1 ? match.user2 : match.user1;
-            const lastMsg = match.messages?.[0] || null;
+            const rawLastMsg = match.messages?.[0] || null;
+            const lastMsg = rawLastMsg?.expires_at && new Date(rawLastMsg.expires_at) <= new Date()
+                ? null
+                : rawLastMsg;
+
+            const previewByType = {
+                image: 'Photo',
+                voice: 'Voice note',
+                gift: 'Gift',
+                sticker: 'Sticker',
+                call_log: 'Call'
+            };
 
             return {
                 id: match.id,
                 created_at: match.created_at,
+                disappearing_messages_seconds: match.disappearing_messages_seconds || 0,
                 last_message_at: lastMsg?.created_at || match.created_at,
-                last_message: lastMsg?.content || null,
+                last_message: lastMsg ? (previewByType[lastMsg.type] || lastMsg.content) : null,
                 last_message_type: lastMsg?.type || null,
                 last_message_sender_id: lastMsg?.sender_id || null,
                 last_message_is_read: lastMsg?.is_read ?? true,
@@ -80,6 +94,7 @@ export async function getMessages(matchId, page = 0) {
             .from('messages')
             .select('*', { count: 'exact' })
             .eq('match_id', matchId)
+            .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
             .order('created_at', { ascending: false })
             .range(from, to);
 
@@ -123,15 +138,21 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
             
             if (matchObj) {
                 const recipientId = matchObj.user1_id === senderId ? matchObj.user2_id : matchObj.user1_id;
+                const isCall = type === 'call_log';
+                const callType = metadata?.callType === 'video' ? 'video' : 'voice';
                 
                 // Fire and forget (don't block the chat return on notification success)
                 createNotification({
                     userId: recipientId,
                     actorId: senderId,
-                    type: 'message',
-                    title: 'New Message 💬',
-                    content: type === 'text' ? content : `Sent a ${type}`,
-                    metadata: { match_id: matchId, url: `/chat?chatId=${matchId}` }
+                    type: isCall ? 'call' : 'message',
+                    title: isCall ? `Incoming ${callType === 'video' ? 'Video' : 'Voice'} Call` : 'New Message',
+                    content: isCall ? 'Tap to join the call.' : type === 'text' ? content : `Sent a ${type}`,
+                    metadata: {
+                        match_id: matchId,
+                        url: isCall ? `/call/${matchId}?type=${callType}` : `/chat?chatId=${matchId}`,
+                        call_type: isCall ? callType : undefined
+                    }
                 }).catch(err => console.warn('Silent chat notification error:', err));
             }
         } catch (notifErr) {
@@ -142,6 +163,21 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
     } catch (err) {
         console.error('sendMessage error:', JSON.stringify(err, null, 2));
         return { data: null, error: err };
+    }
+}
+
+export async function updateDisappearingMessages(matchId, seconds) {
+    try {
+        const { data, error } = await supabase.rpc('update_match_disappearing_messages', {
+            p_match_id: matchId,
+            p_seconds: seconds || 0
+        });
+
+        if (error) throw error;
+        return { data: Array.isArray(data) ? data[0] : data, error: null };
+    } catch (err) {
+        console.error('updateDisappearingMessages error:', err.message);
+        return { data: null, error: err.message };
     }
 }
 
@@ -226,46 +262,69 @@ export async function addReaction(messageId, emoji, userId) {
 /**
  * Upload an image to Supabase Storage.
  */
-export async function uploadChatImage(file) {
+export async function uploadChatImage(matchId, senderId, file) {
     try {
         const fileExt = file.type === 'image/webp' ? 'webp' : 'jpg';
-        const fileName = `images/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const fileName = `matches/${matchId}/images/${senderId}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { data, error } = await supabase.storage
             .from('chat-media')
             .upload(fileName, file, { contentType: file.type || 'image/jpeg' });
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: signedData, error: signedError } = await supabase.storage
             .from('chat-media')
-            .getPublicUrl(data.path);
+            .createSignedUrl(data.path, 60 * 60);
 
-        return { url: publicUrl, error: null };
+        if (signedError) throw signedError;
+
+        return { path: data.path, url: signedData?.signedUrl || null, error: null };
     } catch (err) {
         console.error('uploadChatImage error:', err.message);
-        return { url: null, error: err.message };
+        return { path: null, url: null, error: err.message };
     }
 }
 
 /**
  * Upload a voice note to Supabase Storage.
  */
-export async function uploadVoiceNote(file) {
+export async function uploadVoiceNote(matchId, senderId, file) {
     try {
-        const fileName = `voice/${Date.now()}_${Math.random().toString(36).substring(7)}.webm`;
+        const fileName = `matches/${matchId}/voice/${senderId}_${Date.now()}_${Math.random().toString(36).substring(7)}.webm`;
         const { data, error } = await supabase.storage
             .from('chat-media')
             .upload(fileName, file, { contentType: 'audio/webm' });
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: signedData, error: signedError } = await supabase.storage
             .from('chat-media')
-            .getPublicUrl(data.path);
+            .createSignedUrl(data.path, 60 * 60);
 
-        return { url: publicUrl, error: null };
+        if (signedError) throw signedError;
+
+        return { path: data.path, url: signedData?.signedUrl || null, error: null };
     } catch (err) {
         console.error('uploadVoiceNote error:', err.message);
+        return { path: null, url: null, error: err.message };
+    }
+}
+
+export async function getSignedChatMediaUrl(pathOrUrl, expiresIn = 60 * 60) {
+    if (!pathOrUrl) return { url: null, error: 'Missing media path' };
+    if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith('blob:')) {
+        return { url: pathOrUrl, error: null };
+    }
+
+    try {
+        const { data, error } = await supabase.storage
+            .from('chat-media')
+            .createSignedUrl(pathOrUrl, expiresIn);
+
+        if (error) throw error;
+        return { url: data?.signedUrl || null, error: null };
+    } catch (err) {
+        console.error('getSignedChatMediaUrl error:', err.message);
         return { url: null, error: err.message };
     }
 }

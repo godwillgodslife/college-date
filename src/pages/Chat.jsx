@@ -3,7 +3,6 @@ import { formatSidebarTimestamp, formatChatTimestamp } from '../utils/formatTime
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
-    getConversations,
     getMessages,
     sendMessage,
     subscribeToMessages,
@@ -13,11 +12,14 @@ import {
     markConversationRead,
     uploadVoiceNote,
     uploadChatImage,
+    getSignedChatMediaUrl,
+    updateDisappearingMessages,
     addReaction,
 } from '../services/chatService';
 import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
 import { getWallet } from '../services/paymentService';
 import { sendGift } from '../services/giftService';
+import { requestAiAssistant } from '../services/aiAssistantService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import VoiceRecorder from '../components/ChatVoiceRecorder';
@@ -33,6 +35,13 @@ const ICEBREAKERS = [
     "What's the best thing about your course? 📚",
     "Early bird or night owl in the library? 🦉",
     "What's your go-to campus snack? 🍕"
+];
+
+const DISAPPEARING_OPTIONS = [
+    { label: 'Off', seconds: 0 },
+    { label: '24 hours', seconds: 24 * 60 * 60 },
+    { label: '7 days', seconds: 7 * 24 * 60 * 60 },
+    { label: '30 days', seconds: 30 * 24 * 60 * 60 },
 ];
 
 import { useConversations } from '../hooks/useSWRData';
@@ -61,13 +70,65 @@ function ReadReceipt({ msg, isSender }) {
     );
 }
 
+function ChatMedia({ msg, type, isSent }) {
+    const [mediaUrl, setMediaUrl] = useState(() => {
+        if (!msg.content || !/^https?:\/\//i.test(msg.content) && !msg.content.startsWith('blob:')) return null;
+        return msg.content;
+    });
+    const [loadError, setLoadError] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        const source = msg.metadata?.storage_path || msg.content;
+        if (!source) return undefined;
+
+        if (/^https?:\/\//i.test(source) || source.startsWith('blob:')) {
+            return undefined;
+        }
+
+        getSignedChatMediaUrl(source).then(({ url, error }) => {
+            if (cancelled) return;
+            if (error || !url) {
+                setLoadError(error || 'Could not load media');
+                return;
+            }
+            setMediaUrl(url);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [msg.content, msg.metadata?.storage_path]);
+
+    if (loadError) {
+        return <div className="chat-media-error">Media unavailable</div>;
+    }
+
+    if (!mediaUrl) {
+        return <div className="chat-media-loading">Loading media...</div>;
+    }
+
+    if (type === 'voice') {
+        return <AudioMessage src={mediaUrl} isSent={isSent} />;
+    }
+
+    return (
+        <div className="image-message">
+            <OptimizedImage
+                src={mediaUrl}
+                placeholder={msg.metadata?.placeholder}
+                alt="Chat media"
+                width={250}
+            />
+        </div>
+    );
+}
+
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const messagesEndRef = useRef(null);
-    const messagesTopRef = useRef(null);
 
 
     const [selectedConv, setSelectedConv] = useState(null);
@@ -77,28 +138,48 @@ export default function Chat() {
     const [presence, setPresence] = useState({});
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
-    const [loadingMore, setLoadingMore] = useState(false);
+    const [loadingMore] = useState(false);
 
     // SWR for Conversations Sidebar via custom hook
     const { data: conversations = [], isLoading: convsLoading, mutate: revalidateConvs } = useConversations(currentUser?.id);
 
-    const [isTyping, setIsTyping] = useState(false);
     const [callChoiceOpen, setCallChoiceOpen] = useState(false);
     const typingTimeoutRef = useRef(null);
     const presenceChannelRef = useRef(null);
     const isTypingRef = useRef(false);
 
     const [showStickers, setShowStickers] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
+
     const [showGifts, setShowGifts] = useState(false);
     const [walletBalance, setWalletBalance] = useState(0);
-    const [tick, setTick] = useState(0);
+    const [, setTick] = useState(0);
+    const [aiReplies, setAiReplies] = useState([]);
+    const [aiReplyLoading, setAiReplyLoading] = useState(false);
+    const [chatMenuOpen, setChatMenuOpen] = useState(false);
+    const [disappearingSaving, setDisappearingSaving] = useState(false);
 
     // Reaction bar state
     const [reactionBar, setReactionBar] = useState(null);
     const longPressTimer = useRef(null);
 
     const [pendingSelection, setPendingSelection] = useState(null);
+
+    const createClientNonce = () => `msg-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+    const mergeMessageList = useCallback((prev, incoming) => {
+        const nonce = incoming.metadata?.client_nonce;
+        const existingIndex = prev.findIndex(msg => (
+            msg.id === incoming.id ||
+            (nonce && msg.metadata?.client_nonce === nonce)
+        ));
+
+        if (existingIndex >= 0) {
+            return prev.map((msg, index) => index === existingIndex ? { ...incoming, _pending: false } : msg);
+        }
+
+        const next = [...prev, incoming];
+        return next.length > 100 ? next.slice(-100) : next;
+    }, []);
 
     // ── Initial Load ───────────────────────────────────────────────────
     useEffect(() => {
@@ -258,12 +339,7 @@ export default function Chat() {
         const msgSub = subscribeToMessages(
             selectedConv.id,
             (payload) => {
-                setMessages(prev => {
-                    if (prev.find(m => m.id === payload.id)) return prev;
-                    const newMsgs = [...prev, payload];
-                    // Cache Limit: 100 messages to save RAM
-                    return newMsgs.length > 100 ? newMsgs.slice(-100) : newMsgs;
-                });
+                setMessages(prev => mergeMessageList(prev, payload));
                 if (payload.sender_id !== currentUser.id) {
                     markMessageAsRead(payload.id);
                     playNotificationDing(); // Ding when a message arrives
@@ -286,7 +362,7 @@ export default function Chat() {
             presenceChannelRef.current?.unsubscribe();
             isTypingRef.current = false;
         };
-    }, [selectedConv, currentUser, userProfile]);
+    }, [selectedConv, currentUser, userProfile, mergeMessageList]);
 
     // ── Load messages (paginated) ──────────────────────────────────────
     async function loadMessages(matchId, pageNum = 0, reset = false) {
@@ -320,29 +396,39 @@ export default function Chat() {
 
         const content = newMessage.trim();
         const optimisticId = `temp-${Date.now()}`;
+        const clientNonce = createClientNonce();
         const optimisticMsg = {
             id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-            content, type: 'text', metadata: {}, created_at: new Date().toISOString(),
+            content, type: 'text', metadata: { client_nonce: clientNonce }, created_at: new Date().toISOString(),
             is_read: false, _pending: true
         };
 
-        setMessages(prev => {
-            const newMsgs = [...prev, optimisticMsg];
-            return newMsgs.length > 100 ? newMsgs.slice(-100) : newMsgs;
-        });
+        setMessages(prev => mergeMessageList(prev, optimisticMsg));
         setNewMessage('');
         setSending(true);
         stopTyping();
 
-        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content);
+        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', { client_nonce: clientNonce });
         if (error) {
             setMessages(prev => prev.filter(m => m.id !== optimisticId));
             addToast('Failed to send.', 'error');
         } else if (data) {
-            setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+            setMessages(prev => mergeMessageList(prev, data));
             playSendSwoosh(); // Audible "sent" confirmation
         }
         setSending(false);
+    };
+
+    const handleSmartReplies = async () => {
+        if (!selectedConv || aiReplyLoading) return;
+        setAiReplyLoading(true);
+        const { data, error } = await requestAiAssistant('smart_reply', {
+            targetProfile: selectedConv.other_user,
+            recentMessages: messages.slice(-8),
+            draft: newMessage
+        });
+        if (!error) setAiReplies(data?.replies || []);
+        setAiReplyLoading(false);
     };
 
     const handleTyping = () => {
@@ -394,11 +480,15 @@ export default function Chat() {
     };
 
     const handleVoiceStop = async (blob) => {
-        setIsRecording(false);
         setSending(true);
-        const { url, error } = await uploadVoiceNote(blob);
+        const clientNonce = createClientNonce();
+        const { path, url, error } = await uploadVoiceNote(selectedConv.id, currentUser.id, blob);
         if (error) { addToast('Upload failed', 'error'); setSending(false); return; }
-        await sendMessage(selectedConv.id, currentUser.id, url, 'voice');
+        await sendMessage(selectedConv.id, currentUser.id, path, 'voice', {
+            client_nonce: clientNonce,
+            storage_path: path,
+            preview_url: url
+        });
         setSending(false);
     };
 
@@ -406,22 +496,30 @@ export default function Chat() {
         const file = e.target.files?.[0];
         if (!file || !selectedConv) return;
         setSending(true);
+        const optimisticId = `temp-${Date.now()}`;
         try {
             const placeholder = await generateBlurPlaceholder(file);
-            const optimisticId = `temp-${Date.now()}`;
-            setMessages(prev => [...prev, {
+            const clientNonce = createClientNonce();
+            const localPreviewUrl = URL.createObjectURL(file);
+            setMessages(prev => mergeMessageList(prev, {
                 id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-                content: URL.createObjectURL(file), type: 'image', metadata: { placeholder },
+                content: localPreviewUrl, type: 'image', metadata: { placeholder, client_nonce: clientNonce },
                 created_at: new Date().toISOString(), is_read: false, _pending: true
-            }]);
+            }));
 
             const compressed = await compressImage(file, { targetSizeKB: 100 });
-            const { url, error } = await uploadChatImage(compressed);
+            const { path, url, error } = await uploadChatImage(selectedConv.id, currentUser.id, compressed);
             if (error) throw new Error(error);
 
-            const { data } = await sendMessage(selectedConv.id, currentUser.id, url, 'image', { placeholder });
-            if (data) setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+            const { data } = await sendMessage(selectedConv.id, currentUser.id, path, 'image', {
+                placeholder,
+                client_nonce: clientNonce,
+                storage_path: path,
+                preview_url: url
+            });
+            if (data) setMessages(prev => mergeMessageList(prev, data));
         } catch (err) {
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
             addToast('Failed to send image: ' + err.message, 'error');
         } finally {
             setSending(false);
@@ -436,14 +534,16 @@ export default function Chat() {
         const metadata = type === 'sticker' ? { label: sticker.label } : {};
 
         const optimisticId = `temp-${Date.now()}`;
-        setMessages(prev => [...prev, {
+        const clientNonce = createClientNonce();
+        const messageMetadata = { ...metadata, client_nonce: clientNonce };
+        setMessages(prev => mergeMessageList(prev, {
             id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-            content, type, metadata, created_at: new Date().toISOString(), is_read: false, _pending: true
-        }]);
+            content, type, metadata: messageMetadata, created_at: new Date().toISOString(), is_read: false, _pending: true
+        }));
 
-        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, type, metadata);
+        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, type, messageMetadata);
         if (error) { setMessages(prev => prev.filter(m => m.id !== optimisticId)); }
-        else if (data) { setMessages(prev => prev.map(m => m.id === optimisticId ? data : m)); }
+        else if (data) { setMessages(prev => mergeMessageList(prev, data)); }
         setSending(false);
     };
 
@@ -456,32 +556,51 @@ export default function Chat() {
             if (txData?.new_balance !== undefined) setWalletBalance(txData.new_balance);
 
             const optimisticId = `temp-${Date.now()}`;
+            const clientNonce = createClientNonce();
             const giftMsg = {
                 id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
                 content: gift.emoji, type: 'gift',
-                metadata: { name: gift.name, price: gift.price },
+                metadata: { name: gift.name, price: gift.price, client_nonce: clientNonce },
                 created_at: new Date().toISOString(), is_read: false, _pending: true
             };
-            setMessages(prev => [...prev, giftMsg]);
+            setMessages(prev => mergeMessageList(prev, giftMsg));
 
             const { data, error: msgError } = await sendMessage(
-                selectedConv.id, currentUser.id, gift.emoji, 'gift', { name: gift.name, price: gift.price }
+                selectedConv.id, currentUser.id, gift.emoji, 'gift', { name: gift.name, price: gift.price, client_nonce: clientNonce }
             );
             if (msgError) {
                 setMessages(prev => prev.filter(m => m.id !== optimisticId));
                 addToast('Gift paid, but chat notification failed.', 'warning');
                 return true;
             } else if (data) {
-                setMessages(prev => prev.map(m => m.id === optimisticId ? data : m));
+                setMessages(prev => mergeMessageList(prev, data));
                 addToast(`Sent ${gift.name}! 🎁`, 'success');
                 return true;
             }
         } catch (err) {
+            console.warn('Gift send error:', err);
             addToast('Error sending gift.', 'error');
             return false;
         } finally {
             setSending(false);
         }
+    };
+
+    const handleDisappearingChange = async (seconds) => {
+        if (!selectedConv?.id || disappearingSaving) return;
+        setDisappearingSaving(true);
+        const previous = selectedConv.disappearing_messages_seconds || 0;
+        setSelectedConv(prev => prev ? { ...prev, disappearing_messages_seconds: seconds } : prev);
+        const { error } = await updateDisappearingMessages(selectedConv.id, seconds);
+        if (error) {
+            setSelectedConv(prev => prev ? { ...prev, disappearing_messages_seconds: previous } : prev);
+            addToast('Could not update disappearing messages.', 'error');
+        } else {
+            addToast(seconds ? 'Disappearing messages updated.' : 'Disappearing messages turned off.', 'success');
+            setChatMenuOpen(false);
+            revalidateConvs();
+        }
+        setDisappearingSaving(false);
     };
 
     // Reactions
@@ -516,17 +635,8 @@ export default function Chat() {
 
     const renderMessageContent = (msg) => {
         switch (msg.type) {
-            case 'voice': return <AudioMessage src={msg.content} isSent={msg.sender_id === currentUser.id} />;
-            case 'image': return (
-                <div className="image-message">
-                    <OptimizedImage
-                        src={msg.content}
-                        placeholder={msg.metadata?.placeholder}
-                        alt="Chat media"
-                        width={250}
-                    />
-                </div>
-            );
+            case 'voice': return <ChatMedia msg={msg} type="voice" isSent={msg.sender_id === currentUser.id} />;
+            case 'image': return <ChatMedia msg={msg} type="image" isSent={msg.sender_id === currentUser.id} />;
             case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
             case 'gift': return <div className="gift-message"><div className="gift-animation">🎁</div><span className="gift-emoji-large">{msg.content}</span><span className="gift-label">SENT A {msg.metadata?.name}</span></div>;
             case 'emoji': return <span className="emoji-message-large">{msg.content}</span>;
@@ -584,6 +694,8 @@ export default function Chat() {
     const opponentPresences = presence[otherUserId] || [];
     const isOtherOnline = opponentPresences.length > 0;
     const isOtherTyping = opponentPresences.some(p => p.is_typing);
+    const activeDisappearingSeconds = selectedConv?.disappearing_messages_seconds || 0;
+    const activeDisappearingLabel = DISAPPEARING_OPTIONS.find(option => option.seconds === activeDisappearingSeconds)?.label || 'Custom';
 
     if (convsLoading && conversations.length === 0) return <LoadingSpinner fullScreen text="Opening messages..." />;
 
@@ -672,10 +784,46 @@ export default function Chat() {
                                         <div className="call-selection-arrow"></div>
                                     </div>
                                 )}
+                                <button
+                                    className={`btn-chat-menu ${chatMenuOpen ? 'active' : ''}`}
+                                    type="button"
+                                    onClick={() => setChatMenuOpen(open => !open)}
+                                    title="Chat settings"
+                                >
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="1" />
+                                        <circle cx="19" cy="12" r="1" />
+                                        <circle cx="5" cy="12" r="1" />
+                                    </svg>
+                                </button>
+
+                                {chatMenuOpen && (
+                                    <div className="chat-settings-popover">
+                                        <div className="chat-settings-title">Disappearing messages</div>
+                                        <div className="disappearing-options">
+                                            {DISAPPEARING_OPTIONS.map(option => (
+                                                <button
+                                                    key={option.seconds}
+                                                    type="button"
+                                                    className={activeDisappearingSeconds === option.seconds ? 'selected' : ''}
+                                                    onClick={() => handleDisappearingChange(option.seconds)}
+                                                    disabled={disappearingSaving}
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="messages-container">
+                            {activeDisappearingSeconds > 0 && (
+                                <div className="disappearing-notice">
+                                    Messages in this chat disappear after {activeDisappearingLabel.toLowerCase()}.
+                                </div>
+                            )}
                             <Virtuoso
                                 style={{ height: '100%' }}
                                 data={messages}
@@ -691,7 +839,7 @@ export default function Chat() {
                                 itemContent={(index, msg) => (
                                     <div
                                         key={msg.id}
-                                        className={`message-bubble ${msg.sender_id === currentUser.id ? 'message-sent' : 'message-received'} type-${msg.type || 'text'}`}
+                                        className={`message-bubble ${msg.sender_id === currentUser.id ? 'message-sent' : 'message-received'} type-${msg.type || 'text'} ${msg._pending ? 'pending' : ''}`}
                                         onMouseDown={e => handleLongPressStart(e, msg.id)}
                                         onTouchStart={e => handleLongPressStart(e, msg.id)}
                                         onMouseUp={handleLongPressEnd}
@@ -708,56 +856,81 @@ export default function Chat() {
 
                         <div className="chat-input-area">
                             <input type="file" id="chat-image-input" accept="image/*" hidden onChange={handleImageSelect} />
+                            {(aiReplies.length > 0 || aiReplyLoading) && (
+                                <div className="ai-reply-strip">
+                                    {aiReplyLoading ? (
+                                        <span className="ai-reply-loading">AI is thinking...</span>
+                                    ) : aiReplies.slice(0, 3).map((reply) => (
+                                        <button key={reply} type="button" onClick={() => setNewMessage(reply)}>
+                                            {reply}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                             <form className="chat-input-form" onSubmit={handleSendMessage}>
-                                <button
-                                    type="button"
-                                    className="btn-icon"
-                                    onClick={() => document.getElementById('chat-image-input').click()}
-                                    title="Send Image"
-                                >
-                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                        <circle cx="12" cy="13" r="4"></circle>
-                                    </svg>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon"
-                                    onClick={() => setShowStickers(!showStickers)}
-                                    title="Stickers & Emojis"
-                                >
-                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                                    </svg>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-icon"
-                                    onClick={() => setShowGifts(!showGifts)}
-                                    title="Send Gift"
-                                >
-                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                                        <rect x="2" y="7" width="20" height="5"></rect>
-                                        <line x1="12" y1="22" x2="12" y2="7"></line>
-                                        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                                    </svg>
-                                </button>
-                                <input type="text" className="chat-input" placeholder="Type a message..." value={newMessage} onChange={e => { setNewMessage(e.target.value); handleTyping(); }} />
-                                {newMessage.trim() ? (
-                                    <button type="submit" className="btn-send">
-                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                <div className="chat-composer-pill">
+                                    <button
+                                        type="button"
+                                        className="btn-icon composer-inline-btn"
+                                        onClick={() => setShowStickers(!showStickers)}
+                                        title="Stickers & Emojis"
+                                    >
+                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
                                         </svg>
                                     </button>
-                                ) : (
-                                    <VoiceRecorder onRecordingComplete={handleVoiceStop} isSending={sending} variant="chat" />
-                                )}
+                                    <input type="text" className="chat-input" placeholder="Message" value={newMessage} onChange={e => { setNewMessage(e.target.value); handleTyping(); }} />
+                                </div>
+
+                                <div className="chat-side-actions">
+                                    <button
+                                        type="button"
+                                        className="btn-icon ai-chat-btn"
+                                        onClick={handleSmartReplies}
+                                        title="AI reply ideas"
+                                        disabled={aiReplyLoading}
+                                    >
+                                        AI
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-icon"
+                                        onClick={() => document.getElementById('chat-image-input').click()}
+                                        title="Send Image"
+                                    >
+                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                            <circle cx="12" cy="13" r="4"></circle>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-icon"
+                                        onClick={() => setShowGifts(!showGifts)}
+                                        title="Send Gift"
+                                    >
+                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                                            <rect x="2" y="7" width="20" height="5"></rect>
+                                            <line x1="12" y1="22" x2="12" y2="7"></line>
+                                            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                        </svg>
+                                    </button>
+                                    {newMessage.trim() ? (
+                                        <button type="submit" className="btn-send">
+                                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                        </button>
+                                    ) : (
+                                        <VoiceRecorder onRecordingComplete={handleVoiceStop} isSending={sending} variant="chat" />
+                                    )}
+                                </div>
                             </form>
 
                             {showStickers && <StickerDrawer onSelectSticker={handleStickerSelect} onClose={() => setShowStickers(false)} />}

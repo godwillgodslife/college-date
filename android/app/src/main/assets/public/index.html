@@ -10,13 +10,57 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+  <title>The College Date - Campus Dating App for Students</title>
   <meta name="description"
-    content="College Date 2.0 — Stabilized campus dating with zero-latency chat and optimized matching. Find your university vibe today." />
+    content="The College Date is a campus dating and social app for students. Meet verified students, match, chat, and connect with people around your school community." />
+  <meta name="keywords"
+    content="The College Date, thecollegedate, college dating app, campus dating app, student dating app, university dating app, Nigerian university dating" />
+  <meta name="author" content="The College Date" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.thecollegedate.com/" />
   <meta name="theme-color" content="#6C63FF" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The College Date" />
+  <meta property="og:title" content="The College Date - Campus Dating App for Students" />
+  <meta property="og:description"
+    content="Meet verified students, match, chat, and connect on campus with The College Date." />
+  <meta property="og:url" content="https://www.thecollegedate.com/" />
+  <meta property="og:image" content="https://www.thecollegedate.com/og-image.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The College Date - Campus Dating App for Students" />
+  <meta name="twitter:description"
+    content="Meet verified students, match, chat, and connect on campus with The College Date." />
+  <meta name="twitter:image" content="https://www.thecollegedate.com/og-image.png" />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "The College Date",
+      "alternateName": ["TheCollegeDate", "College Date"],
+      "url": "https://www.thecollegedate.com/",
+      "applicationCategory": "DatingApplication",
+      "operatingSystem": "Web, Android",
+      "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect around their school community.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "The College Date",
+        "url": "https://www.thecollegedate.com/"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
 
   <!-- iOS PWA Splashes -->
   <link rel="apple-touch-startup-image" href="/logo.svg" />
-  <meta name="apple-mobile-web-app-title" content="College Date" />
+  <meta name="apple-mobile-web-app-title" content="The College Date" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -24,11 +68,11 @@
     rel="stylesheet">
   <script src="https://js.paystack.co/v1/inline.js" data-web-only></script>
   <script>
-    // ── Web-only SDKs: skip when running inside Capacitor native shell ──
-    var __isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    // Web-only SDKs: skip when running inside Capacitor native shell
+    var __isNativeUserAgent = navigator.userAgent.indexOf('TheCollegeDate-Android') !== -1;
+    var __isNative = __isNativeUserAgent || !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 
     if (!__isNative) {
-      // OneSignal Web Push SDK
       var osScript = document.createElement('script');
       osScript.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
       osScript.defer = true;
@@ -37,7 +81,7 @@
   </script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    var __isNativeCtx = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    var __isNativeCtx = __isNativeUserAgent || !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
     if (!__isNativeCtx && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       OneSignalDeferred.push(async function (OneSignal) {
         await OneSignal.init({
@@ -48,12 +92,35 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <title>College Date 2.0</title>
-  <script type="module" crossorigin src="/assets/index-Bd96xcxc.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DlnwtAtW.css">
+  <script type="module" crossorigin src="/assets/index-BYiOBuXy.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BoKsyz-x.css">
 </head>
 
 <body>
+  <noscript>
+    <main style="max-width: 760px; margin: 48px auto; padding: 0 20px; font-family: Arial, sans-serif;">
+      <h1>The College Date</h1>
+      <p>
+        The College Date is a campus dating and social app for students. Meet verified students,
+        match, chat, and connect with people around your school community.
+      </p>
+      <p>
+        Join The College Date to discover student connections, campus matches, anonymous confessions,
+        premium discovery features, and safer social experiences for university communities.
+      </p>
+      <p>
+        Visit https://www.thecollegedate.com to create an account or sign in.
+      </p>
+      <p>
+        Learn more:
+        <a href="/about.html">About The College Date</a>,
+        <a href="/campus-dating.html">Campus dating</a>,
+        <a href="/student-dating.html">Student dating</a>,
+        <a href="/safety.html">Safety</a>,
+        <a href="/support.html">Support</a>.
+      </p>
+    </main>
+  </noscript>
   <div id="root"></div>
 </body>
 

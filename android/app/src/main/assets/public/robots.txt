@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.thecollegedate.com/sitemap.xml
+Host: https://www.thecollegedate.com

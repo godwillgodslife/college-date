@@ -1,7 +1,7 @@
 {
   "name": "cd2-0",
   "private": true,
-  "version": "2.2.4",
+  "version": "2.2.22",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "cap:dist": "npm run build && npx cap copy",
     "cap:sync": "npx cap sync",
     "cap:android": "npx cap open android",
+    "seo:audit": "node scripts/seo-audit.mjs",
     "cap:ios": "npx cap open ios",
     "apk:debug": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
     "apk:build": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
@@ -26,6 +27,7 @@
     "@capacitor/local-notifications": "^8.0.2",
     "@capacitor/push-notifications": "^8.0.3",
     "@capacitor/splash-screen": "^8.0.1",
+    "@onesignal/capacitor-plugin": "^1.0.5",
     "@revenuecat/purchases-capacitor": "^13.0.1",
     "@supabase/supabase-js": "^2.95.3",
     "@zegocloud/zego-uikit-prebuilt": "^2.17.3",
