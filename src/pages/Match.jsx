@@ -17,6 +17,7 @@ import { playCardSwipe } from '../lib/audioContext';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import { getOptimizedUrl } from '../components/OptimizedImage';
+import { hasActivePremium } from '../utils/premium';
 import './Match.css';
 
 export default function Match() {
@@ -59,6 +60,8 @@ export default function Match() {
     const [sessionSwipes, setSessionSwipes] = useState(0); // For Premium Nudge
     const [showPremiumNudge, setShowPremiumNudge] = useState(false); // Premium Nudge Modal
     const [showGenderMenu, setShowGenderMenu] = useState(false);
+    const [pendingSwipeIds, setPendingSwipeIds] = useState([]);
+    const isPremium = hasActivePremium(userProfile);
 
     // Limit Reached State
     const [limitReached, setLimitReached] = useState(null);
@@ -152,12 +155,17 @@ export default function Match() {
 
     useEffect(() => {
         if (limitsRes) {
+            if (isPremium) {
+                setFreeSwipes(0);
+                setLimitReached(null);
+                return;
+            }
             setFreeSwipes(limitsRes.max - limitsRes.used);
             if (!limitsRes.canSwipe) {
                 setLimitReached({ used: limitsRes.used, max: limitsRes.max });
             }
         }
-    }, [limitsRes]);
+    }, [limitsRes, isPremium]);
 
     const loadProfiles = async (reset = false) => {
         // SWR handles this automatically now, but we keep the name for 
@@ -165,40 +173,48 @@ export default function Match() {
         mutateProfiles();
     };
 
-    const handleSwipe = async (direction, swipedProfile, type = 'standard', teaser = null) => {
-        // 1. Check Limits for Free Users (Only for RIGHT swipe)
-        if (direction === 'right' && type === 'standard') {
+    const canStartSwipe = async (direction, type = 'standard') => {
+        if (!isPremium && direction === 'right' && type === 'standard') {
             const { canSwipe, used, max } = await checkSwipeLimit(currentUser.id);
 
             if (!canSwipe) {
-                // Block the swipe completely, show the limit overlay, and return early
                 setLimitReached({ used, max });
                 addToast('Free swipes exhausted for today!', 'error');
-                return; // DO NOT remove profile from screen or record swipe
+                return false;
             }
         }
+        return true;
+    };
 
+    const handleSwipe = async (direction, swipedProfile, type = 'standard', teaser = null) => {
         playCardSwipe();
 
-        // 2. Optimistic Update (Local State ONLY)
+        setPendingSwipeIds(prev => prev.includes(swipedProfile.id) ? prev : [...prev, swipedProfile.id]);
+
+        // 2. Optimistic Update (Local State ONLY, delayed so exit animation can finish)
         const updatedProfiles = profiles.filter(p => p.id !== swipedProfile.id);
-        setProfiles(updatedProfiles);
+        setTimeout(() => {
+            setProfiles(prev => prev.filter(p => p.id !== swipedProfile.id));
+            setPendingSwipeIds(prev => prev.filter(id => id !== swipedProfile.id));
+        }, 40);
         
         // Optimistically update free swipes to make it feel instant
-        if (direction === 'right' && freeSwipes > 0 && type === 'standard') {
+        if (!isPremium && direction === 'right' && freeSwipes > 0 && type === 'standard') {
             setFreeSwipes(prev => Math.max(0, prev - 1));
         }
 
         // 3. Defer heavy SWR mutations & preloading to protect swipe animation FPS
         setTimeout(() => {
-            mutateProfiles(updatedProfiles, false); 
+            mutateProfiles(updatedProfiles, false);
             if (updatedProfiles.length < 5) {
                 loadProfiles(false);
             }
         }, 300); // 300ms allows standard CSS transitions to complete
 
         // 4. Record Swipe and Check for Match/Streak
-        const result = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser);
+        const result = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser, {
+            isPremium
+        });
 
         if (result.error) {
             console.error('Swipe Error:', result.error);
@@ -228,7 +244,9 @@ export default function Match() {
         } else if (direction === 'right') {
             // Free swipes counter was optimistically updated at the top
 
-            if (result.type === 'free') {
+            if (result.type === 'premium_free') {
+                addToast('Premium request sent with unlimited swipes!', 'success');
+            } else if (result.type === 'free') {
                 addToast('Standard request sent for free!', 'success');
             } else {
                 const amount = type === 'premium' ? '₦5,000' : '₦500';
@@ -246,7 +264,7 @@ export default function Match() {
         // Premium Upgrade Nudge on 10th Swipe
         const newSessionCount = sessionSwipes + 1;
         setSessionSwipes(newSessionCount);
-        if (newSessionCount === 10 && userProfile?.role !== 'premium') {
+        if (newSessionCount === 10 && !isPremium) {
             setShowPremiumNudge(true);
         }
     };
@@ -348,7 +366,7 @@ export default function Match() {
                             <div className="swipes-counter-pill animate-fade-in-right">
                                 <span className="pill-icon">⚡</span>
                                 <div className="pill-content">
-                                    <span className="pill-number">{freeSwipes}</span>
+                                    <span className="pill-number">{isPremium ? '∞' : freeSwipes}</span>
                                     <span className="pill-label">Swipes Left</span>
                                 </div>
                             </div>
@@ -392,16 +410,21 @@ export default function Match() {
                                         </div>
                                     )}
                                 </div>
-                                {profiles.slice(0, 2).reverse().map((profile, index) => (
+                                {profiles.slice(0, 2).reverse().map((profile, index, stack) => {
+                                    const isTopCard = index === stack.length - 1;
+                                    return (
                                     <SwipeCard
                                         key={profile.id}
                                         profile={profile}
                                         onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
+                                        onBeforeSwipe={(dir) => canStartSwipe(dir)}
                                         superSwipesAvailable={superSwipesAvailable}
                                         onSuperSwipe={handleSuperSwipe}
-                                        priority={index === 1}
+                                        priority={isTopCard}
+                                        isTop={isTopCard && !pendingSwipeIds.includes(profile.id)}
                                     />
-                                ))}
+                                    );
+                                })}
 
                                 {/* HIDDEN PRELOADER: Silently download the next 5 profiles in the background */}
                                 <div style={{ display: 'none' }}>

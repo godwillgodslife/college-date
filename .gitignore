@@ -26,6 +26,14 @@ dist-ssr
 # Local Netlify folder
 .netlify
 
+# Build and temp directories
+.gradle
+.gradle-home
+.local-jdk
+.npm-cache-netlify
+build/
+temp/
+
 # ─── Android / Capacitor ───────────────────────
 # Keystore — NEVER commit these
 *.jks

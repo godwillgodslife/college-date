@@ -1,0 +1,1 @@
+import{s as e}from"./index-aWqSwUBE.js";async function o(r,t={}){try{const{data:a,error:s}=await e.functions.invoke("ai-assistant",{body:{task:r,...t}});if(s)throw s;return{data:a?.result||a,error:null}}catch(a){return console.warn("[AI Assistant] Request failed:",a.message||a),{data:null,error:a.message||"AI assistant unavailable"}}}export{o as r};

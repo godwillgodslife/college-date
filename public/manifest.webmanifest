@@ -1,21 +1,21 @@
 {
-    "name": "College Date",
+    "name": "The College Date",
     "short_name": "CollegeDate",
-    "description": "College Date 2.0 - Optimized campus dating with stabilized matching and high-speed chat.",
+    "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#6c63ff",
     "icons": [
         {
-            "src": "/logo.svg",
-            "sizes": "192x192 512x512",
-            "type": "image/svg+xml"
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
         },
         {
-            "src": "/logo.svg",
+            "src": "/logo.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any maskable"
         }
     ],

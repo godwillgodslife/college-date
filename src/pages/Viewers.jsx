@@ -3,13 +3,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { hasActivePremium } from '../utils/premium';
 import './Viewers.css';
 
 export default function Viewers() {
     const { currentUser, userProfile } = useAuth();
     const [viewers, setViewers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const isPremium = userProfile?.plan_type === 'Premium';
+    const isPremium = hasActivePremium(userProfile);
     const navigate = useNavigate();
 
     useEffect(() => {

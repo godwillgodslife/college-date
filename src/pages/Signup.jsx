@@ -103,7 +103,7 @@ export default function Signup() {
             <div className="auth-container">
                 <div className="auth-card">
                     <div className="auth-header">
-                        <span className="auth-logo">💕</span>
+                        <img src="/logo.png" alt="The College Date" className="auth-logo" />
                         <h1 className="auth-title">Join College Date</h1>
                         <p className="auth-subtitle">Create your account and start meeting people</p>
                     </div>

@@ -8,11 +8,13 @@ import { recordSwipe, trackProfileView } from '../services/swipeService';
 import { supabase } from '../lib/supabase';
 import StatusViewer from './StatusViewer';
 import { getUserStatuses } from '../services/statusService';
+import { hasActivePremium } from '../utils/premium';
+import { isRecentlyLive } from '../utils/presence';
 import './ProfileDrawer.css';
 
 export default function ProfileDrawer({ isOpen, profile, onClose }) {
     const navigate = useNavigate();
-    const { currentUser, walletBalance } = useAuth();
+    const { currentUser, userProfile, walletBalance } = useAuth();
     const { addToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [activeProfile, setActiveProfile] = useState(profile);
@@ -57,9 +59,12 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
 
     if (!displayProfile) return null;
 
+    const isPremium = hasActivePremium(userProfile);
+    const isLive = isRecentlyLive(displayProfile);
+
     const handleVibe = async () => {
         // 1. Check wallet balance
-        if (walletBalance < 500) {
+        if (!isPremium && walletBalance < 500) {
             addToast('Insufficient funds. Please top up your wallet.', 'error');
             setTimeout(() => navigate('/wallet'), 1500);
             return;
@@ -67,14 +72,24 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
 
         setLoading(true);
         try {
-            // 2. Process payment/swipe request
-            // Treating this as a "premium" request that deducts 500 NGN
-            const result = await recordSwipe(currentUser.id, displayProfile.id, 'right', 'premium', 'Started a vibe from Explore');
+            const result = await recordSwipe(
+                currentUser.id,
+                displayProfile.id,
+                'right',
+                'standard',
+                'Started a vibe from Explore',
+                { isPremium }
+            );
 
             if (result.error) {
                 addToast(result.error, 'error');
             } else {
-                addToast(`Vibe started with ${displayProfile.full_name}! 500 NGN deducted.`, 'success');
+                addToast(
+                    isPremium
+                        ? `Vibe started with ${displayProfile.full_name}!`
+                        : `Vibe started with ${displayProfile.full_name}!`,
+                    'success'
+                );
                 onClose(); // Close drawer on success
 
                 // Fetch the auto-created match string
@@ -157,7 +172,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                                 <h2 className="drawer-name">
                                     {displayProfile.full_name}, <span className="drawer-age">{displayProfile.age}</span>
                                 </h2>
-                                {displayProfile.is_live && <span className="live-badge">LIVE</span>}
+                                {isLive && <span className="live-badge">LIVE</span>}
                             </div>
 
                             <p className="drawer-university">
@@ -206,11 +221,13 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                             onClick={handleVibe}
                             disabled={loading}
                         >
-                            {loading ? 'Processing...' : 'Pay ₦500 to Start Vibe ✨'}
+                            {loading ? 'Processing...' : isPremium ? 'Start Vibe ✨' : 'Start Vibe ✨'}
                         </button>
-                        <p className="wallet-balance-note">
-                            Wallet Balance: ₦{walletBalance?.toLocaleString() || 0}
-                        </p>
+                        {!isPremium && (
+                            <p className="wallet-balance-note">
+                                Wallet Balance: ₦{walletBalance?.toLocaleString() || 0}
+                            </p>
+                        )}
                     </div>
                 </motion.div>
             )}

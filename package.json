@@ -1,7 +1,7 @@
 {
   "name": "cd2-0",
   "private": true,
-  "version": "2.2.22",
+  "version": "2.2.26",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,12 +10,16 @@
     "preview": "vite preview",
     "cap:dist": "npm run build && npx cap copy",
     "cap:sync": "npx cap sync",
+    "android:clean-assets": "node scripts/clean-android-assets.mjs",
+    "android:clean-build": "node scripts/clean-android-build-output.mjs",
+    "android:prepare-assets": "node scripts/prepare-android-assets.mjs",
+    "aab:verify": "node scripts/verify-aab.mjs",
     "cap:android": "npx cap open android",
     "seo:audit": "node scripts/seo-audit.mjs",
     "cap:ios": "npx cap open ios",
     "apk:debug": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
     "apk:build": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
-    "aab:release": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew bundleRelease",
+    "aab:release": "npm run build && npm run android:clean-assets && npx cap sync android && npm run android:prepare-assets && npm run android:clean-build && cd android && .\\gradlew bundleRelease && cd .. && npm run aab:verify",
     "icons:generate": "npx @capacitor/assets generate --android --ios"
   },
   "dependencies": {
@@ -30,7 +34,8 @@
     "@onesignal/capacitor-plugin": "^1.0.5",
     "@revenuecat/purchases-capacitor": "^13.0.1",
     "@supabase/supabase-js": "^2.95.3",
-    "@zegocloud/zego-uikit-prebuilt": "^2.17.3",
+    "agora-rtc-sdk-ng": "^4.24.4",
+    "agora-token": "^2.0.5",
     "browser-image-compression": "^2.0.2",
     "canvas-confetti": "^1.9.4",
     "date-fns": "^4.1.0",

@@ -163,6 +163,26 @@ input:checked+.slider:before {
     text-decoration: none;
 }
 
+.settings-item.partner-link {
+    background: linear-gradient(90deg, rgba(108, 99, 255, 0.08), rgba(255, 107, 157, 0.08));
+}
+
+.settings-item.partner-link:hover {
+    background: linear-gradient(90deg, rgba(108, 99, 255, 0.14), rgba(255, 107, 157, 0.14));
+}
+
+.partner-chip {
+    flex-shrink: 0;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffd1e2;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
 .settings-action-btn:hover {
     background: rgba(255, 255, 255, 0.05);
 }

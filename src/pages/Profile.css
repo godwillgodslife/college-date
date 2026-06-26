@@ -529,3 +529,22 @@
     border-radius: 8px !important;
     white-space: nowrap;
 }
+
+.ai-profile-coach {
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(20, 184, 166, 0.08));
+}
+
+.ai-coach-result {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.ai-coach-result p {
+    width: 100%;
+    margin: 0 0 0.35rem;
+    line-height: 1.45;
+}

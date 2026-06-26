@@ -18,6 +18,9 @@ export const usePrefetch = () => {
             '/profile': () => import('../pages/Profile'),
             '/wallet': () => import('../pages/Wallet'),
             '/settings': () => import('../pages/Settings'),
+            '/referrals': () => import('../pages/Referrals'),
+            '/requests': () => import('../pages/Requests'),
+            '/premium': () => import('../pages/PremiumUpgrade'),
             '/status': () => import('../pages/StatusUpdates'),
             '/snap': () => import('../pages/Snap'),
         };

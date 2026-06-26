@@ -12,6 +12,8 @@ import StatusInput from '../components/StatusInput';
 import StatusViewer from '../components/StatusViewer';
 import { getUserStatuses } from '../services/statusService';
 import { formatLastSeen } from '../utils/formatTimestamp';
+import { requestProfileAiReview } from '../services/aiTrustService';
+import { requestAiAssistant } from '../services/aiAssistantService';
 
 import useSWR from 'swr';
 import OptimizedImage from '../components/OptimizedImage';
@@ -26,6 +28,8 @@ export default function Profile() {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [checkingPush, setCheckingPush] = useState(true);
     const [showStatusViewer, setShowStatusViewer] = useState(false);
+    const [aiCoach, setAiCoach] = useState(null);
+    const [aiCoachLoading, setAiCoachLoading] = useState(false);
 
     const isOwnProfile = !userId || userId === currentUser?.id;
     const profileId = userId || currentUser?.id;
@@ -61,14 +65,19 @@ export default function Profile() {
 
     useEffect(() => {
         if (!isOwnProfile) return;
+        const isNativePlatform = window.Capacitor?.isNativePlatform?.();
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        if (isLocal) {
+        if (isNativePlatform || isLocal || !window.OneSignalDeferred) {
             setCheckingPush(false);
             return;
         }
 
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(function (OneSignal) {
+            if (!OneSignal?.Notifications) {
+                setCheckingPush(false);
+                return;
+            }
             const hasPermission = OneSignal.Notifications.permission;
             setIsSubscribed(hasPermission);
             setCheckingPush(false);
@@ -80,7 +89,11 @@ export default function Profile() {
     }, [isOwnProfile]);
 
     const handleEnableAlerts = () => {
+        const isNativePlatform = window.Capacitor?.isNativePlatform?.();
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isNativePlatform || isLocal || !window.OneSignalDeferred) return;
         window.OneSignalDeferred.push(async function (OneSignal) {
+            if (!OneSignal?.Notifications) return;
             await OneSignal.Notifications.requestPermission();
             setIsSubscribed(OneSignal.Notifications.permission);
         });
@@ -108,6 +121,26 @@ export default function Profile() {
     const email = currentUser?.email || '';
     const university = userProfile?.university || 'Not set';
     const bio = userProfile?.bio || 'No bio yet';
+    const canUseWebPush = !window.Capacitor?.isNativePlatform?.()
+        && window.location.hostname !== 'localhost'
+        && window.location.hostname !== '127.0.0.1';
+    const aiVerificationStatus = userProfile?.ai_verification_status || 'not_started';
+    const aiVerificationCopy = {
+        not_started: 'Run a quick AI trust check on your student profile and photos.',
+        pending: 'Your AI trust check is queued.',
+        reviewing: 'AI is reviewing your student profile and photos.',
+        verified: 'AI trust check passed.',
+        needs_review: 'AI flagged something for manual review.',
+        rejected: 'This profile needs changes before verification.'
+    };
+
+    const handleProfileCoach = async () => {
+        if (aiCoachLoading) return;
+        setAiCoachLoading(true);
+        const { data, error } = await requestAiAssistant('profile_coach');
+        if (!error) setAiCoach(data);
+        setAiCoachLoading(false);
+    };
 
     // Vibe Check Data
     const anthem = userProfile?.anthem;
@@ -139,17 +172,16 @@ export default function Profile() {
                         <div className="verification-text-block">
                             <span className="verify-shield">🛡️</span>
                             <div className="verify-text">
-                                <strong>Verify Your Profile</strong> Let others know your photos are really you!
+                                <strong>Verify Your Profile</strong> {aiVerificationCopy[aiVerificationStatus] || aiVerificationCopy.not_started}
                             </div>
                         </div>
                         <button
                             className="btn btn-primary verify-btn-sm"
                             onClick={() => {
-                                // For now, could open a mailto or a support chat
-                                window.open('https://wa.me/2349160264415?text=Hi%20👋%20I%20want%20to%20verify%20my%20profile%20on%20CollegeDate!', '_blank');
+                                requestProfileAiReview('manual_profile_verify');
                             }}
                         >
-                            Get Verified
+                            {aiVerificationStatus === 'reviewing' || aiVerificationStatus === 'pending' ? 'Checking...' : 'AI Check'}
                         </button>
                     </div>
                 )}
@@ -160,6 +192,28 @@ export default function Profile() {
                     profile={userProfile}
                     onCompleteClick={() => navigate('/profile/edit')}
                 />
+
+                {isOwnProfile && (
+                    <div className="profile-section ai-profile-coach">
+                        <div className="wallet-entry-header">
+                            <h3 className="profile-section-title">AI Profile Coach</h3>
+                            <button className="btn-text" onClick={handleProfileCoach} disabled={aiCoachLoading}>
+                                {aiCoachLoading ? 'Thinking...' : 'Improve'}
+                            </button>
+                        </div>
+                        {aiCoach ? (
+                            <div className="ai-coach-result">
+                                {aiCoach.summary && <p>{aiCoach.summary}</p>}
+                                {aiCoach.bio_suggestion && <p><strong>Bio idea:</strong> {aiCoach.bio_suggestion}</p>}
+                                {aiCoach.priority_actions?.slice(0, 3).map((action) => (
+                                    <span key={action} className="interest-tag">{action}</span>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="section-hint">Get a quick AI review of your bio, photos, prompts, and match appeal.</p>
+                        )}
+                    </div>
+                )}
 
                 <div className="profile-header">
                     <div className="profile-photos-carousel">
@@ -326,7 +380,7 @@ export default function Profile() {
 
                 {isOwnProfile ? (
                     <>
-                        <div className="push-status-container" style={{ marginTop: '1.5rem' }}>
+                        {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem' }}>
                             {!checkingPush && (
                                 isSubscribed ? (
                                     <button className="btn btn-secondary btn-block" disabled style={{ opacity: 0.7 }}>
@@ -338,7 +392,7 @@ export default function Profile() {
                                     </button>
                                 )
                             )}
-                        </div>
+                        </div>}
 
 
                         <button

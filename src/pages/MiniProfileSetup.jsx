@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadProfilePhoto, upsertProfile } from '../services/profileService';
+import { requestProfileAiReview } from '../services/aiTrustService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -284,6 +285,7 @@ export default function MiniProfileSetup() {
 
             console.log('[Setup] Upsert success. Verifying profile state...');
             await fetchProfile(currentUser.id);
+            requestProfileAiReview('onboarding_complete');
             
             // Clean up ONLY after we are sure we've saved
             localStorage.removeItem('onboarding_data');

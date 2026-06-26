@@ -1,230 +1,325 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import AgoraRTC from 'agora-rtc-sdk-ng';
 import { useAuth } from '../contexts/AuthContext';
 import { incrementCallMinutes } from '../services/profileService';
 import { useRef, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useToast } from '../components/Toast';
+import { getAgoraCallToken } from '../services/agoraTokenService';
 import './VoiceCallRoom.css';
-
 
 export default function VoiceCallRoom() {
     const { roomID } = useParams();
     const [searchParams] = useSearchParams();
-    const callType = searchParams.get('type') || 'voice'; // 'voice' or 'video'
-    const { currentUser, userProfile, fetchProfile } = useAuth();
+    const callType = searchParams.get('type') === 'video' ? 'video' : 'voice';
+    const { currentUser, userProfile } = useAuth();
+    const { addToast } = useToast();
     const navigate = useNavigate();
-    const zpRef = useRef(null);
+    const MotionDiv = motion.div;
+
+    const clientRef = useRef(null);
+    const localAudioTrackRef = useRef(null);
+    const localVideoTrackRef = useRef(null);
+    const localVideoRef = useRef(null);
+    const remoteVideosRef = useRef(null);
     const heartbeatRef = useRef(null);
-    const sessionStartRef = useRef(Date.now());
-    const isJoinedRef = useRef(false);
+    const sessionStartRef = useRef(0);
+    const hasStartedRef = useRef(false);
     const ringtoneRef = useRef(null);
-    const [limitReached, setLimitReached] = useState(false);
+    const connectTimeoutRef = useRef(null);
+
     const [isConnecting, setIsConnecting] = useState(true);
-
-
-
-    const appID = parseInt(import.meta.env.VITE_ZEGO_APP_ID || "0", 10);
-    const serverSecret = import.meta.env.VITE_ZEGO_SERVER_SECRET || "";
+    const [callError, setCallError] = useState('');
+    const [isMuted, setIsMuted] = useState(false);
+    const [isCameraOff, setIsCameraOff] = useState(false);
+    const [remoteCount, setRemoteCount] = useState(0);
 
     const userFullName = userProfile?.full_name || 'User';
     const targetName = searchParams.get('name') || 'User';
-    
-    // Recovery defaults in memory (Repairs existing profiles for calls)
     const currentMinsToday = userProfile?.call_minutes_today || 0;
     const isPremium = userProfile?.is_premium || false;
+    const limitReached = !isPremium && currentMinsToday >= 20;
 
-    useEffect(() => {
-        // 1. Initial limit check
-        if (!isPremium && currentMinsToday >= 20) {
-            setLimitReached(true);
+    const stopRingtone = () => {
+        if (!ringtoneRef.current) return;
+        try {
+            if (ringtoneRef.current.audioCtx && ringtoneRef.current.audioCtx.state !== 'closed') {
+                ringtoneRef.current.stop();
+            }
+        } catch (error) {
+            console.warn('Ringtone cleanup failed:', error.message);
         }
-    }, [userProfile?.id]);
+        ringtoneRef.current = null;
+    };
+
+    const cleanupCall = async () => {
+        if (connectTimeoutRef.current) {
+            clearTimeout(connectTimeoutRef.current);
+            connectTimeoutRef.current = null;
+        }
+        if (heartbeatRef.current) {
+            clearInterval(heartbeatRef.current);
+            heartbeatRef.current = null;
+        }
+        stopRingtone();
+
+        for (const track of [localAudioTrackRef.current, localVideoTrackRef.current]) {
+            if (!track) continue;
+            try {
+                track.stop();
+                track.close();
+            } catch (error) {
+                console.warn('Agora track cleanup failed:', error.message);
+            }
+        }
+        localAudioTrackRef.current = null;
+        localVideoTrackRef.current = null;
+
+        if (clientRef.current) {
+            try {
+                await clientRef.current.leave();
+            } catch (error) {
+                console.warn('Agora leave failed:', error.message);
+            }
+        }
+        clientRef.current = null;
+        hasStartedRef.current = false;
+    };
 
     useEffect(() => {
-        // 2. Global cleanup only on true unmount
         return () => {
-            console.log('VoiceCallRoom unmounting: Performing cleanup...');
-            
-            // a. Stop Zego securely
-            if (zpRef.current) {
-                try {
-                    // Critical: Some Zego internal cleanup can throw if not fully initialized
-                    zpRef.current.destroy();
-                } catch (e) {
-                    console.warn('Zego destroy failed (possibly uninitialized):', e.message);
-                }
-                zpRef.current = null;
-            }
-
-            // b. Clear Heartbeat
-            if (heartbeatRef.current) {
-                clearInterval(heartbeatRef.current);
-                heartbeatRef.current = null;
-            }
-
-            // c. Stop Ringtone
-            if (ringtoneRef.current) {
-                try {
-                    // Check state to avoid 'closing a closed context' error
-                    if (ringtoneRef.current.audioCtx && ringtoneRef.current.audioCtx.state !== 'closed') {
-                        ringtoneRef.current.stop();
-                    }
-                } catch (e) {
-                    console.warn('Ringtone cleanup failed:', e.message);
-                }
-                ringtoneRef.current = null;
-            }
-            isJoinedRef.current = false;
+            cleanupCall();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-
-    const myMeeting = async (element) => {
-        if (!element || limitReached || isJoinedRef.current) return;
-        isJoinedRef.current = true;
-
-
-        if (!appID || !serverSecret || appID === 0) {
-            alert("Call services are coming soon! Keys not configured.");
-            navigate(-1);
-            return;
+    const requestMediaAccess = async () => {
+        if (!navigator.mediaDevices?.getUserMedia) {
+            throw new Error('Camera and microphone access is not available on this device.');
         }
 
-        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
-            appID,
-            serverSecret,
-            roomID,
-            currentUser?.id || Date.now().toString(),
-            userFullName
-        );
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: callType === 'video',
+        });
+        stream.getTracks().forEach((track) => track.stop());
+    };
 
-        const zp = ZegoUIKitPrebuilt.create(kitToken);
-        zpRef.current = zp;
-        console.log(`[Zego] Initializing ${callType} call room:`, roomID);
+    const startRingtone = () => {
+        if (ringtoneRef.current) return;
 
-        zp.joinRoom({
-            container: element,
-            sharedLinks: [], // Privacy: don't show shared links inside the room
-            scenario: {
-                mode: ZegoUIKitPrebuilt.OneONoneCall,
-            },
-            showPreJoinView: false, // SKIP the second "Join" button underneath the overlay
-            // Dynamic hardware configuration
-            turnOnCameraWhenJoining: callType === 'video',
-            turnOnMicrophoneWhenJoining: true,
-            showMyCameraControls: true,
-            showMyMicrophoneControls: true,
-            showAudioVideoSettingsButton: true,
-            showScreenSharingButton: false,
-            showTextChat: false,
-            showUserList: false,
-            showLeaveRoomConfirmDialog: true,
-            showPreview: false, // Ensure no flicker
-            
-            onJoinRoom: () => {
-                console.log('[Zego] Joined successfully.');
-                setIsConnecting(false);
-                if (ringtoneRef.current) {
-                    ringtoneRef.current.stop();
-                    ringtoneRef.current = null;
-                }
-            },
-            onLeaveRoom: () => {
-                console.log('[Zego] User left the room.');
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const playBeep = () => {
+                if (!ringtoneRef.current || audioCtx.state === 'closed') return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+
+                setTimeout(() => {
+                    if (ringtoneRef.current && audioCtx.state !== 'closed') playBeep();
+                }, 1500);
+            };
+
+            ringtoneRef.current = {
+                audioCtx,
+                stop: () => {
+                    if (audioCtx.state !== 'closed') audioCtx.close();
+                },
+            };
+            playBeep();
+        } catch (error) {
+            console.error('Beep generator failed:', error);
+        }
+    };
+
+    const startFreemiumHeartbeat = () => {
+        if (userProfile?.is_premium || heartbeatRef.current) return;
+
+        heartbeatRef.current = setInterval(async () => {
+            const elapsedMs = Date.now() - (sessionStartRef.current || Date.now());
+            const elapsedMins = Math.floor(elapsedMs / 60000);
+
+            if (elapsedMins < 1) return;
+
+            const { data } = await incrementCallMinutes(currentUser.id, 1);
+            sessionStartRef.current = Date.now();
+
+            if (data && data.call_minutes_today >= 19.5) {
+                addToast('You have 30 seconds left in your daily call limit.', 'warning');
+            }
+
+            if (data && data.call_minutes_today >= 20) {
+                alert('Your 20-minute daily call limit has been reached. Upgrade to Premium for unlimited calls.');
+                await cleanupCall();
                 navigate(-1);
             }
-        });
+        }, 60000);
+    };
 
-        // ── Emergency Timeout ──────────────────────────────────────────
-        // If Zego hasn't joined within 10s, force the overlay to hide.
-        // This reveals the Zego UI for manual join if something hangs.
-        setTimeout(() => {
-            if (isConnecting) {
-                console.warn('[Zego] Connection taking long. Forcing overlay hide.');
-                setIsConnecting(false);
-                if (ringtoneRef.current) {
-                    ringtoneRef.current.stop();
-                    ringtoneRef.current = null;
-                }
-            }
-        }, 10000);
+    const attachRemoteVideo = (user) => {
+        if (!remoteVideosRef.current || !user.videoTrack) return;
 
-        const startRingtone = () => {
-            if (ringtoneRef.current) return;
-
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const playBeep = () => {
-                    // If context is closed or closing, stop recursion
-                    if (!ringtoneRef.current || audioCtx.state === 'closed') return;
-                    
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, audioCtx.currentTime); // A4 note
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.5);
-                    
-                    // Pulse every 1.5 seconds
-                    setTimeout(() => {
-                        if (ringtoneRef.current && audioCtx.state !== 'closed') playBeep();
-                    }, 1500);
-                };
-
-                ringtoneRef.current = { 
-                    audioCtx,
-                    stop: () => { 
-                        if (audioCtx.state !== 'closed') audioCtx.close(); 
-                    } 
-                };
-                playBeep();
-            } catch (e) {
-                console.error('Beep generator failed:', e);
-            }
-        };
-
-        startRingtone();
-
-
-        // Start heartbeat for Freemium users (track every 2 minutes)
-        if (!userProfile?.is_premium) {
-            heartbeatRef.current = setInterval(async () => {
-                const elapsedMs = Date.now() - sessionStartRef.current;
-                const elapsedMins = Math.floor(elapsedMs / 60000);
-                
-                if (elapsedMins >= 1) {
-                    // Update DB with 1 min increments
-                    const { data } = await incrementCallMinutes(currentUser.id, 1);
-                    sessionStartRef.current = Date.now(); // reset local tracker
-                    
-                    if (data && data.call_minutes_today >= 19.5) {
-                        // 30-second warning before 20 mins
-                        addToast("You have 30 seconds left in your daily call limit! ⏰", "warning");
-                    }
-
-                    if (data && data.call_minutes_today >= 20) {
-                        alert("Your 20-minute daily call limit has been reached. Upgrade to Premium for unlimited calls!");
-                        if (zpRef.current) zpRef.current.destroy();
-                        if (ringtoneRef.current) ringtoneRef.current.stop();
-                        navigate(-1);
-                    }
-                }
-            }, 60000); // Check every minute
+        const id = `agora-remote-${user.uid}`;
+        let container = document.getElementById(id);
+        if (!container) {
+            container = document.createElement('div');
+            container.id = id;
+            container.className = 'agora-video-tile agora-remote-video';
+            remoteVideosRef.current.appendChild(container);
         }
+        user.videoTrack.play(container);
+    };
+
+    const removeRemoteVideo = (uid) => {
+        const container = document.getElementById(`agora-remote-${uid}`);
+        if (container) container.remove();
+    };
+
+    const startCall = async () => {
+        if (limitReached || hasStartedRef.current) return;
+        hasStartedRef.current = true;
+
+        try {
+            setIsConnecting(true);
+            setCallError('');
+            sessionStartRef.current = Date.now();
+            await requestMediaAccess();
+
+            const tokenPayload = await getAgoraCallToken({
+                roomID,
+                userName: userFullName,
+                callType,
+            });
+
+            const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+            clientRef.current = client;
+
+            client.on('user-published', async (user, mediaType) => {
+                await client.subscribe(user, mediaType);
+                if (mediaType === 'audio') user.audioTrack?.play();
+                if (mediaType === 'video') attachRemoteVideo(user);
+                setRemoteCount(client.remoteUsers.length);
+                stopRingtone();
+            });
+
+            client.on('user-unpublished', (user, mediaType) => {
+                if (mediaType === 'video') removeRemoteVideo(user.uid);
+                setRemoteCount(client.remoteUsers.length);
+            });
+
+            client.on('user-left', (user) => {
+                removeRemoteVideo(user.uid);
+                setRemoteCount(client.remoteUsers.length);
+            });
+
+            client.on('token-privilege-will-expire', async () => {
+                const refreshed = await getAgoraCallToken({ roomID, userName: userFullName, callType });
+                await client.renewToken(refreshed.token);
+            });
+
+            await client.join(
+                tokenPayload.appID,
+                tokenPayload.channelName,
+                tokenPayload.token,
+                tokenPayload.userID,
+            );
+
+            localAudioTrackRef.current = await AgoraRTC.createMicrophoneAudioTrack();
+            const tracksToPublish = [localAudioTrackRef.current];
+
+            if (callType === 'video') {
+                localVideoTrackRef.current = await AgoraRTC.createCameraVideoTrack({
+                    encoderConfig: '480p_1',
+                });
+                tracksToPublish.push(localVideoTrackRef.current);
+                if (localVideoRef.current) {
+                    localVideoTrackRef.current.play(localVideoRef.current);
+                }
+            }
+
+            await client.publish(tracksToPublish);
+            setRemoteCount(client.remoteUsers.length);
+            setIsConnecting(false);
+            startRingtone();
+            startFreemiumHeartbeat();
+
+            connectTimeoutRef.current = setTimeout(() => {
+                setIsConnecting(false);
+                stopRingtone();
+            }, 10000);
+        } catch (error) {
+            console.error('[Agora] Failed to start call:', error);
+            setCallError(error.message || 'Unable to start the call.');
+            setIsConnecting(false);
+            await cleanupCall();
+        }
+    };
+
+    const handleCallMount = (element) => {
+        if (!element) return;
+        startCall();
+    };
+
+    const toggleMute = async () => {
+        if (!localAudioTrackRef.current) return;
+        const nextMuted = !isMuted;
+        await localAudioTrackRef.current.setEnabled(!nextMuted);
+        setIsMuted(nextMuted);
+    };
+
+    const toggleCamera = async () => {
+        if (!localVideoTrackRef.current) return;
+        const nextCameraOff = !isCameraOff;
+        await localVideoTrackRef.current.setEnabled(!nextCameraOff);
+        setIsCameraOff(nextCameraOff);
+    };
+
+    const endCall = async () => {
+        await cleanupCall();
+        navigate(-1);
     };
 
     if (limitReached) {
         return (
             <div className="limit-reached-overlay">
                 <div className="limit-card">
-                    <span className="limit-icon">⏰</span>
+                    <span className="limit-icon">!</span>
                     <h2>Daily Limit Reached</h2>
-                    <p>Freemium users get 20 minutes of calls per day. Upgrade to Premium for unlimited access!</p>
-                    <button className="btn-upgrade" onClick={() => navigate('/premium')}>Upgrade to Premium 🚀</button>
+                    <p>Freemium users get 20 minutes of calls per day. Upgrade to Premium for unlimited access.</p>
+                    <button className="btn-upgrade" onClick={() => navigate('/premium')}>Upgrade to Premium</button>
+                    <button className="btn-back" onClick={() => navigate(-1)}>Back</button>
+                </div>
+            </div>
+        );
+    }
+
+    if (callError) {
+        return (
+            <div className="limit-reached-overlay">
+                <div className="limit-card">
+                    <span className="limit-icon">!</span>
+                    <h2>Call Could Not Start</h2>
+                    <p>{callError}</p>
+                    <button
+                        className="btn-upgrade"
+                        onClick={() => {
+                            setCallError('');
+                            setIsConnecting(true);
+                            hasStartedRef.current = false;
+                            startCall();
+                        }}
+                    >
+                        Try Again
+                    </button>
                     <button className="btn-back" onClick={() => navigate(-1)}>Back</button>
                 </div>
             </div>
@@ -232,12 +327,44 @@ export default function VoiceCallRoom() {
     }
 
     return (
-        <div className="voice-call-room">
-            <div ref={myMeeting} className="voice-call-container" />
-            
+        <div className={`voice-call-room ${callType === 'video' ? 'is-video-call' : 'is-voice-call'}`}>
+            <div ref={handleCallMount} className="voice-call-container">
+                <div className="agora-stage">
+                    <div ref={remoteVideosRef} className="agora-remote-grid">
+                        {remoteCount === 0 && (
+                            <div className="agora-waiting-card">
+                                <div className="calling-avatar">
+                                    {targetName.charAt(0).toUpperCase()}
+                                </div>
+                                <h2>{targetName}</h2>
+                                <p>Waiting for the other person to join...</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {callType === 'video' && (
+                        <div className={`agora-local-video ${isCameraOff ? 'is-off' : ''}`} ref={localVideoRef}>
+                            {isCameraOff && <span>Camera off</span>}
+                        </div>
+                    )}
+                </div>
+
+                <div className="agora-call-bar">
+                    <button onClick={toggleMute} className={isMuted ? 'is-active' : ''}>
+                        {isMuted ? 'Unmute' : 'Mute'}
+                    </button>
+                    {callType === 'video' && (
+                        <button onClick={toggleCamera} className={isCameraOff ? 'is-active' : ''}>
+                            {isCameraOff ? 'Camera On' : 'Camera Off'}
+                        </button>
+                    )}
+                    <button onClick={endCall} className="btn-end-call">End</button>
+                </div>
+            </div>
+
             <AnimatePresence>
                 {isConnecting && (
-                    <motion.div 
+                    <MotionDiv
                         className="calling-overlay"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -251,23 +378,16 @@ export default function VoiceCallRoom() {
                                     {targetName.charAt(0).toUpperCase()}
                                 </div>
                             </div>
-                            
+
                             <h2 className="calling-name">Calling {targetName}...</h2>
-                            <p className="calling-status">Establishing voice connection...</p>
-                            
-                            <button 
-                                className="btn-cancel-call"
-                                onClick={() => {
-                                    if (ringtoneRef.current) ringtoneRef.current.stop();
-                                    if (zpRef.current) zpRef.current.destroy();
-                                    navigate(-1);
-                                }}
-                            >
-                                <span className="btn-icon">📞</span>
+                            <p className="calling-status">Establishing secure call connection...</p>
+
+                            <button className="btn-cancel-call" onClick={endCall}>
+                                <span className="btn-icon">x</span>
                                 End Call
                             </button>
                         </div>
-                    </motion.div>
+                    </MotionDiv>
                 )}
             </AnimatePresence>
         </div>

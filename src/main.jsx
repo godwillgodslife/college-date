@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App.jsx';
+import './styles/androidPolish.css';
 
 // ─────────────────────────────────────────────
 // Platform Detection
@@ -10,6 +11,38 @@ import App from './App.jsx';
 const isNative = typeof window !== 'undefined' &&
   window.Capacitor !== undefined &&
   window.Capacitor.isNativePlatform();
+
+if (isNative) {
+  document.documentElement.classList.add('is-native-app');
+  const platform = typeof window.Capacitor.getPlatform === 'function'
+    ? window.Capacitor.getPlatform()
+    : 'native';
+  document.documentElement.classList.add(`is-${platform}-app`);
+}
+
+if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('native-preview')) {
+  document.documentElement.classList.add('is-native-app');
+}
+
+async function clearNativeWebCaches() {
+  if (!isNative) return;
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } catch (error) {
+    console.warn('[Capacitor] Cache cleanup skipped:', error);
+  }
+}
+
+clearNativeWebCaches();
 
 // ─────────────────────────────────────────────
 // PWA Service Worker — Web only
@@ -53,16 +86,34 @@ async function initCapacitor() {
   if (!isNative) return;
 
   try {
+    const getRouteFromDeepLink = (incomingUrl) => {
+      const url = new URL(incomingUrl);
+
+      if (url.protocol === 'com.collegedate.app:') {
+        const routePath = `/${url.host}${url.pathname}`.replace(/\/+/g, '/');
+        return `${routePath}${url.search}${url.hash}`;
+      }
+
+      return `${url.pathname}${url.search}${url.hash}`;
+    };
+
     // 1. Handle incoming deep links (Supabase OAuth callback)
     //    e.g. com.collegedate.app://auth/callback?access_token=...
     const { App: CapApp } = await import('@capacitor/app');
-    CapApp.addListener('appUrlOpen', (data) => {
+    CapApp.addListener('appUrlOpen', async (data) => {
       if (!data?.url) return;
       console.log('[Capacitor] Deep link received:', data.url);
       try {
-        const url = new URL(data.url);
+        const path = getRouteFromDeepLink(data.url);
+
+        try {
+          const { Browser } = await import('@capacitor/browser');
+          await Browser.close();
+        } catch (browserError) {
+          console.warn('[Capacitor] Browser close skipped:', browserError);
+        }
+
         // Push the path + search params into React Router
-        const path = url.pathname + url.search + url.hash;
         window.history.pushState({}, '', path);
         window.dispatchEvent(new PopStateEvent('popstate'));
       } catch (e) {
@@ -112,4 +163,3 @@ if (isNative) {
     }, 300);
   }).catch(err => console.error('[SplashScreen] Hide error:', err));
 }
-

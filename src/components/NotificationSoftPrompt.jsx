@@ -6,11 +6,17 @@ export default function NotificationSoftPrompt() {
     const [animating, setAnimating] = useState(false);
 
     useEffect(() => {
+        const isNativePlatform = window.Capacitor?.isNativePlatform?.();
+        if (isNativePlatform) return;
+
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         if (isLocal) return;
 
+        if (!window.OneSignalDeferred) return;
+
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(async function (OneSignal) {
+            if (!OneSignal?.Notifications) return;
             const permission = OneSignal.Notifications.permission;
             const dismissed = localStorage.getItem('onesignal-prompt-dismissed');
 
@@ -26,7 +32,9 @@ export default function NotificationSoftPrompt() {
 
     const handleEnable = () => {
         setShow(false);
+        if (!window.OneSignalDeferred) return;
         window.OneSignalDeferred.push(async function (OneSignal) {
+            if (!OneSignal?.Notifications) return;
             await OneSignal.Notifications.requestPermission();
         });
     };

@@ -6,6 +6,7 @@ import { acceptRequest, declineRequest } from '../services/swipeService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
+import { hasActivePremium } from '../utils/premium';
 import './Requests.css';
 
 
@@ -16,6 +17,7 @@ export default function Requests() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actioning, setActioning] = useState(null); // ID of request being processed
+    const isPremium = hasActivePremium(userProfile);
 
     async function fetchRequests() {
         setLoading(true);
@@ -152,16 +154,16 @@ export default function Requests() {
                                 <div className="priority-badge">💎 PREMIUM</div>
                             )}
                             <div className="request-user">
-                                <div className={`user-avatar-small ${!req.is_priority && userProfile?.role !== 'premium' ? 'blurred-freemium' : ''}`}>
+                                <div className={`user-avatar-small ${!req.is_priority && !isPremium ? 'blurred-freemium' : ''}`}>
                                     {req.swiper.avatar_url ? (
                                         <img src={req.swiper.avatar_url} alt="Admirer" />
                                     ) : (
                                         <div className="avatar-placeholder">?</div>
                                     )}
                                 </div>
-                                <div className={`user-details ${!req.is_priority && userProfile?.role !== 'premium' ? 'blurred-freemium-text' : ''}`}>
-                                    <h3>{(!req.is_priority && userProfile?.role !== 'premium') ? 'Hidden Admirer' : req.swiper.full_name}</h3>
-                                    <p>{(!req.is_priority && userProfile?.role !== 'premium') ? 'Match to reveal' : req.swiper.university}</p>
+                                <div className={`user-details ${!req.is_priority && !isPremium ? 'blurred-freemium-text' : ''}`}>
+                                    <h3>{(!req.is_priority && !isPremium) ? 'Hidden Admirer' : req.swiper.full_name}</h3>
+                                    <p>{(!req.is_priority && !isPremium) ? 'Match to reveal' : req.swiper.university}</p>
                                 </div>
                             </div>
 

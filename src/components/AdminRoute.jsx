@@ -1,11 +1,42 @@
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function AdminRoute({ children }) {
-    const { currentUser, userProfile, loading, profileLoading } = useAuth();
+    const { currentUser, loading, profileLoading } = useAuth();
+    const [adminState, setAdminState] = useState({ checking: true, allowed: false });
 
-    if (loading || profileLoading) {
+    useEffect(() => {
+        let isMounted = true;
+
+        async function checkAdminAccess() {
+            if (loading || profileLoading || !currentUser) {
+                setAdminState({ checking: false, allowed: false });
+                return;
+            }
+
+            setAdminState({ checking: true, allowed: false });
+
+            const { data, error } = await supabase.rpc('is_app_admin');
+
+            if (!isMounted) return;
+
+            setAdminState({
+                checking: false,
+                allowed: !error && data === true
+            });
+        }
+
+        checkAdminAccess();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [currentUser, loading, profileLoading]);
+
+    if (loading || profileLoading || (currentUser && adminState.checking)) {
         return <LoadingSpinner fullScreen text="Checking credentials..." />;
     }
 
@@ -13,12 +44,7 @@ export default function AdminRoute({ children }) {
         return <Navigate to="/login" replace />;
     }
 
-    // Check if user has the admin claim in their metadata
-    // We check raw_user_meta_data directly from the auth user object
-    const isAdmin = currentUser.user_metadata?.is_admin === true;
-
-    if (!isAdmin) {
-        // Aggressively redirect non-admins back to the home page
+    if (!adminState.allowed) {
         return <Navigate to="/" replace />;
     }
 

@@ -4,6 +4,7 @@ import { getDiscoverProfiles } from '../services/swipeService';
 import { getConfessions } from '../services/confessionService';
 import { getLeaderboards } from '../services/leaderboardService';
 import { getConversations } from '../services/chatService';
+import { persistentSWR } from '../lib/persistentCache';
 
 /**
  * useDiscoveryProfiles
@@ -16,10 +17,11 @@ export function useDiscoveryProfiles(userId, filters, userProfile) {
         const { data, error } = await getDiscoverProfiles(userId, filters, userProfile);
         if (error) throw new Error(error);
         return data;
-    }, {
+    }, persistentSWR(key, {
         revalidateOnFocus: false,
         dedupingInterval: 10000, // 10s dedupe
-    });
+        ttlMs: 2 * 60 * 1000
+    }));
 }
 
 /**
@@ -34,10 +36,11 @@ export function useConfessions(university, userId) {
         const { data, error } = await getConfessions(university, userId);
         if (error) throw new Error(error);
         return data;
-    }, {
+    }, persistentSWR(key, {
         revalidateOnFocus: true,
         dedupingInterval: 5000,
-    });
+        ttlMs: 5 * 60 * 1000
+    }));
 }
 
 /**
@@ -51,10 +54,11 @@ export function useLeaderboards() {
         const response = await getLeaderboards();
         if (response.error) throw new Error(response.error);
         return { mostWanted: response.mostWanted, bigSpenders: response.bigSpenders };
-    }, {
+    }, persistentSWR(key, {
         revalidateOnFocus: false,
         dedupingInterval: 60000, // 1 minute dedupe for leaderboards
-    });
+        ttlMs: 15 * 60 * 1000
+    }));
 }
 
 /**
@@ -68,10 +72,11 @@ export function useConversations(userId) {
         const { data, error } = await getConversations(userId);
         if (error) throw new Error(error);
         return data;
-    }, {
+    }, persistentSWR(key, {
         revalidateOnFocus: true,
         dedupingInterval: 3000,
-    });
+        ttlMs: 60 * 1000
+    }));
 
     return { data, error, isLoading, mutate };
 }
@@ -90,5 +95,8 @@ export function useSWRProfile(userId) {
             .single();
         if (error) throw error;
         return data;
-    });
+    }, persistentSWR(key, {
+        revalidateOnFocus: false,
+        ttlMs: 10 * 60 * 1000
+    }));
 }

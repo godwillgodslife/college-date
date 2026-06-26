@@ -1,8 +1,72 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { updatePresence } from '../services/profileService';
+import { logoutPushNotifications } from '../services/pushNotification';
+import { hasActivePremium } from '../utils/premium';
+import { clearAppCache, getCachedData, setCachedData } from '../lib/persistentCache';
 
 const AuthContext = createContext(null);
+const NATIVE_AUTH_CALLBACK = 'com.collegedate.app://auth/callback';
+
+function isNativePlatform() {
+    return typeof window !== 'undefined' &&
+        window.Capacitor !== undefined &&
+        window.Capacitor.isNativePlatform?.();
+}
+
+function withTimeout(promise, timeoutMs, message) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => {
+            setTimeout(() => reject(new Error(message)), timeoutMs);
+        })
+    ]);
+}
+
+function clearStoredAuthState() {
+    if (typeof window === 'undefined') return;
+
+    try {
+        const localKeys = Object.keys(window.localStorage);
+        localKeys.forEach((key) => {
+            if (
+                key.startsWith('sb-') ||
+                key.includes('supabase') ||
+                key.includes('auth-token') ||
+                key.includes('college-date-auth')
+            ) {
+                window.localStorage.removeItem(key);
+            }
+        });
+
+        const sessionKeys = Object.keys(window.sessionStorage);
+        sessionKeys.forEach((key) => {
+            if (
+                key.startsWith('sb-') ||
+                key.includes('supabase') ||
+                key.includes('auth-token') ||
+                key.includes('college-date-auth')
+            ) {
+                window.sessionStorage.removeItem(key);
+            }
+        });
+    } catch (storageError) {
+        console.warn('[Auth] Stored auth cleanup skipped:', storageError);
+    }
+
+    clearAppCache();
+}
+
+function getOAuthRedirectUrl() {
+    return isNativePlatform() ? NATIVE_AUTH_CALLBACK : `${window.location.origin}/auth/callback`;
+}
+
+async function openNativeOAuthBrowser(url) {
+    if (!url || !isNativePlatform()) return;
+
+    const { Browser } = await import('@capacitor/browser');
+    await Browser.open({ url, presentationStyle: 'fullscreen' });
+}
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -23,13 +87,17 @@ export function AuthProvider({ children }) {
     const [onlineUserIds, setOnlineUserIds] = useState(new Set());
 
     // Helper to inject defaults for missing DB columns (Existing User Repair)
-    const repairProfile = useCallback((profile) => {
+    const repairProfile = useCallback((profile, subscription = null) => {
         if (!profile) return null;
+        const subscriptionPremium = hasActivePremium(subscription);
         return {
             ...profile,
             call_minutes_today: profile.call_minutes_today ?? 0,
             last_call_reset_at: profile.last_call_reset_at ?? new Date().toISOString(),
-            is_premium: profile.is_premium ?? false,
+            is_premium: subscriptionPremium || profile.is_premium === true,
+            premium_expires_at: profile.premium_expires_at ?? subscription?.current_period_end ?? null,
+            plan_type: subscriptionPremium ? 'Premium' : profile.plan_type,
+            subscription_status: subscription?.status ?? profile.subscription_status,
             free_swipes: profile.free_swipes ?? 20,
             completion_score: profile.completion_score ?? 0
         };
@@ -39,16 +107,23 @@ export function AuthProvider({ children }) {
     const fetchProfile = useCallback(async (userId) => {
         setProfileLoading(true);
         try {
-            const { data, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .maybeSingle();
+            const [{ data, error: profileError }, { data: subscription }] = await Promise.all([
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .maybeSingle(),
+                supabase
+                    .from('subscriptions')
+                    .select('plan_type, status, current_period_end')
+                    .eq('user_id', userId)
+                    .maybeSingle()
+            ]);
 
             if (profileError) {
                 console.warn('Profile fetch warning:', profileError.message);
             }
-            setUserProfile(repairProfile(data));
+            setUserProfile(repairProfile(data, subscription));
         } catch (err) {
             console.error('Error fetching profile:', err);
             setUserProfile(null);
@@ -104,15 +179,28 @@ export function AuthProvider({ children }) {
 
             if (user) {
                 console.log('[Auth Audit] Starting profile sync for:', user.id);
+                const cachedProfile = getCachedData(['auth-profile', user.id], { ttlMs: 10 * 60 * 1000 });
+                const cachedWallet = getCachedData(['auth-wallet', user.id], { ttlMs: 2 * 60 * 1000 });
+                if (cachedProfile && mounted) {
+                    setUserProfile(cachedProfile);
+                    setWalletBalance(cachedWallet?.available_balance || 0);
+                    setProfileLoading(false);
+                    setLoading(false);
+                }
+
                 try {
-                    const [{ data: profile }, { data: wallet }] = await Promise.all([
+                    const [{ data: profile }, { data: wallet }, { data: subscription }] = await Promise.all([
                         supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-                        supabase.from('wallets').select('available_balance').eq('user_id', user.id).maybeSingle()
+                        supabase.from('wallets').select('available_balance').eq('user_id', user.id).maybeSingle(),
+                        supabase.from('subscriptions').select('plan_type, status, current_period_end').eq('user_id', user.id).maybeSingle()
                     ]);
 
                     if (mounted) {
-                        setUserProfile(repairProfile(profile));
+                        const repairedProfile = repairProfile(profile, subscription);
+                        setUserProfile(repairedProfile);
                         setWalletBalance(wallet?.available_balance || 0);
+                        setCachedData(['auth-profile', user.id], repairedProfile);
+                        setCachedData(['auth-wallet', user.id], wallet || { available_balance: 0 });
                     }
                 } catch (err) {
                     console.error("[Auth Audit] Sync error:", err);
@@ -138,10 +226,12 @@ export function AuthProvider({ children }) {
 
         // 2. Auth Listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_OUT') {
-                syncState(null);
-            } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-                syncState(session?.user || null);
+            const user = event === 'SIGNED_OUT' ? null : session?.user || null;
+
+            if (event === 'SIGNED_OUT' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                setTimeout(() => {
+                    syncState(user);
+                }, 0);
             }
         });
 
@@ -235,13 +325,18 @@ export function AuthProvider({ children }) {
     const loginWithGoogle = async () => {
         try {
             setError(null);
+            const useNativeBrowser = isNativePlatform();
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: getOAuthRedirectUrl(),
+                    skipBrowserRedirect: useNativeBrowser,
                 },
             });
             if (oauthError) throw oauthError;
+            if (useNativeBrowser) {
+                await openNativeOAuthBrowser(data?.url);
+            }
             return { data, error: null };
         } catch (err) {
             setError(err.message);
@@ -252,13 +347,18 @@ export function AuthProvider({ children }) {
     const loginWithFacebook = async () => {
         try {
             setError(null);
+            const useNativeBrowser = isNativePlatform();
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'facebook',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: getOAuthRedirectUrl(),
+                    skipBrowserRedirect: useNativeBrowser,
                 },
             });
             if (oauthError) throw oauthError;
+            if (useNativeBrowser) {
+                await openNativeOAuthBrowser(data?.url);
+            }
             return { data, error: null };
         } catch (err) {
             setError(err.message);
@@ -269,13 +369,27 @@ export function AuthProvider({ children }) {
     const logout = async () => {
         try {
             setError(null);
-            const { error: logoutError } = await supabase.auth.signOut();
-            if (logoutError) throw logoutError;
             setCurrentUser(null);
             setUserProfile(null);
+            setWalletBalance(0);
+            setProfileLoading(false);
+            setLoading(false);
+
+            const { error: logoutError } = await withTimeout(
+                supabase.auth.signOut({ scope: 'local' }),
+                5000,
+                'Logout timed out locally'
+            );
+            if (logoutError) throw logoutError;
+            await logoutPushNotifications();
+            clearStoredAuthState();
+            return { error: null };
         } catch (err) {
+            await logoutPushNotifications();
+            clearStoredAuthState();
             setError(err.message);
             console.error('Logout error:', err);
+            return { error: err.message };
         }
     };
 

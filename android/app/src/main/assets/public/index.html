@@ -15,7 +15,7 @@
   <meta name="description"
     content="The College Date is a campus dating and social app for students. Meet verified students, match, chat, and connect with people around your school community." />
   <meta name="keywords"
-    content="The College Date, thecollegedate, college dating app, campus dating app, student dating app, university dating app, Nigerian university dating" />
+    content="The College Date, TheCollegeDate, thecollegedate, college date app, college dating app, campus dating app, student dating app, university dating app, Nigerian university dating" />
   <meta name="author" content="The College Date" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.thecollegedate.com/" />
@@ -38,23 +38,83 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "The College Date",
-      "alternateName": ["TheCollegeDate", "College Date"],
-      "url": "https://www.thecollegedate.com/",
-      "applicationCategory": "DatingApplication",
-      "operatingSystem": "Web, Android",
-      "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect around their school community.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "The College Date",
-        "url": "https://www.thecollegedate.com/"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.thecollegedate.com/#organization",
+          "name": "The College Date",
+          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD", "CD app"],
+          "url": "https://www.thecollegedate.com/",
+          "logo": "https://www.thecollegedate.com/og-image.png",
+          "founder": {
+            "@type": "Person",
+            "@id": "https://www.thecollegedate.com/about.html#godswill-godlife-onah",
+            "name": "Godswill Godlife Onah",
+            "jobTitle": "Founder and System Architect",
+            "image": "https://www.thecollegedate.com/founder-godswill-godlife-onah.png",
+            "sameAs": [
+              "https://www.instagram.com/godwillgodslife/",
+              "https://www.linkedin.com/in/god-swill-godlife-80bb8b265",
+              "https://www.newaymarketingenterprise.com/"
+            ]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.thecollegedate.com/#website",
+          "name": "The College Date",
+          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD"],
+          "url": "https://www.thecollegedate.com/",
+          "publisher": { "@id": "https://www.thecollegedate.com/#organization" },
+          "inLanguage": "en"
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://www.thecollegedate.com/#app",
+          "name": "The College Date",
+          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD", "CD app"],
+          "url": "https://www.thecollegedate.com/",
+          "applicationCategory": "DatingApplication",
+          "operatingSystem": "Web, Android",
+          "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect around their school community.",
+          "publisher": { "@id": "https://www.thecollegedate.com/#organization" },
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "Students and campus communities"
+          },
+          "areaServed": {
+            "@type": "Country",
+            "name": "Nigeria"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://www.thecollegedate.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is The College Date?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The College Date is a campus dating and social discovery app for students to meet, match, chat, and connect around school communities."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is The College Date a dating app in Nigeria?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The College Date includes Nigeria-focused campus dating content and is positioned for students looking for dating apps, university dating, and safer student connections in Nigeria."
+              }
+            }
+          ]
+        }
+      ]
     }
   </script>
 
@@ -92,8 +152,8 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script type="module" crossorigin src="/assets/index-BYiOBuXy.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BoKsyz-x.css">
+  <script type="module" crossorigin src="/assets/index-aWqSwUBE.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CbXY86hQ.css">
 </head>
 
 <body>
@@ -114,10 +174,22 @@
       <p>
         Learn more:
         <a href="/about.html">About The College Date</a>,
+        <a href="/the-college-date.html">official The College Date brand page</a>,
+        <a href="/what-is-the-college-date.html">what is The College Date</a>,
+        <a href="/faq.html">The College Date FAQ</a>,
+        <a href="/download.html">Download The College Date app</a>,
+        <a href="/college-date.html">College Date brand alias</a>,
+        <a href="/press.html">official brand facts</a>,
         <a href="/campus-dating.html">Campus dating</a>,
         <a href="/student-dating.html">Student dating</a>,
+        <a href="/nigeria-dating-app.html">Nigeria dating app</a>,
+        <a href="/dating-app-for-university-students-nigeria.html">dating app for university students in Nigeria</a>,
+        <a href="/best-dating-site-for-students-nigeria.html">best dating site for students in Nigeria</a>,
+        <a href="/online-dating-app-for-undergraduates.html">online dating app for undergraduates</a>,
         <a href="/safety.html">Safety</a>,
-        <a href="/support.html">Support</a>.
+        <a href="/support.html">Support</a>,
+        <a href="/privacy.html">Privacy Policy</a>,
+        <a href="/delete-account.html">Delete Account</a>.
       </p>
     </main>
   </noscript>

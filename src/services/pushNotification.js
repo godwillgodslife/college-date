@@ -1,5 +1,10 @@
 import { supabase } from '../lib/supabase';
 
+let nativeOneSignalInitialized = false;
+let nativeSubscriptionListenerAdded = false;
+let nativeClickListenerAdded = false;
+let nativePushUserId = null;
+
 /**
  * Detect if running inside Capacitor native shell (Android/iOS)
  */
@@ -9,65 +14,102 @@ const isNative = () => {
         window.Capacitor.isNativePlatform();
 };
 
-// ─────────────────────────────────────────────
-// NATIVE PUSH (Capacitor @capacitor/push-notifications)
-// ─────────────────────────────────────────────
-async function initNativePush(userId) {
-    try {
-        const { PushNotifications } = await import('@capacitor/push-notifications');
+async function syncNativeOneSignalProfile(subscriptionId, token) {
+    if (!nativePushUserId || !subscriptionId) return;
 
-        // Request permission
-        const permResult = await PushNotifications.requestPermissions();
-        if (permResult.receive !== 'granted') {
-            console.warn('[Native Push] Permission denied.');
+    const update = { onesignal_id: subscriptionId };
+    if (token) update.push_token = token;
+
+    const { error } = await supabase
+        .from('profiles')
+        .update(update)
+        .eq('id', nativePushUserId);
+
+    if (error) {
+        console.error('[Native Push] Error syncing OneSignal subscription:', error);
+    } else {
+        console.log('[Native Push] OneSignal subscription synced to profile.');
+    }
+}
+
+function routeNotificationUrl(url) {
+    if (!url || typeof window === 'undefined') return;
+
+    try {
+        const parsed = new URL(url, window.location.origin);
+        const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        window.history.pushState({}, '', path);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch (error) {
+        console.warn('[Native Push] Could not route notification URL:', error);
+    }
+}
+
+// NATIVE PUSH (OneSignal Capacitor SDK over Firebase Cloud Messaging)
+async function initNativePush(userId) {
+    const nativePushEnabled = import.meta.env.VITE_ENABLE_NATIVE_PUSH === 'true';
+    if (!nativePushEnabled) {
+        console.warn('[Native Push] Skipped. Set VITE_ENABLE_NATIVE_PUSH=true after adding android/app/google-services.json.');
+        return;
+    }
+
+    try {
+        const { default: OneSignal, LogLevel } = await import('@onesignal/capacitor-plugin');
+        const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+
+        if (!appId) {
+            console.warn('[Native Push] Skipped. Missing VITE_ONESIGNAL_APP_ID.');
             return;
         }
 
-        await PushNotifications.register();
+        nativePushUserId = userId;
 
-        // Handle successful FCM token registration
-        PushNotifications.addListener('registration', async (token) => {
-            console.log('[Native Push] FCM Token:', token.value);
-            if (userId && token.value) {
-                // Sync the FCM token to the Supabase profile
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({ push_token: token.value, onesignal_id: token.value })
-                    .eq('id', userId);
-                if (error) console.error('[Native Push] Error syncing token:', error);
-                else console.log('[Native Push] Token synced to profile.');
+        if (!nativeOneSignalInitialized) {
+            OneSignal.Debug.setLogLevel(LogLevel.Warn);
+            await OneSignal.initialize(appId);
+            nativeOneSignalInitialized = true;
+        }
+
+        if (userId) {
+            await OneSignal.login(userId);
+        }
+
+        if (!nativeSubscriptionListenerAdded) {
+            OneSignal.User.pushSubscription.addEventListener('change', async (event) => {
+                await syncNativeOneSignalProfile(event.current?.id, event.current?.token);
+            });
+            nativeSubscriptionListenerAdded = true;
+        }
+
+        if (!nativeClickListenerAdded) {
+            OneSignal.Notifications.addEventListener('click', (event) => {
+                const url = event?.result?.url || event?.notification?.additionalData?.url;
+                routeNotificationUrl(url);
+            });
+            nativeClickListenerAdded = true;
+        }
+
+        const hasPermission = await OneSignal.Notifications.hasPermission();
+        if (!hasPermission) {
+            const granted = await OneSignal.Notifications.requestPermission(true);
+            if (!granted) {
+                console.warn('[Native Push] Permission denied.');
+                return;
             }
-        });
+        }
 
-        // Handle registration errors
-        PushNotifications.addListener('registrationError', (err) => {
-            console.error('[Native Push] Registration error:', err);
-        });
-
-        // Handle incoming push notification (app is in foreground)
-        PushNotifications.addListener('pushNotificationReceived', (notification) => {
-            console.log('[Native Push] Received foreground notification:', notification);
-        });
-
-        // Handle push notification tap (user taps a notification)
-        PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-            console.log('[Native Push] Notification tapped:', action);
-            const url = action.notification?.data?.url;
-            if (url && typeof window !== 'undefined') {
-                // Navigate to the target route inside the app
-                window.history.pushState({}, '', url);
-                window.dispatchEvent(new PopStateEvent('popstate'));
-            }
-        });
-
+        await OneSignal.User.pushSubscription.optIn();
+        const [subscriptionId, token] = await Promise.all([
+            OneSignal.User.pushSubscription.getIdAsync(),
+            OneSignal.User.pushSubscription.getTokenAsync()
+        ]);
+        await syncNativeOneSignalProfile(subscriptionId, token);
     } catch (err) {
         console.error('[Native Push] Init error:', err);
     }
 }
 
-// ─────────────────────────────────────────────
-// WEB PUSH (OneSignal Web SDK — browser only)
-// ─────────────────────────────────────────────
+// WEB PUSH (OneSignal Web SDK, browser only)
 async function initWebPush(userId) {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('[Web Push] Skipping OneSignal init on localhost');
@@ -122,22 +164,32 @@ async function initWebPush(userId) {
     }
 }
 
-// ─────────────────────────────────────────────
-// MAIN ENTRYPOINT — Auto-detects platform
-// ─────────────────────────────────────────────
+// MAIN ENTRYPOINT: auto-detects platform
 /**
  * Initialize push notifications for the current platform.
- * - On Android/iOS (Capacitor): uses @capacitor/push-notifications (FCM)
+ * - On Android/iOS (Capacitor): uses OneSignal native SDK backed by FCM
  * - On Web (browser): uses OneSignal Web SDK
  * @param {string} userId - The authenticated Supabase user ID
  */
 export async function initPushNotifications(userId) {
     if (isNative()) {
-        console.log('[Push] Native platform detected — using Capacitor Push Notifications');
+        console.log('[Push] Native platform detected - using OneSignal native SDK');
         await initNativePush(userId);
     } else {
-        console.log('[Push] Web platform detected — using OneSignal Web SDK');
+        console.log('[Push] Web platform detected - using OneSignal Web SDK');
         await initWebPush(userId);
+    }
+}
+
+export async function logoutPushNotifications() {
+    if (!isNative() || !nativeOneSignalInitialized) return;
+
+    try {
+        const { default: OneSignal } = await import('@onesignal/capacitor-plugin');
+        await OneSignal.logout();
+        nativePushUserId = null;
+    } catch (err) {
+        console.error('[Native Push] Logout error:', err);
     }
 }
 

@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { getWallet } from '../services/paymentService';
-import { initPushNotifications } from '../services/pushNotification';
 import FeatureCard from '../components/FeatureCard';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import ViewerTeaser from '../components/ViewerTeaser'; // NEW
 import AndroidInstallButton from '../components/AndroidInstallButton';
+import { hasActivePremium } from '../utils/premium';
 import './Dashboard.css';
 
 export default function Dashboard() {
     const { currentUser, userProfile } = useAuth();
+    const navigate = useNavigate();
 
     const [stats, setStats] = useState({
         matches: 0,
@@ -22,24 +23,13 @@ export default function Dashboard() {
         giftsReceived: 0,
         viewerCount: 0 // Track viewers
     });
+    const [isLoadingStats, setIsLoadingStats] = useState(true);
+    const [statsError, setStatsError] = useState('');
 
     useEffect(() => {
         if (!currentUser) return;
 
         fetchStats();
-
-        // Feature 3: Deferred Notification Permission
-        // Only prompt for push notifications ONCE, on first dashboard visit after signup.
-        // This prevents the double-popup (app UI + browser native) during the signup flow.
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        if (!isLocal && !localStorage.getItem('cd_notif_prompted')) {
-            // Small delay so the dashboard fully renders before the browser prompt
-            const notifTimer = setTimeout(() => {
-                initPushNotifications(currentUser.id);
-                localStorage.setItem('cd_notif_prompted', '1');
-            }, 2500);
-            return () => clearTimeout(notifTimer);
-        }
 
         // Subscribe to real-time updates for dashboard stats
         const dashboardChannel = supabase
@@ -93,52 +83,71 @@ export default function Dashboard() {
 
     async function fetchStats(showLoading = true) {
         try {
-            // Count Matches
-            const { count: matchCount } = await supabase
-                .from('matches')
-                .select('*', { count: 'exact', head: true })
-                .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
+            if (showLoading) {
+                setIsLoadingStats(true);
+                setStatsError('');
+            }
 
-            // Count Messages (Sent by user)
-            const { count: msgCount } = await supabase
-                .from('messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('sender_id', currentUser.id);
-
-            // Get Wallet Detailed Info
-            const { data: wallet } = await supabase
-                .from('wallets')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .single();
-
-            // Count Gifts Received
-            const { count: giftCount } = await supabase
-                .from('wallet_transactions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', currentUser.id)
-                .eq('type', 'gift_received');
-
-            // Count Profile Views (Last 24h)
             const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-            const { count: viewCount } = await supabase
-                .from('profile_views')
-                .select('*', { count: 'exact', head: true })
-                .eq('profile_owner_id', currentUser.id)
-                .gt('created_at', twentyFourHoursAgo);
+            const [
+                matchResult,
+                messageResult,
+                walletResult,
+                giftResult,
+                viewResult
+            ] = await Promise.all([
+                supabase
+                    .from('matches')
+                    .select('*', { count: 'exact', head: true })
+                    .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`),
+                supabase
+                    .from('messages')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('sender_id', currentUser.id),
+                supabase
+                    .from('wallets')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle(),
+                supabase
+                    .from('wallet_transactions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_id', currentUser.id)
+                    .eq('type', 'gift_received'),
+                supabase
+                    .from('profile_views')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('profile_owner_id', currentUser.id)
+                    .gt('created_at', twentyFourHoursAgo)
+            ]);
+
+            const firstError = [
+                matchResult.error,
+                messageResult.error,
+                walletResult.error,
+                giftResult.error,
+                viewResult.error
+            ].find(Boolean);
+
+            if (firstError) throw firstError;
+
+            const wallet = walletResult.data;
 
             setStats({
-                matches: matchCount || 0,
-                messages: msgCount || 0,
+                matches: matchResult.count || 0,
+                messages: messageResult.count || 0,
                 balance: wallet?.available_balance || 0,
                 pendingBalance: wallet?.pending_balance || 0,
                 totalEarned: wallet?.total_earned || 0,
                 freeSwipes: userProfile?.free_swipes || 0,
-                giftsReceived: giftCount || 0,
-                viewerCount: viewCount || 0
+                giftsReceived: giftResult.count || 0,
+                viewerCount: viewResult.count || 0
             });
         } catch (err) {
             console.error('Error fetching dashboard stats:', err);
+            setStatsError('Some dashboard numbers could not refresh. Your main app is still available.');
+        } finally {
+            if (showLoading) setIsLoadingStats(false);
         }
     }
 
@@ -148,84 +157,144 @@ export default function Dashboard() {
         || 'there';
 
     const greeting = getGreeting();
+    const isPremium = hasActivePremium(userProfile);
+    const role = String(userProfile?.role || userProfile?.gender || '').toLowerCase();
+    const isFemale = role === 'female';
+    const isMale = role === 'male';
+    const primaryStats = isFemale
+        ? [
+            { label: 'Earnings', value: `₦${stats.balance.toLocaleString()}`, to: '/wallet' },
+            { label: 'Pending', value: `₦${stats.pendingBalance.toLocaleString()}` },
+            { label: 'Gifts', value: stats.giftsReceived }
+        ]
+        : [
+            { label: 'Balance', value: `₦${stats.balance.toLocaleString()}`, to: '/wallet' },
+            { label: isPremium ? 'Premium Swipes' : 'Free Swipes', value: isPremium ? '∞' : stats.freeSwipes },
+            { label: 'Messages', value: stats.messages, to: '/chat' }
+        ];
+
+    if (!isMale && !isFemale) {
+        primaryStats[0] = { label: 'Wallet', value: `₦${stats.balance.toLocaleString()}`, to: '/wallet' };
+    }
+
+    const actionCards = [
+        {
+            icon: '💕',
+            title: 'Start Matching',
+            description: 'Swipe through verified campus profiles',
+            to: '/match',
+            featured: true
+        },
+        {
+            icon: '💬',
+            title: 'Messages',
+            description: 'Continue conversations with your matches',
+            to: '/chat'
+        },
+        {
+            icon: '🧭',
+            title: 'Explore',
+            description: 'Browse campus people, activity, and discovery',
+            to: '/explore'
+        },
+        {
+            icon: '👑',
+            title: isPremium ? 'Premium Active' : 'Upgrade Premium',
+            description: isPremium ? 'Your premium benefits are active' : 'Unlock unlimited swipes and priority features',
+            to: '/premium'
+        },
+        {
+            icon: '💳',
+            title: 'Wallet',
+            description: 'Manage balance, gifts, boosts, and payouts',
+            to: '/wallet'
+        },
+        {
+            icon: isFemale ? '💌' : '🛡️',
+            title: isFemale ? 'Requests' : 'Safety & Settings',
+            description: isFemale ? 'Review attention and match requests' : 'Control account, safety, and preferences',
+            to: isFemale ? '/requests' : '/settings'
+        }
+    ];
 
     return (
         <div className="dashboard">
             {/* Hero Section */}
             <section className="dashboard-hero">
                 <div className="dashboard-hero-content">
+                    <div className="dashboard-eyebrow">Campus command center</div>
                     <h1 className="dashboard-greeting">
                         {greeting}, <span className="dashboard-name">{displayName}</span> 👋
                     </h1>
-                    <p className="dashboard-tagline">Ready to find your campus match?</p>
-                    <AndroidInstallButton />
+                    <p className="dashboard-tagline">Check your activity, continue chats, and jump back into campus discovery.</p>
+                    <div className="dashboard-hero-actions">
+                        <Link to="/match" className="dashboard-primary-action">Start matching</Link>
+                        <Link to="/chat" className="dashboard-secondary-action">Open chats</Link>
+                    </div>
                 </div>
 
                 {/* Who Viewed You Teaser (Social Proof/Curiosity) */}
                 <ViewerTeaser count={stats.viewerCount} />
 
-                <div className="dashboard-stats">
-                    {userProfile?.role === 'Male' ? (
-                        <>
-                            <div className="stat-card clickable" onClick={() => window.location.href = '/wallet'}>
-                                <span className="stat-value">₦{stats.balance.toLocaleString()}</span>
-                                <span className="stat-label">Balance</span>
-                            </div>
-                            <div className="stat-card">
-                                <span className="stat-value">{stats.freeSwipes}</span>
-                                <span className="stat-label">Free Swipes</span>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="stat-card clickable" onClick={() => window.location.href = '/wallet'}>
-                                <span className="stat-value">₦{stats.balance.toLocaleString()}</span>
-                                <span className="stat-label">Earnings</span>
-                            </div>
-                            <div className="stat-card">
-                                <span className="stat-value">₦{stats.pendingBalance.toLocaleString()}</span>
-                                <span className="stat-label">Pending</span>
-                            </div>
-                            <div className="stat-card">
-                                <span className="stat-value">{stats.giftsReceived}</span>
-                                <span className="stat-label">Gifts</span>
-                            </div>
-                        </>
-                    )}
-                    <div className="stat-card">
-                        <span className="stat-value">{stats.matches}</span>
+                {statsError && (
+                    <button className="dashboard-alert" type="button" onClick={() => fetchStats(true)}>
+                        {statsError} Tap to retry.
+                    </button>
+                )}
+
+                <div className={`dashboard-stats ${isLoadingStats ? 'is-loading' : ''}`}>
+                    {primaryStats.map((item) => (
+                        <button
+                            key={item.label}
+                            type="button"
+                            className={`stat-card ${item.to ? 'clickable' : ''}`}
+                            onClick={() => item.to && navigate(item.to)}
+                            disabled={!item.to}
+                        >
+                            <span className="stat-value">{isLoadingStats ? '...' : item.value}</span>
+                            <span className="stat-label">{item.label}</span>
+                        </button>
+                    ))}
+                    <button type="button" className="stat-card" disabled>
+                        <span className="stat-value">{isLoadingStats ? '...' : stats.matches}</span>
                         <span className="stat-label">Matches</span>
-                    </div>
+                    </button>
                 </div>
             </section>
 
             {/* Analytics for Ladies */}
-            {userProfile?.role === 'Female' && (
+            {isFemale && (
                 <AnalyticsDashboard userId={currentUser.id} />
             )}
 
+            <section className="dashboard-install-panel">
+                <div>
+                    <span className="dashboard-panel-kicker">Mobile first</span>
+                    <h2>Use The College Date like a real campus app</h2>
+                    <p>Install it on Android for faster access, cleaner navigation, native payments, and a more app-like experience.</p>
+                </div>
+                <AndroidInstallButton />
+            </section>
+
             {/* Features Grid */}
             <section className="dashboard-features">
-                <h2 className="section-title">Explore</h2>
+                <div className="dashboard-section-header">
+                    <div>
+                        <span className="dashboard-panel-kicker">What next?</span>
+                        <h2 className="section-title">Your main actions</h2>
+                    </div>
+                    <Link to="/settings" className="dashboard-text-link">Account settings</Link>
+                </div>
                 <div className="features-grid">
-                    <FeatureCard
-                        icon="💖"
-                        title="Match"
-                        description="Swipe and find people you vibe with"
-                        to="/match"
-                    />
-                    <FeatureCard
-                        icon="💬"
-                        title="Chat"
-                        description="Talk with your matches"
-                        to="/chat"
-                    />
-                    <FeatureCard
-                        icon="👤"
-                        title="Profile"
-                        description="Edit your profile and preferences"
-                        to="/profile"
-                    />
+                    {actionCards.map((card) => (
+                        <FeatureCard
+                            key={card.title}
+                            icon={card.icon}
+                            title={card.title}
+                            description={card.description}
+                            to={card.to}
+                        />
+                    ))}
                 </div>
             </section>
         </div>

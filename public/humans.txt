@@ -1,0 +1,19 @@
+/* TEAM */
+Brand: The College Date
+Founder: Godswill Godlife Onah
+Founder role: Founder and System Architect
+Founder Instagram: https://www.instagram.com/godwillgodslife/
+Founder LinkedIn: https://www.linkedin.com/in/god-swill-godlife-80bb8b265
+Founder company: Neway Marketing Enterprise, https://www.newaymarketingenterprise.com/
+
+/* SITE */
+Website: https://www.thecollegedate.com/
+Category: Campus dating app, student dating app, social discovery app
+Audience: Students and campus communities
+Primary geography: Nigeria-focused public content
+Contact: info@thecollegedate.com
+
+/* AI AND SEARCH */
+AI summary: https://www.thecollegedate.com/llms.txt
+Sitemap: https://www.thecollegedate.com/sitemap.xml
+Press and brand facts: https://www.thecollegedate.com/press.html

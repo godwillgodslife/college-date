@@ -6,6 +6,8 @@ import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import VoiceRecorder from '../components/VoiceRecorder';
 import { supabase } from '../lib/supabase';
+import { requestAiAssistant } from '../services/aiAssistantService';
+import { requestProfileAiReview } from '../services/aiTrustService';
 import './EditProfile.css';
 
 export default function EditProfile() {
@@ -17,6 +19,8 @@ export default function EditProfile() {
     const [loading, setLoading] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [voiceBlob, setVoiceBlob] = useState(null);
+    const [aiCoachLoading, setAiCoachLoading] = useState(false);
+    const [aiCoach, setAiCoach] = useState(null);
     const [formData, setFormData] = useState({
         full_name: '',
         age: '',
@@ -119,6 +123,32 @@ export default function EditProfile() {
         }
     };
 
+    const handleProfileCoach = async () => {
+        if (aiCoachLoading) return;
+        setAiCoachLoading(true);
+        const { data, error } = await requestAiAssistant('profile_coach', {
+            profileDraft: {
+                full_name: formData.full_name,
+                university: formData.university,
+                department: formData.department,
+                level: formData.level,
+                bio: formData.bio,
+                interests: formData.interests,
+                intro_prompt: formData.intro_prompt,
+                attraction_goal: formData.attraction_goal,
+                photo_count: formData.profile_photos.filter(Boolean).length,
+                has_voice_intro: Boolean(formData.voice_intro_url || voiceBlob)
+            }
+        });
+
+        if (error) {
+            addToast('AI coach is unavailable right now.', 'warning');
+        } else {
+            setAiCoach(data);
+        }
+        setAiCoachLoading(false);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -166,6 +196,7 @@ export default function EditProfile() {
             if (error) throw new Error(error);
 
             await fetchProfile(currentUser.id);
+            requestProfileAiReview('profile_update');
 
             addToast('Profile updated!', 'success');
             navigate('/profile');
@@ -223,6 +254,51 @@ export default function EditProfile() {
                             ))}
                         </div>
                         <p className="section-hint">The first photo is your main avatar used across the app.</p>
+                    </section>
+
+                    <section className="form-section ai-profile-coach-card">
+                        <div className="ai-profile-coach-header">
+                            <div>
+                                <h2 className="section-title">AI Profile Coach</h2>
+                                <p>Get quick suggestions for photos, bio, prompts, and first impression quality.</p>
+                            </div>
+                            <button
+                                type="button"
+                                className="modern-btn ai-coach-btn"
+                                onClick={handleProfileCoach}
+                                disabled={aiCoachLoading}
+                            >
+                                {aiCoachLoading ? 'Reviewing...' : 'Review'}
+                            </button>
+                        </div>
+
+                        {aiCoach && (
+                            <div className="ai-coach-result">
+                                {aiCoach.summary && <p className="ai-coach-summary">{aiCoach.summary}</p>}
+                                {aiCoach.bio_suggestion && (
+                                    <div>
+                                        <strong>Bio upgrade</strong>
+                                        <p>{aiCoach.bio_suggestion}</p>
+                                    </div>
+                                )}
+                                {aiCoach.priority_actions?.length > 0 && (
+                                    <div>
+                                        <strong>Next actions</strong>
+                                        <ul>
+                                            {aiCoach.priority_actions.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                                {aiCoach.photo_tips?.length > 0 && (
+                                    <div>
+                                        <strong>Photo tips</strong>
+                                        <ul>
+                                            {aiCoach.photo_tips.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </section>
 
                     {/* BASIC INFO SECTION */}

@@ -5,6 +5,7 @@ import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { initPushNotifications } from './services/pushNotification.js';
 import { initializeRevenueCat } from './services/paymentService.js';
+import { warmupNativeDataCache } from './services/cacheWarmupService.js';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AppLayout from './components/AppLayout.jsx';
@@ -42,10 +43,54 @@ const VoiceCallRoom = lazy(() => import('./pages/VoiceCallRoom'));
 // Components that can be lazy loaded
 const TourGuide = lazy(() => import('./components/TourGuide'));
 
+function isNativePlatform() {
+  return typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
+}
+
+function preloadNativeRouteChunks() {
+  if (!isNativePlatform()) return;
+
+  const preload = () => {
+    const imports = [
+      import('./pages/Dashboard'),
+      import('./pages/Match'),
+      import('./pages/Explore'),
+      import('./pages/Chat'),
+      import('./pages/StatusUpdates'),
+      import('./pages/Snap'),
+      import('./pages/Profile'),
+      import('./pages/EditProfile'),
+      import('./pages/Settings'),
+      import('./pages/Referrals'),
+      import('./pages/Wallet'),
+      import('./pages/Requests'),
+      import('./pages/Leaderboard'),
+      import('./pages/Confessions'),
+      import('./pages/PremiumUpgrade'),
+      import('./pages/Viewers'),
+      import('./pages/MiniProfileSetup'),
+      import('./components/TourGuide'),
+    ];
+
+    Promise.allSettled(imports).then((results) => {
+      const failed = results.filter((result) => result.status === 'rejected').length;
+      if (failed) {
+        console.warn(`[Native preload] ${failed} route chunk(s) failed to preload.`);
+      }
+    });
+  };
+
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(preload, { timeout: 2500 });
+  } else {
+    setTimeout(preload, 1200);
+  }
+}
+
 /**
  * SmartHomeRoute determines where an authenticated user should land.
  * If they haven't finished onboarding, they go to /mini-profile-setup.
- * If they are done, they go straight to /discover (the main app).
+ * If they are done, they go straight to /dashboard (the main app command center).
  */
 function SmartHomeRoute() {
   const { currentUser, userProfile, loading, profileLoading } = useAuth();
@@ -75,11 +120,11 @@ function SmartHomeRoute() {
     isManuallyComplete
   });
 
-  return isProfileComplete ? <Navigate to="/match" replace /> : <Navigate to="/mini-profile-setup" replace />;
+  return isProfileComplete ? <Navigate to="/dashboard" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
 
 function AppRoutes() {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, userProfile, loading } = useAuth();
 
   // Set accurate viewport height unit for mobile browsers
   useEffect(() => {
@@ -91,6 +136,10 @@ function AppRoutes() {
     setVh();
     window.addEventListener('resize', setVh);
     return () => window.removeEventListener('resize', setVh);
+  }, []);
+
+  useEffect(() => {
+    preloadNativeRouteChunks();
   }, []);
 
   useEffect(() => {
@@ -135,6 +184,12 @@ function AppRoutes() {
       deferInit();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      warmupNativeDataCache(currentUser.id, userProfile);
+    }
+  }, [currentUser, userProfile]);
 
   // Global loading gatekeeper removed to prevent "6-8 reloads" flicker.
   // We now let the individual routes (SmartHomeRoute, ProtectedRoute) handle 

@@ -25,6 +25,7 @@ const SOUND_MAP = {
     match: playMatchSuccess,
     like: playLikePop,
     super_swipe: playLikePop,
+    call: playNotificationDing,
     view: playViewChime,
     profile_view: playViewChime,
     payment: playMoneySound,

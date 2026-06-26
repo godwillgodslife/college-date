@@ -1,11 +1,16 @@
 import { useState, memo } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import OptimizedImage from './OptimizedImage';
+import { isRecentlyActive, isRecentlyLive } from '../utils/presence';
+import { requestAiAssistant } from '../services/aiAssistantService';
 import './SwipeCard.css';
 
-function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false }) {
+function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false, isTop = true }) {
     const [exitX, setExitX] = useState(0);
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+    const [aiInsight, setAiInsight] = useState(null);
+    const [aiInsightType, setAiInsightType] = useState('');
+    const [aiLoading, setAiLoading] = useState(false);
 
     const photos = profile.profile_photos && profile.profile_photos.length > 0
         ? profile.profile_photos
@@ -19,14 +24,18 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
     const likeOpacity = useTransform(x, [50, 150], [0, 1]);
     const nopeOpacity = useTransform(x, [-150, -50], [1, 0]);
 
-    const handleDragEnd = (event, info) => {
-        if (info.offset.x > 100) {
-            setExitX(300);
-            onSwipe('right');
-        } else if (info.offset.x < -100) {
-            setExitX(-300);
-            onSwipe('left');
+    const handleDragEnd = async (event, info) => {
+        const direction = info.offset.x > 100 ? 'right' : info.offset.x < -100 ? 'left' : null;
+        if (!direction || !isTop) return;
+
+        const allowed = await onBeforeSwipe?.(direction);
+        if (allowed === false) {
+            x.set(0);
+            return;
         }
+
+        setExitX(direction === 'right' ? 300 : -300);
+        setTimeout(() => onSwipe(direction), 260);
     };
 
     const nextPhoto = (e) => {
@@ -43,7 +52,8 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
         }
     };
 
-    const isLive = profile.is_live || (profile.last_seen_at && new Date(profile.last_seen_at) > new Date(Date.now() - 90 * 1000));
+    const isLive = isRecentlyLive(profile);
+    const recentlyActive = isRecentlyActive(profile);
 
     const displayName = profile.full_name || profile.username || 'User';
     const age = profile.age || '';
@@ -60,11 +70,62 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
         setIsExpanded(prev => !prev);
     };
 
+    const handleAiInsight = async (e, task = 'compatibility') => {
+        e.stopPropagation();
+        if (aiLoading) return;
+        setAiInsightType(task);
+        setAiLoading(true);
+        const { data, error } = await requestAiAssistant(task, {
+            targetProfileId: profile.id,
+            targetProfile: profile
+        });
+        if (!error) setAiInsight(data);
+        setAiLoading(false);
+        setIsExpanded(true);
+    };
+
+    const renderAiInsight = () => {
+        if (!aiInsight) return null;
+
+        if (aiInsight.openers?.length) {
+            return (
+                <>
+                    <strong>AI Opening Lines</strong>
+                    {aiInsight.openers.slice(0, 3).map((item) => <p key={item}>+ {item}</p>)}
+                    {aiInsight.why_it_works && <small>{aiInsight.why_it_works}</small>}
+                </>
+            );
+        }
+
+        if (aiInsight.ideas?.length) {
+            return (
+                <>
+                    <strong>AI Campus Date Ideas</strong>
+                    {aiInsight.ideas.slice(0, 3).map((idea) => (
+                        <p key={idea.title || idea.why}>+ {idea.title || 'Campus idea'}{idea.why ? ` - ${idea.why}` : ''}</p>
+                    ))}
+                    {aiInsight.safety_note && <small>{aiInsight.safety_note}</small>}
+                </>
+            );
+        }
+
+        return (
+            <>
+                <strong>AI Match Insight</strong>
+                {typeof aiInsight.score === 'number' && <p>{aiInsight.score}% compatibility signal</p>}
+                {aiInsight.highlights?.slice(0, 2).map((item) => <p key={item}>+ {item}</p>)}
+                {aiInsight.watchouts?.slice(0, 1).map((item) => <small key={item}>Watch: {item}</small>)}
+                {aiInsight.best_opener && <p><em>{aiInsight.best_opener}</em></p>}
+            </>
+        );
+    };
+
     return (
         <motion.div
             className={`swipe-card ${isExpanded ? 'expanded-mode' : ''}`}
             style={{ x, rotate, opacity }}
             drag="x"
+            dragListener={isTop}
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={handleDragEnd}
             animate={{
@@ -73,7 +134,7 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                 scale: exitX !== 0 ? 0.8 : 1
             }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            whileTap={{ cursor: 'grabbing', scale: 1.02 }}
+            whileTap={isTop ? { cursor: 'grabbing', scale: 1.02 } : undefined}
             onClick={toggleExpand}
         >
             <div className="swipe-card-inner">
@@ -144,11 +205,9 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                             )}
                             <span className="swipe-tag uni-tag">🎓 {university}</span>
                             {/* Recently Active Badge */}
-                            {(profile.last_active || profile.last_seen_at) && (
-                                new Date(profile.last_active || profile.last_seen_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-                            ) && (
-                                    <span className="swipe-tag active-tag">🟢 Recently Active</span>
-                                )}
+                            {recentlyActive && (
+                                <span className="swipe-tag active-tag">🟢 Recently Active</span>
+                            )}
                             {profile.is_top_seeker && (
                                 <span className="swipe-tag top-seeker-tag">🔥 Top Seeker</span>
                             )}
@@ -176,6 +235,25 @@ function SwipeCard({ profile, onSwipe, superSwipesAvailable = 0, onSuperSwipe, p
                                             <div className="flex flex-wrap gap-2 mt-1">
                                                 {profile.interests.map(i => <span key={i} className="swipe-tag text-xs">{i}</span>)}
                                             </div>
+                                        </div>
+                                    )}
+                                    <div className="ai-detail-tools" aria-label="AI match tools">
+                                        <span>AI wingmate</span>
+                                        <div>
+                                            <button className="ai-detail-btn" onClick={(e) => handleAiInsight(e, 'compatibility')} disabled={aiLoading}>
+                                                {aiLoading && aiInsightType === 'compatibility' ? 'Reading...' : 'Insight'}
+                                            </button>
+                                            <button className="ai-detail-btn" onClick={(e) => handleAiInsight(e, 'conversation_opener')} disabled={aiLoading}>
+                                                Openers
+                                            </button>
+                                            <button className="ai-detail-btn" onClick={(e) => handleAiInsight(e, 'date_ideas')} disabled={aiLoading}>
+                                                Date
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {aiInsight && (
+                                        <div className={`ai-card-insight ${aiInsightType ? `ai-${aiInsightType}` : ''}`}>
+                                            {renderAiInsight()}
                                         </div>
                                     )}
                                 </div>

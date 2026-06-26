@@ -75,9 +75,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
 
         // Live Mode (preserved as a capability)
         if (filters.category === 'Live' || filters.liveOnly) {
-            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-            query = query.or(`is_live.eq.true,last_seen_at.gt.${oneHourAgo}`);
-            query = query.order('is_live', { ascending: false });
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+            query = query.gt('last_seen_at', fiveMinutesAgo);
+            query = query.order('last_seen_at', { ascending: false });
         }
 
         query = query
@@ -206,8 +206,10 @@ export async function checkSwipeLimit(userId) {
 }
 
 // Record a swipe (like/pass)
-export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'standard', messageTeaser = null) {
+export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'standard', messageTeaser = null, options = {}) {
     try {
+        const isPremiumStandardSwipe = direction === 'right' && swipeType === 'standard' && options.isPremium === true;
+
         // 1. Record the swipe in the database (Initially PENDING)
         // Use UPSERT to allow profile recycling (Infinite Discovery)
         const { data: swipeRecord, error } = await supabase
@@ -219,6 +221,7 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 type: swipeType,
                 status: direction === 'right' ? 'pending' : 'declined',
                 is_priority: swipeType === 'premium',
+                is_free: isPremiumStandardSwipe,
                 message_teaser: messageTeaser,
                 created_at: new Date().toISOString() // Refresh timestamp for recycling logic
             }, {
@@ -240,15 +243,19 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
         if (direction === 'right') {
             console.log(`Processing ${swipeType.toUpperCase()} swipe...`);
 
-            const { data, error: paymentError } = await supabase.rpc('process_swipe_payment', {
-                p_swiper_id: swiperId,
-                p_swiped_id: swipedId,
-                p_swipe_type: swipeType
-            });
+            if (isPremiumStandardSwipe) {
+                paymentResult = { success: true, type: 'premium_free' };
+            } else {
+                const { data, error: paymentError } = await supabase.rpc('process_swipe_payment', {
+                    p_swiper_id: swiperId,
+                    p_swiped_id: swipedId,
+                    p_swipe_type: swipeType
+                });
 
-            paymentResult = data;
+                paymentResult = data;
 
-            if (paymentError) throw paymentError;
+                if (paymentError) throw paymentError;
+            }
 
             // Check if payment actually succeeded
             if (paymentResult && paymentResult.success === false) {
@@ -301,7 +308,7 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 }),
                 createNotification({
                     userId: swiperId,
-                    actorId: swipedId,
+                    actorId: null,
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
@@ -482,9 +489,9 @@ export async function checkMatch(userId, targetId) {
  */
 export async function superSwipe(swiperId, swipedProfile) {
     try {
-        // 1. Consume a super swipe credit
-        const { data: useResult, error: rpcError } = await supabase.rpc('use_super_swipe', {
-            p_user_id: swiperId
+        // Consume the credit and record the priority swipe atomically in the database.
+        const { data: useResult, error: rpcError } = await supabase.rpc('send_super_swipe', {
+            p_target_id: swipedProfile.id
         });
 
         if (rpcError) throw rpcError;
@@ -492,33 +499,17 @@ export async function superSwipe(swiperId, swipedProfile) {
             return { data: null, error: useResult.error };
         }
 
-        // 2. Record the swipe as a right swipe with 'super_swipe' type
-        const { data: swipeRecord, error: swipeError } = await supabase
-            .from('swipes')
-            .insert({
-                swiper_id: swiperId,
-                swiped_id: swipedProfile.id,
-                direction: 'right',
-                type: 'super_swipe',
-                status: 'pending',
-                is_priority: true
-            })
-            .select()
-            .single();
-
-        if (swipeError) throw swipeError;
-
-        // 3. Send immediate notification to the swiped user
+        // Send immediate notification to the swiped user.
         await createNotification({
             userId: swipedProfile.id,
             actorId: swiperId,
             type: 'super_swipe',
             title: '⭐ Super Swipe!',
             content: 'Someone sent you a Super Swipe! They really want to connect with you.',
-            metadata: { swipe_id: swipeRecord.id, swiper_id: swiperId }
+            metadata: { swipe_id: useResult.swipe_id, swiper_id: swiperId, url: '/requests' }
         });
 
-        return { data: swipeRecord, error: null };
+        return { data: { id: useResult.swipe_id }, error: null };
     } catch (err) {
         console.error('superSwipe error:', err.message);
         return { data: null, error: err.message };

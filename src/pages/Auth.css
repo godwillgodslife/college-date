@@ -77,9 +77,13 @@
 }
 
 .auth-logo {
-    font-size: 3rem;
     display: block;
-    margin-bottom: 0.75rem;
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    object-fit: cover;
+    margin: 0 auto 0.9rem;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
     animation: pulse 2s ease-in-out infinite;
 }
 

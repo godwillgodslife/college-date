@@ -11,6 +11,9 @@
     "webContentsDebuggingEnabled": false,
     "appendUserAgent": "TheCollegeDate-Android/2.0"
   },
+  "ios": {
+    "appendUserAgent": "TheCollegeDate-iOS/2.0"
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2500,
@@ -42,4 +45,3 @@
     }
   }
 }
-

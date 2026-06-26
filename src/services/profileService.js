@@ -202,7 +202,10 @@ export async function uploadProfilePhoto(file, userId, index) {
         const { error: uploadError } = await withTimeout(
             supabase.storage
                 .from('profile-photos')
-                .upload(filePath, compressedFile, { upsert: true })
+                .upload(filePath, compressedFile, {
+                    contentType: compressedFile.type || file.type || 'image/jpeg',
+                    upsert: false
+                })
             , 60000);
 
         if (uploadError) throw uploadError;

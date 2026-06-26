@@ -30,7 +30,11 @@
 }
 
 .navbar-logo {
-    font-size: 1.5rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    object-fit: cover;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .navbar-title {
@@ -235,6 +239,18 @@
 
 .dropdown-logout {
     color: #ef4444;
+}
+
+.dropdown-partner {
+    color: #ffd1e2;
+}
+
+.dropdown-partner span,
+.mobile-menu-partner span {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .dropdown-divider {
@@ -446,6 +462,12 @@
     color: #ff4757;
     margin-top: auto;
     border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.mobile-menu-partner {
+    color: #ffd1e2;
+    border: 1px solid rgba(255, 107, 157, 0.18);
+    background: linear-gradient(90deg, rgba(108, 99, 255, 0.08), rgba(255, 107, 157, 0.08));
 }
 
 @keyframes fadeIn {

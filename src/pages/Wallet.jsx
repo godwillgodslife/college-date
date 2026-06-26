@@ -169,7 +169,7 @@ export default function Wallet() {
             if (txError) throw txError;
 
             // 2. Initialize Paystack
-            initializePaystack({
+            await initializePaystack({
                 public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
                 reference: `CD-TX-${tx.id}`,
                 amount: amount,

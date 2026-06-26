@@ -4,6 +4,7 @@ import { initializePaystack, createTransaction, completeTransaction, getSubscrip
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { hasActivePremium } from '../utils/premium';
 import './PremiumUpgrade.css';
 
 const isNative = () => {
@@ -13,7 +14,7 @@ const isNative = () => {
 };
 
 export default function PremiumUpgrade() {
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [subscription, setSubscription] = useState(null);
@@ -89,13 +90,25 @@ export default function PremiumUpgrade() {
 
         setIsProcessing(true);
         try {
-            // Assume the first package is the monthly premium offering
-            const pkgToBuy = rcPackages[0];
-            const { success, customerInfo, error } = await purchaseRevenueCatPackage(pkgToBuy);
+            const pkgToBuy = rcPackages.find((pkg) =>
+                pkg.identifier === '$rc_monthly' ||
+                pkg.identifier === 'premium_monthly' ||
+                pkg.product?.identifier?.startsWith('premium_monthly')
+            );
+
+            if (!pkgToBuy) {
+                addToast('Premium subscription is not configured yet. Please check back later.', 'warning');
+                return;
+            }
+
+            const { success, customerInfo, error } = await purchaseRevenueCatPackage(pkgToBuy, {
+                requiredEntitlement: 'Premium'
+            });
             
             if (success) {
                 addToast('Welcome to Premium! Your features are now unlocked.', 'success');
                 loadSubscription(); // Supabase should be updated via webhook
+                fetchProfile(currentUser.id);
             } else {
                 addToast(error || 'Purchase failed.', 'error');
             }
@@ -121,7 +134,7 @@ export default function PremiumUpgrade() {
 
             if (txError) throw txError;
 
-            initializePaystack({
+            await initializePaystack({
                 public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
                 reference: `CD-SUB-${tx.id}`,
                 amount: 2900,
@@ -131,7 +144,7 @@ export default function PremiumUpgrade() {
                     transaction_id: tx.id,
                     type: 'subscription'
                 },
-                callback: async (response) => {
+                onSuccess: async (response) => {
                     const { error: completeError } = await completeTransaction(
                         tx.id,
                         'success',
@@ -144,10 +157,11 @@ export default function PremiumUpgrade() {
                     } else {
                         addToast('Welcome to Premium! Your features are now unlocked.', 'success');
                         loadSubscription();
+                        fetchProfile(currentUser.id);
                     }
                     setIsProcessing(false);
                 },
-                onClose: () => {
+                onCancel: () => {
                     setIsProcessing(false);
                 }
             });
@@ -178,6 +192,7 @@ export default function PremiumUpgrade() {
 
             addToast('Welcome to Premium! Paid via wallet balance.', 'success');
             loadSubscription();
+            fetchProfile(currentUser.id);
             loadWallet();
         } catch (err) {
             console.error('Wallet payment error:', err);
@@ -208,7 +223,9 @@ export default function PremiumUpgrade() {
                     return;
                 }
                 
-                const { success, error } = await purchaseRevenueCatPackage(rcPackage);
+                const { success, error } = await purchaseRevenueCatPackage(rcPackage, {
+                    requireEntitlement: false
+                });
                 if (success) {
                     addToast(`${label} purchased successfully! 🎉`, 'success');
                     loadWallet();
@@ -256,7 +273,7 @@ export default function PremiumUpgrade() {
 
     if (loading) return <LoadingSpinner fullScreen />;
 
-    const isPremium = subscription?.plan_type === 'Premium' && subscription?.status === 'active';
+    const isPremium = hasActivePremium(userProfile) || hasActivePremium(subscription);
     const boostTimeRemaining = getBoostTimeRemaining();
 
     const premiumFeatures = [

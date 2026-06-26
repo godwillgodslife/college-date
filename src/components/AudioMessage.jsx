@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import './AudioMessage.css';
+import './AudioMessageStyles.css';
 
 export default function AudioMessage({ src, isSent }) {
     const [isPlaying, setIsPlaying] = useState(false);

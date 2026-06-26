@@ -1,9 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useState } from 'react';
 import { usePrefetch } from '../hooks/usePrefetch';
 import NotificationTray from './NotificationTray';
+import { partnerWhatsAppUrl } from '../config/contactLinks';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -12,11 +13,14 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
     const { prefetch } = usePrefetch();
 
     const handleLogout = async () => {
         setMenuOpen(false);
+        setNotifOpen(false);
         await logout();
+        navigate('/login', { replace: true });
     };
 
     const displayName = userProfile?.full_name
@@ -30,7 +34,7 @@ export default function Navbar() {
         <nav className="navbar">
             <div className="navbar-inner">
                 <Link to="/dashboard" className="navbar-brand">
-                    <span className="navbar-logo">💕</span>
+                    <img src="/logo.png" alt="The College Date" className="navbar-logo" />
                     <span className="navbar-title">College Date</span>
                 </Link>
 
@@ -127,6 +131,15 @@ export default function Navbar() {
                                 <Link to="/settings" className="dropdown-item" onClick={() => setMenuOpen(false)}>
                                     <span>⚙️</span> Settings
                                 </Link>
+                                <a
+                                    href={partnerWhatsAppUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="dropdown-item dropdown-partner"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    <span>Partner</span> Become a Partner
+                                </a>
                                 <hr className="dropdown-divider" />
                                 <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
                                     <span>🚪</span> Logout
@@ -223,6 +236,15 @@ export default function Navbar() {
                         <Link to="/settings" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
                             <span>⚙️</span> Settings
                         </Link>
+                        <a
+                            href={partnerWhatsAppUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mobile-menu-item mobile-menu-partner"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            <span>Partner</span> Become a Partner
+                        </a>
                         <hr className="mobile-menu-divider" />
                         <button className="mobile-menu-item mobile-menu-logout" onClick={handleLogout}>
                             <span>🚪</span> Logout

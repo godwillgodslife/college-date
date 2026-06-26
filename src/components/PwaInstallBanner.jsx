@@ -7,6 +7,11 @@ export default function PwaInstallBanner() {
     const [platform, setPlatform] = useState('android');
 
     useEffect(() => {
+        const isNative = typeof window !== 'undefined' &&
+            window.Capacitor !== undefined &&
+            window.Capacitor.isNativePlatform?.();
+        if (isNative) return;
+
         // 1. Check if already installed (standalone)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         if (isStandalone) return;
@@ -63,7 +68,7 @@ export default function PwaInstallBanner() {
             <div className="pwa-banner-content glass-morph">
                 <div className="pwa-banner-info">
                     <div className="pwa-app-icon">
-                        <img src="/logo.svg" alt="Logo" />
+                        <img src="/logo.png" alt="The College Date logo" />
                     </div>
                     <div className="pwa-text">
                         <h3>College Date App</h3>

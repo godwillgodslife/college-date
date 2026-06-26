@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserSettings, updateUserSettings } from '../services/notificationService';
@@ -6,57 +6,57 @@ import { verifyAndRestorePremium } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
+import { partnerWhatsAppUrl, supportWhatsAppUrl } from '../config/contactLinks';
+import { useCachedAsync } from '../hooks/useCachedAsync';
+import { setCachedData } from '../lib/persistentCache';
 import './Settings.css';
+
+const DEFAULT_SETTINGS = {
+    match_notifications: true,
+    view_notifications: true,
+    confession_notifications: true,
+    email_notifications: true,
+    push_notifications: true,
+    sound_enabled: true,
+    show_online_status: true,
+    incognito_mode: false
+};
 
 export default function Settings() {
     const { currentUser, userProfile, logout, fetchProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
-    const [settings, setSettings] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [restoring, setRestoring] = useState(false);
 
-    useEffect(() => {
-        if (currentUser) {
-            loadSettings();
-        }
+    const fetchSettings = useCallback(async () => {
+        if (!currentUser) return DEFAULT_SETTINGS;
+        const { data, error } = await getUserSettings(currentUser.id);
+        if (error) throw error;
+        return data || DEFAULT_SETTINGS;
     }, [currentUser]);
 
-    async function loadSettings() {
-        setLoading(true);
-        const { data, error } = await getUserSettings(currentUser.id);
-        if (error) {
-            addToast('Failed to load settings', 'error');
-            // Provide sensible defaults so the page still renders
-            setSettings({
-                match_notifications: true,
-                email_notifications: true,
-                push_notifications: true,
-                show_online_status: true,
-                incognito_mode: false
-            });
-        } else {
-            // If data is null (no profile row), use defaults
-            setSettings(data || {
-                match_notifications: true,
-                view_notifications: true,
-                confession_notifications: true,
-                email_notifications: true,
-                push_notifications: true,
-                sound_enabled: true,
-                show_online_status: true,
-                incognito_mode: false
-            });
+    const {
+        data: settings = DEFAULT_SETTINGS,
+        setData: setSettings,
+        loading
+    } = useCachedAsync(
+        currentUser ? ['settings', currentUser.id] : null,
+        fetchSettings,
+        {
+            enabled: Boolean(currentUser),
+            ttlMs: 30 * 60 * 1000,
+            initialData: DEFAULT_SETTINGS,
+            onError: () => addToast('Failed to load fresh settings. Showing saved preferences.', 'info')
         }
-        setLoading(false);
-    }
+    );
 
     const handleToggle = async (key) => {
         if (!settings) return;
 
         const newSettings = { ...settings, [key]: !settings[key] };
         setSettings(newSettings); // Optimistic update
+        setCachedData(['settings', currentUser.id], newSettings);
 
         setSaving(true);
         const { error } = await updateUserSettings(currentUser.id, { [key]: !settings[key] });
@@ -67,7 +67,12 @@ export default function Settings() {
         setSaving(false);
     };
 
-    if (loading) return <LoadingSpinner fullScreen text="Loading preferences..." />;
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login', { replace: true });
+    };
+
+    if (loading && !settings) return <LoadingSpinner fullScreen text="Loading preferences..." />;
 
     return (
         <div className="settings-page animated fadeIn">
@@ -288,7 +293,7 @@ export default function Settings() {
                 <h2 className="section-title">Support</h2>
                 <div className="settings-list">
                     <a
-                        href="https://wa.me/2349160264415?text=Hi%20👋%20I%20need%20help%20with%20CollegeDate"
+                        href={supportWhatsAppUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="settings-item feature-link support-link"
@@ -298,6 +303,18 @@ export default function Settings() {
                             <p>Chat with us on WhatsApp for fast help.</p>
                         </div>
                         <span className="chevron">›</span>
+                    </a>
+                    <a
+                        href={partnerWhatsAppUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="settings-item feature-link support-link partner-link"
+                    >
+                        <div className="item-info">
+                            <h3>Become a Partner</h3>
+                            <p>Support, invest, or collaborate with The College Date.</p>
+                        </div>
+                        <span className="partner-chip">WhatsApp</span>
                     </a>
                     <div className="settings-item">
                         <div className="item-info">
@@ -311,7 +328,7 @@ export default function Settings() {
             <div className="settings-section">
                 <h2 className="section-title">Account</h2>
                 <div className="settings-list">
-                    <button className="settings-action-btn logout" onClick={logout}>
+                    <button className="settings-action-btn logout" onClick={handleLogout}>
                         Log Out
                     </button>
                     <button className="settings-action-btn delete">
