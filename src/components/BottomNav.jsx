@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrefetch } from '../hooks/usePrefetch';
+import { useNotifications } from '../contexts/NotificationContext';
 import './BottomNav.css';
 
 const navItems = [
@@ -35,12 +37,34 @@ export default function BottomNav() {
     const location = useLocation();
     const { walletBalance } = useAuth();
     const { prefetch } = usePrefetch();
+    
+    // Connect notifications context
+    const { notifications } = useNotifications();
+    const unreadNotifications = useMemo(() => {
+        return (notifications || []).filter(n => !n.is_read);
+    }, [notifications]);
 
     return (
         <nav className="bottom-nav">
             {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const hasEarning = item.path === '/profile' && walletBalance > 0;
+
+                // Category-based notification counts
+                let badgeCount = 0;
+                if (item.path === '/chat') {
+                    // Chat messages & call logs
+                    badgeCount = unreadNotifications.filter(n => n.type === 'message' || n.type === 'call').length;
+                } else if (item.path === '/match') {
+                    // Likes, matches, and super swipes
+                    badgeCount = unreadNotifications.filter(n => ['match', 'like', 'super_swipe'].includes(n.type)).length;
+                } else if (item.path === '/confessions') {
+                    // Confession reactions and claims
+                    badgeCount = unreadNotifications.filter(n => n.type === 'snapshot_reaction').length;
+                } else if (item.path === '/profile') {
+                    // General notifications (views, payment, system, etc.)
+                    badgeCount = unreadNotifications.filter(n => !['message', 'call', 'match', 'like', 'super_swipe', 'snapshot_reaction'].includes(n.type)).length;
+                }
 
                 return (
                     <Link
@@ -52,7 +76,12 @@ export default function BottomNav() {
                     >
                         <span className="bottom-nav-icon">
                             {item.icon}
-                            {hasEarning && <span className="earning-dot" />}
+                            {badgeCount > 0 && (
+                                <span className="bottom-nav-badge">
+                                    {badgeCount > 9 ? '9+' : badgeCount}
+                                </span>
+                            )}
+                            {hasEarning && badgeCount === 0 && <span className="earning-dot" />}
                         </span>
                         <span className="bottom-nav-label">{item.label}</span>
                         {isActive && <span className="bottom-nav-indicator" />}

@@ -39,6 +39,7 @@ const Viewers = lazy(() => import('./pages/Viewers'));
 const MiniProfileSetup = lazy(() => import('./pages/MiniProfileSetup'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const VoiceCallRoom = lazy(() => import('./pages/VoiceCallRoom'));
+const WireframeShowcase = lazy(() => import('./pages/WireframeShowcase'));
 
 // Components that can be lazy loaded
 const TourGuide = lazy(() => import('./components/TourGuide'));
@@ -212,6 +213,7 @@ function AppRoutes() {
           element={currentUser ? <Navigate to="/" replace /> : <Signup />}
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/wireframes" element={<WireframeShowcase />} />
 
         {/* Protected routes with AppLayout shell always mounted */}
         <Route element={<AppLayout />}>

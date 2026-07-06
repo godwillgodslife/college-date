@@ -844,17 +844,56 @@ export default function Chat() {
                                         onTouchStart={e => handleLongPressStart(e, msg.id)}
                                         onMouseUp={handleLongPressEnd}
                                         onTouchEnd={handleLongPressEnd}
-                                        style={{}}
+                                        onDoubleClick={() => setReplyToMessage({ id: msg.id, sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), content: msg.type === 'text' ? msg.content : `[${msg.type}]` })}
                                     >
+                                        {msg.metadata?.reply_to && (
+                                            <div className="message-reply-preview-bubble">
+                                                <span className="reply-sender-name">{msg.metadata.reply_to.sender}</span>
+                                                <span className="reply-content-text">{msg.metadata.reply_to.content}</span>
+                                            </div>
+                                        )}
                                         {renderMessageContent(msg)}
                                         <div className="message-info"><span className="message-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><ReadReceipt msg={msg} isSender={msg.sender_id === currentUser.id} /></div>
                                         {renderReactions(msg)}
+                                        {!msg._pending && (
+                                            <button 
+                                                type="button"
+                                                className="btn-quick-reply-bubble" 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setReplyToMessage({ 
+                                                        id: msg.id, 
+                                                        sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), 
+                                                        content: msg.type === 'text' ? msg.content : `[${msg.type}]` 
+                                                    });
+                                                }}
+                                                title="Reply"
+                                            >
+                                                ↩️
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             />
                         </div>
 
                         <div className="chat-input-area">
+                            {replyToMessage && (
+                                <div className="composer-reply-preview-container">
+                                    <div className="reply-preview-details">
+                                        <span className="reply-preview-sender">Replying to {replyToMessage.sender}</span>
+                                        <span className="reply-preview-text">{replyToMessage.content}</span>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        className="btn-cancel-reply-quote" 
+                                        onClick={() => setReplyToMessage(null)}
+                                        aria-label="Cancel reply"
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                            )}
                             <input type="file" id="chat-image-input" accept="image/*" hidden onChange={handleImageSelect} />
                             {(aiReplies.length > 0 || aiReplyLoading) && (
                                 <div className="ai-reply-strip">

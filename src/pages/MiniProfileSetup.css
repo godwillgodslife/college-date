@@ -21,8 +21,8 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ff4b4b, #ff8e53);
-    box-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
+    background: linear-gradient(90deg, #6C63FF, #FF6B9D);
+    box-shadow: 0 0 10px rgba(108, 99, 255, 0.5);
 }
 
 .quiz-container {
@@ -445,5 +445,44 @@
     .photo-tip {
         margin: 0;
         font-size: 0.8rem;
+    }
+}
+
+/* Onboarding Segmented Step Dots */
+.quiz-steps-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0 2rem;
+    margin-top: 1.2rem;
+    width: 100%;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 90;
+    flex-shrink: 0;
+}
+
+.step-dot-pill {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-dot-pill.done {
+    background: linear-gradient(90deg, #6C63FF, #FF6B9D);
+}
+
+.step-dot-pill.active {
+    background: #6C63FF;
+    box-shadow: 0 0 8px rgba(108, 99, 255, 0.6);
+}
+
+@media (max-width: 480px) {
+    .quiz-steps-dots {
+        padding: 0 1rem;
+        margin-top: 1rem;
     }
 }

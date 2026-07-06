@@ -226,6 +226,15 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                             {/* Extra Info only shown in expanded mode */}
                             {isExpanded && (
                                 <div className="swipe-card-extra-info fade-in mt-4">
+                                    {/* Direct Compatibility Highlight Banner */}
+                                    <div className="compatibility-match-banner">
+                                        <span className="banner-badge">✨ Compatibility: {getCompatibilityScore()}%</span>
+                                        {mutualInterests.length > 0 ? (
+                                            <p className="banner-desc">You both love <strong>{mutualInterests.join(', ')}</strong>!</p>
+                                        ) : (
+                                            <p className="banner-desc">Common student goals & shared vibe.</p>
+                                        )}
+                                    </div>
                                     {profile.department && <p><strong>Dept:</strong> {profile.department}</p>}
                                     {profile.level && <p><strong>Level:</strong> {profile.level}</p>}
                                     {profile.attraction_goal && <p><strong>Looking for:</strong> {profile.attraction_goal}</p>}
@@ -261,21 +270,53 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                         </div>
 
                         {!isExpanded && (
-                            <div className="swipe-card-actions mt-3">
-                                {/* Super Swipe Button */}
-                                {superSwipesAvailable > 0 && onSuperSwipe && (
+                            <div className="swipe-card-actions-row mt-4">
+                                <button
+                                    className="swipe-action-btn action-nope"
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        const allowed = await onBeforeSwipe?.('left');
+                                        if (allowed !== false) {
+                                            setExitX(-300);
+                                            setTimeout(() => onSwipe('left'), 260);
+                                        }
+                                    }}
+                                    aria-label="Pass Profile"
+                                >
+                                    ✕
+                                </button>
+                                
+                                {onSuperSwipe && (
                                     <button
-                                        className="super-swipe-btn"
+                                        className="swipe-action-btn action-super"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setExitX(300);
                                             onSuperSwipe(profile);
                                         }}
+                                        aria-label="Super Swipe"
                                     >
-                                        <span>⭐ Super Swipe</span>
-                                        <span className="badge">{superSwipesAvailable}</span>
+                                        ⭐
+                                        {superSwipesAvailable > 0 && (
+                                            <span className="super-badge">{superSwipesAvailable}</span>
+                                        )}
                                     </button>
                                 )}
+
+                                <button
+                                    className="swipe-action-btn action-like"
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        const allowed = await onBeforeSwipe?.('right');
+                                        if (allowed !== false) {
+                                            setExitX(300);
+                                            setTimeout(() => onSwipe('right'), 260);
+                                        }
+                                    }}
+                                    aria-label="Like Profile"
+                                >
+                                    ❤️
+                                </button>
                             </div>
                         )}
                     </div>

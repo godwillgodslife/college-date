@@ -1,1 +1,0 @@
-import{s as o}from"./index-aWqSwUBE.js";async function s(a="profile_update"){try{const{data:e,error:r}=await o.functions.invoke("ai-profile-review",{body:{reason:a}});if(r)throw r;return{data:e,error:null}}catch(e){return console.warn("[AI Trust] Review request skipped:",e.message||e),{data:null,error:e.message||"AI review unavailable"}}}export{s as r};

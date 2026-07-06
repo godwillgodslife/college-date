@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getWallet } from '../services/paymentService';
 import { getProfile } from '../services/profileService';
@@ -14,14 +14,59 @@ import { getUserStatuses } from '../services/statusService';
 import { formatLastSeen } from '../utils/formatTimestamp';
 import { requestProfileAiReview } from '../services/aiTrustService';
 import { requestAiAssistant } from '../services/aiAssistantService';
+import { partnerWhatsAppUrl } from '../config/contactLinks';
 
 import useSWR from 'swr';
 import OptimizedImage from '../components/OptimizedImage';
 import { AnimatePresence } from 'framer-motion';
 
+function VoicePlayer({ src }) {
+    const [playing, setPlaying] = useState(false);
+    const audioRef = useRef(null);
+
+    const togglePlay = (e) => {
+        e.stopPropagation();
+        if (!audioRef.current) return;
+        if (playing) {
+            audioRef.current.pause();
+            setPlaying(false);
+        } else {
+            audioRef.current.play();
+            setPlaying(true);
+        }
+    };
+
+    return (
+        <div className="custom-voice-player">
+            <button className="voice-play-btn" onClick={togglePlay}>
+                {playing ? '⏸️' : '▶️'}
+            </button>
+            <audio 
+                ref={audioRef} 
+                src={src} 
+                onEnded={() => setPlaying(false)} 
+                style={{ display: 'none' }} 
+            />
+            <div className="voice-waves">
+                {[...Array(12)].map((_, i) => (
+                    <span 
+                        key={i} 
+                        className={`wave-bar ${playing ? 'animating' : ''}`} 
+                        style={{ 
+                            height: `${(i % 3 === 0 ? 16 : i % 2 === 0 ? 22 : 12)}px`,
+                            animationDelay: `${i * 0.12}s`
+                        }}
+                    />
+                ))}
+            </div>
+            <span className="voice-duration">0:15</span>
+        </div>
+    );
+}
+
 export default function Profile() {
     const { userId } = useParams();
-    const { currentUser, userProfile: myProfile, onlineUserIds } = useAuth();
+    const { currentUser, userProfile: myProfile, onlineUserIds, logout } = useAuth();
     const navigate = useNavigate();
 
     const [showStatusModal, setShowStatusModal] = useState(false);
@@ -147,9 +192,36 @@ export default function Profile() {
     const locationStatus = userProfile?.location_status;
     const voiceIntro = userProfile?.voice_intro_url;
 
+    // Compatibility helpers for viewing other profiles
+    const mutualInterests = (myProfile?.interests || []).filter(interest => 
+        (userProfile?.interests || []).includes(interest)
+    );
+
+    const getCompatibilityScore = () => {
+        let score = 55; // base score
+        if (userProfile?.intent && userProfile?.intent === myProfile?.intent) score += 20;
+        if (userProfile?.university && userProfile?.university === myProfile?.university) score += 15;
+        const mutualCount = mutualInterests.length;
+        score += Math.min(15, mutualCount * 5);
+        return Math.min(99, score);
+    };
+
     return (
         <div className="profile-page">
             <div className="profile-card">
+                {/* AI Compatibility Wingmate Banner */}
+                {!isOwnProfile && (
+                    <div className="profile-compatibility-banner">
+                        <div className="comp-glow" />
+                        <span className="comp-percentage">✨ Match Compatibility: {getCompatibilityScore()}%</span>
+                        {mutualInterests.length > 0 ? (
+                            <p className="comp-details">You both enjoy <strong>{mutualInterests.join(', ')}</strong>!</p>
+                        ) : (
+                            <p className="comp-details">Shared campus goals & common campus interests.</p>
+                        )}
+                    </div>
+                )}
+
                 {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
                 {isOwnProfile && (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url && (
                     <div className="go-live-alert">
@@ -348,18 +420,16 @@ export default function Profile() {
                         )}
 
                         {voiceIntro && (
-                            <div className="vibe-item voice-intro">
-                                <span className="vibe-icon">🎤</span>
-                                <div className="voice-player">
-                                    <audio controls src={voiceIntro} className="w-full h-8" />
-                                </div>
+                            <div className="vibe-item voice-intro-container">
+                                <span className="vibe-icon-label">🎤 VOICE INTRO</span>
+                                <VoicePlayer src={voiceIntro} />
                             </div>
                         )}
 
                         {userProfile?.intro_prompt && (
-                            <div className="vibe-item intro-prompt">
-                                <span className="vibe-icon">💬</span>
-                                <span className="vibe-text">"{userProfile.intro_prompt}"</span>
+                            <div className="icebreaker-prompt-card mt-3">
+                                <span className="prompt-label">We will get along if...</span>
+                                <p className="prompt-value">"{userProfile.intro_prompt}"</p>
                             </div>
                         )}
 
@@ -380,7 +450,7 @@ export default function Profile() {
 
                 {isOwnProfile ? (
                     <>
-                        {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem' }}>
+                        {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
                             {!checkingPush && (
                                 isSubscribed ? (
                                     <button className="btn btn-secondary btn-block" disabled style={{ opacity: 0.7 }}>
@@ -394,29 +464,87 @@ export default function Profile() {
                             )}
                         </div>}
 
+                        <div className="profile-dashboard-grid">
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/profile/edit')}
+                            >
+                                <span className="card-icon">✏️</span>
+                                <span className="card-title">Edit Profile</span>
+                            </button>
 
-                        <button
-                            className="btn btn-secondary btn-block"
-                            style={{ marginTop: '1rem' }}
-                            onClick={() => navigate('/profile/edit')}
-                        >
-                            ✏️ Edit Profile
-                        </button>
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/wallet')}
+                            >
+                                <span className="card-icon">💰</span>
+                                <span className="card-title">
+                                    {userProfile?.role === 'Female' ? 'Earnings' : 'Wallet'}
+                                </span>
+                            </button>
+
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/referrals')}
+                            >
+                                <span className="card-icon">🎁</span>
+                                <span className="card-title">Referrals</span>
+                            </button>
+
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/settings')}
+                            >
+                                <span className="card-icon">⚙️</span>
+                                <span className="card-title">Settings</span>
+                            </button>
+
+                            <a
+                                href={partnerWhatsAppUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="dashboard-card partner-card-link"
+                            >
+                                <span className="card-icon">🤝</span>
+                                <span className="card-title">Partner Up</span>
+                            </a>
+
+                            {userProfile?.role === 'Female' && (
+                                <button
+                                    className="dashboard-card"
+                                    onClick={() => navigate('/requests')}
+                                >
+                                    <span className="card-icon">💌</span>
+                                    <span className="card-title">Requests</span>
+                                </button>
+                            )}
+
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/leaderboard')}
+                            >
+                                <span className="card-icon">🏆</span>
+                                <span className="card-title">Leaderboard</span>
+                            </button>
+
+                            <button
+                                className="dashboard-card logout-card"
+                                onClick={async () => {
+                                    await logout();
+                                    navigate('/login', { replace: true });
+                                }}
+                            >
+                                <span className="card-icon">🚪</span>
+                                <span className="card-title">Logout</span>
+                            </button>
+                        </div>
 
                         <button
                             className="btn btn-gradient btn-block"
-                            style={{ marginTop: '1rem' }}
+                            style={{ marginTop: '1.2rem' }}
                             onClick={() => navigate('/premium')}
                         >
                             👑 Get Premium
-                        </button>
-
-                        <button
-                            className="btn btn-secondary btn-block"
-                            style={{ marginTop: '1rem' }}
-                            onClick={() => navigate('/leaderboard')}
-                        >
-                            🏆 Leaderboard
                         </button>
 
                         <AndroidInstallButton />

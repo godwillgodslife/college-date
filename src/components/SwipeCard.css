@@ -605,3 +605,125 @@
         transform: translateY(0) scale(1);
     }
 }
+
+/* Compatibility Match Banner */
+.compatibility-match-banner {
+    position: relative;
+    padding: 1rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(255, 107, 157, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.compatibility-match-banner .banner-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(108, 99, 255, 0.2), transparent 60%);
+    pointer-events: none;
+}
+
+.compatibility-match-banner .banner-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ff9cfc;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.compatibility-match-banner .banner-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.35;
+}
+
+/* Ergonomic Thumb-Zone Action Buttons */
+.swipe-card-actions-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    margin-top: 1rem;
+    pointer-events: auto; /* ENABLE TAPPING inside floating parent */
+}
+
+.swipe-action-btn {
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.swipe-action-btn:hover {
+    transform: scale(1.1) translateY(-2px);
+}
+
+.swipe-action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-nope {
+    width: 52px;
+    height: 52px;
+    font-size: 1.25rem;
+    color: #ff5b5b;
+    border: 1px solid rgba(255, 91, 91, 0.25);
+}
+
+.action-nope:hover {
+    background: rgba(255, 91, 91, 0.15);
+    box-shadow: 0 8px 24px rgba(255, 91, 91, 0.25);
+}
+
+.action-like {
+    width: 58px;
+    height: 58px;
+    font-size: 1.5rem;
+    color: #ff6b9d;
+    border: 1px solid rgba(255, 107, 157, 0.35);
+}
+
+.action-like:hover {
+    background: rgba(255, 107, 157, 0.2);
+    box-shadow: 0 8px 28px rgba(255, 107, 157, 0.35);
+}
+
+.action-super {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+    color: #ffcc00;
+    border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.action-super:hover {
+    background: rgba(255, 204, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(255, 204, 0, 0.25);
+}
+
+.action-super .super-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff4b4b;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.15rem 0.35rem;
+    border-radius: 10px;
+    border: 1px solid #000;
+}

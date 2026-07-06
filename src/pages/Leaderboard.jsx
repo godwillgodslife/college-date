@@ -90,6 +90,10 @@ export default function Leaderboard() {
     const data = lbData || { mostWanted: [], bigSpenders: [] };
     const displayList = activeTab === 'wanted' ? data.mostWanted : data.bigSpenders;
 
+    const myIndex = displayList.findIndex(user => user.id === currentUser?.id || user.profile_id === currentUser?.id);
+    const myRank = myIndex !== -1 ? myIndex + 1 : null;
+    const myUserData = myIndex !== -1 ? displayList[myIndex] : null;
+
     // Only show loading spinner on initial load when there is NO data
     if (isLoading && !lbData) return <LoadingSpinner fullScreen text="Ranking University Elite..." />;
 
@@ -133,6 +137,26 @@ export default function Leaderboard() {
 
                 <AnimatePresence mode="wait">
                     <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+                        {/* Highlight Card for Current User Standing */}
+                        {myUserData && myRank && (
+                            <div className="my-standing-highlight-card" onClick={() => navigate(`/profile/${myUserData.profile_id || myUserData.id}`)}>
+                                <div className="my-standing-glow" />
+                                <div className="my-standing-rank">#{myRank}</div>
+                                <div className="my-standing-avatar">
+                                    <img src={myUserData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUserData.full_name)}&background=random`} alt="" />
+                                </div>
+                                <div className="my-standing-info">
+                                    <span className="my-standing-label">Your Current Standing</span>
+                                    <span className="my-standing-name">{myUserData.full_name}</span>
+                                    <span className="my-standing-league">{getLeague(myRank).icon} {getLeague(myRank).label} League</span>
+                                </div>
+                                <div className="my-standing-score">
+                                    <span className="my-score-val">{activeTab === 'wanted' ? myUserData.premium_swipes_received : `₦${((myUserData.total_spent || 0) / 1000).toFixed(1)}k`}</span>
+                                    <span className="my-score-lbl">{activeTab === 'wanted' ? 'Fans' : 'Spent'}</span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Podium */}
                         <div className="podium-container">
                             {topThree[1] && (

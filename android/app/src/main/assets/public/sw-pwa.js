@@ -1,5 +1,5 @@
 const CACHE_NAME = 'college-date-v2.0';
-const STATIC_ASSETS = ['/', '/index.html', '/logo.svg', '/manifest.webmanifest'];
+const STATIC_ASSETS = ['/', '/index.html', '/logo.png', '/favicon.png', '/manifest.webmanifest'];
 
 // 1. Installation: Cache the basic app shell
 self.addEventListener('install', (event) => {

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import brandIcon from '../../assets/icon-play-store-512.png';
-import featureGraphic from '../../assets/feature-graphic-1024x500.png';
+import brandIcon from '../../assets/icon.png';
+// feature-graphic-1024x500.png was never created; fallback to og-image.png
+const featureGraphic = '/og-image.png';
 import { partnerWhatsAppUrl } from '../config/contactLinks';
 import './Landing.css';
 

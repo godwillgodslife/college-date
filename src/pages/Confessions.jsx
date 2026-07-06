@@ -100,22 +100,28 @@ function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
             <p className="confession-body">{post.content}</p>
 
             <div className="action-bar-floating" onClick={(e) => e.stopPropagation()}>
-                <div className="reactions-mini">
-                    {post.totalReactions > 0 && (
-                        <span className="reaction-count">✨ {post.totalReactions}</span>
-                    )}
+                <div className="reactions-grid-breakdown">
+                    {['🔥', '😂', '🙊', '🙏', '😢'].map((emoji) => {
+                        const count = post.reactionCounts?.[emoji] || 0;
+                        const userReacted = post.userReactions?.includes(emoji);
+                        return (
+                            <button
+                                key={emoji}
+                                className={`btn-social-emoji-breakdown ${userReacted ? 'active' : ''}`}
+                                onClick={() => onReact(post.id, emoji)}
+                            >
+                                <span>{emoji}</span>
+                                {count > 0 && <span className="emoji-count">{count}</span>}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <div className="social-actions" style={{ display: 'flex', gap: '8px' }}>
                     <button
                         className="btn-social"
-                        onClick={() => onReact(post.id, '🔥')}
-                    >
-                        <span>🔥</span>
-                    </button>
-                    <button
-                        className="btn-social"
                         onClick={() => onOpenThread(post)}
+                        aria-label="View comments"
                     >
                         <span>💬</span>
                         <span style={{ fontSize: '10px' }}>{post.commentCount || 0}</span>
@@ -124,6 +130,7 @@ function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
                         className={`btn-social ${post.hasClaimed ? 'active' : ''}`}
                         onClick={() => onClaim(post.id)}
                         disabled={post.hasClaimed}
+                        aria-label="Claim secret ownership"
                     >
                         <span>{post.hasClaimed ? '✓' : '👀'}</span>
                     </button>
@@ -138,12 +145,17 @@ function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
     );
 }
 
+const CONFESSION_CATEGORIES = [
+    'General 🙊', 'Crush 💘', 'Lecturers 👨‍🏫', 'Exams 📚', 'Cafeteria 🍔', 'Gist 💬'
+];
+
 export default function Confessions() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
 
     const [posting, setPosting] = useState(false);
     const [newConfession, setNewConfession] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('General 🙊');
     const [selectedPost, setSelectedPost] = useState(null);
 
     // SWR for confessions using custom hook - trim university to avoid casing/space mismatches
@@ -205,7 +217,8 @@ export default function Confessions() {
         setPosting(true);
         try {
             const uni = userProfile?.university?.trim() || 'Unknown University';
-            const { data: newPost, error } = await postConfession(newConfession, uni, currentUser.id);
+            const finalContent = selectedCategory !== 'General 🙊' ? `[${selectedCategory}] ${newConfession}` : newConfession;
+            const { data: newPost, error } = await postConfession(finalContent, uni, currentUser.id);
             if (error) throw new Error(error);
 
             // Optimistically prepend the new confession to the local SWR cache
@@ -213,7 +226,7 @@ export default function Confessions() {
                 const optimisticPost = {
                     ...(newPost || {}),
                     id: newPost?.id || `optimistic-${Date.now()}`,
-                    content: newConfession,
+                    content: finalContent,
                     university: uni,
                     created_at: new Date().toISOString(),
                     reactionCounts: { '🔥': 0, '🙊': 0, '👀': 0, '🙏': 0 },
@@ -260,6 +273,18 @@ export default function Confessions() {
                     className="input-card-ultimate glass-morph"
                 >
                     <form onSubmit={handleSubmit}>
+                        <div className="confession-category-selector">
+                            {CONFESSION_CATEGORIES.map((cat) => (
+                                <button
+                                    type="button"
+                                    key={cat}
+                                    className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
+                                    onClick={() => setSelectedCategory(cat)}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
                         <textarea
                             className="ultimate-textarea"
                             placeholder="What's the tea today?..."

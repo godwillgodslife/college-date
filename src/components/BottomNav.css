@@ -86,3 +86,22 @@
         padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
     }
 }
+
+.bottom-nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #ff4b4b;
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 700;
+    border-radius: 50%;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--glass-bg);
+    box-shadow: 0 2px 5px rgba(255, 75, 75, 0.4);
+}

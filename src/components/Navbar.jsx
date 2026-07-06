@@ -55,6 +55,8 @@ export default function Navbar() {
                         Match
                     </Link>
                     <Link
+
+
                         to="/chat"
                         onMouseEnter={() => prefetch('/chat')}
                         className={`nav-link ${location.pathname === '/chat' ? 'active' : ''}`}
@@ -96,7 +98,13 @@ export default function Navbar() {
                         {notifOpen && <NotificationTray onClose={() => setNotifOpen(false)} />}
                     </div>
 
-                    <button className="navbar-avatar-btn" onClick={() => { setMenuOpen(!menuOpen); setNotifOpen(false); }}>
+                    <button
+                        className="navbar-avatar-btn"
+                        onClick={() => {
+                            setNotifOpen(false);
+                            navigate('/profile');
+                        }}
+                    >
                         {avatarUrl ? (
                             <img src={avatarUrl} alt={displayName} className="navbar-avatar" />
                         ) : (
@@ -104,49 +112,8 @@ export default function Navbar() {
                                 {displayName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <svg className={`navbar-chevron ${menuOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
                         {walletBalance > 0 && <span className="earning-dot-navbar" />}
                     </button>
-
-                    {menuOpen && (
-                        <>
-                            <div className="navbar-overlay" onClick={() => setMenuOpen(false)} />
-                            <div className="navbar-dropdown">
-                                <Link to="/profile" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                                    <span>👤</span> Profile
-                                </Link>
-                                {userProfile?.role === 'Female' && (
-                                    <Link to="/requests" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                                        <span>💌</span> Requests
-                                    </Link>
-                                )}
-                                <Link to="/referrals" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                                    <span>🎁</span> Referrals
-                                </Link>
-                                <Link to="/wallet" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                                    <span>💰</span> Wallet
-                                </Link>
-                                <Link to="/settings" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                                    <span>⚙️</span> Settings
-                                </Link>
-                                <a
-                                    href={partnerWhatsAppUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="dropdown-item dropdown-partner"
-                                    onClick={() => setMenuOpen(false)}
-                                >
-                                    <span>Partner</span> Become a Partner
-                                </a>
-                                <hr className="dropdown-divider" />
-                                <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
-                                    <span>🚪</span> Logout
-                                </button>
-                            </div>
-                        </>
-                    )}
                 </div>
 
                 {/* Mobile hamburger */}
@@ -227,28 +194,6 @@ export default function Navbar() {
                         >
                             <span>👤</span> Profile
                         </Link>
-                        <Link to="/referrals" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
-                            <span>🎁</span> Referrals
-                        </Link>
-                        <Link to="/wallet" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
-                            <span>💰</span> Wallet
-                        </Link>
-                        <Link to="/settings" className="mobile-menu-item" onClick={() => setMenuOpen(false)}>
-                            <span>⚙️</span> Settings
-                        </Link>
-                        <a
-                            href={partnerWhatsAppUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mobile-menu-item mobile-menu-partner"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            <span>Partner</span> Become a Partner
-                        </a>
-                        <hr className="mobile-menu-divider" />
-                        <button className="mobile-menu-item mobile-menu-logout" onClick={handleLogout}>
-                            <span>🚪</span> Logout
-                        </button>
                     </div>
                 </>
             )}

@@ -10,6 +10,12 @@ const NIGERIAN_STICKERS = [
     { id: 'jara', emoji: '➕', label: 'Jara' },
     { id: 'abeg', emoji: '🙏', label: 'Abeg' },
     { id: 'god-when', emoji: '🥺', label: 'God When?' },
+    { id: 'carryover', emoji: '💀', label: 'Carryover' },
+    { id: 'schoolfees', emoji: '💸', label: 'School Fees' },
+    { id: 'library', emoji: '📚', label: 'Library Run' },
+    { id: 'cafeteria', emoji: '🍔', label: 'CAF Review' },
+    { id: 'period', emoji: '💃', label: 'Free Period' },
+    { id: 'gp-up', emoji: '📈', label: 'GPA Boost' },
 ];
 
 export default function StickerDrawer({ onSelectSticker, onClose }) {

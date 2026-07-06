@@ -52,3 +52,16 @@ android/local.properties
 # iOS
 ios/App/Pods/
 ios/.xcode.env.local
+
+# Env secrets and releases
+.env
+.env.*
+release/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+keystore-base64.txt
+keystore-summary.txt
+

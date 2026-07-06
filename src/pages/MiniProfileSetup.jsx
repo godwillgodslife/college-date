@@ -352,6 +352,15 @@ export default function MiniProfileSetup() {
                 />
             </div>
 
+            <div className="quiz-steps-dots">
+                {STEPS.map((step, idx) => (
+                    <span 
+                        key={step.id} 
+                        className={`step-dot-pill ${idx < currentStep ? 'done' : ''} ${idx === currentStep ? 'active' : ''}`}
+                    />
+                ))}
+            </div>
+
             <div className="quiz-container">
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
