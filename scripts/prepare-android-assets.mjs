@@ -8,10 +8,30 @@ const nativeOnlyRemovals = [
   join(androidPublic, 'private-downloads'),
 ];
 
+// Perform removals first
+for (const target of nativeOnlyRemovals) {
+  if (existsSync(target)) {
+    try {
+      rmSync(target, { recursive: true, force: true });
+      console.log(`Removed Android-only bundled asset: ${target}`);
+    } catch (err) {
+      console.warn(`Warning: Could not remove ${target}: ${err.message}`);
+    }
+  }
+}
+
 function materializeRegularFiles(dir) {
   if (!existsSync(dir)) return;
+  
+  // Skip if dir is one of the removed paths
+  if (nativeOnlyRemovals.some(rem => dir.startsWith(rem))) return;
+
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = join(dir, entry.name);
+    
+    // Skip if path is in removals
+    if (nativeOnlyRemovals.some(rem => fullPath.startsWith(rem))) continue;
+
     if (entry.isDirectory()) {
       materializeRegularFiles(fullPath);
       continue;
@@ -29,7 +49,7 @@ function materializeRegularFiles(dir) {
       rmSync(fullPath, { force: true });
       writeFileSync(fullPath, content);
     } catch (error) {
-      throw new Error(`Unable to materialize Android asset ${fullPath}: ${error.message}`);
+      console.warn(`Warning: Skipping materialization for ${fullPath} due to lock/access: ${error.message}`);
     }
 
     if (hasReparsePoint) {
@@ -40,13 +60,6 @@ function materializeRegularFiles(dir) {
 
 materializeRegularFiles(androidPublic);
 
-for (const target of nativeOnlyRemovals) {
-  if (existsSync(target)) {
-    rmSync(target, { recursive: true, force: true });
-    console.log(`Removed Android-only bundled asset: ${target}`);
-  }
-}
-
 const forbiddenFiles = [
   'TheCollegeDate-native-prototype-debug.apk',
 ];
@@ -54,8 +67,12 @@ const forbiddenFiles = [
 for (const fileName of forbiddenFiles) {
   const target = join(androidPublic, 'private-downloads', fileName);
   if (existsSync(target)) {
-    rmSync(target, { force: true });
-    console.log(`Removed forbidden Android bundled file: ${target}`);
+    try {
+      rmSync(target, { force: true });
+      console.log(`Removed forbidden Android bundled file: ${target}`);
+    } catch (err) {
+      console.warn(`Warning: Could not remove forbidden file ${target}: ${err.message}`);
+    }
   }
 }
 

@@ -1,7 +1,9 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
-const REACTION_EMOJIS = ['🔥', '🙊', '👀', '🙏'];
+// Emoji set must match the UI (Confessions.jsx) AND the DB CHECK constraint
+// Migration: 20260706120000_update_confession_emoji_constraint.sql
+const REACTION_EMOJIS = ['🔥', '😂', '🙊', '🙏', '😢'];
 
 export async function getConfessions(university = null, userId = null) {
     try {

@@ -59,9 +59,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
 
         // CATEGORY FILTERING (New)
         if (filters.category === 'Serious') {
-            query = query.eq('attraction_goal', 'Serious');
+            query = query.in('attraction_goal', ['Serious', 'Serious Relationship']);
         } else if (filters.category === 'Casual') {
-            query = query.eq('attraction_goal', 'Casual');
+            query = query.in('attraction_goal', ['Casual', 'Just Vibes']);
         } else if (filters.category === 'Newest') {
             query = query.order('created_at', { ascending: false });
         } else if (filters.category === 'Trending') {
@@ -164,6 +164,12 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         ];
 
         results = results.slice(0, 40);
+
+        if (filters.category === 'Newest') {
+            results.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        } else if (filters.category === 'Trending') {
+            results.sort((a, b) => (b.completion_score || 0) - (a.completion_score || 0));
+        }
 
         return { data: results, error: null };
     } catch (err) {

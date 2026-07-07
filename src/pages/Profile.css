@@ -613,6 +613,18 @@
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
 }
 
+.dashboard-card.premium-card {
+    grid-column: span 2;
+    border-color: rgba(168, 85, 247, 0.25);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.03));
+}
+
+.dashboard-card.premium-card:hover {
+    border-color: #a855f7;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.08));
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2);
+}
+
 @media (max-width: 480px) {
     .profile-dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -785,4 +797,429 @@
     font-weight: 700;
     color: white;
     line-height: 1.4;
+}
+
+/* ==========================================================================
+   Public Profile Redesign Styles
+   ========================================================================== */
+
+.public-profile-view {
+    padding: 0 !important;
+    overflow: hidden;
+    background: #07070d;
+    padding-bottom: 100px !important; /* Space for floating action bar */
+}
+
+/* Photo Carousel */
+.profile-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #12111d;
+    overflow: hidden;
+}
+
+.profile-carousel-img-container {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-carousel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Tinder-style Stories progress bars */
+.photo-progress-bars {
+    position: absolute;
+    top: 12px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    z-index: 100;
+}
+
+.photo-progress-bars .bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.photo-progress-bars .bar.active {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.carousel-nav-zone {
+    position: absolute;
+    top: 20px;
+    bottom: 40px;
+    width: 30%;
+    z-index: 90;
+    cursor: pointer;
+}
+
+.carousel-nav-zone.left {
+    left: 0;
+}
+
+.carousel-nav-zone.right {
+    right: 0;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    z-index: 100;
+}
+
+.carousel-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: all 0.25s ease;
+}
+
+.carousel-dots .dot.active {
+    background: #fff;
+    transform: scale(1.3);
+}
+
+/* Details and Info Grid */
+.public-profile-details {
+    padding: 1.5rem;
+    background: #07070d;
+}
+
+.profile-title-row-premium {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.profile-title-row-premium h2 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+}
+
+.profile-live-badge-glow {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(220, 38, 38, 0.85);
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    animation: live-glow 1.5s infinite alternate;
+}
+
+@keyframes live-glow {
+    0% {
+        box-shadow: 0 0 4px rgba(220, 38, 38, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 16px rgba(220, 38, 38, 0.9);
+    }
+}
+
+.profile-uni-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 1.25rem;
+}
+
+/* Compatibility Signal */
+.profile-compatibility-card-premium {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(108, 99, 255, 0.08);
+    border: 1px solid rgba(108, 99, 255, 0.25);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.comp-percentage-glow {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #a89aff;
+    background: rgba(108, 99, 255, 0.15);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(108, 99, 255, 0.2);
+}
+
+.comp-info-details {
+    flex: 1;
+}
+
+.comp-info-details strong {
+    font-size: 0.85rem;
+    color: #fff;
+    display: block;
+    margin-bottom: 0.15rem;
+}
+
+.comp-info-details p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Info grid premium */
+.profile-info-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-info-grid-premium .grid-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-info-grid-premium .grid-item strong {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.profile-info-grid-premium .grid-item span {
+    font-size: 0.85rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Voice player premium */
+.profile-voice-player-section {
+    margin-bottom: 1.5rem;
+}
+
+.voice-label-glow {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #a89aff;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Premium blocks */
+.profile-section-premium-block {
+    margin-bottom: 1.5rem;
+}
+
+.profile-section-premium-block h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.65rem;
+}
+
+.profile-bio-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Spotify Campus Anthem Widget */
+.spotify-anthem-widget-premium {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: rgba(30, 215, 96, 0.08);
+    border: 1px solid rgba(30, 215, 96, 0.25);
+    border-radius: 16px;
+    padding: 0.85rem 1.15rem;
+    margin-bottom: 1.5rem;
+}
+
+.spotify-wave-logo {
+    font-size: 1.25rem;
+}
+
+.spotify-track-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.spotify-track-details .track-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.spotify-track-details .track-artist {
+    font-size: 0.75rem;
+    color: #1ed760;
+    font-weight: 600;
+}
+
+.spotify-play-btn {
+    color: #1ed760;
+    font-size: 0.85rem;
+    background: rgba(30, 215, 96, 0.15);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Vibe Tag pills list */
+.profile-interests-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.interest-pill {
+    padding: 0.4rem 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Q&A Prompt */
+.profile-prompt-card-premium {
+    padding: 1.25rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.profile-prompt-card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #6c63ff, #d946ef);
+}
+
+.profile-prompt-card-premium .prompt-question {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #a89aff;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.profile-prompt-card-premium .prompt-answer {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.4;
+}
+
+/* Floating Actions Bar */
+.profile-floating-actions-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 500px;
+    background: rgba(18, 17, 29, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    padding: 0.5rem 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.65rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    z-index: 500;
+    box-sizing: border-box;
+}
+
+.float-action-btn {
+    flex: 1;
+    border: none;
+    outline: none;
+    border-radius: 100px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.float-action-btn:active {
+    transform: scale(0.95);
+}
+
+.float-action-btn.call-btn-glow {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.float-action-btn.call-btn-glow:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.float-action-btn.gift-btn-glow {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.float-action-btn.gift-btn-glow:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.float-action-btn.chat-btn-glow.primary {
+    background: linear-gradient(135deg, #6c63ff, #d946ef);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.float-action-btn.chat-btn-glow.primary:hover {
+    box-shadow: 0 6px 16px rgba(108, 99, 255, 0.5);
+    transform: translateY(-2px);
 }

@@ -229,7 +229,7 @@ export default function Confessions() {
                     content: finalContent,
                     university: uni,
                     created_at: new Date().toISOString(),
-                    reactionCounts: { '🔥': 0, '🙊': 0, '👀': 0, '🙏': 0 },
+                    reactionCounts: { '🔥': 0, '😂': 0, '🙊': 0, '🙏': 0, '😢': 0 },
                     userReactions: [],
                     hasClaimed: false,
                     totalReactions: 0,

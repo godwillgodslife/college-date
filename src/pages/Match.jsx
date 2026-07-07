@@ -336,40 +336,36 @@ export default function Match() {
                 <HiddenProfileBanner />
             ) : (
                 <>
-                    {/* Top Right Floating Filter Toggle */}
-                    <button className="floating-filter-btn" onClick={() => setShowGenderMenu(prev => !prev)} title="Filter by gender">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="7" r="4" />
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        </svg>
-                        {filters.gender !== 'All' && <span className="gender-active-dot" />}
-                    </button>
-                    {showGenderMenu && <QuickGenderMenu />}
-                    {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
-
-                    <div className="swipe-container">
-                        <div className="live-mode-bar">
-                            <div className={`live-toggle-pill ${liveOnly ? 'live-active' : ''}`} onClick={handleLiveNearMe}>
-                                <div className={`live-badge-glow ${liveOnly ? 'glow-active' : ''}`}></div>
-                                <span className="live-label">Live Near Me</span>
-                                <div className={`live-toggle-switch ${liveOnly ? 'active' : ''}`}>
-                                    <div className="toggle-circle"></div>
-                                </div>
-                            </div>
+                    {/* Compact Top Rail */}
+                    <div className="discover-top-rail">
+                        <div className="discover-top-filters">
+                            <button 
+                                className={`discover-rail-btn ${liveOnly ? 'active' : ''}`} 
+                                onClick={handleLiveNearMe}
+                            >
+                                🔴 Live Near Me
+                            </button>
+                            <button 
+                                className={`discover-rail-btn ${filters.gender !== 'All' ? 'active' : ''}`} 
+                                onClick={() => setShowGenderMenu(prev => !prev)}
+                            >
+                                {filters.gender === 'Female' ? '👩 Women' : filters.gender === 'Male' ? '👨 Men' : '✨ All'}
+                            </button>
+                            {showGenderMenu && <QuickGenderMenu />}
+                            {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
                         </div>
 
+                        <div className="discover-swipes-left-badge">
+                            ⚡ <b>{isPremium ? '∞' : freeSwipes}</b> Swipes Left
+                        </div>
+                    </div>
+
+                    <div className="swipe-container">
                         <StatusBubbles />
 
-                        {/* Floating Stats Area */}
-                        <div className="discovery-floating-stats">
+                        {/* Streak Indicator (rendered beneath top rail) */}
+                        <div className="discovery-streak-overlay">
                             <StreakIndicator streak={userStreak} badge={userProfile?.current_badge} />
-                            <div className="swipes-counter-pill animate-fade-in-right">
-                                <span className="pill-icon">⚡</span>
-                                <div className="pill-content">
-                                    <span className="pill-number">{isPremium ? '∞' : freeSwipes}</span>
-                                    <span className="pill-label">Swipes Left</span>
-                                </div>
-                            </div>
                         </div>
 
                         {profiles.length === 0 ? (

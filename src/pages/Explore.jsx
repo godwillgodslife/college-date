@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getDiscoverProfiles, trackProfileView, checkSwipeLimit, resetDiscovery } from '../services/swipeService';
+import { getDiscoverProfiles, trackProfileView, checkSwipeLimit, resetDiscovery, recordSwipe } from '../services/swipeService';
 import { useDiscoveryProfiles } from '../hooks/useSWRData';
 import { updatePresence } from '../services/profileService';
 import { supabase } from '../lib/supabase';
@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import ProfileDrawer from '../components/ProfileDrawer'; // NEW
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
+import { isRecentlyLive, isRecentlyActive } from '../utils/presence';
 import './Explore.css';
 
 export default function Explore() {
@@ -18,7 +19,8 @@ export default function Explore() {
 
     const [freeSwipes, setFreeSwipes] = useState(20);
     const [category, setCategory] = useState('All');
-    const categories = ['All', 'Newest', 'Near Me', 'Serious', 'Casual', 'Trending'];
+    const [searchQuery, setSearchQuery] = useState('');
+    const categories = ['All', '🔴 Live', 'Newest', 'Near Me', 'Serious', 'Casual', 'Trending'];
 
     const [filters, setFilters] = useState({
         gender: 'All',
@@ -30,7 +32,7 @@ export default function Explore() {
 
     const { data: swrProfiles, mutate: mutateProfiles, isLoading: profilesLoading } = useDiscoveryProfiles(
         currentUser?.id,
-        { ...filters, category },
+        { ...filters, category: category === '🔴 Live' ? 'Live' : category },
         userProfile
     );
     const [profiles, setProfiles] = useState([]);
@@ -119,14 +121,68 @@ export default function Explore() {
         (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) &&
         !userProfile?.avatar_url;
 
+    // Filter profiles based on Search and Live category client-side
+    const filteredProfiles = profiles.filter(profile => {
+        const matchesSearch = searchQuery.trim() === '' ||
+            (profile.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (profile.university || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (profile.department || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (profile.faculty || '').toLowerCase().includes(searchQuery.toLowerCase());
+            
+        if (category === '🔴 Live') {
+            return matchesSearch && isRecentlyLive(profile);
+        }
+        return matchesSearch;
+    });
+
+    const handleQuickLike = async (e, profile) => {
+        e.stopPropagation();
+        if (!currentUser) return;
+
+        // Optimistically remove
+        setProfiles(prev => prev.filter(p => p.id !== profile.id));
+        addToast(`You liked ${profile.full_name || 'them'}!`, 'success');
+
+        const { data, error } = await recordSwipe(currentUser.id, profile.id, 'right');
+        if (error) {
+            console.error('[Explore] recordSwipe error:', error);
+            mutateProfiles();
+        } else if (data && data.is_match) {
+            addToast(`🎉 Match with ${profile.full_name || 'them'}! Chat is now open.`, 'success');
+        }
+    };
+
+    const handleQuickChat = (e, profile) => {
+        e.stopPropagation();
+        navigate('/chat', { state: { openChatWith: profile.id } });
+    };
+
     if (userHasNoPhotos) return <HiddenProfileBanner />;
-
-
 
     const isLocal = window.location.hostname === 'localhost';
 
     return (
         <div className="explore-page">
+            {/* Search and Filter Row */}
+            <div className="explore-search-row">
+                <div className="explore-search-container">
+                    <span className="search-icon-glass">🔍</span>
+                    <input
+                        type="text"
+                        placeholder="Search name, school, dept..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="explore-search-input"
+                    />
+                    {searchQuery && (
+                        <button className="search-clear-btn" onClick={() => setSearchQuery('')}>×</button>
+                    )}
+                </div>
+                <button className="explore-filter-btn" onClick={() => setShowFilters(true)}>
+                    ⚙️ Filter
+                </button>
+            </div>
+
             {/* Category Chips */}
             <div className="explore-categories">
                 {categories.map(cat => (
@@ -141,7 +197,7 @@ export default function Explore() {
             </div>
 
             <div className="explore-grid-container">
-                {profiles.length === 0 ? (
+                {filteredProfiles.length === 0 ? (
                     <div className="empty-discovery">
                         <span className="empty-emoji">🧊</span>
                         <h2>It's quiet here...</h2>
@@ -158,32 +214,57 @@ export default function Explore() {
                         </div>
                     </div>
                 ) : (
-                    <div className="explore-grid">
-                        {profiles.map((profile) => (
-                            <div
-                                key={profile.id}
-                                className="explore-card animate-scale-in"
-                                onClick={() => setSelectedProfile(profile)}
-                            >
-                                <div className="card-image-wrapper">
-                                    <img
-                                        src={profile.profile_photos?.[0] || profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`}
-                                        alt={profile.full_name}
-                                        loading="lazy"
-                                    />
-                                    {profile.attraction_goal && (
-                                        <div className="intent-badge">
-                                            {profile.attraction_goal === 'Casual' ? 'Casual 🔥' :
-                                                profile.attraction_goal === 'Serious' ? 'Serious 💍' : 'Friends 🤝'}
+                    <div className="explore-grid masonry-layout">
+                        {filteredProfiles.map((profile, idx) => {
+                            const isLive = isRecentlyLive(profile);
+                            const isOnline = isRecentlyActive(profile);
+                            const isNew = (Date.now() - new Date(profile.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000;
+                            const isTall = idx % 3 === 0;
+
+                            return (
+                                <div
+                                    key={profile.id}
+                                    className={`explore-card animate-scale-in ${isTall ? 'tall' : ''}`}
+                                    onClick={() => setSelectedProfile(profile)}
+                                >
+                                    <div className="card-image-wrapper">
+                                        <img
+                                            src={profile.profile_photos?.[0] || profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`}
+                                            alt={profile.full_name}
+                                            loading="lazy"
+                                        />
+
+                                        {/* Status overlay badges */}
+                                        <div className="status-badges-overlay">
+                                            {isLive && <span className="explore-live-tag">🔴 LIVE</span>}
+                                            {isOnline && !isLive && <span className="explore-online-tag">● Online</span>}
+                                            {isNew && <span className="explore-new-tag">✨ New</span>}
                                         </div>
-                                    )}
+
+                                        {profile.attraction_goal && (
+                                            <div className="intent-badge">
+                                                {profile.attraction_goal === 'Casual' ? 'Casual 🔥' :
+                                                    profile.attraction_goal === 'Serious' ? 'Serious 💍' : 'Friends 🤝'}
+                                            </div>
+                                        )}
+
+                                        {/* Quick Actions Tray */}
+                                        <div className="explore-quick-tray">
+                                            <button className="quick-tray-btn like" onClick={(e) => handleQuickLike(e, profile)} title="Like">
+                                                ❤️
+                                            </button>
+                                            <button className="quick-tray-btn chat" onClick={(e) => handleQuickChat(e, profile)} title="Message">
+                                                💬
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="card-info">
+                                        <h3>{profile.full_name}, {profile.age}</h3>
+                                        <p>{profile.university}</p>
+                                    </div>
                                 </div>
-                                <div className="card-info">
-                                    <h3>{profile.full_name}, {profile.age}</h3>
-                                    <p>{profile.university}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

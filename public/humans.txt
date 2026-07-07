@@ -12,6 +12,9 @@ Category: Campus dating app, student dating app, social discovery app
 Audience: Students and campus communities
 Primary geography: Nigeria-focused public content
 Contact: info@thecollegedate.com
+Brand Instagram: https://www.instagram.com/thecollegedate
+Android app (Google Play): https://play.google.com/store/apps/details?id=com.collegedate.app
+Android package name: com.collegedate.app
 
 /* AI AND SEARCH */
 AI summary: https://www.thecollegedate.com/llms.txt

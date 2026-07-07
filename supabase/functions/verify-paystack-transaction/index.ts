@@ -126,6 +126,24 @@ serve(async (req) => {
                     updated_at: new Date().toISOString(),
                 }, { onConflict: 'user_id' });
             if (subError) throw subError;
+
+            // Increment wallets total_spent for direct premium subscription
+            const { data: walletData, error: walletQueryError } = await supabase
+                .from('wallets')
+                .select('id, total_spent')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (!walletQueryError && walletData) {
+                const currentSpent = Number(walletData.total_spent || 0);
+                await supabase
+                    .from('wallets')
+                    .update({
+                        total_spent: currentSpent + expectedAmount,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', walletData.id);
+            }
         }
 
         return json({ success: true, transaction: updatedTx });

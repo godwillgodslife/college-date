@@ -73,7 +73,7 @@ function getProfileImages(profile: Record<string, unknown>) {
 async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: string[]) {
   const apiKey = Deno.env.get('OPENROUTER_API_KEY');
   const enabled = Deno.env.get('AI_PROFILE_REVIEW_ENABLED') !== 'false';
-  const model = Deno.env.get('OPENROUTER_PROFILE_REVIEW_MODEL') || 'openai/gpt-4o-mini';
+  let model = Deno.env.get('OPENROUTER_PROFILE_REVIEW_MODEL') || 'openai/gpt-4o-mini';
 
   if (!apiKey || !enabled) {
     return {
@@ -113,7 +113,8 @@ async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: 
     ...imageUrls.map((url) => ({ type: 'image_url', image_url: { url } })),
   ];
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  console.log(`[OpenRouter Profile Review] Sending request to model: ${model}`);
+  let response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -130,18 +131,51 @@ async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: 
     }),
   });
 
-  const raw = await response.json();
+  let raw = await response.json().catch(() => null);
+
+  // Auto fallback to free model on credit failure (402)
+  if (response.status === 402 || raw?.error?.code === 402) {
+    console.warn(`[OpenRouter Profile Review] Model ${model} failed with 402 (Insufficient credits). Retrying with openrouter/free...`);
+    model = 'openrouter/free';
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://www.thecollegedate.com',
+        'X-Title': 'The College Date',
+      },
+      body: JSON.stringify({
+        model,
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content }],
+        temperature: 0.1,
+        max_tokens: 500,
+      }),
+    });
+    raw = await response.json().catch(() => null);
+  }
+
   if (!response.ok) {
-    throw new Error(raw?.error?.message || 'AI provider request failed');
+    const errorMsg = raw?.error?.message || `AI provider request failed with status ${response.status}`;
+    console.error(`[OpenRouter Profile Review] Error: ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 
   const text = raw?.choices?.[0]?.message?.content || '{}';
-  return {
-    provider: 'openrouter',
-    model,
-    review: normalizeReview(JSON.parse(text)),
-    raw,
-  };
+  
+  try {
+    const parsed = JSON.parse(text);
+    return {
+      provider: 'openrouter',
+      model,
+      review: normalizeReview(parsed),
+      raw,
+    };
+  } catch (parseError) {
+    console.error('[OpenRouter Profile Review] Failed to parse JSON response. Content:', text);
+    throw new Error(`Failed to parse AI review response as JSON: ${parseError.message}`);
+  }
 }
 
 serve(async (req) => {

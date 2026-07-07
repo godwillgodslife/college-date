@@ -40,11 +40,18 @@ function AnnouncementBanner() {
 export default function AppLayout() {
     const location = useLocation();
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
-    const isFullScreenApp = ['/match', '/explore', '/snap'].includes(location.pathname);
+    const isFullScreenApp = ['/explore', '/snap'].includes(location.pathname) || (location.pathname === '/match' && isMobile);
     const isMiniprofileSetup = location.pathname === '/mini-profile-setup';
     const isAdmin = location.pathname.startsWith('/admin');
     const hideNav = isMiniprofileSetup || isAdmin;
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const handleOnline = () => setIsOffline(false);

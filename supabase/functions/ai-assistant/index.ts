@@ -101,7 +101,7 @@ function taskPrompt(task: string, me: unknown, target: unknown, context: Record<
 
 async function callOpenRouter(prompt: string) {
   const apiKey = Deno.env.get('OPENROUTER_API_KEY');
-  const model = Deno.env.get('OPENROUTER_ASSISTANT_MODEL') ||
+  let model = Deno.env.get('OPENROUTER_ASSISTANT_MODEL') ||
     Deno.env.get('OPENROUTER_PROFILE_REVIEW_MODEL') ||
     'openai/gpt-4o-mini';
 
@@ -116,7 +116,8 @@ async function callOpenRouter(prompt: string) {
     };
   }
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  console.log(`[OpenRouter] Sending request to model: ${model}`);
+  let response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -133,17 +134,50 @@ async function callOpenRouter(prompt: string) {
     }),
   });
 
-  const raw = await response.json();
+  let raw = await response.json().catch(() => null);
+
+  // Auto fallback to free model on credit failure (402)
+  if (response.status === 402 || raw?.error?.code === 402) {
+    console.warn(`[OpenRouter] Model ${model} failed with 402 (Insufficient credits). Retrying with openrouter/free...`);
+    model = 'openrouter/free';
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://www.thecollegedate.com',
+        'X-Title': 'The College Date',
+      },
+      body: JSON.stringify({
+        model,
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 650,
+      }),
+    });
+    raw = await response.json().catch(() => null);
+  }
+
   if (!response.ok) {
-    throw new Error(raw?.error?.message || 'OpenRouter request failed');
+    const errorMsg = raw?.error?.message || `OpenRouter request failed with status ${response.status}`;
+    console.error(`[OpenRouter] Error: ${errorMsg}`);
+    throw new Error(errorMsg);
   }
 
   const content = raw?.choices?.[0]?.message?.content || '{}';
-  return {
-    provider: 'openrouter',
-    model,
-    result: JSON.parse(content),
-  };
+  
+  try {
+    const parsed = JSON.parse(content);
+    return {
+      provider: 'openrouter',
+      model,
+      result: parsed,
+    };
+  } catch (parseError) {
+    console.error('[OpenRouter] Failed to parse JSON response. Content:', content);
+    throw new Error(`Failed to parse AI response as JSON: ${parseError.message}`);
+  }
 }
 
 serve(async (req) => {

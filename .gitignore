@@ -65,3 +65,7 @@ release/
 keystore-base64.txt
 keystore-summary.txt
 
+# Scratch / test files
+chat_diff.diff
+test_db_emoji.*
+

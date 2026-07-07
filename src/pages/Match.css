@@ -13,6 +13,12 @@
         linear-gradient(135deg, #050406 0%, #0b0611 46%, #050407 100%);
 }
 
+@media (min-width: 769px) {
+    .discover-page {
+        height: calc(100vh - 64px) !important;
+    }
+}
+
 .discover-page::before {
     content: '';
     position: absolute;
@@ -921,4 +927,79 @@
         opacity: 1;
         transform: translateX(0);
     }
+}
+
+/* ==========================================================================
+   Discover Page Top Rail Redesign
+   ========================================================================== */
+
+.discover-top-rail {
+    position: absolute;
+    top: max(env(safe-area-inset-top, 16px), 16px);
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.discover-top-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.discover-rail-btn {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(18, 17, 29, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: rgba(255, 255, 255, 0.75);
+    border-radius: 100px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.discover-rail-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.discover-rail-btn.active {
+    background: linear-gradient(135deg, #6c63ff, #d946ef);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.35);
+}
+
+.discover-swipes-left-badge {
+    background: rgba(18, 17, 29, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 100px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.discover-swipes-left-badge b {
+    color: #fff;
+}
+
+/* Streak Indicator Floating positioning */
+.discovery-streak-overlay {
+    position: absolute;
+    top: 75px;
+    right: 16px;
+    z-index: 100;
+    pointer-events: auto;
 }

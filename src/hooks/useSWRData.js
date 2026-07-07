@@ -11,7 +11,7 @@ import { persistentSWR } from '../lib/persistentCache';
  * SWR Hook for the Match/Discovery feed
  */
 export function useDiscoveryProfiles(userId, filters, userProfile) {
-    const key = userId ? ['discovery', userId, JSON.stringify(filters)] : null;
+    const key = userId ? ['discovery', userId, JSON.stringify(filters), userProfile?.university || '', userProfile?.interest_gender || ''] : null;
 
     return useSWR(key, async () => {
         const { data, error } = await getDiscoverProfiles(userId, filters, userProfile);

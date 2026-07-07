@@ -249,6 +249,49 @@ serve(async (req) => {
 
         if (profileError) throw profileError;
 
+        // If purchase event (not expiration/refund/revoke), log a wallet transaction and update total_spent
+        if (!deactivate && isPurchaseEvent(event)) {
+            const { data: wallet, error: walletError } = await supabase
+                .from('wallets')
+                .select('id, total_spent')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (!walletError && wallet?.id) {
+                const currentSpent = Number(wallet.total_spent || 0);
+                const subAmount = 2900; // Premium subscription price in NGN
+
+                // Update total_spent
+                await supabase
+                    .from('wallets')
+                    .update({
+                        total_spent: currentSpent + subAmount,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', wallet.id);
+
+                // Insert transaction record
+                await supabase
+                    .from('wallet_transactions')
+                    .insert({
+                        user_id: userId,
+                        wallet_id: wallet.id,
+                        type: 'payment',
+                        amount: subAmount,
+                        status: 'completed',
+                        description: 'College Date Premium Subscription (Google Play)',
+                        payment_method: 'google_play',
+                        reference_id: event.transaction_id || `rc-sub-${Date.now()}`,
+                        metadata: {
+                            source: 'revenuecat',
+                            type: 'subscription',
+                            product_id: event.product_id,
+                            transaction_id: event.transaction_id,
+                        }
+                    });
+            }
+        }
+
         return jsonResponse({
             ok: true,
             event_type: event.type,

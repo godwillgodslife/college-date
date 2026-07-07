@@ -19,7 +19,7 @@ function useWeeklyCountdown() {
     const getNext = () => {
         const now = new Date();
         const next = new Date(now);
-        next.setDate(now.getDate() + (8 - now.getDay()) % 7 || 7); // next Monday
+        next.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7)); // next Monday
         next.setHours(0, 0, 0, 0);
         return next;
     };

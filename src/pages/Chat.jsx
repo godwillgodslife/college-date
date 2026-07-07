@@ -15,6 +15,7 @@ import {
     getSignedChatMediaUrl,
     updateDisappearingMessages,
     addReaction,
+    editMessage,
 } from '../services/chatService';
 import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
 import { getWallet } from '../services/paymentService';
@@ -22,6 +23,7 @@ import { sendGift } from '../services/giftService';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
+import { supabase } from '../lib/supabase';
 import VoiceRecorder from '../components/ChatVoiceRecorder';
 import StickerDrawer from '../components/StickerDrawer';
 import GiftStore from '../components/GiftStore';
@@ -158,11 +160,53 @@ export default function Chat() {
     const [chatMenuOpen, setChatMenuOpen] = useState(false);
     const [disappearingSaving, setDisappearingSaving] = useState(false);
 
+    // Filter and search states
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterTab, setFilterTab] = useState('All');
+    const [likesCount, setLikesCount] = useState(0);
+    const [viewsCount, setViewsCount] = useState(0);
+    const [pendingRequestsList, setPendingRequestsList] = useState([]);
+
     // Reaction bar state
     const [reactionBar, setReactionBar] = useState(null);
     const longPressTimer = useRef(null);
 
     const [pendingSelection, setPendingSelection] = useState(null);
+
+    const [replyToMessage, setReplyToMessage] = useState(null);
+    const [editingMessage, setEditingMessage] = useState(null);
+    const [showMoreActions, setShowMoreActions] = useState(false);
+
+    // Fetch Likes (Pending incoming swipes) and views count
+    useEffect(() => {
+        if (!currentUser) return;
+        
+        const fetchActivityCounts = async () => {
+            try {
+                // Fetch pending incoming swipes (likes)
+                const { count: likes, data: reqList } = await supabase
+                    .from('swipes')
+                    .select('id, swiper:profiles!swipes_swiper_id_fkey(id, full_name, avatar_url)', { count: 'exact' })
+                    .eq('swiped_id', currentUser.id)
+                    .eq('status', 'pending');
+                    
+                setLikesCount(likes || 0);
+                setPendingRequestsList(reqList || []);
+
+                // Fetch profile views (views)
+                const { count: views } = await supabase
+                    .from('profile_views')
+                    .select('id', { count: 'exact' })
+                    .eq('profile_owner_id', currentUser.id);
+                    
+                setViewsCount(views || 0);
+            } catch (err) {
+                console.error('Error fetching activity counts:', err);
+            }
+        };
+        
+        fetchActivityCounts();
+    }, [currentUser]);
 
     const createClientNonce = () => `msg-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -393,22 +437,48 @@ export default function Chat() {
             return;
         }
 
-
         const content = newMessage.trim();
+
+        if (editingMessage) {
+            setSending(true);
+            const { data, error } = await editMessage(editingMessage.id, content);
+            if (error) {
+                addToast(`Edit failed: ${error}`, 'error');
+            } else if (data) {
+                setMessages(prev => prev.map(m => m.id === editingMessage.id ? data : m));
+                addToast('Message edited!', 'success');
+                setEditingMessage(null);
+                setNewMessage('');
+            }
+            setSending(false);
+            return;
+        }
+
         const optimisticId = `temp-${Date.now()}`;
         const clientNonce = createClientNonce();
+        
+        const metadata = { client_nonce: clientNonce };
+        if (replyToMessage) {
+            metadata.reply_to = {
+                id: replyToMessage.id,
+                sender: replyToMessage.sender,
+                content: replyToMessage.content
+            };
+        }
+
         const optimisticMsg = {
             id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-            content, type: 'text', metadata: { client_nonce: clientNonce }, created_at: new Date().toISOString(),
+            content, type: 'text', metadata, created_at: new Date().toISOString(),
             is_read: false, _pending: true
         };
 
         setMessages(prev => mergeMessageList(prev, optimisticMsg));
         setNewMessage('');
+        setReplyToMessage(null);
         setSending(true);
         stopTyping();
 
-        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', { client_nonce: clientNonce });
+        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', metadata);
         if (error) {
             setMessages(prev => prev.filter(m => m.id !== optimisticId));
             addToast('Failed to send.', 'error');
@@ -697,6 +767,21 @@ export default function Chat() {
     const activeDisappearingSeconds = selectedConv?.disappearing_messages_seconds || 0;
     const activeDisappearingLabel = DISAPPEARING_OPTIONS.find(option => option.seconds === activeDisappearingSeconds)?.label || 'Custom';
 
+    // Derived filtered conversations list
+    const filteredConvs = conversations.filter(conv => {
+        const matchesSearch = searchQuery.trim() === '' ||
+            (conv.other_user?.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (conv.last_message || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+        if (filterTab === 'Unread') {
+            return matchesSearch && conv.has_unread;
+        }
+        if (filterTab === 'Online') {
+            return matchesSearch && (presence[conv.other_user?.id]?.length || 0) > 0;
+        }
+        return matchesSearch;
+    });
+
     if (convsLoading && conversations.length === 0) return <LoadingSpinner fullScreen text="Opening messages..." />;
 
     return (
@@ -705,12 +790,78 @@ export default function Chat() {
             {showGifts && <GiftStore onClose={() => setShowGifts(false)} onSend={handleGiftSend} balance={walletBalance} />}
 
             <div className={`chat-sidebar ${selectedConv ? 'hide' : 'show'}`}>
-                <div className="chat-sidebar-header"><h1>Messages</h1></div>
+                <div className="chat-sidebar-header">
+                    <h1>Messages</h1>
+                </div>
+
+                {/* Sidebar Search Row */}
+                <div className="chat-sidebar-search-row">
+                    <div className="chat-search-input-container">
+                        <span className="search-icon-glass-chat">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Search direct messages..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="chat-search-input"
+                        />
+                        {searchQuery && (
+                            <button className="chat-search-clear" onClick={() => setSearchQuery('')}>×</button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Sidebar Filter Chips */}
+                <div className="chat-filter-chips-container">
+                    {['All', 'Unread', 'Online', 'Matches'].map(tab => (
+                        <button
+                            key={tab}
+                            className={`chat-filter-chip ${filterTab === tab ? 'active' : ''}`}
+                            onClick={() => setFilterTab(tab)}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Sidebar Activity & Requests scroll row */}
+                <div className="chat-activity-requests-row">
+                    <div className="activity-circle likes-circle" onClick={() => navigate('/requests')}>
+                        <div className={`activity-avatar-frame ${!userProfile?.is_premium ? 'blurred' : ''}`}>
+                            <span className="activity-emoji">❤️</span>
+                            {likesCount > 0 && <span className="activity-badge">{likesCount}</span>}
+                        </div>
+                        <span className="activity-label">Likes</span>
+                    </div>
+
+                    <div className="activity-circle views-circle" onClick={() => navigate('/viewers')}>
+                        <div className={`activity-avatar-frame ${!userProfile?.is_premium ? 'blurred' : ''}`}>
+                            <span className="activity-emoji">👀</span>
+                            {viewsCount > 0 && <span className="activity-badge">{viewsCount}</span>}
+                        </div>
+                        <span className="activity-label">Views</span>
+                    </div>
+
+                    {pendingRequestsList.map(req => {
+                        const swiper = req.swiper;
+                        if (!swiper) return null;
+                        return (
+                            <div key={req.id} className="activity-circle request-item" onClick={() => navigate('/requests')}>
+                                <div className="activity-avatar-frame">
+                                    <img src={swiper.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${swiper.id}`} alt="" />
+                                    <span className="request-badge-dot">●</span>
+                                </div>
+                                <span className="activity-label">{swiper.full_name?.split(' ')[0]}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+
                 <div className="conversation-list">
-                    {conversations.length === 0 ? (
-                        <div className="chat-empty-state"><p>No matches yet.</p></div>
+                    {filteredConvs.length === 0 ? (
+                        <div className="chat-empty-state"><p>No messages found.</p></div>
                     ) : (
-                        conversations.map((conv) => {
+                        filteredConvs.map((conv) => {
                             const isTypingNow = presence[conv.other_user?.id]?.some(p => p.is_typing);
                             const isOnline = (presence[conv.other_user?.id]?.length || 0) > 0;
                             const isSentByMe = conv.last_message_sender_id === currentUser?.id;
@@ -853,24 +1004,44 @@ export default function Chat() {
                                             </div>
                                         )}
                                         {renderMessageContent(msg)}
-                                        <div className="message-info"><span className="message-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><ReadReceipt msg={msg} isSender={msg.sender_id === currentUser.id} /></div>
+                                        <div className="message-info">
+                                            {(msg.metadata?.edited_at || msg.metadata?.is_edited) && <span className="message-edited-tag" title="edited">(edited) </span>}
+                                            <span className="message-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            <ReadReceipt msg={msg} isSender={msg.sender_id === currentUser.id} />
+                                        </div>
                                         {renderReactions(msg)}
                                         {!msg._pending && (
-                                            <button 
-                                                type="button"
-                                                className="btn-quick-reply-bubble" 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setReplyToMessage({ 
-                                                        id: msg.id, 
-                                                        sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), 
-                                                        content: msg.type === 'text' ? msg.content : `[${msg.type}]` 
-                                                    });
-                                                }}
-                                                title="Reply"
-                                            >
-                                                ↩️
-                                            </button>
+                                            <div className="message-action-buttons">
+                                                <button 
+                                                    type="button"
+                                                    className="btn-quick-reply-bubble" 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setReplyToMessage({ 
+                                                            id: msg.id, 
+                                                            sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), 
+                                                            content: msg.type === 'text' ? msg.content : `[${msg.type}]` 
+                                                        });
+                                                    }}
+                                                    title="Reply"
+                                                >
+                                                    ↩️
+                                                </button>
+                                                {msg.sender_id === currentUser.id && msg.type === 'text' && (Date.now() - new Date(msg.created_at).getTime()) < 15 * 60 * 1000 && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn-quick-edit-bubble"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setEditingMessage(msg);
+                                                            setNewMessage(msg.content);
+                                                        }}
+                                                        title="Edit Message"
+                                                    >
+                                                        ✏️
+                                                    </button>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -894,6 +1065,25 @@ export default function Chat() {
                                     </button>
                                 </div>
                             )}
+                            {editingMessage && (
+                                <div className="composer-reply-preview-container editing">
+                                    <div className="reply-preview-details">
+                                        <span className="reply-preview-sender">Editing Message</span>
+                                        <span className="reply-preview-text">{editingMessage.content}</span>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        className="btn-cancel-reply-quote" 
+                                        onClick={() => {
+                                            setEditingMessage(null);
+                                            setNewMessage('');
+                                        }}
+                                        aria-label="Cancel edit"
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                            )}
                             <input type="file" id="chat-image-input" accept="image/*" hidden onChange={handleImageSelect} />
                             {(aiReplies.length > 0 || aiReplyLoading) && (
                                 <div className="ai-reply-strip">
@@ -906,7 +1096,55 @@ export default function Chat() {
                                     ))}
                                 </div>
                             )}
-                            <form className="chat-input-form" onSubmit={handleSendMessage}>
+                            <form className="chat-input-form-wrapper" onSubmit={handleSendMessage}>
+                                <button 
+                                    type="button" 
+                                    className={`btn-more-actions-toggle ${showMoreActions ? 'active' : ''}`} 
+                                    onClick={() => setShowMoreActions(!showMoreActions)}
+                                    title="More Actions"
+                                >
+                                    {showMoreActions ? '✕' : '＋'}
+                                </button>
+                                
+                                {showMoreActions && (
+                                    <div className="more-actions-tray animate-fade-in-horizontal">
+                                        <button
+                                            type="button"
+                                            className="btn-icon ai-chat-btn"
+                                            onClick={(e) => { handleSmartReplies(e); setShowMoreActions(false); }}
+                                            title="AI reply ideas"
+                                            disabled={aiReplyLoading}
+                                        >
+                                            AI
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn-icon"
+                                            onClick={() => { document.getElementById('chat-image-input').click(); setShowMoreActions(false); }}
+                                            title="Send Image"
+                                        >
+                                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                                <circle cx="12" cy="13" r="4"></circle>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn-icon"
+                                            onClick={() => { setShowGifts(!showGifts); setShowMoreActions(false); }}
+                                            title="Send Gift"
+                                        >
+                                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                                                <rect x="2" y="7" width="20" height="5"></rect>
+                                                <line x1="12" y1="22" x2="12" y2="7"></line>
+                                                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="chat-composer-pill">
                                     <button
                                         type="button"
@@ -924,41 +1162,7 @@ export default function Chat() {
                                     <input type="text" className="chat-input" placeholder="Message" value={newMessage} onChange={e => { setNewMessage(e.target.value); handleTyping(); }} />
                                 </div>
 
-                                <div className="chat-side-actions">
-                                    <button
-                                        type="button"
-                                        className="btn-icon ai-chat-btn"
-                                        onClick={handleSmartReplies}
-                                        title="AI reply ideas"
-                                        disabled={aiReplyLoading}
-                                    >
-                                        AI
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn-icon"
-                                        onClick={() => document.getElementById('chat-image-input').click()}
-                                        title="Send Image"
-                                    >
-                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                            <circle cx="12" cy="13" r="4"></circle>
-                                        </svg>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn-icon"
-                                        onClick={() => setShowGifts(!showGifts)}
-                                        title="Send Gift"
-                                    >
-                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                                            <rect x="2" y="7" width="20" height="5"></rect>
-                                            <line x1="12" y1="22" x2="12" y2="7"></line>
-                                            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                                        </svg>
-                                    </button>
+                                <div className="chat-send-actions">
                                     {newMessage.trim() ? (
                                         <button type="submit" className="btn-send">
                                             <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">

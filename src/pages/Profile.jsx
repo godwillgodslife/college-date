@@ -64,6 +64,72 @@ function VoicePlayer({ src }) {
     );
 }
 
+function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer }) {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const photosList = photos && photos.length > 0 ? photos : (avatarUrl ? [avatarUrl] : []);
+
+    const nextPhoto = (e) => {
+        e.stopPropagation();
+        if (photosList.length <= 1) return;
+        setCurrentIndex(prev => (prev + 1) % photosList.length);
+    };
+
+    const prevPhoto = (e) => {
+        e.stopPropagation();
+        if (photosList.length <= 1) return;
+        setCurrentIndex(prev => (prev - 1 + photosList.length) % photosList.length);
+    };
+
+    if (photosList.length === 0) {
+        return (
+            <div className="profile-carousel-wrapper placeholder">
+                <div className="profile-avatar profile-avatar-placeholder">
+                    {displayName.charAt(0).toUpperCase()}
+                </div>
+                {isOnline && <span className="profile-online-dot" />}
+            </div>
+        );
+    }
+
+    return (
+        <div className="profile-carousel-wrapper">
+            {photosList.length > 1 && (
+                <div className="photo-progress-bars">
+                    {photosList.map((_, i) => (
+                        <span key={i} className={`bar ${i === currentIndex ? 'active' : ''}`} />
+                    ))}
+                </div>
+            )}
+
+            <div className="profile-carousel-img-container">
+                <img
+                    src={photosList[currentIndex]}
+                    alt={`${displayName} photo`}
+                    className="profile-carousel-img"
+                    onClick={(e) => {
+                        if (userStatuses.length > 0) {
+                            e.stopPropagation();
+                            setShowStatusViewer(true);
+                        }
+                    }}
+                />
+            </div>
+
+            {photosList.length > 1 && (
+                <>
+                    <div className="carousel-nav-zone left" onClick={prevPhoto} />
+                    <div className="carousel-nav-zone right" onClick={nextPhoto} />
+                    <div className="carousel-dots">
+                        {photosList.map((_, i) => (
+                            <span key={i} className={`dot ${i === currentIndex ? 'active' : ''}`} />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 export default function Profile() {
     const { userId } = useParams();
     const { currentUser, userProfile: myProfile, onlineUserIds, logout } = useAuth();
@@ -208,64 +274,79 @@ export default function Profile() {
 
     return (
         <div className="profile-page">
-            <div className="profile-card">
-                {/* AI Compatibility Wingmate Banner */}
-                {!isOwnProfile && (
-                    <div className="profile-compatibility-banner">
-                        <div className="comp-glow" />
-                        <span className="comp-percentage">✨ Match Compatibility: {getCompatibilityScore()}%</span>
-                        {mutualInterests.length > 0 ? (
-                            <p className="comp-details">You both enjoy <strong>{mutualInterests.join(', ')}</strong>!</p>
-                        ) : (
-                            <p className="comp-details">Shared campus goals & common campus interests.</p>
-                        )}
-                    </div>
-                )}
-
-                {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
-                {isOwnProfile && (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url && (
-                    <div className="go-live-alert">
-                        <span className="go-live-icon">📸</span>
-                        <div className="go-live-text">
-                            <strong>You're invisible!</strong> Upload a photo to Go Live and start matching.
-                        </div>
-                        <button
-                            className="go-live-btn"
-                            onClick={() => navigate('/profile/edit')}
-                        >
-                            Add Photo
-                        </button>
-                    </div>
-                )}
-
-                {/* VERIFICATION BANNER: Encourage users to verify they are real */}
-                {isOwnProfile && !userProfile?.is_verified && (userProfile?.profile_photos?.length > 0 || userProfile?.avatar_url) && (
-                    <div className="verification-alert">
-                        <div className="verification-text-block">
-                            <span className="verify-shield">🛡️</span>
-                            <div className="verify-text">
-                                <strong>Verify Your Profile</strong> {aiVerificationCopy[aiVerificationStatus] || aiVerificationCopy.not_started}
+            {isOwnProfile ? (
+                // OWN PROFILE VIEW
+                <div className="profile-card own-profile-view animate-fade-in">
+                    {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
+                    {(!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url && (
+                        <div className="go-live-alert">
+                            <span className="go-live-icon">📸</span>
+                            <div className="go-live-text">
+                                <strong>You're invisible!</strong> Upload a photo to Go Live and start matching.
                             </div>
+                            <button
+                                className="go-live-btn"
+                                onClick={() => navigate('/profile/edit')}
+                            >
+                                Add Photo
+                            </button>
                         </div>
-                        <button
-                            className="btn btn-primary verify-btn-sm"
-                            onClick={() => {
-                                requestProfileAiReview('manual_profile_verify');
-                            }}
+                    )}
+
+                    {/* VERIFICATION BANNER: Encourage users to verify they are real */}
+                    {!userProfile?.is_verified && (userProfile?.profile_photos?.length > 0 || userProfile?.avatar_url) && (
+                        <div className="verification-alert">
+                            <div className="verification-text-block">
+                                <span className="verify-shield">🛡️</span>
+                                <div className="verify-text">
+                                    <strong>Verify Your Profile</strong> {aiVerificationCopy[aiVerificationStatus] || aiVerificationCopy.not_started}
+                                </div>
+                            </div>
+                            <button
+                                className="btn btn-primary verify-btn-sm"
+                                onClick={() => {
+                                    requestProfileAiReview('manual_profile_verify');
+                                }}
+                            >
+                                {aiVerificationStatus === 'reviewing' || aiVerificationStatus === 'pending' ? 'Checking...' : 'AI Check'}
+                            </button>
+                        </div>
+                    )}
+
+                    <ProfileCompletion
+                        score={userProfile?.completion_score || 0}
+                        profile={userProfile}
+                        onCompleteClick={() => navigate('/profile/edit')}
+                    />
+
+                    <div className="profile-header">
+                        <div
+                            className={`profile-avatar-wrapper own-avatar-frame ${userStatuses.length > 0 ? 'has-status' : ''}`}
+                            onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
+                            style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
                         >
-                            {aiVerificationStatus === 'reviewing' || aiVerificationStatus === 'pending' ? 'Checking...' : 'AI Check'}
-                        </button>
+                            {avatarUrl ? (
+                                <OptimizedImage
+                                    src={avatarUrl}
+                                    alt={displayName}
+                                    className="profile-avatar"
+                                    width={150}
+                                    priority
+                                />
+                            ) : (
+                                <div className="profile-avatar profile-avatar-placeholder">
+                                    {displayName.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            {isOnline && <span className="profile-online-dot" />}
+                        </div>
+                        <h1 className="profile-name">
+                            {displayName}
+                            {isOnline && <span className="live-badge">LIVE</span>}
+                        </h1>
+                        <p className="profile-uni-text">🎓 {university}</p>
                     </div>
-                )}
 
-
-                <ProfileCompletion
-                    score={userProfile?.completion_score || 0}
-                    profile={userProfile}
-                    onCompleteClick={() => navigate('/profile/edit')}
-                />
-
-                {isOwnProfile && (
                     <div className="profile-section ai-profile-coach">
                         <div className="wallet-entry-header">
                             <h3 className="profile-section-title">AI Profile Coach</h3>
@@ -285,94 +366,8 @@ export default function Profile() {
                             <p className="section-hint">Get a quick AI review of your bio, photos, prompts, and match appeal.</p>
                         )}
                     </div>
-                )}
 
-                <div className="profile-header">
-                    <div className="profile-photos-carousel">
-                        {userProfile?.profile_photos?.length > 0 ? (
-                            userProfile.profile_photos.map((photo, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`profile-carousel-item profile-avatar-wrapper ${userStatuses.length > 0 ? 'has-status' : ''}`}
-                                    onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
-                                    style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
-                                >
-                                    <OptimizedImage
-                                        src={photo || avatarUrl}
-                                        alt={`${displayName} ${idx + 1}`}
-                                        className="profile-avatar"
-                                        width={300}
-                                        priority={idx === 0}
-                                    />
-                                    {isOnline && <span className="profile-online-dot" />}
-                                </div>
-                            ))
-                        ) : (
-                            <div
-                                className={`profile-carousel-item profile-avatar-wrapper ${userStatuses.length > 0 ? 'has-status' : ''}`}
-                                onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
-                                style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
-                            >
-                                {avatarUrl ? (
-                                    <OptimizedImage
-                                        src={avatarUrl}
-                                        alt={displayName}
-                                        className="profile-avatar"
-                                        width={300}
-                                        priority
-                                    />
-                                ) : (
-                                    <div className="profile-avatar profile-avatar-placeholder">
-                                        {displayName.charAt(0).toUpperCase()}
-                                    </div>
-                                )}
-                                {isOnline && <span className="profile-online-dot" />}
-                            </div>
-                        )}
-                    </div>
-                    <h1 className="profile-name">
-                        {displayName}
-                        {isOnline && <span className="live-badge">LIVE</span>}
-                    </h1>
-                    <p className="profile-email">
-                        {isOnline ? (
-                            <span className="online-status-text">Online now</span>
-                        ) : (
-                            <span className="last-seen-status">{formatLastSeen(userProfile?.last_seen_at)}</span>
-                        )}
-                    </p>
-                </div>
-
-
-                <div className="profile-info-grid">
-                    <div className="profile-info-item">
-                        <span className="info-label">Level</span>
-                        <span className="info-value">{userProfile?.level || '—'}</span>
-                    </div>
-                    <div className="profile-info-item">
-                        <span className="info-label">Dept</span>
-                        <span className="info-value">{userProfile?.department || '—'}</span>
-                    </div>
-                    <div className="profile-info-item">
-                        <span className="info-label">Faculty</span>
-                        <span className="info-value">{userProfile?.faculty || '—'}</span>
-                    </div>
-                    <div className="profile-info-item">
-                        <span className="info-label">Genotype</span>
-                        <span className="info-value">{userProfile?.genotype || '—'}</span>
-                    </div>
-                    <div className="profile-info-item">
-                        <span className="info-label">MBTI</span>
-                        <span className="info-value">{userProfile?.mbti || '—'}</span>
-                    </div>
-                    <div className="profile-info-item">
-                        <span className="info-label">Goal</span>
-                        <span className="info-value">{userProfile?.attraction_goal || '—'}</span>
-                    </div>
-                </div>
-
-                {/* Earnings Section (Prominent for Female users, Wallet for others) */}
-                {isOwnProfile && (
+                    {/* Earnings Section (Prominent for Female users, Wallet for others) */}
                     <div className="profile-section wallet-entry-card" onClick={() => navigate('/wallet')}>
                         <div className="wallet-entry-header">
                             <h3 className="profile-section-title">
@@ -398,167 +393,217 @@ export default function Profile() {
                             </div>
                         )}
                     </div>
-                )}
 
-                {/* VIBE CHECK SECTION */}
-                {(anthem || locationStatus || voiceIntro) && (
-                    <div className="profile-section vibe-check-display">
-                        <h3 className="profile-section-title">✨ Vibe Check</h3>
+                    <div className="profile-dashboard-grid">
+                        <button
+                            className="dashboard-card premium-card"
+                            onClick={() => navigate('/premium')}
+                        >
+                            <span className="card-icon">👑</span>
+                            <span className="card-title">Get Premium</span>
+                        </button>
 
-                        {locationStatus && (
-                            <div className="vibe-item location-status">
-                                <span className="vibe-icon">📍</span>
-                                <span className="vibe-text">{locationStatus}</span>
-                            </div>
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/profile/edit')}
+                        >
+                            <span className="card-icon">✏️</span>
+                            <span className="card-title">Edit Profile</span>
+                        </button>
+
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/wallet')}
+                        >
+                            <span className="card-icon">💰</span>
+                            <span className="card-title">
+                                {userProfile?.role === 'Female' ? 'Earnings' : 'Wallet'}
+                            </span>
+                        </button>
+
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/referrals')}
+                        >
+                            <span className="card-icon">🎁</span>
+                            <span className="card-title">Referrals</span>
+                        </button>
+
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/settings')}
+                        >
+                            <span className="card-icon">⚙️</span>
+                            <span className="card-title">Settings</span>
+                        </button>
+
+                        <a
+                            href={partnerWhatsAppUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="dashboard-card partner-card-link"
+                        >
+                            <span className="card-icon">🤝</span>
+                            <span className="card-title">Partner Up</span>
+                        </a>
+
+                        {userProfile?.role === 'Female' && (
+                            <button
+                                className="dashboard-card"
+                                onClick={() => navigate('/requests')}
+                            >
+                                <span className="card-icon">💌</span>
+                                <span className="card-title">Requests</span>
+                            </button>
                         )}
 
-                        {anthem && (
-                            <div className="vibe-item anthem">
-                                <span className="vibe-icon">🎵</span>
-                                <span className="vibe-text">{anthem}</span>
-                            </div>
-                        )}
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/leaderboard')}
+                        >
+                            <span className="card-icon">🏆</span>
+                            <span className="card-title">Leaderboard</span>
+                        </button>
 
+                        <button
+                            className="dashboard-card logout-card"
+                            onClick={async () => {
+                                await logout();
+                                navigate('/login', { replace: true });
+                            }}
+                        >
+                            <span className="card-icon">🚪</span>
+                            <span className="card-title">Logout</span>
+                        </button>
+                    </div>
+
+                    {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+                        {!checkingPush && (
+                            isSubscribed ? (
+                                <button className="btn btn-secondary btn-block" disabled style={{ opacity: 0.7 }}>
+                                    🔔 Notifications Subscribed ✓
+                                </button>
+                            ) : (
+                                <button className="btn btn-primary btn-block" onClick={handleEnableAlerts} style={{ animation: 'pulse 2s infinite' }}>
+                                    🔔 Enable Push Alerts
+                                </button>
+                            )
+                        )}
+                    </div>}
+
+                    <AndroidInstallButton />
+                </div>
+            ) : (
+                // PUBLIC PROFILE VIEW
+                <div className="profile-card public-profile-view animate-fade-in">
+                    {/* Carousel image with status dots and progress bars */}
+                    <ProfileCarousel
+                        photos={userProfile?.profile_photos}
+                        avatarUrl={avatarUrl}
+                        displayName={displayName}
+                        isOnline={isOnline}
+                        userStatuses={userStatuses}
+                        setShowStatusViewer={setShowStatusViewer}
+                    />
+
+                    <div className="public-profile-details">
+                        <div className="profile-title-row-premium">
+                            <h2>{displayName}, {userProfile?.age || '—'}</h2>
+                            {isOnline && <span className="profile-live-badge-glow">LIVE</span>}
+                        </div>
+                        <p className="profile-uni-subtitle">🎓 {university} • {userProfile?.location_status || 'Campus'}</p>
+
+                        {/* AI Compatibility Signal Banner */}
+                        <div className="profile-compatibility-card-premium">
+                            <div className="comp-percentage-glow">{getCompatibilityScore()}%</div>
+                            <div className="comp-info-details">
+                                <strong>AI Wingmate Compatibility Check</strong>
+                                {mutualInterests.length > 0 ? (
+                                    <p>You both enjoy <strong>{mutualInterests.join(', ')}</strong> and share common student vibes!</p>
+                                ) : (
+                                    <p>Shared academic focus, level details, and common campus vibe goals.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Info grid */}
+                        <div className="profile-info-grid-premium">
+                            <div className="grid-item"><strong>Level</strong><span>{userProfile?.level || '—'}</span></div>
+                            <div className="grid-item"><strong>Dept</strong><span>{userProfile?.department || '—'}</span></div>
+                            <div className="grid-item"><strong>MBTI</strong><span>{userProfile?.mbti || '—'}</span></div>
+                            <div className="grid-item"><strong>Genotype</strong><span>{userProfile?.genotype || '—'}</span></div>
+                        </div>
+
+                        {/* Voice Intro Player */}
                         {voiceIntro && (
-                            <div className="vibe-item voice-intro-container">
-                                <span className="vibe-icon-label">🎤 VOICE INTRO</span>
+                            <div className="profile-voice-player-section">
+                                <span className="voice-label-glow">🎤 VOICE INTRO</span>
                                 <VoicePlayer src={voiceIntro} />
                             </div>
                         )}
 
-                        {userProfile?.intro_prompt && (
-                            <div className="icebreaker-prompt-card mt-3">
-                                <span className="prompt-label">We will get along if...</span>
-                                <p className="prompt-value">"{userProfile.intro_prompt}"</p>
+                        {/* Bio */}
+                        <div className="profile-section-premium-block">
+                            <h4>About Me</h4>
+                            <p className="profile-bio-text">{bio}</p>
+                        </div>
+
+                        {/* Spotify Campus Anthem Widget */}
+                        {anthem && (
+                            <div className="spotify-anthem-widget-premium">
+                                <div className="spotify-wave-logo">🎵</div>
+                                <div className="spotify-track-details">
+                                    <span className="track-title">{anthem.split('-')[0]?.trim() || 'Anthem'}</span>
+                                    <span className="track-artist">{anthem.split('-')[1]?.trim() || 'Campus Track'} • Campus Anthem</span>
+                                </div>
+                                <span className="spotify-play-btn">▶</span>
                             </div>
                         )}
 
+                        {/* Interest Tags */}
                         {userProfile?.interests?.length > 0 && (
-                            <div className="profile-interests">
-                                {userProfile.interests.map((interest, idx) => (
-                                    <span key={idx} className="interest-tag">{interest}</span>
-                                ))}
+                            <div className="profile-section-premium-block">
+                                <h4>Vibe Tags</h4>
+                                <div className="profile-interests-pills">
+                                    {userProfile.interests.map((interest, idx) => (
+                                        <span key={idx} className="interest-pill">{interest}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Q&A Prompt Card */}
+                        {userProfile?.intro_prompt && (
+                            <div className="profile-prompt-card-premium">
+                                <span className="prompt-question">We will get along if...</span>
+                                <p className="prompt-answer">"{userProfile.intro_prompt}"</p>
                             </div>
                         )}
                     </div>
-                )}
 
-                <div className="profile-section">
-                    <h3 className="profile-section-title">About Me</h3>
-                    <p className="profile-bio">{bio}</p>
-                </div>
-
-                {isOwnProfile ? (
-                    <>
-                        {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
-                            {!checkingPush && (
-                                isSubscribed ? (
-                                    <button className="btn btn-secondary btn-block" disabled style={{ opacity: 0.7 }}>
-                                        🔔 Notifications Subscribed ✓
-                                    </button>
-                                ) : (
-                                    <button className="btn btn-primary btn-block" onClick={handleEnableAlerts} style={{ animation: 'pulse 2s infinite' }}>
-                                        🔔 Enable Push Alerts
-                                    </button>
-                                )
-                            )}
-                        </div>}
-
-                        <div className="profile-dashboard-grid">
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/profile/edit')}
-                            >
-                                <span className="card-icon">✏️</span>
-                                <span className="card-title">Edit Profile</span>
-                            </button>
-
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/wallet')}
-                            >
-                                <span className="card-icon">💰</span>
-                                <span className="card-title">
-                                    {userProfile?.role === 'Female' ? 'Earnings' : 'Wallet'}
-                                </span>
-                            </button>
-
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/referrals')}
-                            >
-                                <span className="card-icon">🎁</span>
-                                <span className="card-title">Referrals</span>
-                            </button>
-
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/settings')}
-                            >
-                                <span className="card-icon">⚙️</span>
-                                <span className="card-title">Settings</span>
-                            </button>
-
-                            <a
-                                href={partnerWhatsAppUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="dashboard-card partner-card-link"
-                            >
-                                <span className="card-icon">🤝</span>
-                                <span className="card-title">Partner Up</span>
-                            </a>
-
-                            {userProfile?.role === 'Female' && (
-                                <button
-                                    className="dashboard-card"
-                                    onClick={() => navigate('/requests')}
-                                >
-                                    <span className="card-icon">💌</span>
-                                    <span className="card-title">Requests</span>
-                                </button>
-                            )}
-
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/leaderboard')}
-                            >
-                                <span className="card-icon">🏆</span>
-                                <span className="card-title">Leaderboard</span>
-                            </button>
-
-                            <button
-                                className="dashboard-card logout-card"
-                                onClick={async () => {
-                                    await logout();
-                                    navigate('/login', { replace: true });
-                                }}
-                            >
-                                <span className="card-icon">🚪</span>
-                                <span className="card-title">Logout</span>
-                            </button>
-                        </div>
-
+                    {/* Floating Action Bar */}
+                    <div className="profile-floating-actions-bar">
                         <button
-                            className="btn btn-gradient btn-block"
-                            style={{ marginTop: '1.2rem' }}
-                            onClick={() => navigate('/premium')}
+                            className="float-action-btn call-btn-glow"
+                            onClick={() => navigate(`/call/${userProfile.id}?type=voice`)}
                         >
-                            👑 Get Premium
+                            📞 Call
                         </button>
-
-                        <AndroidInstallButton />
-                    </>
-                ) : (
-                    <button
-                        className="btn btn-primary btn-block"
-                        style={{ marginTop: '1.5rem' }}
-                        onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id } })}
-                    >
-                        💬 Send Message
-                    </button>
-                )}
-            </div>
+                        <button
+                            className="float-action-btn chat-btn-glow primary"
+                            onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id } })}
+                        >
+                            💬 Message
+                        </button>
+                        <button
+                            className="float-action-btn gift-btn-glow"
+                            onClick={() => addToast('🎁 Gift feature coming soon!', 'info')}
+                        >
+                            🎁 Gift
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Status Update Modal */}
             {showStatusModal && (
@@ -576,6 +621,7 @@ export default function Profile() {
                     </div>
                 </div>
             )}
+
             {/* Status Viewer Overlay */}
             <AnimatePresence>
                 {showStatusViewer && userStatuses.length > 0 && (

@@ -1,16 +1,31 @@
 import { useState, memo } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import OptimizedImage from './OptimizedImage';
+import { useAuth } from '../contexts/AuthContext';
 import { isRecentlyActive, isRecentlyLive } from '../utils/presence';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import './SwipeCard.css';
 
 function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false, isTop = true }) {
+    const { userProfile: myProfile } = useAuth();
     const [exitX, setExitX] = useState(0);
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
     const [aiInsight, setAiInsight] = useState(null);
     const [aiInsightType, setAiInsightType] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
+
+    const mutualInterests = (myProfile?.interests || []).filter(interest => 
+        (profile?.interests || []).includes(interest)
+    );
+
+    const getCompatibilityScore = () => {
+        let score = 55; // base score
+        if (profile?.intent && profile?.intent === myProfile?.intent) score += 20;
+        if (profile?.university && profile?.university === myProfile?.university) score += 15;
+        const mutualCount = mutualInterests.length;
+        score += Math.min(15, mutualCount * 5);
+        return Math.min(99, score);
+    };
 
     const photos = profile.profile_photos && profile.profile_photos.length > 0
         ? profile.profile_photos

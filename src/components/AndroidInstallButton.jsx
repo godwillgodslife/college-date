@@ -1,75 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './AndroidInstallButton.css';
 
 export default function AndroidInstallButton() {
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
-    const [showGuide, setShowGuide] = useState(false);
+    const isNative = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+                     (import.meta.env.DEV && new URLSearchParams(window.location.search).has('native-preview'));
 
-    useEffect(() => {
-        const handler = (e) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-            console.log('✅ PWA Install Prompt Ready');
-        };
-        window.addEventListener('beforeinstallprompt', handler);
-
-        return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
-
-    const handleInstall = async () => {
-        if (!deferredPrompt) {
-            // Instead of a dry alert, show a nice guide UI
-            setShowGuide(true);
-            return;
-        }
-
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to the install prompt: ${outcome}`);
-        setDeferredPrompt(null);
-    };
+    if (isNative) {
+        return null;
+    }
 
     return (
-        <>
-            <button className="android-install-btn" onClick={handleInstall}>
-                <span className="btn-icon">🤖</span>
-                <div className="btn-text-content">
-                    <span className="btn-subtitle">Next-Gen App</span>
-                    <span className="btn-title">Install on Android</span>
-                </div>
-                <span className="btn-chevron">→</span>
-            </button>
-
-            {showGuide && (
-                <div className="install-guide-overlay" onClick={() => setShowGuide(false)}>
-                    <div className="install-guide-card" onClick={e => e.stopPropagation()}>
-                        <div className="guide-header">
-                            <h2>Install College Date</h2>
-                            <button className="close-guide" onClick={() => setShowGuide(false)}>×</button>
-                        </div>
-                        <div className="guide-body">
-                            <p>To get the best experience, add College Date to your home screen:</p>
-                            <div className="guide-steps">
-                                <div className="guide-step">
-                                    <span className="step-num">1</span>
-                                    <p>Tap the <strong>three dots (⋮)</strong> or <strong>Share</strong> icon in your browser.</p>
-                                </div>
-                                <div className="guide-step">
-                                    <span className="step-num">2</span>
-                                    <p>Select <strong>"Install App"</strong> or <strong>"Add to Home Screen"</strong>.</p>
-                                </div>
-                                <div className="guide-step">
-                                    <span className="step-num">3</span>
-                                    <p>Launch it from your home screen just like a native app!</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button className="btn-primary w-full" onClick={() => setShowGuide(false)}>
-                            Got it!
-                        </button>
-                    </div>
-                </div>
-            )}
-        </>
+        <a 
+            href="https://play.google.com/store/apps/details?id=com.collegedate.app" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="playstore-badge-btn"
+        >
+            <svg viewBox="0 0 512 512" className="playstore-icon" width="26" height="26">
+                <path fill="#EA4335" d="M36.1 19.3c-2.4 2.5-3.8 6.4-3.8 11.2V481.5c0 4.8 1.4 8.7 3.8 11.2L38.9 495 277 256.9v-1.8L38.9 17 36.1 19.3z" />
+                <path fill="#34A853" d="M357.2 337.2L277 256.9v1.8l80.2 80.2 95.3-54.4c27.1-15.5 27.1-40.8 0-56.3l-95.3-54.4-80.2 80.2v1.8z" />
+                <path fill="#FBBC05" d="M357.2 174.9L277 256.9 38.9 17c8-4.6 20.3-4.6 34.3 3.4l284 154.5z" />
+                <path fill="#4285F4" d="M357.2 337.2L73.2 491.7c-14 8-26.3 8-34.3 3.4L277 256.9l80.2 80.3z" />
+            </svg>
+            <div className="playstore-text">
+                <span className="playstore-sub">GET IT ON</span>
+                <span className="playstore-main">Google Play</span>
+            </div>
+        </a>
     );
 }

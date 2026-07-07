@@ -443,17 +443,30 @@ export default function MiniProfileSetup() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="level-grid">
-                                        {LEVEL_OPTIONS.map(lvl => (
-                                            <button
-                                                key={lvl}
-                                                className={`level-btn ${formData.level === lvl ? 'active' : ''}`}
-                                                onClick={() => setFormData(p => ({ ...p, level: lvl }))}
-                                            >
-                                                {lvl}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    {formData.university ? (
+                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="level-selection-container">
+                                            <p className="level-prompt-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginTop: '1rem', textAlign: 'left' }}>Select your current level:</p>
+                                            <div className="level-grid">
+                                                {LEVEL_OPTIONS.map(lvl => (
+                                                    <button
+                                                        key={lvl}
+                                                        type="button"
+                                                        className={`level-btn ${formData.level === lvl ? 'active' : ''}`}
+                                                        onClick={() => setFormData(p => ({ ...p, level: lvl }))}
+                                                    >
+                                                        {lvl}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <p className="onboarding-context-note" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginTop: '1.2rem', fontStyle: 'italic', textAlign: 'left' }}>
+                                                Selected university and level can be updated later in Settings.
+                                            </p>
+                                        </motion.div>
+                                    ) : (
+                                        <div className="onboarding-help-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.4)', marginTop: '2rem', textAlign: 'center' }}>
+                                            Type and select your university above to choose your level.
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

@@ -1,4 +1,4 @@
-﻿import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
 const PAGE_SIZE = 20;
@@ -390,4 +390,46 @@ export async function updateTypingStatus(channel, userId, userData, isTyping) {
         is_typing: isTyping,
         avatar_url: userData.avatar_url
     });
+}
+
+/**
+ * Edit a sent message (within 15 minutes).
+ */
+export async function editMessage(messageId, senderId, newContent) {
+    try {
+        const { data: msg, error: fetchErr } = await supabase
+            .from('messages')
+            .select('created_at, sender_id, metadata')
+            .eq('id', messageId)
+            .single();
+
+        if (fetchErr) throw fetchErr;
+
+        if (msg.sender_id !== senderId) {
+            throw new Error('You can only edit your own messages');
+        }
+
+        const minutesPassed = (Date.now() - new Date(msg.created_at).getTime()) / (1000 * 60);
+        if (minutesPassed > 15) {
+            throw new Error('Messages can only be edited within 15 minutes');
+        }
+
+        const metadata = { ...(msg.metadata || {}), is_edited: true, edited_at: new Date().toISOString() };
+
+        const { data, error } = await supabase
+            .from('messages')
+            .update({ 
+                content: newContent,
+                metadata
+            })
+            .eq('id', messageId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return { data, error: null };
+    } catch (err) {
+        console.error('editMessage error:', err.message);
+        return { data: null, error: err.message };
+    }
 }
