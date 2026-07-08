@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePrefetch } from '../hooks/usePrefetch';
 import NotificationTray from './NotificationTray';
 import { partnerWhatsAppUrl } from '../config/contactLinks';
@@ -10,14 +10,48 @@ import './Navbar.css';
 export default function Navbar() {
     const { currentUser, userProfile, walletBalance, logout } = useAuth();
     const { unreadCount } = useNotifications();
-    const [menuOpen, setMenuOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { prefetch } = usePrefetch();
 
+    const prevUnreadCountRef = useRef(unreadCount);
+    const [animateBell, setAnimateBell] = useState(false);
+    const [showIndicator, setShowIndicator] = useState(false);
+
+    useEffect(() => {
+        const prev = prevUnreadCountRef.current;
+        prevUnreadCountRef.current = unreadCount;
+
+        if (prev !== undefined && unreadCount > prev) {
+            setAnimateBell(true);
+            const timer = setTimeout(() => setAnimateBell(false), 800);
+            
+            const hasSeen = sessionStorage.getItem('cd_has_seen_notif_indicator');
+            if (!hasSeen) {
+                setShowIndicator(true);
+                sessionStorage.setItem('cd_has_seen_notif_indicator', 'true');
+            }
+            return () => clearTimeout(timer);
+        } else if (prev === undefined && unreadCount > 0) {
+            const hasSeen = sessionStorage.getItem('cd_has_seen_notif_indicator');
+            if (!hasSeen) {
+                setShowIndicator(true);
+                sessionStorage.setItem('cd_has_seen_notif_indicator', 'true');
+            }
+        }
+    }, [unreadCount]);
+
+    useEffect(() => {
+        if (showIndicator) {
+            const timer = setTimeout(() => {
+                setShowIndicator(false);
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [showIndicator]);
+
     const handleLogout = async () => {
-        setMenuOpen(false);
         setNotifOpen(false);
         await logout();
         navigate('/login', { replace: true });
@@ -91,10 +125,26 @@ export default function Navbar() {
                 <div className="navbar-user">
                     {/* Notification Bell */}
                     <div className="nav-notif-wrapper">
-                        <button className="nav-icon-btn" onClick={() => { setNotifOpen(!notifOpen); setMenuOpen(false); }}>
+                        <button 
+                            className={`nav-icon-btn ${animateBell ? 'bell-animate' : ''}`} 
+                            onClick={() => { 
+                                setNotifOpen(!notifOpen); 
+                                setShowIndicator(false);
+                                sessionStorage.setItem('cd_has_seen_notif_indicator', 'true');
+                            }}
+                        >
                             <span className="nav-icon">🔔</span>
                             {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
                         </button>
+                        {showIndicator && (
+                            <div className="notif-indicator-tooltip">
+                                <div className="notif-indicator-arrow"></div>
+                                <div className="notif-indicator-content">
+                                    <span className="notif-indicator-dot"></span>
+                                    New notifications!
+                                </div>
+                            </div>
+                        )}
                         {notifOpen && <NotificationTray onClose={() => setNotifOpen(false)} />}
                     </div>
 
@@ -115,88 +165,7 @@ export default function Navbar() {
                         {walletBalance > 0 && <span className="earning-dot-navbar" />}
                     </button>
                 </div>
-
-                {/* Mobile hamburger */}
-                <button className="navbar-hamburger" onClick={() => { setMenuOpen(!menuOpen); setNotifOpen(false); }}>
-                    <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
-                    <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
-                    <span className={`hamburger-line ${menuOpen ? 'open' : ''}`}></span>
-                </button>
             </div>
-
-
-
-            {/* Mobile Menu */}
-            {menuOpen && (
-                <>
-                    <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)} />
-                    <div className="mobile-menu">
-                        <Link
-                            to="/dashboard"
-                            className={`mobile-menu-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/dashboard')}
-                            onTouchStart={() => prefetch('/dashboard')}
-                        >
-                            <span>🏠</span> Home
-                        </Link>
-                        <Link
-                            to="/match"
-                            className={`mobile-menu-item ${location.pathname === '/match' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/match')}
-                            onTouchStart={() => prefetch('/match')}
-                        >
-                            <span>🔍</span> Match
-                        </Link>
-                        <Link
-                            to="/chat"
-                            className={`mobile-menu-item ${location.pathname === '/chat' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/chat')}
-                            onTouchStart={() => prefetch('/chat')}
-                        >
-                            <span>💬</span> Chat
-                        </Link>
-                        <Link
-                            to="/leaderboard"
-                            className={`mobile-menu-item ${location.pathname === '/leaderboard' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/leaderboard')}
-                            onTouchStart={() => prefetch('/leaderboard')}
-                        >
-                            <span>🏆</span> Leaderboard
-                        </Link>
-                        <Link
-                            to="/confessions"
-                            className={`mobile-menu-item ${location.pathname === '/confessions' ? 'active' : ''}`}
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/confessions')}
-                            onTouchStart={() => prefetch('/confessions')}
-                        >
-                            <span>🎭</span> Confessions
-                        </Link>
-                        <Link to="/premium" className="mobile-menu-item premium-menu-item" onClick={() => setMenuOpen(false)}>
-                            <span>👑</span> Get Premium
-                        </Link>
-                        {userProfile?.role === 'Female' && (
-                            <Link to="/requests" className={`mobile-menu-item ${location.pathname === '/requests' ? 'active' : ''}`} onClick={() => setMenuOpen(false)}>
-                                <span>💌</span> Requests
-                            </Link>
-                        )}
-                        <hr className="mobile-menu-divider" />
-                        <Link
-                            to="/profile"
-                            className="mobile-menu-item"
-                            onClick={() => setMenuOpen(false)}
-                            onMouseEnter={() => prefetch('/profile')}
-                            onTouchStart={() => prefetch('/profile')}
-                        >
-                            <span>👤</span> Profile
-                        </Link>
-                    </div>
-                </>
-            )}
         </nav>
     );
 }

@@ -259,36 +259,7 @@
     margin: 0.25rem 0;
 }
 
-.navbar-hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-}
-
-.hamburger-line {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: var(--text-primary);
-    border-radius: 2px;
-    transition: all 0.3s;
-}
-
-.hamburger-line.open:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-}
-
-.hamburger-line.open:nth-child(2) {
-    opacity: 0;
-}
-
-.hamburger-line.open:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-}
+/* Mobile hamburger styles removed */
 
 @keyframes dropdownFadeIn {
     from {
@@ -316,10 +287,6 @@
 
     .navbar-links {
         display: none;
-    }
-
-    .navbar-hamburger {
-        display: flex;
     }
 
     .navbar-user {
@@ -393,101 +360,93 @@
     display: inline-block;
 }
 
-/* Mobile Menu Styles */
-.mobile-menu-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+/* ── Notification Animations & Tooltip ────────────────────────────────── */
+
+@keyframes bellBounce {
+    0% { transform: scale(1); }
+    15% { transform: rotate(15deg) scale(1.2); }
+    30% { transform: rotate(-15deg) scale(1.2); }
+    45% { transform: rotate(10deg) scale(1.1); }
+    60% { transform: rotate(-10deg) scale(1.1); }
+    75% { transform: rotate(4deg) scale(1.05); }
+    85% { transform: rotate(-4deg) scale(1.05); }
+    100% { transform: rotate(0) scale(1); }
+}
+
+.bell-animate {
+    animation: bellBounce 0.8s ease-in-out;
+}
+
+.notif-indicator-tooltip {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: -10px;
+    background: linear-gradient(135deg, var(--accent-primary, #6c63ff) 0%, #8b80ff 100%);
+    color: white;
+    padding: 0.6rem 0.9rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(108, 99, 255, 0.45);
     z-index: 1001;
-    animation: fadeIn 0.2s ease;
-}
-
-.mobile-menu {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    z-index: 1002;
-    padding: 1.5rem;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.mobile-menu-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: 16px;
-    text-decoration: none;
-    color: var(--text-primary);
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: all 0.2s;
-    background: transparent;
-    border: none;
-    width: 100%;
-    text-align: left;
+    gap: 6px;
+    pointer-events: none;
+    animation: tooltipFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), tooltipFloat 2s ease-in-out infinite;
 }
 
-.mobile-menu-item:active {
-    background: var(--bg-hover);
-    transform: scale(0.98);
+.notif-indicator-arrow {
+    position: absolute;
+    top: -6px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-primary, #6c63ff);
+    transform: rotate(45deg);
 }
 
-.mobile-menu-item.active {
-    background: rgba(108, 99, 255, 0.15);
-    color: var(--accent-primary);
+.notif-indicator-dot {
+    width: 6px;
+    height: 6px;
+    background: #ff4757;
+    border-radius: 50%;
+    display: inline-block;
+    animation: indicatorPulse 1.2s infinite;
 }
 
-.mobile-menu-item span {
-    font-size: 1.4rem;
-}
-
-.mobile-menu-divider {
-    border: none;
-    border-top: 1px solid var(--glass-border);
-    margin: 0.75rem 0;
-}
-
-.mobile-menu-logout {
-    color: #ff4757;
-    margin-top: auto;
-    border: 1px solid rgba(255, 71, 87, 0.2);
-}
-
-.mobile-menu-partner {
-    color: #ffd1e2;
-    border: 1px solid rgba(255, 107, 157, 0.18);
-    background: linear-gradient(90deg, rgba(108, 99, 255, 0.08), rgba(255, 107, 157, 0.08));
-}
-
-@keyframes fadeIn {
+@keyframes tooltipFadeIn {
     from {
         opacity: 0;
+        transform: translateY(8px) scale(0.95);
     }
-
     to {
         opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
-    to {
-        opacity: 1;
+@keyframes tooltipFloat {
+    0%, 100% {
         transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes indicatorPulse {
+    0% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+    }
+    70% {
+        transform: scale(1.2);
+        box-shadow: 0 0 0 5px rgba(255, 71, 87, 0);
+    }
+    100% {
+        transform: scale(0.8);
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
     }
 }

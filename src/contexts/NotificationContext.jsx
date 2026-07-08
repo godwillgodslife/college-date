@@ -13,6 +13,7 @@ import {
     playMoneySound, 
     playSystemPock 
 } from '../lib/audioContext';
+import { triggerLightHaptic } from '../utils/haptics';
 
 const NotificationContext = createContext();
 
@@ -97,6 +98,9 @@ export function NotificationProvider({ children }) {
                         
                         setNotifications(prev => [newNotification, ...prev]);
                         setUnreadCount(prev => prev + 1);
+                        
+                        // Trigger gentle haptic vibration
+                        triggerLightHaptic();
                         
                         if (typeof addToast === 'function') {
                             const url = newNotification.metadata?.url;
