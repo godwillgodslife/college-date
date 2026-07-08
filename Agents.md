@@ -644,6 +644,19 @@ Paystack remains the web payment path. Google Play Billing through RevenueCat is
      - Deploy logs: `https://app.netlify.com/projects/collegedate4/deploys/6a135d39f1b10fb54762f758`
    - Verified both production and deploy URLs return HTTP 200.
 
+34. Notification UX upgrade & mobile header simplification
+   - Integrated `@capacitor/haptics` for native vibration/haptic feedback on new real-time notification events in `src/contexts/NotificationContext.jsx`.
+   - Added subtle audio notification cues (playing `/sounds/notification.mp3`) with safety fallback and volume management to ensure a production-grade notification feel.
+   - Refactored `src/components/Navbar.jsx` to show an animated bell icon (`bell-animate`) and a floating unread notifications tooltip guide on receiving new notifications.
+   - Cleaned up the mobile app layout by completely removing the redundant mobile hamburger menu button, mobile menu drawer dropdown, and overlay from `src/components/Navbar.jsx` and `src/components/Navbar.css`.
+   - Verified that the mobile header remains clean and responsive, displaying links inline via mobile bottom/scroll navigation tabs.
+   - Compiled the latest production web assets, synced to Android, and successfully generated release AAB (`release/TheCollegeDate-2.2.29-vc26-production.aab`) and release APK (`release/TheCollegeDate-2.2.29-vc26-production.apk`) using optimized Gradle settings.
+   - Deployed the latest build to Netlify production:
+     - Production URL: `https://www.thecollegedate.com`
+     - Deploy URL: `https://6a4df03c8cf40519aac10656--collegedate4.netlify.app`
+     - Deploy logs: `https://app.netlify.com/projects/collegedate4/deploys/6a4df03c8cf40519aac10656`
+   - Verified both production and deploy URLs return HTTP 200.
+
 ## Currently In Progress
 1. Android premium purchase testing
    - Test a real/internal Google Play purchase for `premium_monthly`.
