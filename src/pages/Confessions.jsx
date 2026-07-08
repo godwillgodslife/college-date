@@ -1,5 +1,5 @@
 import useSWR, { mutate } from 'swr';
-import { useState, useRef } from 'react';
+import { useState, useRef, memo, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import { postConfession, addEmojiReaction, claimConfession } from '../services/confessionService';
@@ -30,12 +30,20 @@ function EmojiBurst({ emoji, x, y, onComplete }) {
     );
 }
 
-function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
+const getTimeAgo = (d) => {
+    const s = Math.floor((Date.now() - new Date(d)) / 1000);
+    if (s < 60) return 'Just now';
+    if (s < 3600) return `${Math.floor(s / 60)}m`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h`;
+    return `${Math.floor(s / 86400)}d`;
+};
+
+const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
     const meshClass = `mesh-gradient-${(index % 4) + 1}`;
     const [bursts, setBursts] = useState([]);
     const longPressTimer = useRef(null);
 
-    const handleStart = (e) => {
+    const handleStart = useCallback((e) => {
         const touch = e.touches ? e.touches[0] : e;
         const x = touch.clientX;
         const y = touch.clientY;
@@ -52,19 +60,13 @@ function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
 
             if (window.navigator.vibrate) window.navigator.vibrate(50);
         }, 600);
-    };
+    }, [onReact, post.id]);
 
-    const handleEnd = () => {
+    const handleEnd = useCallback(() => {
         if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    };
+    }, []);
 
-    const getTimeAgo = (d) => {
-        const s = Math.floor((Date.now() - new Date(d)) / 1000);
-        if (s < 60) return 'Just now';
-        if (s < 3600) return `${Math.floor(s / 60)}m`;
-        if (s < 86400) return `${Math.floor(s / 3600)}h`;
-        return `${Math.floor(s / 86400)}d`;
-    };
+    const timeAgo = useMemo(() => getTimeAgo(post.created_at), [post.created_at]);
 
     return (
         <motion.div
@@ -139,11 +141,11 @@ function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
 
             <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.5, fontSize: '10px' }}>
                 <span>🎓 {post.university}</span>
-                <span>{getTimeAgo(post.created_at)}</span>
+                <span>{timeAgo}</span>
             </div>
         </motion.div>
     );
-}
+});
 
 const CONFESSION_CATEGORIES = [
     'General 🙊', 'Crush 💘', 'Lecturers 👨‍🏫', 'Exams 📚', 'Cafeteria 🍔', 'Gist 💬'
@@ -164,7 +166,31 @@ export default function Confessions() {
         currentUser?.id
     );
 
-    const handleReact = async (confessionId, emoji) => {
+    const [visibleCount, setVisibleCount] = useState(15);
+
+    // Reset visibleCount if confessions list length changes
+    useEffect(() => {
+        setVisibleCount(15);
+    }, [confessions.length]);
+
+    const visibleConfessions = useMemo(() => confessions.slice(0, visibleCount), [confessions, visibleCount]);
+
+    // Sentinel intersection observer for infinite scroll
+    const sentinelRef = useRef(null);
+    useEffect(() => {
+        if (!sentinelRef.current || confessions.length <= visibleCount) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setVisibleCount(prev => Math.min(confessions.length, prev + 15));
+            }
+        }, { rootMargin: '250px' });
+
+        observer.observe(sentinelRef.current);
+        return () => observer.disconnect();
+    }, [confessions.length, visibleCount]);
+
+    const handleReact = useCallback(async (confessionId, emoji) => {
         if (!currentUser) return;
 
         mutateConfessions((current) => {
@@ -192,9 +218,9 @@ export default function Confessions() {
             mutateConfessions();
             addToast('Reaction failed', 'error');
         }
-    };
+    }, [currentUser, mutateConfessions, addToast]);
 
-    const handleClaim = async (confessionId) => {
+    const handleClaim = useCallback(async (confessionId) => {
         if (!currentUser) return;
 
         mutateConfessions((current) => {
@@ -209,7 +235,11 @@ export default function Confessions() {
         } else if (!alreadyClaimed) {
             addToast('Anonymous claim sent to the poster 👀', 'success');
         }
-    };
+    }, [currentUser, mutateConfessions, addToast]);
+
+    const handleOpenThread = useCallback((post) => {
+        setSelectedPost(post);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -316,18 +346,23 @@ export default function Confessions() {
                         <p>Be the first to speak up!</p>
                     </div>
                 ) : (
-                    <div className="confessions-masonry">
-                        {confessions.map((post, idx) => (
-                            <ConfessionCard
-                                key={post.id}
-                                post={post}
-                                index={idx}
-                                onReact={handleReact}
-                                onClaim={handleClaim}
-                                onOpenThread={(post) => setSelectedPost(post)}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        <div className="confessions-masonry">
+                            {visibleConfessions.map((post, idx) => (
+                                <ConfessionCard
+                                    key={post.id}
+                                    post={post}
+                                    index={idx}
+                                    onReact={handleReact}
+                                    onClaim={handleClaim}
+                                    onOpenThread={handleOpenThread}
+                                />
+                            ))}
+                        </div>
+                        {confessions.length > visibleCount && (
+                            <div ref={sentinelRef} className="incremental-scroll-sentinel" style={{ height: '20px', margin: '10px 0' }} />
+                        )}
+                    </>
                 )}
             </div>
 

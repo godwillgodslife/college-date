@@ -9,7 +9,14 @@ export default function NotificationSoftPrompt() {
         const isNativePlatform = window.Capacitor?.isNativePlatform?.();
         if (isNativePlatform) return;
 
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isLocal = import.meta.env.DEV ||
+                        window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' || 
+                        window.location.hostname === '[::1]' ||
+                        window.location.hostname.startsWith('192.168.') || 
+                        window.location.hostname.startsWith('10.') || 
+                        window.location.hostname.endsWith('.local') ||
+                        window.location.port !== '';
         if (isLocal) return;
 
         if (!window.OneSignalDeferred) return;
@@ -45,7 +52,16 @@ export default function NotificationSoftPrompt() {
         localStorage.setItem('onesignal-prompt-dismissed', 'true');
     };
 
-    if (!animating) return null;
+    const isLocal = import.meta.env.DEV ||
+                    window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' || 
+                    window.location.hostname === '[::1]' ||
+                    window.location.hostname.startsWith('192.168.') || 
+                    window.location.hostname.startsWith('10.') || 
+                    window.location.hostname.endsWith('.local') ||
+                    window.location.port !== '';
+
+    if (isLocal || !animating) return null;
 
     return (
         <div className={`soft-prompt-overlay ${show ? 'visible' : ''}`} onClick={handleDismiss}>

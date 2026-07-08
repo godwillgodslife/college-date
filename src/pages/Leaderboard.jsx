@@ -78,10 +78,20 @@ const UserAvatar = ({ user, size = 'md', rank = 0 }) => {
 
 import { useLeaderboards } from '../hooks/useSWRData';
 
+// ── Weekly Countdown Widget ──────────────────────────────────
+function WeeklyCountdownWidget() {
+    const countdown = useWeeklyCountdown();
+    return (
+        <div className="weekly-countdown">
+            <span className="countdown-label">⏱ Leaderboard resets in</span>
+            <span className="countdown-value">{countdown}</span>
+        </div>
+    );
+}
+
 export default function Leaderboard() {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
-    const countdown = useWeeklyCountdown();
     const [activeTab, setActiveTab] = useState('wanted');
 
     // Use SWR for Hall of Fame data via custom hook
@@ -113,10 +123,7 @@ export default function Leaderboard() {
                     <h1 className="leaderboard-title">Hall of Fame</h1>
 
                     {/* Weekly Reset Countdown */}
-                    <div className="weekly-countdown">
-                        <span className="countdown-label">⏱ Leaderboard resets in</span>
-                        <span className="countdown-value">{countdown}</span>
-                    </div>
+                    <WeeklyCountdownWidget />
                 </motion.div>
 
                 {/* League Key */}

@@ -8,3 +8,5 @@ export const SUPPORT_WHATSAPP_MESSAGE = 'Hi, I need help with College Date.';
 export const partnerWhatsAppUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(PARTNER_WHATSAPP_MESSAGE)}`;
 
 export const supportWhatsAppUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(SUPPORT_WHATSAPP_MESSAGE)}`;
+
+export const founderLinkedInUrl = 'https://www.linkedin.com/in/god-swill-godlife-07191221a/';

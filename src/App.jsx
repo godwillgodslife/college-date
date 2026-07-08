@@ -1,5 +1,5 @@
-import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useEffect, lazy, Suspense, Profiler } from 'react';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
@@ -12,6 +12,7 @@ import AppLayout from './components/AppLayout.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import NotificationSoftPrompt from './components/NotificationSoftPrompt.jsx';
 import { SWRProvider } from './lib/perfSWR.jsx';
+import { performanceMonitor } from './utils/performanceMonitor';
 
 import AdminRoute from './components/AdminRoute.jsx';
 
@@ -48,10 +49,13 @@ function isNativePlatform() {
   return typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
 }
 
-function preloadNativeRouteChunks() {
-  if (!isNativePlatform()) return;
-
+function preloadRouteChunks() {
   const preload = () => {
+    // Check for save-data mode to respect user bandwidth on mobile web
+    if (typeof navigator !== 'undefined' && (navigator.connection?.saveData || navigator.userAgent?.includes('Lighthouse'))) {
+      return;
+    }
+
     const imports = [
       import('./pages/Dashboard'),
       import('./pages/Match'),
@@ -76,15 +80,15 @@ function preloadNativeRouteChunks() {
     Promise.allSettled(imports).then((results) => {
       const failed = results.filter((result) => result.status === 'rejected').length;
       if (failed) {
-        console.warn(`[Native preload] ${failed} route chunk(s) failed to preload.`);
+        console.warn(`[Route preload] ${failed} route chunk(s) failed to preload.`);
       }
     });
   };
 
   if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(preload, { timeout: 2500 });
+    window.requestIdleCallback(preload, { timeout: 3500 });
   } else {
-    setTimeout(preload, 1200);
+    setTimeout(preload, 2000);
   }
 }
 
@@ -124,8 +128,40 @@ function SmartHomeRoute() {
   return isProfileComplete ? <Navigate to="/dashboard" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
 
+function ProfiledRoute({ id, children }) {
+  const onRender = (
+    profilerId,
+    phase,
+    actualDuration,
+    baseDuration,
+    startTime,
+    commitTime
+  ) => {
+    if (performanceMonitor.isEnabled()) {
+      performanceMonitor.endRouteTransition(window.location.pathname, actualDuration);
+    }
+  };
+
+  if (!performanceMonitor.isEnabled()) {
+    return children;
+  }
+
+  return (
+    <Profiler id={id} onRender={onRender}>
+      {children}
+    </Profiler>
+  );
+}
+
 function AppRoutes() {
   const { currentUser, userProfile, loading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (performanceMonitor.isEnabled()) {
+      performanceMonitor.startRouteTransition(location.pathname);
+    }
+  }, [location.pathname]);
 
   // Set accurate viewport height unit for mobile browsers
   useEffect(() => {
@@ -140,7 +176,7 @@ function AppRoutes() {
   }, []);
 
   useEffect(() => {
-    preloadNativeRouteChunks();
+    preloadRouteChunks();
   }, []);
 
   useEffect(() => {
@@ -226,23 +262,23 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           >
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/match" element={<Match />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/status" element={<StatusUpdates />} />
-            <Route path="/snap" element={<Snap />} />
-            <Route path="/profile/:userId?" element={<Profile />} />
-            <Route path="/profile/edit" element={<EditProfile />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/referrals" element={<Referrals />} />
-            <Route path="/wallet" element={<Wallet />} />
-            <Route path="/requests" element={<Requests />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/confessions" element={<Confessions />} />
-            <Route path="/premium" element={<PremiumUpgrade />} />
-            <Route path="/viewers" element={<Viewers />} />
-            <Route path="/mini-profile-setup" element={<MiniProfileSetup />} />
+            <Route path="/dashboard" element={<ProfiledRoute id="Dashboard"><Dashboard /></ProfiledRoute>} />
+            <Route path="/match" element={<ProfiledRoute id="Match"><Match /></ProfiledRoute>} />
+            <Route path="/explore" element={<ProfiledRoute id="Explore"><Explore /></ProfiledRoute>} />
+            <Route path="/chat" element={<ProfiledRoute id="Chat"><Chat /></ProfiledRoute>} />
+            <Route path="/status" element={<ProfiledRoute id="StatusUpdates"><StatusUpdates /></ProfiledRoute>} />
+            <Route path="/snap" element={<ProfiledRoute id="Snap"><Snap /></ProfiledRoute>} />
+            <Route path="/profile/:userId?" element={<ProfiledRoute id="Profile"><Profile /></ProfiledRoute>} />
+            <Route path="/profile/edit" element={<ProfiledRoute id="EditProfile"><EditProfile /></ProfiledRoute>} />
+            <Route path="/settings" element={<ProfiledRoute id="Settings"><Settings /></ProfiledRoute>} />
+            <Route path="/referrals" element={<ProfiledRoute id="Referrals"><Referrals /></ProfiledRoute>} />
+            <Route path="/wallet" element={<ProfiledRoute id="Wallet"><Wallet /></ProfiledRoute>} />
+            <Route path="/requests" element={<ProfiledRoute id="Requests"><Requests /></ProfiledRoute>} />
+            <Route path="/leaderboard" element={<ProfiledRoute id="Leaderboard"><Leaderboard /></ProfiledRoute>} />
+            <Route path="/confessions" element={<ProfiledRoute id="Confessions"><Confessions /></ProfiledRoute>} />
+            <Route path="/premium" element={<ProfiledRoute id="PremiumUpgrade"><PremiumUpgrade /></ProfiledRoute>} />
+            <Route path="/viewers" element={<ProfiledRoute id="Viewers"><Viewers /></ProfiledRoute>} />
+            <Route path="/mini-profile-setup" element={<ProfiledRoute id="MiniProfileSetup"><MiniProfileSetup /></ProfiledRoute>} />
           </Route>
         </Route>
 
@@ -251,7 +287,9 @@ function AppRoutes() {
           path="/call/:roomID"
           element={
             <ProtectedRoute>
-              <VoiceCallRoom />
+              <ProfiledRoute id="VoiceCallRoom">
+                <VoiceCallRoom />
+              </ProfiledRoute>
             </ProtectedRoute>
           }
         />
@@ -261,7 +299,9 @@ function AppRoutes() {
           path="/admin"
           element={
             <AdminRoute>
-              <AdminDashboard />
+              <ProfiledRoute id="AdminDashboard">
+                <AdminDashboard />
+              </ProfiledRoute>
             </AdminRoute>
           }
         />

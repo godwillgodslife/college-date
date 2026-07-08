@@ -1,6 +1,6 @@
-import { useState, memo } from 'react';
+import { useState, memo, useMemo, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import OptimizedImage from './OptimizedImage';
+import OptimizedImage, { getOptimizedUrl } from './OptimizedImage';
 import { useAuth } from '../contexts/AuthContext';
 import { isRecentlyActive, isRecentlyLive } from '../utils/presence';
 import { requestAiAssistant } from '../services/aiAssistantService';
@@ -14,22 +14,34 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
     const [aiInsightType, setAiInsightType] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
 
-    const mutualInterests = (myProfile?.interests || []).filter(interest => 
-        (profile?.interests || []).includes(interest)
-    );
+    const mutualInterests = useMemo(() => {
+        return (myProfile?.interests || []).filter(interest => 
+            (profile?.interests || []).includes(interest)
+        );
+    }, [myProfile?.interests, profile?.interests]);
 
-    const getCompatibilityScore = () => {
+    const compatibilityScore = useMemo(() => {
         let score = 55; // base score
         if (profile?.intent && profile?.intent === myProfile?.intent) score += 20;
         if (profile?.university && profile?.university === myProfile?.university) score += 15;
         const mutualCount = mutualInterests.length;
         score += Math.min(15, mutualCount * 5);
         return Math.min(99, score);
-    };
+    }, [profile, myProfile, mutualInterests]);
 
     const photos = profile.profile_photos && profile.profile_photos.length > 0
         ? profile.profile_photos
         : [profile.avatar_url].filter(Boolean);
+
+    // Preload next image in current carousel
+    useEffect(() => {
+        if (activePhotoIdx < photos.length - 1) {
+            const nextImg = new Image();
+            nextImg.src = typeof getOptimizedUrl === 'function' 
+                ? getOptimizedUrl(photos[activePhotoIdx + 1], 800) 
+                : photos[activePhotoIdx + 1];
+        }
+    }, [activePhotoIdx, photos]);
 
     const x = useMotionValue(0);
     const rotate = useTransform(x, [-200, 200], [-15, 15]);
@@ -50,7 +62,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
         }
 
         setExitX(direction === 'right' ? 300 : -300);
-        setTimeout(() => onSwipe(direction), 260);
+        setTimeout(() => onSwipe(direction, profile), 260);
     };
 
     const nextPhoto = (e) => {
@@ -243,7 +255,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                                 <div className="swipe-card-extra-info fade-in mt-4">
                                     {/* Direct Compatibility Highlight Banner */}
                                     <div className="compatibility-match-banner">
-                                        <span className="banner-badge">✨ Compatibility: {getCompatibilityScore()}%</span>
+                                        <span className="banner-badge">✨ Compatibility: {compatibilityScore}%</span>
                                         {mutualInterests.length > 0 ? (
                                             <p className="banner-desc">You both love <strong>{mutualInterests.join(', ')}</strong>!</p>
                                         ) : (

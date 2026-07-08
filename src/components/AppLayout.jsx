@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 import BottomNav from './BottomNav';
 import PwaInstallBanner from './PwaInstallBanner';
 import { supabase } from '../lib/supabase';
+import PerformanceOverlay from './PerformanceOverlay';
 import './AppLayout.css';
 
 // Fetches the announcement banner from app_config
@@ -100,6 +101,9 @@ export default function AppLayout() {
 
             {/* Bottom Nav (mobile) */}
             {!hideNav && <BottomNav />}
+
+            {/* Performance Profiler Dashboard Overlay */}
+            <PerformanceOverlay />
         </div>
     );
 }

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import brandIcon from '../../assets/icon.png';
 // feature-graphic-1024x500.png was never created; fallback to og-image.png
 const featureGraphic = '/og-image.png';
-import { partnerWhatsAppUrl } from '../config/contactLinks';
+import { partnerWhatsAppUrl, founderLinkedInUrl } from '../config/contactLinks';
 import './Landing.css';
 
 const campusFeatures = [
@@ -312,6 +312,7 @@ export default function Landing() {
                     <a href="/blog.html">Dating Guides</a>
                     <a href="/support.html">Support</a>
                     <a href="https://www.instagram.com/thecollegedate?igsh=MXhxZHZiMzZtOGp6dw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    <a href={founderLinkedInUrl} target="_blank" rel="noopener noreferrer">Founder LinkedIn</a>
                     <a href={partnerWhatsAppUrl} target="_blank" rel="noopener noreferrer">Become a Partner</a>
                 </div>
             </footer>

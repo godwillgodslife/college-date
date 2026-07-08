@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/web-BtWpm-Bn.js","assets/index-D8gQjEOS.js"])))=>i.map(i=>d[i]);
+import{_ as e}from"./index-dtKHMMAZ.js";import{r as o}from"./index-D8gQjEOS.js";import"./react-vendor-cIqpye9V.js";import"./supabase-BZ0N5lZN.js";import"./framer-motion-BooGa5F1.js";const n=o("SplashScreen",{web:()=>e(()=>import("./web-BtWpm-Bn.js"),__vite__mapDeps([0,1])).then(r=>new r.SplashScreenWeb)});export{n as SplashScreen};

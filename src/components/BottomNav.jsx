@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrefetch } from '../hooks/usePrefetch';
 import { useNotifications } from '../contexts/NotificationContext';
+import { triggerLightHaptic } from '../utils/haptics';
 import './BottomNav.css';
 
 const navItems = [
@@ -71,6 +72,7 @@ export default function BottomNav() {
                         key={item.path}
                         to={item.path}
                         className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                        onClick={() => triggerLightHaptic()}
                         onMouseEnter={() => prefetch(item.path)}
                         onTouchStart={() => prefetch(item.path)}
                     >

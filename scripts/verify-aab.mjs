@@ -6,8 +6,19 @@ import { basename, join, resolve } from 'node:path';
 const root = process.cwd();
 const aabPath = resolve(root, process.argv[2] || 'android/app/build/outputs/bundle/release/app-release.aab');
 const expectedPackage = 'com.collegedate.app';
-const expectedVersionCode = '23';
-const expectedVersionName = '2.2.26';
+const expectedVersionCode = '26';
+const expectedVersionName = '2.2.29';
+
+function getJarPath() {
+  if (process.env.JAVA_HOME) {
+    const localJar = join(process.env.JAVA_HOME, 'bin', process.platform === 'win32' ? 'jar.exe' : 'jar');
+    if (existsSync(localJar)) {
+      return localJar;
+    }
+  }
+  return 'jar';
+}
+const jarPath = getJarPath();
 const envFile = existsSync(join(root, '.env')) ? readFileSync(join(root, '.env'), 'utf8') : '';
 const revenueCatAndroidKey = (envFile.match(/^VITE_REVENUECAT_ANDROID_KEY=(.+)$/m)?.[1] || '').trim();
 const blockedSecretPatterns = [
@@ -32,7 +43,7 @@ function ok(message) {
 
 if (!existsSync(aabPath)) fail(`Bundle not found: ${aabPath}`);
 
-const listing = execFileSync('jar', ['tf', aabPath], { encoding: 'utf8' });
+const listing = execFileSync(jarPath, ['tf', aabPath], { encoding: 'utf8' });
 const blockedEntries = [
   /\.apk$/i,
   /private-downloads/i,
@@ -76,7 +87,7 @@ ok('Android RevenueCat key is not a Test Store key.');
 
 const tempDir = mkdtempSync(join(tmpdir(), 'the-college-date-aab-'));
 try {
-  execFileSync('jar', ['xf', aabPath], { cwd: tempDir, stdio: 'ignore' });
+  execFileSync(jarPath, ['xf', aabPath], { cwd: tempDir, stdio: 'ignore' });
   const extractedListing = execFileSync('cmd', ['/c', 'dir', '/s', '/b'], { cwd: tempDir, encoding: 'utf8' });
   for (const pattern of blockedEntries) {
     if (pattern.test(extractedListing)) fail(`Extracted bundle contains blocked file matching ${pattern}`);

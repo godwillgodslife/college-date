@@ -26,14 +26,28 @@ export default function PremiumUpgrade() {
     const [rcPackages, setRcPackages] = useState([]);
 
     useEffect(() => {
-        if (currentUser) {
-            loadSubscription();
-            loadWallet();
-            loadBoosts();
-            if (isNative()) {
-                loadRevenueCatOfferings();
+        if (!currentUser) return;
+
+        async function initPageData() {
+            setLoading(true);
+            try {
+                const promises = [
+                    loadSubscription(false),
+                    loadWallet(),
+                    loadBoosts()
+                ];
+                if (isNative()) {
+                    promises.push(loadRevenueCatOfferings());
+                }
+                await Promise.all(promises);
+            } catch (err) {
+                console.error('Error loading premium page metadata:', err);
+            } finally {
+                setLoading(false);
             }
         }
+
+        initPageData();
     }, [currentUser]);
 
     async function loadRevenueCatOfferings() {
@@ -61,8 +75,8 @@ export default function PremiumUpgrade() {
         }
     }
 
-    async function loadSubscription() {
-        setLoading(true);
+    async function loadSubscription(shouldSetLoadingState = true) {
+        if (shouldSetLoadingState) setLoading(true);
         try {
             const { data, error } = await getSubscription(currentUser.id);
             if (error && error.code !== 'PGRST116') throw error;
@@ -70,7 +84,7 @@ export default function PremiumUpgrade() {
         } catch (err) {
             console.error('Error loading subscription:', err);
         } finally {
-            setLoading(false);
+            if (shouldSetLoadingState) setLoading(false);
         }
     }
 

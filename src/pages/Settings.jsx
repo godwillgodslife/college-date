@@ -6,7 +6,7 @@ import { verifyAndRestorePremium } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
-import { partnerWhatsAppUrl, supportWhatsAppUrl } from '../config/contactLinks';
+import { partnerWhatsAppUrl, supportWhatsAppUrl, founderLinkedInUrl } from '../config/contactLinks';
 import { useCachedAsync } from '../hooks/useCachedAsync';
 import { setCachedData } from '../lib/persistentCache';
 import './Settings.css';
@@ -315,6 +315,18 @@ export default function Settings() {
                             <p>Support, invest, or collaborate with The College Date.</p>
                         </div>
                         <span className="partner-chip">WhatsApp</span>
+                    </a>
+                    <a
+                        href={founderLinkedInUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="settings-item feature-link support-link"
+                    >
+                        <div className="item-info">
+                            <h3>🔗 Meet the Founder</h3>
+                            <p>Connect with Godswill Godlife Onah on LinkedIn.</p>
+                        </div>
+                        <span className="partner-chip">LinkedIn</span>
                     </a>
                     <div className="settings-item">
                         <div className="item-info">

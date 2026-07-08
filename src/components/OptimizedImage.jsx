@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { performanceMonitor } from '../utils/performanceMonitor';
 import './OptimizedImage.css';
 
 /**
@@ -25,6 +26,18 @@ export default function OptimizedImage({
     priority = false
 }) {
     const optimizedUrl = getOptimizedUrl(src, width, quality);
+    const startTimeRef = useRef(performance.now());
+
+    useEffect(() => {
+        startTimeRef.current = performance.now();
+    }, [optimizedUrl]);
+
+    const handleLoad = () => {
+        if (performanceMonitor.isEnabled()) {
+            const duration = performance.now() - startTimeRef.current;
+            performanceMonitor.recordImageLoad(optimizedUrl, duration);
+        }
+    };
     
     // isLoaded state removed to prevent infinite blanks on cache hits
     return (
@@ -48,6 +61,7 @@ export default function OptimizedImage({
                     width={width}
                     height={height}
                     style={{ position: 'relative', zIndex: 2 }}
+                    onLoad={handleLoad}
                 />
             )}
         </div>

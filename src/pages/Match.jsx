@@ -173,7 +173,7 @@ export default function Match() {
         mutateProfiles();
     };
 
-    const canStartSwipe = async (direction, type = 'standard') => {
+    const canStartSwipe = useCallback(async (direction, type = 'standard') => {
         if (!isPremium && direction === 'right' && type === 'standard') {
             const { canSwipe, used, max } = await checkSwipeLimit(currentUser.id);
 
@@ -184,32 +184,34 @@ export default function Match() {
             }
         }
         return true;
-    };
+    }, [currentUser?.id, isPremium, addToast]);
 
-    const handleSwipe = async (direction, swipedProfile, type = 'standard', teaser = null) => {
+    const handleSwipe = useCallback(async (direction, swipedProfile, type = 'standard', teaser = null) => {
         playCardSwipe();
 
         setPendingSwipeIds(prev => prev.includes(swipedProfile.id) ? prev : [...prev, swipedProfile.id]);
 
         // 2. Optimistic Update (Local State ONLY, delayed so exit animation can finish)
-        const updatedProfiles = profiles.filter(p => p.id !== swipedProfile.id);
+        setProfiles(prev => {
+            const updated = prev.filter(p => p.id !== swipedProfile.id);
+            // Defer SWR mutations & preloading to protect swipe animation FPS
+            setTimeout(() => {
+                mutateProfiles(updated, false);
+                if (updated.length < 5) {
+                    mutateProfiles();
+                }
+            }, 300); // 300ms allows standard CSS transitions to complete
+            return updated;
+        });
+
         setTimeout(() => {
-            setProfiles(prev => prev.filter(p => p.id !== swipedProfile.id));
             setPendingSwipeIds(prev => prev.filter(id => id !== swipedProfile.id));
         }, 40);
         
         // Optimistically update free swipes to make it feel instant
-        if (!isPremium && direction === 'right' && freeSwipes > 0 && type === 'standard') {
+        if (!isPremium && direction === 'right' && type === 'standard') {
             setFreeSwipes(prev => Math.max(0, prev - 1));
         }
-
-        // 3. Defer heavy SWR mutations & preloading to protect swipe animation FPS
-        setTimeout(() => {
-            mutateProfiles(updatedProfiles, false);
-            if (updatedProfiles.length < 5) {
-                loadProfiles(false);
-            }
-        }, 300); // 300ms allows standard CSS transitions to complete
 
         // 4. Record Swipe and Check for Match/Streak
         const result = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser, {
@@ -255,21 +257,25 @@ export default function Match() {
         }
 
         // 5. Touchpoint A: After 5 Swipes Nudge
-        const newCount = swipeCount + 1;
-        setSwipeCount(newCount);
-        if (newCount === 5 && (userProfile?.completion_score || 0) < 60) {
-            setShowNudge(true);
-        }
+        setSwipeCount(prev => {
+            const next = prev + 1;
+            if (next === 5 && (userProfile?.completion_score || 0) < 60) {
+                setShowNudge(true);
+            }
+            return next;
+        });
 
         // Premium Upgrade Nudge on 10th Swipe
-        const newSessionCount = sessionSwipes + 1;
-        setSessionSwipes(newSessionCount);
-        if (newSessionCount === 10 && !isPremium) {
-            setShowPremiumNudge(true);
-        }
-    };
+        setSessionSwipes(prev => {
+            const next = prev + 1;
+            if (next === 10 && !isPremium) {
+                setShowPremiumNudge(true);
+            }
+            return next;
+        });
+    }, [currentUser?.id, isPremium, userProfile?.completion_score, mutateProfiles, addToast]);
 
-    const handleSuperSwipe = async (swipedProfile) => {
+    const handleSuperSwipe = useCallback(async (swipedProfile) => {
         setProfiles((prev) => prev.filter(p => p.id !== swipedProfile.id));
 
         const { data, error } = await superSwipe(currentUser.id, swipedProfile);
@@ -282,7 +288,7 @@ export default function Match() {
 
         setSuperSwipesAvailable(prev => Math.max(0, prev - 1));
         addToast(`⭐ Super Swipe sent! ${swipedProfile.full_name || 'They'} will get an instant notification!`, 'success');
-    };
+    }, [currentUser?.id, addToast]);
 
     if (loading) return <LoadingSpinner fullScreen text="Finding matches..." />;
 
@@ -412,8 +418,8 @@ export default function Match() {
                                     <SwipeCard
                                         key={profile.id}
                                         profile={profile}
-                                        onSwipe={(dir, type, teaser) => handleSwipe(dir, profile, type, teaser)}
-                                        onBeforeSwipe={(dir) => canStartSwipe(dir)}
+                                        onSwipe={handleSwipe}
+                                        onBeforeSwipe={canStartSwipe}
                                         superSwipesAvailable={superSwipesAvailable}
                                         onSuperSwipe={handleSuperSwipe}
                                         priority={isTopCard}

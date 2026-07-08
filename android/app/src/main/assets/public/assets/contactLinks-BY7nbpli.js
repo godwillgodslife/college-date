@@ -1,1 +1,0 @@
-const t="2349160264415",e="We're building the future of campus connections. Interested in supporting, investing, or collaborating with The College Date? I'd like to connect.",n="Hi, I need help with College Date.",o=`https://wa.me/${t}?text=${encodeURIComponent(e)}`,s=`https://wa.me/${t}?text=${encodeURIComponent(n)}`;export{o as p,s};

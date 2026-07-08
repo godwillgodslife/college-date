@@ -46,7 +46,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             // Use release signing if keystore is configured (properties file OR environment variables)
             def keystorePropsFile = rootProject.file("keystore.properties")

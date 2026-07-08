@@ -397,7 +397,6 @@ export async function declineRequest(swipeId) {
  * This is a best-effort, fire-and-forget operation — it NEVER throws or blocks the UI.
  */
 export async function trackProfileView(viewerId, ownerId, source = 'discovery') {
-    // Non-blocking: wrap everything so a DB trigger failure can't break swiping
     if (!viewerId || !ownerId || viewerId === ownerId) return { success: true };
     try {
         const { error } = await supabase
@@ -410,34 +409,8 @@ export async function trackProfileView(viewerId, ownerId, source = 'discovery') 
 
         if (error) {
             console.warn('trackProfileView (non-critical):', error.message);
-        } else {
-            // Trigger Real-Time Notification (Radar Chirp)
-            // We fetch the profile to check if they want these alerts
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('view_notifications, full_name')
-                .eq('id', ownerId)
-                .single();
-
-            if (profile?.view_notifications !== false) {
-                const { data: viewer } = await supabase
-                    .from('profiles')
-                    .select('full_name')
-                    .eq('id', viewerId)
-                    .single();
-
-                createNotification({
-                    userId: ownerId,
-                    actorId: viewerId,
-                    type: 'view',
-                    title: 'New Profile View! 👀',
-                    content: `${viewer?.full_name || 'Someone'} just viewed your profile.`,
-                    metadata: { url: '/viewers' }
-                }).catch(e => console.warn('Silent view notification fail:', e));
-            }
         }
     } catch (err) {
-        // Never surface this error to the user
         console.warn('trackProfileView (silent):', err.message);
     }
     return { success: true };
