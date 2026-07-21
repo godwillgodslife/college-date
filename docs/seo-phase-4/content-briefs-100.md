@@ -1,0 +1,4606 @@
+# The College Date - 100 SEO Content Briefs
+
+Research date: 2026-07-20
+
+Demand labels are directional estimates because no authenticated keyword-volume tool or Search Console export was available.
+
+## COM-001: Best Dating Apps in Nigeria for Students
+
+- Recommended H1: Best Dating Apps in Nigeria for Students
+- Target URL slug: /blog/best-dating-apps-nigeria-students
+- Content status: Existing page expansion
+- Primary keyword: dating apps in Nigeria
+- Secondary keywords: dating app in Nigeria, Nigerian dating apps, best dating apps for students
+- Relevant question queries: What is dating apps in Nigeria? | How should students approach dating apps in Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 81/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about dating apps in Nigeria as a student?
+- Recommended answer-first introduction: Best Dating Apps in Nigeria for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app | /nigeria-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Best Dating Apps in Nigeria for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Best Dating Apps in Nigeria for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating apps in Nigeria? | How should students approach dating apps in Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-002: Dating App for University Students in Nigeria
+
+- Recommended H1: Dating App for University Students in Nigeria
+- Target URL slug: /dating-app-for-university-students-nigeria
+- Content status: Existing page expansion
+- Primary keyword: dating app for university students in Nigeria
+- Secondary keywords: student dating app Nigeria, university dating app, campus dating app Nigeria
+- Relevant question queries: What is dating app for university students in Nigeria? | How should students approach dating app for university students in Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 9/10
+- Safety or trust importance: 7/10
+- Overall priority score: 84/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about dating app for university students in Nigeria as a student?
+- Recommended answer-first introduction: Dating App for University Students in Nigeria should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app | /nigeria-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating App for University Students in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating App for University Students in Nigeria guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating app for university students in Nigeria? | How should students approach dating app for university students in Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-003: Dating App in Nigeria for Campus Connections
+
+- Recommended H1: Dating App in Nigeria for Campus Connections
+- Target URL slug: /dating-app-in-nigeria
+- Content status: Existing page expansion
+- Primary keyword: dating app in Nigeria
+- Secondary keywords: Nigeria dating app, dating app download Nigeria, campus connections
+- Relevant question queries: What is dating app in Nigeria? | How should students approach dating app in Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 9/10
+- Safety or trust importance: 6/10
+- Overall priority score: 82/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about dating app in Nigeria as a student?
+- Recommended answer-first introduction: Dating App in Nigeria for Campus Connections should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-for-students | /college-dating-app | /nigeria-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating App in Nigeria for Campus Connections visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating App in Nigeria for Campus Connections guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating app in Nigeria? | How should students approach dating app in Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-004: Dating App for Students
+
+- Recommended H1: Dating App for Students
+- Target URL slug: /dating-app-for-students
+- Content status: Existing page expansion
+- Primary keyword: dating app for students
+- Secondary keywords: student dating app, college student dating app, uni dating app
+- Relevant question queries: What is dating app for students? | How should students approach dating app for students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 9/10
+- Topical authority value: 10/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 75/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about dating app for students as a student?
+- Recommended answer-first introduction: Dating App for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /college-dating-app | /nigeria-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating App for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating App for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating app for students? | How should students approach dating app for students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-005: College Dating App for Students
+
+- Recommended H1: College Dating App for Students
+- Target URL slug: /college-dating-app
+- Content status: Existing page expansion
+- Primary keyword: college dating app
+- Secondary keywords: college dating site, campus dating app, dating app for college students
+- Relevant question queries: What is college dating app? | How should students approach college dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 5/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about college dating app as a student?
+- Recommended answer-first introduction: College Dating App for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /nigeria-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: College Dating App for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: College Dating App for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is college dating app? | How should students approach college dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-006: Nigeria Dating App for Students
+
+- Recommended H1: Nigeria Dating App for Students
+- Target URL slug: /nigeria-dating-app
+- Content status: Existing page expansion
+- Primary keyword: Nigeria dating app for students
+- Secondary keywords: Nigerian dating app, student dating Nigeria, campus dating Nigeria
+- Relevant question queries: What is Nigeria dating app for students? | How should students approach Nigeria dating app for students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 10/10
+- Topical authority value: 9/10
+- Conversion potential: 9/10
+- Safety or trust importance: 6/10
+- Overall priority score: 81/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about Nigeria dating app for students as a student?
+- Recommended answer-first introduction: Nigeria Dating App for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Nigeria Dating App for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Nigeria Dating App for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is Nigeria dating app for students? | How should students approach Nigeria dating app for students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-007: Best Dating Site for Students in Nigeria
+
+- Recommended H1: Best Dating Site for Students in Nigeria
+- Target URL slug: /best-dating-site-for-students-nigeria
+- Content status: Existing page expansion
+- Primary keyword: best dating site for students in Nigeria
+- Secondary keywords: student dating site Nigeria, dating website for students, best dating app Nigeria
+- Relevant question queries: What is best dating site for students in Nigeria? | How should students approach best dating site for students in Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 5/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about best dating site for students in Nigeria as a student?
+- Recommended answer-first introduction: Best Dating Site for Students in Nigeria should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Best Dating Site for Students in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Best Dating Site for Students in Nigeria guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is best dating site for students in Nigeria? | How should students approach best dating site for students in Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-008: Safe Dating App in Nigeria for Students
+
+- Recommended H1: Safe Dating App in Nigeria for Students
+- Target URL slug: /safe-dating-app-nigeria
+- Content status: Existing page expansion
+- Primary keyword: safe dating app Nigeria
+- Secondary keywords: safe dating app for students, online dating safety Nigeria, student dating safety
+- Relevant question queries: What is safe dating app Nigeria? | How should students approach safe dating app Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 9/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 10/10
+- Overall priority score: 78/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about safe dating app Nigeria as a student?
+- Recommended answer-first introduction: Safe Dating App in Nigeria for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Safe Dating App in Nigeria for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Safe Dating App in Nigeria for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is safe dating app Nigeria? | How should students approach safe dating app Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-009: Serious Relationship App in Nigeria for Students
+
+- Recommended H1: Serious Relationship App in Nigeria for Students
+- Target URL slug: /serious-relationship-app-nigeria-students
+- Content status: Existing page expansion
+- Primary keyword: serious relationship app Nigeria students
+- Secondary keywords: serious dating app Nigeria, relationship app for students, intentional dating
+- Relevant question queries: What is serious relationship app Nigeria students? | How should students approach serious relationship app Nigeria students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 71/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about serious relationship app Nigeria students as a student?
+- Recommended answer-first introduction: Serious Relationship App in Nigeria for Students should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Serious Relationship App in Nigeria for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Serious Relationship App in Nigeria for Students guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is serious relationship app Nigeria students? | How should students approach serious relationship app Nigeria students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-010: Online Dating App for Undergraduates
+
+- Recommended H1: Online Dating App for Undergraduates
+- Target URL slug: /online-dating-app-for-undergraduates
+- Content status: Existing page expansion
+- Primary keyword: online dating app for undergraduates
+- Secondary keywords: undergraduate dating app, dating app for college students, student online dating
+- Relevant question queries: What is online dating app for undergraduates? | How should students approach online dating app for undergraduates? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 71/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about online dating app for undergraduates as a student?
+- Recommended answer-first introduction: Online Dating App for Undergraduates should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Online Dating App for Undergraduates visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Online Dating App for Undergraduates guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is online dating app for undergraduates? | How should students approach online dating app for undergraduates? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-011: Polytechnic Dating App in Nigeria
+
+- Recommended H1: Polytechnic Dating App in Nigeria
+- Target URL slug: /polytechnic-dating-app-nigeria
+- Content status: New page
+- Primary keyword: polytechnic dating app Nigeria
+- Secondary keywords: dating app for polytechnic students, student dating app Nigeria, campus dating
+- Relevant question queries: What is polytechnic dating app Nigeria? | How should students approach polytechnic dating app Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Low
+- Estimated ranking difficulty: Low
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 5/10
+- Overall priority score: 65/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about polytechnic dating app Nigeria as a student?
+- Recommended answer-first introduction: Polytechnic Dating App in Nigeria should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Polytechnic Dating App in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Polytechnic Dating App in Nigeria guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is polytechnic dating app Nigeria? | How should students approach polytechnic dating app Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Differentiate from /dating-app-in-nigeria by keeping this page focused on polytechnic dating app Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-012: Free Dating Apps in Nigeria for Students: What to Know
+
+- Recommended H1: Free Dating Apps in Nigeria for Students: What to Know
+- Target URL slug: /free-dating-apps-in-nigeria-for-students
+- Content status: New page
+- Primary keyword: free dating apps in Nigeria for students
+- Secondary keywords: dating apps in Nigeria without payment, free dating app Nigeria, student dating app free
+- Relevant question queries: What is free dating apps in Nigeria for students? | How should students approach free dating apps in Nigeria for students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 7/10
+- Conversion potential: 7/10
+- Safety or trust importance: 7/10
+- Overall priority score: 67/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about free dating apps in Nigeria for students as a student?
+- Recommended answer-first introduction: Free Dating Apps in Nigeria for Students: What to Know should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Free Dating Apps in Nigeria for Students: What to Know visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Free Dating Apps in Nigeria for Students: What to Know guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is free dating apps in Nigeria for students? | How should students approach free dating apps in Nigeria for students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Differentiate from /dating-app-in-nigeria by keeping this page focused on free dating apps in Nigeria for students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-013: Download The College Date App
+
+- Recommended H1: Download The College Date App
+- Target URL slug: /download
+- Content status: Existing page refresh
+- Primary keyword: The College Date app download
+- Secondary keywords: College Date app download, CD app download, dating app for Nigerian students Android
+- Relevant question queries: What is The College Date app download? | How should students approach The College Date app download? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Transactional
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 10/10
+- Topical authority value: 8/10
+- Conversion potential: 10/10
+- Safety or trust importance: 5/10
+- Overall priority score: 80/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about The College Date app download as a student?
+- Recommended answer-first introduction: Download The College Date App should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Download The College Date App visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Download The College Date App guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is The College Date app download? | How should students approach The College Date app download? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-014: Dating Apps in Nigeria Without Payment: Student Guide
+
+- Recommended H1: Dating Apps in Nigeria Without Payment: A Student Guide
+- Target URL slug: /dating-apps-in-nigeria-without-payment-students
+- Content status: New page
+- Primary keyword: dating apps in Nigeria without payment
+- Secondary keywords: free dating apps Nigeria, dating app in Nigeria for free, dating app costs
+- Relevant question queries: What is dating apps in Nigeria without payment? | How should students approach dating apps in Nigeria without payment? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 7/10
+- Topical authority value: 7/10
+- Conversion potential: 6/10
+- Safety or trust importance: 7/10
+- Overall priority score: 64/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about dating apps in Nigeria without payment as a student?
+- Recommended answer-first introduction: Dating Apps in Nigeria Without Payment: Student Guide should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Apps in Nigeria Without Payment: Student Guide visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Apps in Nigeria Without Payment: Student Guide guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating apps in Nigeria without payment? | How should students approach dating apps in Nigeria without payment? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Differentiate from /dating-app-in-nigeria by keeping this page focused on dating apps in Nigeria without payment.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## COM-015: Student Dating Platforms in Nigeria Compared
+
+- Recommended H1: Student Dating Platforms in Nigeria Compared
+- Target URL slug: /student-dating-platforms-nigeria
+- Content status: New page
+- Primary keyword: student dating platforms Nigeria
+- Secondary keywords: dating app comparison Nigeria, campus dating app comparison, student dating sites
+- Relevant question queries: What is student dating platforms Nigeria? | How should students approach student dating platforms Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Commercial
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Commercial and Product Discovery
+- Recommended content type: Commercial landing page or comparison guide
+- Recommended word-count range: 1,200-2,000 words
+- Searcher's main question: What should I know about student dating platforms Nigeria as a student?
+- Recommended answer-first introduction: Student Dating Platforms in Nigeria Compared should help Nigerian students compare options without hype and understand when a campus-focused app like The College Date is the right fit.
+- Proposed H2/H3 outline: Short answer: who this page is for | What students should look for | Comparison criteria | Safety and trust checks | Where The College Date fits | Download and next steps | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify The College Date app availability, Android package com.collegedate.app, official Google Play URL, and avoid unsupported ranking or user-count claims.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /download | /faq | /safety | /about
+- Future supporting pages that should link to it: /blog/best-dating-apps-nigeria-students | /dating-app-for-university-students-nigeria | /dating-app-in-nigeria | /dating-app-for-students | /college-dating-app
+- Required link to parent pillar: /dating-app-in-nigeria
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Download The College Date
+- Secondary CTA: Read the FAQ
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Student Dating Platforms in Nigeria Compared visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Student Dating Platforms in Nigeria Compared guide for Nigerian students
+- Recommended schema: WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is student dating platforms Nigeria? | How should students approach student dating platforms Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review quarterly for app/store/competitor changes.
+- Cannibalization risks: Differentiate from /dating-app-in-nigeria by keeping this page focused on student dating platforms Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-001: Campus Dating App for Student Connections
+
+- Recommended H1: Campus Dating App for Student Connections
+- Target URL slug: /campus-dating
+- Content status: Existing page expansion
+- Primary keyword: campus dating app
+- Secondary keywords: campus dating, dating on campus, student connections
+- Relevant question queries: What is campus dating app? | How should students approach campus dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 9/10
+- Safety or trust importance: 6/10
+- Overall priority score: 79/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about campus dating app as a student?
+- Recommended answer-first introduction: Campus Dating App for Student Connections should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What campus dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus | /campus-crush-advice
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Dating App for Student Connections visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Dating App for Student Connections guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is campus dating app? | How should students approach campus dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-002: Student Dating App for University Communities
+
+- Recommended H1: Student Dating App for University Communities
+- Target URL slug: /student-dating
+- Content status: Existing page expansion
+- Primary keyword: student dating app
+- Secondary keywords: student dating, university dating app, college dating app
+- Relevant question queries: What is student dating app? | How should students approach student dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 9/10
+- Topical authority value: 10/10
+- Conversion potential: 9/10
+- Safety or trust importance: 6/10
+- Overall priority score: 76/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about student dating app as a student?
+- Recommended answer-first introduction: Student Dating App for University Communities should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What student dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus | /campus-crush-advice
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Student Dating App for University Communities visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Student Dating App for University Communities guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is student dating app? | How should students approach student dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-003: University Dating in Nigeria
+
+- Recommended H1: University Dating in Nigeria
+- Target URL slug: /university-dating-nigeria
+- Content status: Existing page expansion
+- Primary keyword: university dating Nigeria
+- Secondary keywords: dating in Nigerian universities, campus relationships, student dating Nigeria
+- Relevant question queries: What is university dating Nigeria? | How should students approach university dating Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 7/10
+- Safety or trust importance: 6/10
+- Overall priority score: 73/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about university dating Nigeria as a student?
+- Recommended answer-first introduction: University Dating in Nigeria should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What university dating Nigeria means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /dating-as-a-fresher | /how-to-meet-people-on-campus | /campus-crush-advice
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: University Dating in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: University Dating in Nigeria guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is university dating Nigeria? | How should students approach university dating Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-004: Dating as a Fresher: A Nigerian Student Guide
+
+- Recommended H1: Dating as a Fresher: A Nigerian Student Guide
+- Target URL slug: /dating-as-a-fresher
+- Content status: New page
+- Primary keyword: dating as a fresher
+- Secondary keywords: fresher dating advice, first year dating, campus dating tips
+- Relevant question queries: What is dating as a fresher? | How should students approach dating as a fresher? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Emerging
+- Estimated ranking difficulty: Low
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 7/10
+- Overall priority score: 67/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating as a fresher as a student?
+- Recommended answer-first introduction: Dating as a Fresher: A Nigerian Student Guide should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating as a fresher means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /how-to-meet-people-on-campus | /campus-crush-advice
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating as a Fresher: A Nigerian Student Guide visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating as a Fresher: A Nigerian Student Guide guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating as a fresher? | How should students approach dating as a fresher? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on dating as a fresher.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-005: How to Meet People on Campus Without Pressure
+
+- Recommended H1: How to Meet People on Campus Without Pressure
+- Target URL slug: /how-to-meet-people-on-campus
+- Content status: New page
+- Primary keyword: how to meet people on campus
+- Secondary keywords: make friends on campus, meet students, campus social life
+- Relevant question queries: What is how to meet people on campus? | How should students approach how to meet people on campus? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 65/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to meet people on campus as a student?
+- Recommended answer-first introduction: How to Meet People on Campus Without Pressure should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to meet people on campus means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /campus-crush-advice
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Meet People on Campus Without Pressure visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Meet People on Campus Without Pressure guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to meet people on campus? | How should students approach how to meet people on campus? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on how to meet people on campus.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-006: Campus Crush Advice for Students
+
+- Recommended H1: Campus Crush Advice for Students
+- Target URL slug: /campus-crush-advice
+- Content status: New page
+- Primary keyword: campus crush advice
+- Secondary keywords: campus crush meaning, how to talk to your crush, student crush
+- Relevant question queries: What is campus crush advice? | How should students approach campus crush advice? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 64/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about campus crush advice as a student?
+- Recommended answer-first introduction: Campus Crush Advice for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What campus crush advice means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Crush Advice for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Crush Advice for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is campus crush advice? | How should students approach campus crush advice? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on campus crush advice.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-007: Dating During Exams: How to Keep Balance
+
+- Recommended H1: Dating During Exams: How to Keep Balance
+- Target URL slug: /dating-during-exams
+- Content status: New page
+- Primary keyword: dating during exams
+- Secondary keywords: dating during exam season, does dating affect studies, relationship and exams
+- Relevant question queries: What is dating during exams? | How should students approach dating during exams? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 5/10
+- Overall priority score: 64/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating during exams as a student?
+- Recommended answer-first introduction: Dating During Exams: How to Keep Balance should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating during exams means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating During Exams: How to Keep Balance visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating During Exams: How to Keep Balance guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating during exams? | How should students approach dating during exams? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on dating during exams.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-008: Balancing School and Relationships
+
+- Recommended H1: Balancing School and Relationships
+- Target URL slug: /balancing-school-and-relationships
+- Content status: New page
+- Primary keyword: balancing school and relationships
+- Secondary keywords: relationship and studies, student relationship balance, dating in school
+- Relevant question queries: What is balancing school and relationships? | How should students approach balancing school and relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 5/10
+- Overall priority score: 62/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about balancing school and relationships as a student?
+- Recommended answer-first introduction: Balancing School and Relationships should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What balancing school and relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Balancing School and Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Balancing School and Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is balancing school and relationships? | How should students approach balancing school and relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on balancing school and relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-009: Hostel Dating Boundaries for Students
+
+- Recommended H1: Hostel Dating Boundaries for Students
+- Target URL slug: /hostel-dating-boundaries
+- Content status: New page
+- Primary keyword: hostel dating boundaries
+- Secondary keywords: hostel dating, student privacy, campus boundaries
+- Relevant question queries: What is hostel dating boundaries? | How should students approach hostel dating boundaries? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Low
+- Estimated ranking difficulty: Low
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 8/10
+- Overall priority score: 61/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about hostel dating boundaries as a student?
+- Recommended answer-first introduction: Hostel Dating Boundaries for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What hostel dating boundaries means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Hostel Dating Boundaries for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Hostel Dating Boundaries for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is hostel dating boundaries? | How should students approach hostel dating boundaries? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on hostel dating boundaries.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-010: Off-Campus Dating Safety for Students
+
+- Recommended H1: Off-Campus Dating Safety for Students
+- Target URL slug: /off-campus-dating-safety-students
+- Content status: New page
+- Primary keyword: off-campus dating safety
+- Secondary keywords: student dating safety, first meeting safety, campus dating safety
+- Relevant question queries: What is off-campus dating safety? | How should students approach off-campus dating safety? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 72/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about off-campus dating safety as a student?
+- Recommended answer-first introduction: Off-Campus Dating Safety for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What off-campus dating safety means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Off-Campus Dating Safety for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Off-Campus Dating Safety for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is off-campus dating safety? | How should students approach off-campus dating safety? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on off-campus dating safety.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-011: Dating in Final Year: Time, Pressure, and Intentions
+
+- Recommended H1: Dating in Final Year: Time, Pressure, and Intentions
+- Target URL slug: /dating-in-final-year
+- Content status: New page
+- Primary keyword: dating in final year
+- Secondary keywords: final year relationship, dating while graduating, serious student dating
+- Relevant question queries: What is dating in final year? | How should students approach dating in final year? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Low
+- Estimated ranking difficulty: Low
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 5/10
+- Overall priority score: 58/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating in final year as a student?
+- Recommended answer-first introduction: Dating in Final Year: Time, Pressure, and Intentions should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating in final year means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating in Final Year: Time, Pressure, and Intentions visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating in Final Year: Time, Pressure, and Intentions guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating in final year? | How should students approach dating in final year? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on dating in final year.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-012: Postgraduate Student Dating Guide
+
+- Recommended H1: Postgraduate Student Dating Guide
+- Target URL slug: /postgraduate-student-dating
+- Content status: New page
+- Primary keyword: postgraduate student dating
+- Secondary keywords: grad student dating app, dating as a postgraduate, mature student dating
+- Relevant question queries: What is postgraduate student dating? | How should students approach postgraduate student dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 5/10
+- Overall priority score: 59/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about postgraduate student dating as a student?
+- Recommended answer-first introduction: Postgraduate Student Dating Guide should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What postgraduate student dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Postgraduate Student Dating Guide visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Postgraduate Student Dating Guide guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is postgraduate student dating? | How should students approach postgraduate student dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on postgraduate student dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-013: Dating Guide for Shy Students
+
+- Recommended H1: Dating Guide for Shy Students
+- Target URL slug: /shy-student-dating-guide
+- Content status: New page
+- Primary keyword: dating guide for shy students
+- Secondary keywords: shy dating advice, introvert dating students, how to start dating
+- Relevant question queries: What is dating guide for shy students? | How should students approach dating guide for shy students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 5/10
+- Overall priority score: 65/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating guide for shy students as a student?
+- Recommended answer-first introduction: Dating Guide for Shy Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating guide for shy students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Guide for Shy Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Guide for Shy Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating guide for shy students? | How should students approach dating guide for shy students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on dating guide for shy students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-014: Friendship Before Dating: A Student Guide
+
+- Recommended H1: Friendship Before Dating: A Student Guide
+- Target URL slug: /friendship-before-dating-students
+- Content status: New page
+- Primary keyword: friendship before dating
+- Secondary keywords: friends before dating, student friendships, low pressure dating
+- Relevant question queries: What is friendship before dating? | How should students approach friendship before dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 62/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about friendship before dating as a student?
+- Recommended answer-first introduction: Friendship Before Dating: A Student Guide should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What friendship before dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Friendship Before Dating: A Student Guide visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Friendship Before Dating: A Student Guide guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is friendship before dating? | How should students approach friendship before dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on friendship before dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CAMP-015: Student Dating Etiquette on Campus
+
+- Recommended H1: Student Dating Etiquette on Campus
+- Target URL slug: /student-dating-etiquette
+- Content status: New page
+- Primary keyword: student dating etiquette
+- Secondary keywords: dating etiquette, campus dating rules, respectful dating students
+- Relevant question queries: What is student dating etiquette? | How should students approach student dating etiquette? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 6/10
+- Safety or trust importance: 8/10
+- Overall priority score: 68/100
+- Target audience persona: First-year undergraduate
+- Parent topic cluster: Campus and Student Dating
+- Recommended content type: Student guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about student dating etiquette as a student?
+- Recommended answer-first introduction: Student Dating Etiquette on Campus should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What student dating etiquette means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /student-dating | /dating-app-for-university-students-nigeria | /safety | /download
+- Future supporting pages that should link to it: /campus-dating | /student-dating | /university-dating-nigeria | /dating-as-a-fresher | /how-to-meet-people-on-campus
+- Required link to parent pillar: /campus-dating
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create a student profile
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Student Dating Etiquette on Campus visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Student Dating Etiquette on Campus guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is student dating etiquette? | How should students approach student dating etiquette? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /campus-dating by keeping this page focused on student dating etiquette.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-001: Safety on The College Date
+
+- Recommended H1: Safety on The College Date
+- Target URL slug: /safety
+- Content status: Existing page expansion
+- Primary keyword: The College Date safety
+- Secondary keywords: dating app safety, student dating safety, reporting dating app
+- Relevant question queries: What is The College Date safety? | How should students approach The College Date safety? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 7/10
+- Safety or trust importance: 10/10
+- Overall priority score: 85/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about The College Date safety as a student?
+- Recommended answer-first introduction: Safety on The College Date should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students | /fake-dating-profiles
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Safety on The College Date visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Safety on The College Date guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is The College Date safety? | How should students approach The College Date safety? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-002: Campus Dating Safety
+
+- Recommended H1: Campus Dating Safety
+- Target URL slug: /campus-dating-safety
+- Content status: Existing page expansion
+- Primary keyword: campus dating safety
+- Secondary keywords: dating safely on campus, student dating safety, first date safety
+- Relevant question queries: What is campus dating safety? | How should students approach campus dating safety? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 6/10
+- Safety or trust importance: 10/10
+- Overall priority score: 80/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about campus dating safety as a student?
+- Recommended answer-first introduction: Campus Dating Safety should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students | /fake-dating-profiles
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Dating Safety visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Dating Safety guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is campus dating safety? | How should students approach campus dating safety? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-003: How to Date Safely on Campus in Nigeria
+
+- Recommended H1: How to Date Safely on Campus in Nigeria
+- Target URL slug: /blog/how-to-date-safely-on-campus-nigeria
+- Content status: Existing page refresh
+- Primary keyword: how to date safely on campus Nigeria
+- Secondary keywords: campus dating safety Nigeria, student safety dating apps, safe first meeting
+- Relevant question queries: What is how to date safely on campus Nigeria? | How should students approach how to date safely on campus Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 6/10
+- Safety or trust importance: 10/10
+- Overall priority score: 80/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about how to date safely on campus Nigeria as a student?
+- Recommended answer-first introduction: How to Date Safely on Campus in Nigeria should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /romance-scams-nigeria-students | /online-dating-red-flags-students | /fake-dating-profiles
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Date Safely on Campus in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Date Safely on Campus in Nigeria guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to date safely on campus Nigeria? | How should students approach how to date safely on campus Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Refresh the existing URL; do not create a duplicate page for this intent.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-004: Romance Scams in Nigeria: Student Safety Guide
+
+- Recommended H1: Romance Scams in Nigeria: Student Safety Guide
+- Target URL slug: /romance-scams-nigeria-students
+- Content status: New page
+- Primary keyword: romance scams Nigeria
+- Secondary keywords: Nigerian romance scams, online dating scams, dating app scam signs
+- Relevant question queries: What is romance scams Nigeria? | How should students approach romance scams Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 72/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about romance scams Nigeria as a student?
+- Recommended answer-first introduction: Romance Scams in Nigeria: Student Safety Guide should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /online-dating-red-flags-students | /fake-dating-profiles
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Romance Scams in Nigeria: Student Safety Guide visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Romance Scams in Nigeria: Student Safety Guide guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is romance scams Nigeria? | How should students approach romance scams Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on romance scams Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-005: Online Dating Red Flags for Students
+
+- Recommended H1: Online Dating Red Flags for Students
+- Target URL slug: /online-dating-red-flags-students
+- Content status: New page
+- Primary keyword: online dating red flags
+- Secondary keywords: dating red flags texting, online relationship red flags, student dating red flags
+- Relevant question queries: What is online dating red flags? | How should students approach online dating red flags? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 6/10
+- Safety or trust importance: 10/10
+- Overall priority score: 73/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about online dating red flags as a student?
+- Recommended answer-first introduction: Online Dating Red Flags for Students should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /fake-dating-profiles
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Online Dating Red Flags for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Online Dating Red Flags for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is online dating red flags? | How should students approach online dating red flags? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on online dating red flags.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-006: How to Spot Fake Dating Profiles
+
+- Recommended H1: How to Spot Fake Dating Profiles
+- Target URL slug: /fake-dating-profiles
+- Content status: New page
+- Primary keyword: fake dating profiles
+- Secondary keywords: fake dating profile pictures, fake dating profile checker, catfish dating profile
+- Relevant question queries: What is fake dating profiles? | How should students approach fake dating profiles? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about fake dating profiles as a student?
+- Recommended answer-first introduction: How to Spot Fake Dating Profiles should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Spot Fake Dating Profiles visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Spot Fake Dating Profiles guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is fake dating profiles? | How should students approach fake dating profiles? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on fake dating profiles.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-007: Dating App Privacy Tips for Students
+
+- Recommended H1: Dating App Privacy Tips for Students
+- Target URL slug: /dating-app-privacy-students
+- Content status: New page
+- Primary keyword: dating app privacy
+- Secondary keywords: dating app privacy concerns, dating app security, student privacy online
+- Relevant question queries: What is dating app privacy? | How should students approach dating app privacy? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about dating app privacy as a student?
+- Recommended answer-first introduction: Dating App Privacy Tips for Students should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating App Privacy Tips for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating App Privacy Tips for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating app privacy? | How should students approach dating app privacy? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on dating app privacy.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-008: First Meeting Safety After Matching Online
+
+- Recommended H1: First Meeting Safety After Matching Online
+- Target URL slug: /first-meeting-safety-dating-app
+- Content status: New page
+- Primary keyword: first meeting safety dating app
+- Secondary keywords: online date safety, meet in public, dating app first date safety
+- Relevant question queries: What is first meeting safety dating app? | How should students approach first meeting safety dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 71/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about first meeting safety dating app as a student?
+- Recommended answer-first introduction: First Meeting Safety After Matching Online should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: First Meeting Safety After Matching Online visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: First Meeting Safety After Matching Online guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is first meeting safety dating app? | How should students approach first meeting safety dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on first meeting safety dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-009: Consent in Student Relationships
+
+- Recommended H1: Consent in Student Relationships
+- Target URL slug: /consent-in-student-relationships
+- Content status: New page
+- Primary keyword: consent in relationships
+- Secondary keywords: dating consent, student relationship boundaries, respectful dating
+- Relevant question queries: What is consent in relationships? | How should students approach consent in relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 10/10
+- Conversion potential: 3/10
+- Safety or trust importance: 10/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about consent in relationships as a student?
+- Recommended answer-first introduction: Consent in Student Relationships should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Consent in Student Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Consent in Student Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is consent in relationships? | How should students approach consent in relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on consent in relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-010: Digital Harassment in Dating: What Students Should Know
+
+- Recommended H1: Digital Harassment in Dating: What Students Should Know
+- Target URL slug: /digital-harassment-dating
+- Content status: New page
+- Primary keyword: digital harassment dating
+- Secondary keywords: digital dating abuse, online dating harassment, dating app harassment
+- Relevant question queries: What is digital harassment dating? | How should students approach digital harassment dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 3/10
+- Safety or trust importance: 10/10
+- Overall priority score: 67/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about digital harassment dating as a student?
+- Recommended answer-first introduction: Digital Harassment in Dating: What Students Should Know should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Digital Harassment in Dating: What Students Should Know visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Digital Harassment in Dating: What Students Should Know guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is digital harassment dating? | How should students approach digital harassment dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on digital harassment dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-011: What Not to Share on Dating Apps
+
+- Recommended H1: What Not to Share on Dating Apps
+- Target URL slug: /what-not-to-share-on-dating-apps
+- Content status: New page
+- Primary keyword: what not to share on dating apps
+- Secondary keywords: dating app privacy, personal information dating apps, online dating safety tips
+- Relevant question queries: What is what not to share on dating apps? | How should students approach what not to share on dating apps? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 10/10
+- Overall priority score: 69/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about what not to share on dating apps as a student?
+- Recommended answer-first introduction: What Not to Share on Dating Apps should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: What Not to Share on Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: What Not to Share on Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is what not to share on dating apps? | How should students approach what not to share on dating apps? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on what not to share on dating apps.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## SAF-012: How to Report Suspicious Behaviour on Dating Apps
+
+- Recommended H1: How to Report Suspicious Behaviour on Dating Apps
+- Target URL slug: /how-to-report-suspicious-behaviour-dating-app
+- Content status: New page
+- Primary keyword: report suspicious behaviour dating app
+- Secondary keywords: block and report dating app, dating app safety report, suspicious profile
+- Relevant question queries: What is report suspicious behaviour dating app? | How should students approach report suspicious behaviour dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Retention or trust
+- Estimated demand: Low
+- Estimated ranking difficulty: Low
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 10/10
+- Overall priority score: 65/100
+- Target audience persona: Someone new to online dating
+- Parent topic cluster: Online Dating Safety
+- Recommended content type: Safety resource
+- Recommended word-count range: 1,000-1,800 words
+- Searcher's main question: What should I know about report suspicious behaviour dating app as a student?
+- Recommended answer-first introduction: How to Report Suspicious Behaviour on Dating Apps should give students a clear, calm way to understand risk, protect their privacy, and know when to block, report, or ask for help.
+- Proposed H2/H3 outline: Short safety answer | Common risks to understand | Warning signs | What students should do | When to block, report, or seek help | Useful official resources | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify safety claims against official or reputable sources; do not give legal, medical, or mental-health advice beyond general guidance.
+- Recommended authoritative source types: Official safety agencies, consumer protection bodies, reputable NGOs, university safety offices, platform policy pages.
+- Existing internal pages to link to: /safety | /campus-dating-safety | /privacy | /support | /child-safety-standards
+- Future supporting pages that should link to it: /safety | /campus-dating-safety | /blog/how-to-date-safely-on-campus-nigeria | /romance-scams-nigeria-students | /online-dating-red-flags-students
+- Required link to parent pillar: /safety
+- Safety-page linking requirement: Mandatory: link to /safety, /support, and /privacy where relevant.
+- Primary CTA: Read the safety guide
+- Secondary CTA: Contact support
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Report Suspicious Behaviour on Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Report Suspicious Behaviour on Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is report suspicious behaviour dating app? | How should students approach report suspicious behaviour dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author plus safety or student wellbeing reviewer
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /safety by keeping this page focused on report suspicious behaviour dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-001: Dating Bio Examples for Students
+
+- Recommended H1: Dating Bio Examples for Students
+- Target URL slug: /dating-bio-examples-students
+- Content status: New page
+- Primary keyword: dating bio examples students
+- Secondary keywords: dating profile bio examples, student dating bio, bio examples for dating apps
+- Relevant question queries: What is dating bio examples students? | How should students approach dating bio examples students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 9/10
+- Topical authority value: 10/10
+- Conversion potential: 9/10
+- Safety or trust importance: 5/10
+- Overall priority score: 78/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating bio examples students as a student?
+- Recommended answer-first introduction: Dating Bio Examples for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating bio examples students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students | /how-to-get-more-matches-dating-app
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Bio Examples for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Bio Examples for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating bio examples students? | How should students approach dating bio examples students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating bio examples students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-002: Dating Bio Generator for Students
+
+- Recommended H1: Dating Bio Generator for Students
+- Target URL slug: /dating-bio-generator
+- Content status: New page
+- Primary keyword: dating bio generator
+- Secondary keywords: dating profile bio generator, dating prompt generator, bio ideas dating app
+- Relevant question queries: What is dating bio generator? | How should students approach dating bio generator? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 10/10
+- Safety or trust importance: 4/10
+- Overall priority score: 80/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about dating bio generator as a student?
+- Recommended answer-first introduction: Dating Bio Generator for Students should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students | /how-to-get-more-matches-dating-app
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Bio Generator for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Bio Generator for Students guide for Nigerian students
+- Recommended schema: SoftwareApplication, WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating bio generator? | How should students approach dating bio generator? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating bio generator.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-003: Dating Profile Picture Tips for Students
+
+- Recommended H1: Dating Profile Picture Tips for Students
+- Target URL slug: /dating-profile-picture-tips-students
+- Content status: New page
+- Primary keyword: dating profile picture tips
+- Secondary keywords: dating profile pictures, profile photo examples, dating photos students
+- Relevant question queries: What is dating profile picture tips? | How should students approach dating profile picture tips? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 7/10
+- Overall priority score: 75/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating profile picture tips as a student?
+- Recommended answer-first introduction: Dating Profile Picture Tips for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating profile picture tips means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /profile-photo-checklist | /dating-profile-mistakes-students | /how-to-get-more-matches-dating-app
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Profile Picture Tips for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Profile Picture Tips for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating profile picture tips? | How should students approach dating profile picture tips? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating profile picture tips.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-004: Profile Photo Checklist for Dating Apps
+
+- Recommended H1: Profile Photo Checklist for Dating Apps
+- Target URL slug: /profile-photo-checklist
+- Content status: New page
+- Primary keyword: profile photo checklist dating app
+- Secondary keywords: dating profile photo checklist, best dating profile pictures, profile photo tips
+- Relevant question queries: What is profile photo checklist dating app? | How should students approach profile photo checklist dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 7/10
+- Overall priority score: 76/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about profile photo checklist dating app as a student?
+- Recommended answer-first introduction: Profile Photo Checklist for Dating Apps should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /dating-profile-mistakes-students | /how-to-get-more-matches-dating-app
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Profile Photo Checklist for Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Profile Photo Checklist for Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is profile photo checklist dating app? | How should students approach profile photo checklist dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on profile photo checklist dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-005: Dating Profile Mistakes Students Should Avoid
+
+- Recommended H1: Dating Profile Mistakes Students Should Avoid
+- Target URL slug: /dating-profile-mistakes-students
+- Content status: New page
+- Primary keyword: dating profile mistakes
+- Secondary keywords: dating profile mistakes students, bad dating profile examples, profile tips
+- Relevant question queries: What is dating profile mistakes? | How should students approach dating profile mistakes? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 5/10
+- Overall priority score: 69/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating profile mistakes as a student?
+- Recommended answer-first introduction: Dating Profile Mistakes Students Should Avoid should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating profile mistakes means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /how-to-get-more-matches-dating-app
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Profile Mistakes Students Should Avoid visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Profile Mistakes Students Should Avoid guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating profile mistakes? | How should students approach dating profile mistakes? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating profile mistakes.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-006: How to Get More Matches on Dating Apps
+
+- Recommended H1: How to Get More Matches on Dating Apps
+- Target URL slug: /how-to-get-more-matches-dating-app
+- Content status: New page
+- Primary keyword: how to get more matches dating app
+- Secondary keywords: get more matches on dating apps, dating profile tips, better matches
+- Relevant question queries: What is how to get more matches dating app? | How should students approach how to get more matches dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 9/10
+- Safety or trust importance: 5/10
+- Overall priority score: 70/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to get more matches dating app as a student?
+- Recommended answer-first introduction: How to Get More Matches on Dating Apps should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to get more matches dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Get More Matches on Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Get More Matches on Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to get more matches dating app? | How should students approach how to get more matches dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on how to get more matches dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-007: Dating Profile Prompts for Students
+
+- Recommended H1: Dating Profile Prompts for Students
+- Target URL slug: /dating-profile-prompts-students
+- Content status: New page
+- Primary keyword: dating profile prompts
+- Secondary keywords: dating prompt answers, dating profile questions, profile prompt examples
+- Relevant question queries: What is dating profile prompts? | How should students approach dating profile prompts? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 4/10
+- Overall priority score: 72/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating profile prompts as a student?
+- Recommended answer-first introduction: Dating Profile Prompts for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating profile prompts means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Profile Prompts for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Profile Prompts for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating profile prompts? | How should students approach dating profile prompts? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating profile prompts.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-008: How to State Your Intentions on a Dating Profile
+
+- Recommended H1: How to State Your Intentions on a Dating Profile
+- Target URL slug: /how-to-state-intentions-dating-profile
+- Content status: New page
+- Primary keyword: state intentions dating profile
+- Secondary keywords: serious relationship profile, dating profile intentions, honest dating profile
+- Relevant question queries: What is state intentions dating profile? | How should students approach state intentions dating profile? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 69/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about state intentions dating profile as a student?
+- Recommended answer-first introduction: How to State Your Intentions on a Dating Profile should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What state intentions dating profile means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to State Your Intentions on a Dating Profile visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to State Your Intentions on a Dating Profile guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is state intentions dating profile? | How should students approach state intentions dating profile? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on state intentions dating profile.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-009: Verified Dating Profiles: What Students Should Know
+
+- Recommended H1: Verified Dating Profiles: What Students Should Know
+- Target URL slug: /verified-dating-profiles-students
+- Content status: New page
+- Primary keyword: verified dating profile
+- Secondary keywords: verified dating apps, profile verification, safe dating profiles
+- Relevant question queries: What is verified dating profile? | How should students approach verified dating profile? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 9/10
+- Overall priority score: 71/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about verified dating profile as a student?
+- Recommended answer-first introduction: Verified Dating Profiles: What Students Should Know should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What verified dating profile means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Verified Dating Profiles: What Students Should Know visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Verified Dating Profiles: What Students Should Know guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is verified dating profile? | How should students approach verified dating profile? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on verified dating profile.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## PRO-010: Dating Profile Examples for Shy Students
+
+- Recommended H1: Dating Profile Examples for Shy Students
+- Target URL slug: /profile-examples-for-shy-students
+- Content status: New page
+- Primary keyword: dating profile examples shy students
+- Secondary keywords: introvert dating profile, shy dating bio, student profile examples
+- Relevant question queries: What is dating profile examples shy students? | How should students approach dating profile examples shy students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Consideration
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 5/10
+- Overall priority score: 68/100
+- Target audience persona: Shy student
+- Parent topic cluster: Dating Profiles and Matching
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating profile examples shy students as a student?
+- Recommended answer-first introduction: Dating Profile Examples for Shy Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating profile examples shy students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /download | /safety | /faq
+- Future supporting pages that should link to it: /dating-bio-examples-students | /dating-bio-generator | /dating-profile-picture-tips-students | /profile-photo-checklist | /dating-profile-mistakes-students
+- Required link to parent pillar: /dating-profile-guide-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Create your profile
+- Secondary CTA: Read profile safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Profile Examples for Shy Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Profile Examples for Shy Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating profile examples shy students? | How should students approach dating profile examples shy students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-profile-guide-students by keeping this page focused on dating profile examples shy students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-001: Conversation Starter Generator for Dating Apps
+
+- Recommended H1: Conversation Starter Generator for Dating Apps
+- Target URL slug: /conversation-starters-dating-app
+- Content status: New page
+- Primary keyword: conversation starters dating app
+- Secondary keywords: first message dating app, good conversation starters, flirty conversation starters
+- Relevant question queries: What is conversation starters dating app? | How should students approach conversation starters dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 10/10
+- Topical authority value: 10/10
+- Conversion potential: 10/10
+- Safety or trust importance: 4/10
+- Overall priority score: 80/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about conversation starters dating app as a student?
+- Recommended answer-first introduction: Conversation Starter Generator for Dating Apps should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app | /when-to-ask-someone-out-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Conversation Starter Generator for Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Conversation Starter Generator for Dating Apps guide for Nigerian students
+- Recommended schema: SoftwareApplication, WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is conversation starters dating app? | How should students approach conversation starters dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on conversation starters dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-002: First Message Examples for Dating Apps
+
+- Recommended H1: First Message Examples for Dating Apps
+- Target URL slug: /first-message-examples-dating-app
+- Content status: New page
+- Primary keyword: first message examples dating app
+- Secondary keywords: dating app opener examples, first text after matching, opening messages
+- Relevant question queries: What is first message examples dating app? | How should students approach first message examples dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 9/10
+- Topical authority value: 9/10
+- Conversion potential: 9/10
+- Safety or trust importance: 4/10
+- Overall priority score: 75/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about first message examples dating app as a student?
+- Recommended answer-first introduction: First Message Examples for Dating Apps should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What first message examples dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app | /when-to-ask-someone-out-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: First Message Examples for Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: First Message Examples for Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is first message examples dating app? | How should students approach first message examples dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on first message examples dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-003: How to Text a Match Without Being Awkward
+
+- Recommended H1: How to Text a Match Without Being Awkward
+- Target URL slug: /how-to-text-a-match
+- Content status: New page
+- Primary keyword: how to text a match
+- Secondary keywords: how to text a girl you matched with, text after matching, dating app texting
+- Relevant question queries: What is how to text a match? | How should students approach how to text a match? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 5/10
+- Overall priority score: 69/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to text a match as a student?
+- Recommended answer-first introduction: How to Text a Match Without Being Awkward should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to text a match means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-keep-a-conversation-going | /dry-conversation-dating-app | /when-to-ask-someone-out-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Text a Match Without Being Awkward visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Text a Match Without Being Awkward guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to text a match? | How should students approach how to text a match? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on how to text a match.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-004: How to Keep a Conversation Going on a Dating App
+
+- Recommended H1: How to Keep a Conversation Going on a Dating App
+- Target URL slug: /how-to-keep-a-conversation-going
+- Content status: New page
+- Primary keyword: how to keep a conversation going
+- Secondary keywords: keep chat interesting, dating app conversation tips, questions to ask
+- Relevant question queries: What is how to keep a conversation going? | How should students approach how to keep a conversation going? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 8/10
+- Safety or trust importance: 4/10
+- Overall priority score: 72/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to keep a conversation going as a student?
+- Recommended answer-first introduction: How to Keep a Conversation Going on a Dating App should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to keep a conversation going means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /dry-conversation-dating-app | /when-to-ask-someone-out-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Keep a Conversation Going on a Dating App visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Keep a Conversation Going on a Dating App guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to keep a conversation going? | How should students approach how to keep a conversation going? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on how to keep a conversation going.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-005: How to Fix a Dry Conversation on a Dating App
+
+- Recommended H1: How to Fix a Dry Conversation on a Dating App
+- Target URL slug: /dry-conversation-dating-app
+- Content status: New page
+- Primary keyword: dry conversation dating app
+- Secondary keywords: dry texter dating, boring conversation dating, revive a conversation
+- Relevant question queries: What is dry conversation dating app? | How should students approach dry conversation dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 4/10
+- Overall priority score: 64/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dry conversation dating app as a student?
+- Recommended answer-first introduction: How to Fix a Dry Conversation on a Dating App should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dry conversation dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /when-to-ask-someone-out-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Fix a Dry Conversation on a Dating App visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Fix a Dry Conversation on a Dating App guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dry conversation dating app? | How should students approach dry conversation dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on dry conversation dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-006: When to Ask Someone Out After Matching
+
+- Recommended H1: When to Ask Someone Out After Matching
+- Target URL slug: /when-to-ask-someone-out-dating-app
+- Content status: New page
+- Primary keyword: when to ask someone out dating app
+- Secondary keywords: ask match on a date, when to ask someone out, first date timing
+- Relevant question queries: What is when to ask someone out dating app? | How should students approach when to ask someone out dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 6/10
+- Overall priority score: 73/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about when to ask someone out dating app as a student?
+- Recommended answer-first introduction: When to Ask Someone Out After Matching should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What when to ask someone out dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: When to Ask Someone Out After Matching visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: When to Ask Someone Out After Matching guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is when to ask someone out dating app? | How should students approach when to ask someone out dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on when to ask someone out dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-007: Respectful Flirting Tips for Students
+
+- Recommended H1: Respectful Flirting Tips for Students
+- Target URL slug: /respectful-flirting-students
+- Content status: New page
+- Primary keyword: respectful flirting
+- Secondary keywords: flirting tips students, how to flirt respectfully, dating boundaries
+- Relevant question queries: What is respectful flirting? | How should students approach respectful flirting? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 6/10
+- Safety or trust importance: 9/10
+- Overall priority score: 69/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about respectful flirting as a student?
+- Recommended answer-first introduction: Respectful Flirting Tips for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What respectful flirting means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Respectful Flirting Tips for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Respectful Flirting Tips for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is respectful flirting? | How should students approach respectful flirting? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on respectful flirting.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-008: Talking Stage Meaning for Students
+
+- Recommended H1: Talking Stage Meaning for Students
+- Target URL slug: /talking-stage-meaning-students
+- Content status: New page
+- Primary keyword: talking stage meaning
+- Secondary keywords: talking stage, talking stage vs situationship, talking stage guide
+- Relevant question queries: What is talking stage meaning? | How should students approach talking stage meaning? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 70/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about talking stage meaning as a student?
+- Recommended answer-first introduction: Talking Stage Meaning for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What talking stage meaning means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Talking Stage Meaning for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Talking Stage Meaning for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is talking stage meaning? | How should students approach talking stage meaning? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on talking stage meaning.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-009: Talking Stage Questions to Ask
+
+- Recommended H1: Talking Stage Questions to Ask
+- Target URL slug: /talking-stage-questions
+- Content status: New page
+- Primary keyword: talking stage questions
+- Secondary keywords: questions to ask in talking stage, talking stage conversations, get to know you questions
+- Relevant question queries: What is talking stage questions? | How should students approach talking stage questions? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 4/10
+- Overall priority score: 70/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about talking stage questions as a student?
+- Recommended answer-first introduction: Talking Stage Questions to Ask should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What talking stage questions means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Talking Stage Questions to Ask visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Talking Stage Questions to Ask guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is talking stage questions? | How should students approach talking stage questions? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on talking stage questions.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-010: Ghosting Meaning in Dating
+
+- Recommended H1: Ghosting Meaning in Dating
+- Target URL slug: /ghosting-meaning-dating
+- Content status: New page
+- Primary keyword: ghosting meaning dating
+- Secondary keywords: what is ghosting in dating, ghosting dating term, why people ghost
+- Relevant question queries: What is ghosting meaning dating? | How should students approach ghosting meaning dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 6/10
+- Overall priority score: 67/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about ghosting meaning dating as a student?
+- Recommended answer-first introduction: Ghosting Meaning in Dating should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What ghosting meaning dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Ghosting Meaning in Dating visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Ghosting Meaning in Dating guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is ghosting meaning dating? | How should students approach ghosting meaning dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on ghosting meaning dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-011: How to Reply After Being Left on Read
+
+- Recommended H1: How to Reply After Being Left on Read
+- Target URL slug: /how-to-reply-after-being-left-on-read
+- Content status: New page
+- Primary keyword: left on read reply
+- Secondary keywords: what to say after left on read, dating text reply, ghosted or busy
+- Relevant question queries: What is left on read reply? | How should students approach left on read reply? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 5/10
+- Overall priority score: 59/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about left on read reply as a student?
+- Recommended answer-first introduction: How to Reply After Being Left on Read should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What left on read reply means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Reply After Being Left on Read visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Reply After Being Left on Read guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is left on read reply? | How should students approach left on read reply? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on left on read reply.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## MSG-012: Conversation Boundaries on Dating Apps
+
+- Recommended H1: Conversation Boundaries on Dating Apps
+- Target URL slug: /conversation-boundaries-dating-app
+- Content status: New page
+- Primary keyword: conversation boundaries dating app
+- Secondary keywords: dating app boundaries, respectful texting, online dating consent
+- Relevant question queries: What is conversation boundaries dating app? | How should students approach conversation boundaries dating app? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 5/10
+- Safety or trust importance: 9/10
+- Overall priority score: 71/100
+- Target audience persona: Shy student
+- Parent topic cluster: Conversations and Messaging
+- Recommended content type: How-to guide or tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about conversation boundaries dating app as a student?
+- Recommended answer-first introduction: Conversation Boundaries on Dating Apps should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What conversation boundaries dating app means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /dating-app-for-students | /safety | /download | /relationship-advice-for-students
+- Future supporting pages that should link to it: /conversation-starters-dating-app | /first-message-examples-dating-app | /how-to-text-a-match | /how-to-keep-a-conversation-going | /dry-conversation-dating-app
+- Required link to parent pillar: /conversation-starters-dating-app
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Try The College Date
+- Secondary CTA: Read respectful messaging tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Conversation Boundaries on Dating Apps visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Conversation Boundaries on Dating Apps guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is conversation boundaries dating app? | How should students approach conversation boundaries dating app? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /conversation-starters-dating-app by keeping this page focused on conversation boundaries dating app.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-001: First Date Ideas for Students
+
+- Recommended H1: First Date Ideas for Students
+- Target URL slug: /first-date-ideas-students
+- Content status: New page
+- Primary keyword: first date ideas students
+- Secondary keywords: first date ideas college students, good first date ideas, date ideas students
+- Relevant question queries: What is first date ideas students? | How should students approach first date ideas students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 9/10
+- Topical authority value: 10/10
+- Conversion potential: 8/10
+- Safety or trust importance: 7/10
+- Overall priority score: 79/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about first date ideas students as a student?
+- Recommended answer-first introduction: First Date Ideas for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What first date ideas students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner | /first-date-questions-students
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: First Date Ideas for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: First Date Ideas for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is first date ideas students? | How should students approach first date ideas students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on first date ideas students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-002: Campus Date Ideas for Students
+
+- Recommended H1: Campus Date Ideas for Students
+- Target URL slug: /campus-date-ideas
+- Content status: New page
+- Primary keyword: campus date ideas
+- Secondary keywords: date ideas on campus, student date ideas, campus dating
+- Relevant question queries: What is campus date ideas? | How should students approach campus date ideas? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 7/10
+- Safety or trust importance: 6/10
+- Overall priority score: 74/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about campus date ideas as a student?
+- Recommended answer-first introduction: Campus Date Ideas for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What campus date ideas means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner | /first-date-questions-students
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Date Ideas for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Date Ideas for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is campus date ideas? | How should students approach campus date ideas? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on campus date ideas.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-003: Cheap Date Ideas for Students
+
+- Recommended H1: Cheap Date Ideas for Students
+- Target URL slug: /cheap-date-ideas-students
+- Content status: New page
+- Primary keyword: cheap date ideas students
+- Secondary keywords: cheap date ideas college students, date ideas on a budget, student budget dates
+- Relevant question queries: What is cheap date ideas students? | How should students approach cheap date ideas students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 7/10
+- Safety or trust importance: 5/10
+- Overall priority score: 72/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about cheap date ideas students as a student?
+- Recommended answer-first introduction: Cheap Date Ideas for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What cheap date ideas students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /date-budget-calculator | /first-date-planner | /first-date-questions-students
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Cheap Date Ideas for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Cheap Date Ideas for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is cheap date ideas students? | How should students approach cheap date ideas students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on cheap date ideas students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-004: Campus Date Budget Calculator
+
+- Recommended H1: Campus Date Budget Calculator
+- Target URL slug: /date-budget-calculator
+- Content status: New page
+- Primary keyword: date budget calculator
+- Secondary keywords: date cost calculator, student date budget, cheap date planner
+- Relevant question queries: What is date budget calculator? | How should students approach date budget calculator? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 9/10
+- Topical authority value: 9/10
+- Conversion potential: 9/10
+- Safety or trust importance: 4/10
+- Overall priority score: 76/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about date budget calculator as a student?
+- Recommended answer-first introduction: Campus Date Budget Calculator should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /first-date-planner | /first-date-questions-students
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Date Budget Calculator visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Date Budget Calculator guide for Nigerian students
+- Recommended schema: SoftwareApplication, WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is date budget calculator? | How should students approach date budget calculator? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on date budget calculator.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-005: First Date Planner for Students
+
+- Recommended H1: First Date Planner for Students
+- Target URL slug: /first-date-planner
+- Content status: New page
+- Primary keyword: first date planner
+- Secondary keywords: date planner, first date ideas, safe first date plan
+- Relevant question queries: What is first date planner? | How should students approach first date planner? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Low
+- Business value score: 9/10
+- Topical authority value: 9/10
+- Conversion potential: 9/10
+- Safety or trust importance: 7/10
+- Overall priority score: 79/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about first date planner as a student?
+- Recommended answer-first introduction: First Date Planner for Students should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-questions-students
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: First Date Planner for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: First Date Planner for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is first date planner? | How should students approach first date planner? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on first date planner.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-006: First Date Questions for Students
+
+- Recommended H1: First Date Questions for Students
+- Target URL slug: /first-date-questions-students
+- Content status: New page
+- Primary keyword: first date questions
+- Secondary keywords: first date questions to ask, questions for first date, student first date
+- Relevant question queries: What is first date questions? | How should students approach first date questions? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 7/10
+- Safety or trust importance: 5/10
+- Overall priority score: 72/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about first date questions as a student?
+- Recommended answer-first introduction: First Date Questions for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What first date questions means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: First Date Questions for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: First Date Questions for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is first date questions? | How should students approach first date questions? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on first date questions.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-007: What to Wear on a First Date as a Student
+
+- Recommended H1: What to Wear on a First Date as a Student
+- Target URL slug: /what-to-wear-on-a-first-date-students
+- Content status: New page
+- Primary keyword: what to wear on first date
+- Secondary keywords: first date outfit students, what to wear on a date, casual date outfit
+- Relevant question queries: What is what to wear on first date? | How should students approach what to wear on first date? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 7/10
+- Topical authority value: 7/10
+- Conversion potential: 6/10
+- Safety or trust importance: 3/10
+- Overall priority score: 64/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about what to wear on first date as a student?
+- Recommended answer-first introduction: What to Wear on a First Date as a Student should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What what to wear on first date means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: What to Wear on a First Date as a Student visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: What to Wear on a First Date as a Student guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is what to wear on first date? | How should students approach what to wear on first date? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on what to wear on first date.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-008: Where to Go on a Date in Lagos as a Student
+
+- Recommended H1: Where to Go on a Date in Lagos as a Student
+- Target URL slug: /where-to-go-on-a-date-in-lagos-students
+- Content status: New page
+- Primary keyword: where to go on a date in Lagos
+- Secondary keywords: Lagos date ideas, student date ideas Lagos, affordable dates Lagos
+- Relevant question queries: What is where to go on a date in Lagos? | How should students approach where to go on a date in Lagos? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 7/10
+- Safety or trust importance: 6/10
+- Overall priority score: 72/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about where to go on a date in Lagos as a student?
+- Recommended answer-first introduction: Where to Go on a Date in Lagos as a Student should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What where to go on a date in Lagos means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Where to Go on a Date in Lagos as a Student visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Where to Go on a Date in Lagos as a Student guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is where to go on a date in Lagos? | How should students approach where to go on a date in Lagos? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on where to go on a date in Lagos.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-009: Rainy-Day Date Ideas for Students
+
+- Recommended H1: Rainy-Day Date Ideas for Students
+- Target URL slug: /rainy-day-date-ideas-students
+- Content status: New page
+- Primary keyword: rainy day date ideas students
+- Secondary keywords: indoor date ideas, rainy day dates, student date ideas
+- Relevant question queries: What is rainy day date ideas students? | How should students approach rainy day date ideas students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 4/10
+- Overall priority score: 58/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about rainy day date ideas students as a student?
+- Recommended answer-first introduction: Rainy-Day Date Ideas for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What rainy day date ideas students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Rainy-Day Date Ideas for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Rainy-Day Date Ideas for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is rainy day date ideas students? | How should students approach rainy day date ideas students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on rainy day date ideas students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## DATE-010: After the First Date: What Should Students Do Next?
+
+- Recommended H1: After the First Date: What Should Students Do Next?
+- Target URL slug: /after-first-date-what-next
+- Content status: New page
+- Primary keyword: after first date what next
+- Secondary keywords: what to text after first date, second date advice, first date follow up
+- Relevant question queries: What is after first date what next? | How should students approach after first date what next? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 68/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: First Dates and Date Ideas
+- Recommended content type: Guide or interactive tool landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about after first date what next as a student?
+- Recommended answer-first introduction: After the First Date: What Should Students Do Next? should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What after first date what next means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /campus-dating | /download | /date-budget-calculator
+- Future supporting pages that should link to it: /first-date-ideas-students | /campus-date-ideas | /cheap-date-ideas-students | /date-budget-calculator | /first-date-planner
+- Required link to parent pillar: /first-date-ideas-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Plan a safe first date
+- Secondary CTA: Download The College Date
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: After the First Date: What Should Students Do Next? visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: After the First Date: What Should Students Do Next? guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is after first date what next? | How should students approach after first date what next? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /first-date-ideas-students by keeping this page focused on after first date what next.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-001: Relationship Advice for Students
+
+- Recommended H1: Relationship Advice for Students
+- Target URL slug: /relationship-advice-for-students
+- Content status: New page
+- Primary keyword: relationship advice for students
+- Secondary keywords: relationship advice college students, dating advice for college students, student relationships
+- Relevant question queries: What is relationship advice for students? | How should students approach relationship advice for students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 6/10
+- Safety or trust importance: 7/10
+- Overall priority score: 75/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about relationship advice for students as a student?
+- Recommended answer-first introduction: Relationship Advice for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What relationship advice for students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students | /trust-in-student-relationships
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Relationship Advice for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Relationship Advice for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is relationship advice for students? | How should students approach relationship advice for students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on relationship advice for students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-002: Green Flags in a Relationship for Students
+
+- Recommended H1: Green Flags in a Relationship for Students
+- Target URL slug: /green-flags-in-a-relationship-students
+- Content status: New page
+- Primary keyword: green flags in a relationship
+- Secondary keywords: green flags relationship examples, healthy relationship signs, student relationships
+- Relevant question queries: What is green flags in a relationship? | How should students approach green flags in a relationship? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 7/10
+- Overall priority score: 66/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about green flags in a relationship as a student?
+- Recommended answer-first introduction: Green Flags in a Relationship for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What green flags in a relationship means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students | /trust-in-student-relationships
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Green Flags in a Relationship for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Green Flags in a Relationship for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is green flags in a relationship? | How should students approach green flags in a relationship? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on green flags in a relationship.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-003: Green Flag Checklist for Healthy Relationships
+
+- Recommended H1: Green Flag Checklist for Healthy Relationships
+- Target URL slug: /green-flag-checklist
+- Content status: New page
+- Primary keyword: green flag checklist
+- Secondary keywords: healthy relationship checklist, green flags list, relationship checklist
+- Relevant question queries: What is green flag checklist? | How should students approach green flag checklist? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 9/10
+- Conversion potential: 6/10
+- Safety or trust importance: 7/10
+- Overall priority score: 69/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about green flag checklist as a student?
+- Recommended answer-first introduction: Green Flag Checklist for Healthy Relationships should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /relationship-boundaries-students | /communication-in-relationships-students | /trust-in-student-relationships
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Green Flag Checklist for Healthy Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Green Flag Checklist for Healthy Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is green flag checklist? | How should students approach green flag checklist? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on green flag checklist.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-004: Relationship Boundaries for Students
+
+- Recommended H1: Relationship Boundaries for Students
+- Target URL slug: /relationship-boundaries-students
+- Content status: New page
+- Primary keyword: relationship boundaries
+- Secondary keywords: relationship boundaries examples, dating boundaries, student relationship boundaries
+- Relevant question queries: What is relationship boundaries? | How should students approach relationship boundaries? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 8/10
+- Topical authority value: 10/10
+- Conversion potential: 5/10
+- Safety or trust importance: 9/10
+- Overall priority score: 75/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about relationship boundaries as a student?
+- Recommended answer-first introduction: Relationship Boundaries for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What relationship boundaries means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /communication-in-relationships-students | /trust-in-student-relationships
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Relationship Boundaries for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Relationship Boundaries for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is relationship boundaries? | How should students approach relationship boundaries? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on relationship boundaries.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-005: Communication in Relationships for Students
+
+- Recommended H1: Communication in Relationships for Students
+- Target URL slug: /communication-in-relationships-students
+- Content status: New page
+- Primary keyword: communication in relationships
+- Secondary keywords: relationship communication, student relationship advice, how to communicate
+- Relevant question queries: What is communication in relationships? | How should students approach communication in relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 7/10
+- Topical authority value: 9/10
+- Conversion potential: 5/10
+- Safety or trust importance: 6/10
+- Overall priority score: 65/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about communication in relationships as a student?
+- Recommended answer-first introduction: Communication in Relationships for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What communication in relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /trust-in-student-relationships
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Communication in Relationships for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Communication in Relationships for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is communication in relationships? | How should students approach communication in relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on communication in relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-006: Trust in Student Relationships
+
+- Recommended H1: Trust in Student Relationships
+- Target URL slug: /trust-in-student-relationships
+- Content status: New page
+- Primary keyword: trust in relationships
+- Secondary keywords: building trust, student relationships, healthy relationship trust
+- Relevant question queries: What is trust in relationships? | How should students approach trust in relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 5/10
+- Safety or trust importance: 6/10
+- Overall priority score: 64/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about trust in relationships as a student?
+- Recommended answer-first introduction: Trust in Student Relationships should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What trust in relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Trust in Student Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Trust in Student Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is trust in relationships? | How should students approach trust in relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on trust in relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-007: Jealousy in Student Relationships
+
+- Recommended H1: Jealousy in Student Relationships
+- Target URL slug: /jealousy-in-student-relationships
+- Content status: New page
+- Primary keyword: jealousy in relationship
+- Secondary keywords: relationship jealousy, jealousy examples, healthy jealousy
+- Relevant question queries: What is jealousy in relationship? | How should students approach jealousy in relationship? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 7/10
+- Overall priority score: 61/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about jealousy in relationship as a student?
+- Recommended answer-first introduction: Jealousy in Student Relationships should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What jealousy in relationship means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Jealousy in Student Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Jealousy in Student Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is jealousy in relationship? | How should students approach jealousy in relationship? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on jealousy in relationship.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-008: Conflict Resolution for Student Relationships
+
+- Recommended H1: Conflict Resolution for Student Relationships
+- Target URL slug: /conflict-resolution-relationships-students
+- Content status: New page
+- Primary keyword: conflict resolution relationships
+- Secondary keywords: relationship conflict, argument in relationship, communication conflict
+- Relevant question queries: What is conflict resolution relationships? | How should students approach conflict resolution relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 6/10
+- Overall priority score: 61/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about conflict resolution relationships as a student?
+- Recommended answer-first introduction: Conflict Resolution for Student Relationships should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What conflict resolution relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Conflict Resolution for Student Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Conflict Resolution for Student Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is conflict resolution relationships? | How should students approach conflict resolution relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on conflict resolution relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-009: Emotional Maturity in Relationships
+
+- Recommended H1: Emotional Maturity in Relationships
+- Target URL slug: /emotional-maturity-in-relationships
+- Content status: New page
+- Primary keyword: emotional maturity in relationships
+- Secondary keywords: mature relationship signs, emotional intelligence dating, student relationships
+- Relevant question queries: What is emotional maturity in relationships? | How should students approach emotional maturity in relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 6/10
+- Overall priority score: 61/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about emotional maturity in relationships as a student?
+- Recommended answer-first introduction: Emotional Maturity in Relationships should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What emotional maturity in relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Emotional Maturity in Relationships visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Emotional Maturity in Relationships guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is emotional maturity in relationships? | How should students approach emotional maturity in relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on emotional maturity in relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-010: Long-Distance Relationships in University
+
+- Recommended H1: Long-Distance Relationships in University
+- Target URL slug: /long-distance-relationship-university
+- Content status: New page
+- Primary keyword: long distance relationship university
+- Secondary keywords: long distance relationship during university, LDR students, university relationship
+- Relevant question queries: What is long distance relationship university? | How should students approach long distance relationship university? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 5/10
+- Overall priority score: 60/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about long distance relationship university as a student?
+- Recommended answer-first introduction: Long-Distance Relationships in University should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What long distance relationship university means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Long-Distance Relationships in University visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Long-Distance Relationships in University guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is long distance relationship university? | How should students approach long distance relationship university? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on long distance relationship university.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-011: Love Languages for Students
+
+- Recommended H1: Love Languages for Students
+- Target URL slug: /love-languages-for-students
+- Content status: New page
+- Primary keyword: love languages for students
+- Secondary keywords: love language quiz, love languages relationship, student couples
+- Relevant question queries: What is love languages for students? | How should students approach love languages for students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 4/10
+- Overall priority score: 58/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about love languages for students as a student?
+- Recommended answer-first introduction: Love Languages for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What love languages for students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Love Languages for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Love Languages for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is love languages for students? | How should students approach love languages for students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on love languages for students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## REL-012: Compatibility Quiz for Students
+
+- Recommended H1: Compatibility Quiz for Students
+- Target URL slug: /compatibility-quiz-students
+- Content status: New page
+- Primary keyword: compatibility quiz students
+- Secondary keywords: relationship compatibility quiz, student relationship quiz, dating compatibility
+- Relevant question queries: What is compatibility quiz students? | How should students approach compatibility quiz students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Mixed
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 8/10
+- Topical authority value: 8/10
+- Conversion potential: 8/10
+- Safety or trust importance: 4/10
+- Overall priority score: 71/100
+- Target audience persona: Someone looking for a serious relationship
+- Parent topic cluster: Healthy Relationships
+- Recommended content type: Relationship advice guide or quiz landing page
+- Recommended word-count range: 600-1,000 words plus interactive tool
+- Searcher's main question: What should I know about compatibility quiz students as a student?
+- Recommended answer-first introduction: Compatibility Quiz for Students should explain the tool quickly, show who it helps, and guide students toward a useful result before any product CTA.
+- Proposed H2/H3 outline: What this tool does | Who should use it | How to use it | Privacy and safety notes | Recommended next steps | Related guides | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /safety | /student-dating | /communication-in-relationships-students | /download
+- Future supporting pages that should link to it: /relationship-advice-for-students | /green-flags-in-a-relationship-students | /green-flag-checklist | /relationship-boundaries-students | /communication-in-relationships-students
+- Required link to parent pillar: /relationship-advice-for-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore student dating
+- Secondary CTA: Read safety guidance
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Compatibility Quiz for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Compatibility Quiz for Students guide for Nigerian students
+- Recommended schema: SoftwareApplication, WebPage, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is compatibility quiz students? | How should students approach compatibility quiz students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /relationship-advice-for-students by keeping this page focused on compatibility quiz students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-001: Breakup Advice for Students
+
+- Recommended H1: Breakup Advice for Students
+- Target URL slug: /breakup-advice-students
+- Content status: New page
+- Primary keyword: breakup advice students
+- Secondary keywords: breakup advice, student breakup, how to handle breakup in school
+- Relevant question queries: What is breakup advice students? | How should students approach breakup advice students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 5/10
+- Topical authority value: 8/10
+- Conversion potential: 2/10
+- Safety or trust importance: 7/10
+- Overall priority score: 58/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about breakup advice students as a student?
+- Recommended answer-first introduction: Breakup Advice for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What breakup advice students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /how-to-handle-rejection-dating | /how-to-move-on-from-breakup-students | /seeing-your-ex-on-campus | /how-to-know-when-to-date-again | /coping-with-ghosting
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Breakup Advice for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Breakup Advice for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is breakup advice students? | How should students approach breakup advice students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on breakup advice students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-002: How to Handle Rejection in Dating
+
+- Recommended H1: How to Handle Rejection in Dating
+- Target URL slug: /how-to-handle-rejection-dating
+- Content status: New page
+- Primary keyword: how to handle rejection dating
+- Secondary keywords: handle rejection gracefully, rejection in love, dating rejection
+- Relevant question queries: What is how to handle rejection dating? | How should students approach how to handle rejection dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 5/10
+- Topical authority value: 8/10
+- Conversion potential: 2/10
+- Safety or trust importance: 6/10
+- Overall priority score: 56/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to handle rejection dating as a student?
+- Recommended answer-first introduction: How to Handle Rejection in Dating should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to handle rejection dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-move-on-from-breakup-students | /seeing-your-ex-on-campus | /how-to-know-when-to-date-again | /coping-with-ghosting
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Handle Rejection in Dating visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Handle Rejection in Dating guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to handle rejection dating? | How should students approach how to handle rejection dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on how to handle rejection dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-003: How to Move On From a Breakup as a Student
+
+- Recommended H1: How to Move On From a Breakup as a Student
+- Target URL slug: /how-to-move-on-from-breakup-students
+- Content status: New page
+- Primary keyword: how to move on from a breakup
+- Secondary keywords: move on from breakup, breakup recovery, student heartbreak
+- Relevant question queries: What is how to move on from a breakup? | How should students approach how to move on from a breakup? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Very High
+- Estimated ranking difficulty: High
+- Business value score: 5/10
+- Topical authority value: 8/10
+- Conversion potential: 2/10
+- Safety or trust importance: 7/10
+- Overall priority score: 61/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to move on from a breakup as a student?
+- Recommended answer-first introduction: How to Move On From a Breakup as a Student should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to move on from a breakup means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-handle-rejection-dating | /seeing-your-ex-on-campus | /how-to-know-when-to-date-again | /coping-with-ghosting
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Move On From a Breakup as a Student visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Move On From a Breakup as a Student guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to move on from a breakup? | How should students approach how to move on from a breakup? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on how to move on from a breakup.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-004: Seeing Your Ex on Campus
+
+- Recommended H1: Seeing Your Ex on Campus
+- Target URL slug: /seeing-your-ex-on-campus
+- Content status: New page
+- Primary keyword: seeing your ex on campus
+- Secondary keywords: ex on campus, how to act around your ex, student breakup
+- Relevant question queries: What is seeing your ex on campus? | How should students approach seeing your ex on campus? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Low
+- Estimated ranking difficulty: Low
+- Business value score: 4/10
+- Topical authority value: 7/10
+- Conversion potential: 1/10
+- Safety or trust importance: 6/10
+- Overall priority score: 51/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about seeing your ex on campus as a student?
+- Recommended answer-first introduction: Seeing Your Ex on Campus should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What seeing your ex on campus means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-handle-rejection-dating | /how-to-move-on-from-breakup-students | /how-to-know-when-to-date-again | /coping-with-ghosting
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Seeing Your Ex on Campus visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Seeing Your Ex on Campus guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is seeing your ex on campus? | How should students approach seeing your ex on campus? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on seeing your ex on campus.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-005: How to Know When You Are Ready to Date Again
+
+- Recommended H1: How to Know When You Are Ready to Date Again
+- Target URL slug: /how-to-know-when-to-date-again
+- Content status: New page
+- Primary keyword: when to date again after breakup
+- Secondary keywords: ready to date again, dating after breakup, emotional readiness
+- Relevant question queries: What is when to date again after breakup? | How should students approach when to date again after breakup? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 5/10
+- Topical authority value: 7/10
+- Conversion potential: 3/10
+- Safety or trust importance: 6/10
+- Overall priority score: 56/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about when to date again after breakup as a student?
+- Recommended answer-first introduction: How to Know When You Are Ready to Date Again should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What when to date again after breakup means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-handle-rejection-dating | /how-to-move-on-from-breakup-students | /seeing-your-ex-on-campus | /coping-with-ghosting
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to Know When You Are Ready to Date Again visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to Know When You Are Ready to Date Again guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is when to date again after breakup? | How should students approach when to date again after breakup? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on when to date again after breakup.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-006: Coping With Ghosting
+
+- Recommended H1: Coping With Ghosting
+- Target URL slug: /coping-with-ghosting
+- Content status: New page
+- Primary keyword: coping with ghosting
+- Secondary keywords: how to deal with ghosting, ghosted after talking, dating ghosting
+- Relevant question queries: What is coping with ghosting? | How should students approach coping with ghosting? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 5/10
+- Topical authority value: 7/10
+- Conversion potential: 2/10
+- Safety or trust importance: 6/10
+- Overall priority score: 55/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about coping with ghosting as a student?
+- Recommended answer-first introduction: Coping With Ghosting should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What coping with ghosting means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-handle-rejection-dating | /how-to-move-on-from-breakup-students | /seeing-your-ex-on-campus | /how-to-know-when-to-date-again
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Coping With Ghosting visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Coping With Ghosting guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is coping with ghosting? | How should students approach coping with ghosting? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on coping with ghosting.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## BRK-007: How to End a Relationship Respectfully
+
+- Recommended H1: How to End a Relationship Respectfully
+- Target URL slug: /how-to-end-a-relationship-respectfully
+- Content status: New page
+- Primary keyword: how to end a relationship respectfully
+- Secondary keywords: break up respectfully, end relationship kindly, student breakup advice
+- Relevant question queries: What is how to end a relationship respectfully? | How should students approach how to end a relationship respectfully? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 5/10
+- Topical authority value: 8/10
+- Conversion potential: 2/10
+- Safety or trust importance: 7/10
+- Overall priority score: 58/100
+- Target audience persona: Someone recovering from a breakup
+- Parent topic cluster: Breakups, Rejection, and Emotional Wellbeing
+- Recommended content type: Supportive advice guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about how to end a relationship respectfully as a student?
+- Recommended answer-first introduction: How to End a Relationship Respectfully should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What how to end a relationship respectfully means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /relationship-advice-for-students | /safety | /support | /student-dating
+- Future supporting pages that should link to it: /breakup-advice-students | /how-to-handle-rejection-dating | /how-to-move-on-from-breakup-students | /seeing-your-ex-on-campus | /how-to-know-when-to-date-again
+- Required link to parent pillar: /breakup-advice-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Read related relationship guidance
+- Secondary CTA: Return when you feel ready
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: How to End a Relationship Respectfully visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: How to End a Relationship Respectfully guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is how to end a relationship respectfully? | How should students approach how to end a relationship respectfully? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /breakup-advice-students by keeping this page focused on how to end a relationship respectfully.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-001: Dating Culture in Nigeria for Students
+
+- Recommended H1: Dating Culture in Nigeria for Students
+- Target URL slug: /dating-culture-in-nigeria-students
+- Content status: New page
+- Primary keyword: dating culture in Nigeria
+- Secondary keywords: dating in Nigerian culture, Nigerian student dating, university dating culture
+- Relevant question queries: What is dating culture in Nigeria? | How should students approach dating culture in Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 10/10
+- Conversion potential: 5/10
+- Safety or trust importance: 6/10
+- Overall priority score: 71/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating culture in Nigeria as a student?
+- Recommended answer-first introduction: Dating Culture in Nigeria for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating culture in Nigeria means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /campus-relationship-expectations-nigeria | /social-media-and-relationships-students | /valentine-ideas-students-nigeria | /student-budget-dating-nigeria | /dating-expectations-nigerian-students
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Culture in Nigeria for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Culture in Nigeria for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating culture in Nigeria? | How should students approach dating culture in Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on dating culture in Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-002: Campus Relationship Expectations in Nigerian Universities
+
+- Recommended H1: Campus Relationship Expectations in Nigerian Universities
+- Target URL slug: /campus-relationship-expectations-nigeria
+- Content status: New page
+- Primary keyword: university dating culture Nigeria
+- Secondary keywords: dating in Nigerian universities, campus relationship expectations, student relationships Nigeria
+- Relevant question queries: What is university dating culture Nigeria? | How should students approach university dating culture Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 10/10
+- Conversion potential: 5/10
+- Safety or trust importance: 6/10
+- Overall priority score: 67/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about university dating culture Nigeria as a student?
+- Recommended answer-first introduction: Campus Relationship Expectations in Nigerian Universities should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What university dating culture Nigeria means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /social-media-and-relationships-students | /valentine-ideas-students-nigeria | /student-budget-dating-nigeria | /dating-expectations-nigerian-students
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Campus Relationship Expectations in Nigerian Universities visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Campus Relationship Expectations in Nigerian Universities guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is university dating culture Nigeria? | How should students approach university dating culture Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on university dating culture Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-003: Social Media and Relationships for Students
+
+- Recommended H1: Social Media and Relationships for Students
+- Target URL slug: /social-media-and-relationships-students
+- Content status: New page
+- Primary keyword: social media and relationships
+- Secondary keywords: social media relationship problems, student relationships, online boundaries
+- Relevant question queries: What is social media and relationships? | How should students approach social media and relationships? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: High
+- Estimated ranking difficulty: High
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 3/10
+- Safety or trust importance: 7/10
+- Overall priority score: 60/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about social media and relationships as a student?
+- Recommended answer-first introduction: Social Media and Relationships for Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What social media and relationships means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /campus-relationship-expectations-nigeria | /valentine-ideas-students-nigeria | /student-budget-dating-nigeria | /dating-expectations-nigerian-students
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Social Media and Relationships for Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Social Media and Relationships for Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is social media and relationships? | How should students approach social media and relationships? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on social media and relationships.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-004: Valentine Ideas for Students in Nigeria
+
+- Recommended H1: Valentine Ideas for Students in Nigeria
+- Target URL slug: /valentine-ideas-students-nigeria
+- Content status: New page
+- Primary keyword: Valentine ideas students Nigeria
+- Secondary keywords: Valentine ideas for students, cheap Valentine ideas, student date ideas
+- Relevant question queries: What is Valentine ideas students Nigeria? | How should students approach Valentine ideas students Nigeria? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Seasonal
+- Estimated ranking difficulty: Medium
+- Business value score: 7/10
+- Topical authority value: 7/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 63/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about Valentine ideas students Nigeria as a student?
+- Recommended answer-first introduction: Valentine Ideas for Students in Nigeria should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What Valentine ideas students Nigeria means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /campus-relationship-expectations-nigeria | /social-media-and-relationships-students | /student-budget-dating-nigeria | /dating-expectations-nigerian-students
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Valentine Ideas for Students in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Valentine Ideas for Students in Nigeria guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is Valentine ideas students Nigeria? | How should students approach Valentine ideas students Nigeria? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review annually before the relevant season.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on Valentine ideas students Nigeria.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-005: Student Budget Dating in Nigeria
+
+- Recommended H1: Student Budget Dating in Nigeria
+- Target URL slug: /student-budget-dating-nigeria
+- Content status: New page
+- Primary keyword: student budget dating
+- Secondary keywords: dating on a student budget, affordable dating Nigeria, cheap student dates
+- Relevant question queries: What is student budget dating? | How should students approach student budget dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Emerging
+- Estimated ranking difficulty: Low
+- Business value score: 7/10
+- Topical authority value: 8/10
+- Conversion potential: 6/10
+- Safety or trust importance: 5/10
+- Overall priority score: 65/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about student budget dating as a student?
+- Recommended answer-first introduction: Student Budget Dating in Nigeria should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What student budget dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /campus-relationship-expectations-nigeria | /social-media-and-relationships-students | /valentine-ideas-students-nigeria | /dating-expectations-nigerian-students
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Student Budget Dating in Nigeria visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Student Budget Dating in Nigeria guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is student budget dating? | How should students approach student budget dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on student budget dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-006: Dating Expectations Among Nigerian Students
+
+- Recommended H1: Dating Expectations Among Nigerian Students
+- Target URL slug: /dating-expectations-nigerian-students
+- Content status: New page
+- Primary keyword: dating expectations Nigerian students
+- Secondary keywords: relationship expectations, Nigerian student dating culture, serious dating
+- Relevant question queries: What is dating expectations Nigerian students? | How should students approach dating expectations Nigerian students? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Medium
+- Estimated ranking difficulty: Medium
+- Business value score: 6/10
+- Topical authority value: 8/10
+- Conversion potential: 4/10
+- Safety or trust importance: 6/10
+- Overall priority score: 61/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about dating expectations Nigerian students as a student?
+- Recommended answer-first introduction: Dating Expectations Among Nigerian Students should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What dating expectations Nigerian students means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /campus-relationship-expectations-nigeria | /social-media-and-relationships-students | /valentine-ideas-students-nigeria | /student-budget-dating-nigeria
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Dating Expectations Among Nigerian Students visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Dating Expectations Among Nigerian Students guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is dating expectations Nigerian students? | How should students approach dating expectations Nigerian students? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review every 6-12 months, sooner if user safety or product facts change.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on dating expectations Nigerian students.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+
+## CUL-007: Resumption Week Dating and Social Life
+
+- Recommended H1: Resumption Week Dating and Social Life
+- Target URL slug: /resumption-week-dating-students
+- Content status: New page
+- Primary keyword: resumption week dating
+- Secondary keywords: freshers week dating, campus resumption, student social life
+- Relevant question queries: What is resumption week dating? | How should students approach resumption week dating? | What should Nigerian students know before acting on this advice? | How can The College Date help with this safely?
+- Search intent: Informational
+- Funnel stage: Awareness
+- Estimated demand: Seasonal
+- Estimated ranking difficulty: Low
+- Business value score: 6/10
+- Topical authority value: 7/10
+- Conversion potential: 5/10
+- Safety or trust importance: 5/10
+- Overall priority score: 64/100
+- Target audience persona: International student studying in Nigeria
+- Parent topic cluster: Nigerian Dating Culture and Student Lifestyle
+- Recommended content type: Culture or student lifestyle guide
+- Recommended word-count range: 900-1,500 words
+- Searcher's main question: What should I know about resumption week dating as a student?
+- Recommended answer-first introduction: Resumption Week Dating and Social Life should answer the student’s main question first, then give practical Nigerian campus examples and safety-conscious next steps.
+- Proposed H2/H3 outline: What resumption week dating means for students | Why it matters on Nigerian campuses | Practical steps and examples | Mistakes to avoid | Safety and privacy notes | How The College Date fits naturally | FAQs
+- Originality requirement: Include student-specific scenarios, Nigerian campus context where relevant, and practical examples that are not copied from generic dating advice pages.
+- Nigerian/student examples to include: Use examples from lectures, hostels, faculty events, resumption periods, Lagos hangouts, student budgets, campus transport, group chats, and Android-first mobile usage where natural.
+- Required factual claims to verify: Verify any factual claims about The College Date, Nigerian locations, school terms, app features, and public safety guidance.
+- Recommended authoritative source types: Official app pages, Google Play listing, university resources, reputable Nigerian media, expert-reviewed relationship or safety resources.
+- Existing internal pages to link to: /university-dating-nigeria | /campus-dating | /safety | /download
+- Future supporting pages that should link to it: /dating-culture-in-nigeria-students | /campus-relationship-expectations-nigeria | /social-media-and-relationships-students | /valentine-ideas-students-nigeria | /student-budget-dating-nigeria
+- Required link to parent pillar: /dating-culture-in-nigeria-students
+- Safety-page linking requirement: Link to /safety when the page discusses meeting, privacy, scams, boundaries, consent, or messaging risk.
+- Primary CTA: Explore The College Date
+- Secondary CTA: Read campus safety tips
+- Recommended CTA placement: One contextual CTA after the first useful section and one gentle final CTA. Avoid interrupting safety or wellbeing advice.
+- Featured image concept: Resumption Week Dating and Social Life visual with Nigerian student/campus context, app-neutral composition, and no fake testimonial elements.
+- Suggested image alt text: Resumption Week Dating and Social Life guide for Nigerian students
+- Recommended schema: Article, FAQPage, BreadcrumbList
+- Suggested FAQ questions: What is resumption week dating? | How should students approach resumption week dating? | What should Nigerian students know before acting on this advice?
+- Featured-snippet or AI-answer opportunity: Add a 40-60 word answer box near the top, followed by a concise checklist or table that can be cited by AI search systems.
+- Suggested author/reviewer type: Editorial author with Nigerian student lifestyle familiarity
+- Freshness/update schedule: Review annually before the relevant season.
+- Cannibalization risks: Differentiate from /dating-culture-in-nigeria-students by keeping this page focused on resumption week dating.
+- Notes for writer: Follow the Editorial Handbook: educate first, avoid stereotypes, avoid fake claims, use calm student-focused language, and make the content useful without search traffic.
+- Notes for developer/publisher: Add canonical self-reference, BreadcrumbList, appropriate Article/FAQ/tool schema, internal related-links block, optimized image metadata, and sitemap inclusion only when published.
+

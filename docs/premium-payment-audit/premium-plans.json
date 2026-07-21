@@ -1,0 +1,36 @@
+[
+  {
+    "id": "premium_monthly",
+    "name": "Premium Monthly",
+    "user_facing_name": "Elite Plan",
+    "price": 2900,
+    "currency": "NGN",
+    "interval": "month_or_30_days",
+    "providers": ["paystack", "revenuecat_google_play", "wallet"],
+    "android_product": "premium_monthly:monthly-base",
+    "revenuecat_offering": "android_premium",
+    "revenuecat_entitlement": "Premium",
+    "status": "active_in_ui",
+    "verified_in_provider_dashboard": false
+  },
+  {
+    "id": "24h_boost",
+    "name": "24h Visibility Boost",
+    "price": 1000,
+    "currency": "NGN",
+    "interval": "one_time_24h",
+    "providers": ["wallet", "revenuecat_google_play"],
+    "status": "active_in_ui",
+    "verified_in_provider_dashboard": false
+  },
+  {
+    "id": "super_swipe",
+    "name": "Super Swipe Credit",
+    "price": 500,
+    "currency": "NGN",
+    "interval": "one_time_credit_30_days",
+    "providers": ["wallet", "revenuecat_google_play"],
+    "status": "active_in_ui",
+    "verified_in_provider_dashboard": false
+  }
+]

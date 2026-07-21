@@ -1,0 +1,66 @@
+[
+  {
+    "id": "F-001",
+    "title": "Paystack verification trusts client-created subscription amount and type",
+    "severity": "Critical",
+    "category": "Payment validation",
+    "platform": "Web backend",
+    "recommended_fix": "Move payment-intent creation and plan pricing to the backend."
+  },
+  {
+    "id": "F-002",
+    "title": "Paystack restore can re-grant Premium from old completed transactions",
+    "severity": "High",
+    "category": "Entitlement lifecycle",
+    "platform": "Web backend",
+    "recommended_fix": "Restore only original provider-paid periods and require authenticated user ownership."
+  },
+  {
+    "id": "F-003",
+    "title": "Premium-only viewer and admirer identity appears frontend-only",
+    "severity": "High",
+    "category": "Authorization",
+    "platform": "Web/Android",
+    "recommended_fix": "Return redacted data from entitlement-aware backend RPCs/views."
+  },
+  {
+    "id": "F-004",
+    "title": "Android wallet funding uses Paystack for wallet funds that buy digital goods",
+    "severity": "High",
+    "category": "Store policy/payment compliance",
+    "platform": "Android",
+    "recommended_fix": "Route Android digital credits through Google Play or obtain policy approval."
+  },
+  {
+    "id": "F-005",
+    "title": "RevenueCat restore does not explicitly synchronize Supabase",
+    "severity": "Medium",
+    "category": "Cross-platform entitlement sync",
+    "platform": "Android/Web",
+    "recommended_fix": "Add RevenueCat sync endpoint and native restore UI."
+  },
+  {
+    "id": "F-006",
+    "title": "Free swipe limit state and copy are inconsistent",
+    "severity": "Medium",
+    "category": "Usage limits",
+    "platform": "Web/Android/backend",
+    "recommended_fix": "Use one backend source for free swipe limit and update UI copy."
+  },
+  {
+    "id": "F-007",
+    "title": "RevenueCat webhook lacks complete replay/idempotency controls",
+    "severity": "Medium",
+    "category": "Webhook security/reliability",
+    "platform": "Backend",
+    "recommended_fix": "Add provider event ledger and idempotent transaction processing."
+  },
+  {
+    "id": "F-008",
+    "title": "Wallet-funded Premium can deduct before entitlement activation succeeds",
+    "severity": "Medium",
+    "category": "Partial failure",
+    "platform": "Web/Android",
+    "recommended_fix": "Create an atomic wallet Premium purchase RPC."
+  }
+]

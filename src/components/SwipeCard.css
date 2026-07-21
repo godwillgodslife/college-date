@@ -647,7 +647,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.15rem;
     width: 100%;
     margin-top: 1rem;
     pointer-events: auto; /* ENABLE TAPPING inside floating parent */
@@ -677,9 +677,9 @@
 }
 
 .action-nope {
-    width: 52px;
-    height: 52px;
-    font-size: 1.25rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.12rem;
     color: #ff5b5b;
     border: 1px solid rgba(255, 91, 91, 0.25);
 }
@@ -690,9 +690,9 @@
 }
 
 .action-like {
-    width: 58px;
-    height: 58px;
-    font-size: 1.5rem;
+    width: 54px;
+    height: 54px;
+    font-size: 1.36rem;
     color: #ff6b9d;
     border: 1px solid rgba(255, 107, 157, 0.35);
 }
@@ -703,9 +703,9 @@
 }
 
 .action-super {
-    width: 50px;
-    height: 50px;
-    font-size: 1.25rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.12rem;
     color: #ffcc00;
     border: 1px solid rgba(255, 204, 0, 0.3);
 }

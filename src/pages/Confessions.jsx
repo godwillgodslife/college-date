@@ -6,6 +6,7 @@ import { postConfession, addEmojiReaction, claimConfession } from '../services/c
 import { useConfessions } from '../hooks/useSWRData';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfessionDrawer from '../components/ConfessionDrawer';
+import { recordFeedImpressions } from '../services/feedImpressionService';
 import './Confessions.css';
 
 function EmojiBurst({ emoji, x, y, onComplete }) {
@@ -174,6 +175,12 @@ export default function Confessions() {
     }, [confessions.length]);
 
     const visibleConfessions = useMemo(() => confessions.slice(0, visibleCount), [confessions, visibleCount]);
+    const visibleConfessionImpressionIds = visibleConfessions.map(post => post.id).join(',');
+
+    useEffect(() => {
+        if (!currentUser?.id || !visibleConfessionImpressionIds) return;
+        recordFeedImpressions('confession', visibleConfessionImpressionIds.split(','), 'confessions', { limit: 20 });
+    }, [currentUser?.id, visibleConfessionImpressionIds]);
 
     // Sentinel intersection observer for infinite scroll
     const sentinelRef = useRef(null);

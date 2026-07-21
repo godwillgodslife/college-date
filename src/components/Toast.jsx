@@ -53,15 +53,16 @@ function ToastItem({ toast, onRemove }) {
     }, [toast, onRemove]);
 
     const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ',
+        success: 'OK',
+        error: '!',
+        warning: '!',
+        info: 'i',
     };
+    const isNotification = toast.variant === 'notification';
 
     return (
-        <div 
-            className={`toast toast-${toast.type} ${exiting ? 'toast-exit' : ''} ${toast.onClick ? 'toast-clickable' : ''}`}
+        <div
+            className={`toast toast-${toast.type} ${isNotification ? 'toast-notification' : ''} ${exiting ? 'toast-exit' : ''} ${toast.onClick ? 'toast-clickable' : ''}`}
             onClick={() => {
                 if (toast.onClick) {
                     toast.onClick();
@@ -70,17 +71,29 @@ function ToastItem({ toast, onRemove }) {
                 }
             }}
         >
-            <span className="toast-icon">{icons[toast.type]}</span>
-            <span className="toast-message">{toast.message}</span>
-            <button 
-                className="toast-close" 
-                onClick={(e) => { 
-                    e.stopPropagation(); // Don't trigger toast click
-                    setExiting(true); 
-                    setTimeout(() => onRemove(toast.id), 300); 
+            <span className="toast-icon">{toast.icon || icons[toast.type]}</span>
+            {isNotification ? (
+                <span className="toast-notification-copy">
+                    <span className="toast-notification-topline">
+                        <span className="toast-notification-title">{toast.title || toast.message}</span>
+                        <span className="toast-notification-time">now</span>
+                    </span>
+                    {toast.body && <span className="toast-notification-body">{toast.body}</span>}
+                    <span className="toast-notification-meta">{toast.meta || 'Tap to open'}</span>
+                </span>
+            ) : (
+                <span className="toast-message">{toast.message}</span>
+            )}
+            <button
+                className="toast-close"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setExiting(true);
+                    setTimeout(() => onRemove(toast.id), 300);
                 }}
+                aria-label="Dismiss notification"
             >
-                ✕
+                x
             </button>
         </div>
     );

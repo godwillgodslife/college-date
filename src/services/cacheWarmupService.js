@@ -5,10 +5,6 @@ import { getWallet } from './paymentService';
 import { getDiscoverProfiles, checkSwipeLimit } from './swipeService';
 import { setCachedData } from '../lib/persistentCache';
 
-function isNativePlatform() {
-    return typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
-}
-
 function deferIdle(task) {
     if (typeof window === 'undefined') return;
     if (typeof window.requestIdleCallback === 'function') {
@@ -18,8 +14,8 @@ function deferIdle(task) {
     }
 }
 
-export function warmupNativeDataCache(userId, userProfile) {
-    if (!userId || !isNativePlatform()) return;
+export function warmupAppDataCache(userId, userProfile) {
+    if (!userId || typeof window === 'undefined') return;
 
     deferIdle(async () => {
         const discoveryFilters = {
@@ -45,3 +41,5 @@ export function warmupNativeDataCache(userId, userProfile) {
         await Promise.allSettled(tasks);
     });
 }
+
+export const warmupNativeDataCache = warmupAppDataCache;

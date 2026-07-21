@@ -6,8 +6,8 @@ import { basename, join, resolve } from 'node:path';
 const root = process.cwd();
 const aabPath = resolve(root, process.argv[2] || 'android/app/build/outputs/bundle/release/app-release.aab');
 const expectedPackage = 'com.collegedate.app';
-const expectedVersionCode = '26';
-const expectedVersionName = '2.2.29';
+const expectedVersionCode = '28';
+const expectedVersionName = '2.2.31';
 
 function getJarPath() {
   if (process.env.JAVA_HOME) {

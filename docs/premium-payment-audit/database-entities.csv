@@ -1,0 +1,13 @@
+entity,purpose,source_of_truth_role,rls_verified
+profiles,user profile and denormalized premium,partial,no
+subscriptions,subscription state,partial,no
+wallets,user balances,financial,no
+wallet_transactions,ledger,financial,no
+boosts,boost and super swipe credits,feature entitlement,no
+swipe_limits,daily swipe counter,usage limit,no
+swipe_payment_operations,idempotency for offline paid swipes,idempotency,no
+swipes,likes and requests,feature workflow,no
+profile_views,viewer tracking,premium reveal data,no
+withdrawals,payout requests,financial,no
+payout_details,payout account info,support,no
+promo_codes,promotions,unused_checkout,no

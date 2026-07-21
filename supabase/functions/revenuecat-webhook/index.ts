@@ -12,6 +12,7 @@ const corsHeaders = {
 };
 
 type RevenueCatEvent = {
+    id?: string;
     app_user_id?: string;
     type?: string;
     product_id?: string;
@@ -19,8 +20,12 @@ type RevenueCatEvent = {
     entitlement_ids?: string[] | null;
     expiration_at_ms?: number | null;
     grace_period_expiration_at_ms?: number | null;
+    purchased_at_ms?: number | null;
+    event_timestamp_ms?: number | null;
     transaction_id?: string;
+    original_transaction_id?: string;
     store?: string;
+    environment?: string;
 };
 
 type RevenueCatPayload = {
@@ -91,6 +96,44 @@ function getBoostProduct(event: RevenueCatEvent) {
     return productId && BOOST_PRODUCTS[productId] ? BOOST_PRODUCTS[productId] : null;
 }
 
+function getRevenueCatEventId(event: RevenueCatEvent) {
+    return event.id ||
+        event.transaction_id ||
+        event.original_transaction_id ||
+        `${event.type ?? 'unknown'}:${event.app_user_id ?? 'unknown'}:${event.product_id ?? 'unknown'}:${event.event_timestamp_ms ?? event.expiration_at_ms ?? 'no-ts'}`;
+}
+
+function getRevenueCatSourceReference(event: RevenueCatEvent, fallbackEventId: string) {
+    return event.transaction_id || event.original_transaction_id || fallbackEventId;
+}
+
+function getPurchaseStart(event: RevenueCatEvent) {
+    return typeof event.purchased_at_ms === 'number' ? new Date(event.purchased_at_ms).toISOString() : new Date().toISOString();
+}
+
+async function sha256Hex(message: string) {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message));
+    return [...new Uint8Array(digest)]
+        .map((value) => value.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+async function markWebhookEvent(
+    supabase: any,
+    id: string,
+    status: 'ignored' | 'processed' | 'failed' | 'duplicate',
+    failureReason?: string,
+) {
+    await supabase
+        .from('provider_webhook_events')
+        .update({
+            processing_status: status,
+            failure_reason: failureReason ?? null,
+            processed_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+}
+
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders });
@@ -131,11 +174,54 @@ serve(async (req) => {
 
         const userId = event.app_user_id;
         const boostProduct = getBoostProduct(event);
+        const providerEventId = getRevenueCatEventId(event);
+        const payloadHash = await sha256Hex(JSON.stringify(payload));
+        const sourceReference = getRevenueCatSourceReference(event, providerEventId);
+
+        const { data: webhookEvent, error: webhookEventError } = await supabase
+            .from('provider_webhook_events')
+            .insert({
+                provider: 'revenuecat',
+                provider_event_id: providerEventId,
+                event_type: event.type ?? null,
+                provider_reference: sourceReference,
+                payload_hash: payloadHash,
+                payload: {
+                    api_version: payload.api_version ?? null,
+                    event: {
+                        id: event.id ?? null,
+                        app_user_id: event.app_user_id,
+                        type: event.type ?? null,
+                        product_id: event.product_id ?? null,
+                        entitlement_id: event.entitlement_id ?? null,
+                        entitlement_ids: event.entitlement_ids ?? null,
+                        expiration_at_ms: event.expiration_at_ms ?? null,
+                        grace_period_expiration_at_ms: event.grace_period_expiration_at_ms ?? null,
+                        purchased_at_ms: event.purchased_at_ms ?? null,
+                        event_timestamp_ms: event.event_timestamp_ms ?? null,
+                        transaction_id: event.transaction_id ?? null,
+                        original_transaction_id: event.original_transaction_id ?? null,
+                        store: event.store ?? null,
+                        environment: event.environment ?? null,
+                    },
+                },
+                processing_status: 'received',
+            })
+            .select('id')
+            .single();
+
+        if (webhookEventError) {
+            if (webhookEventError.code === '23505') {
+                return jsonResponse({ ok: true, duplicate: true, message: 'Duplicate RevenueCat event ignored' });
+            }
+            throw webhookEventError;
+        }
 
         if (boostProduct) {
             const boostProductId = event.product_id as keyof typeof BOOST_PRODUCTS;
 
             if (!isPurchaseEvent(event)) {
+                await markWebhookEvent(supabase, webhookEvent.id, 'ignored', 'Ignoring non-purchase boost event');
                 return jsonResponse({ ok: true, ignored: true, message: 'Ignoring non-purchase boost event' });
             }
 
@@ -149,6 +235,7 @@ serve(async (req) => {
                 if (existingTxError) throw existingTxError;
 
                 if (existingTx) {
+                    await markWebhookEvent(supabase, webhookEvent.id, 'duplicate', 'Duplicate RevenueCat boost transaction');
                     return jsonResponse({ ok: true, ignored: true, message: 'Duplicate RevenueCat transaction ignored' });
                 }
             }
@@ -161,6 +248,7 @@ serve(async (req) => {
 
             if (walletError) throw walletError;
             if (!wallet?.id) {
+                await markWebhookEvent(supabase, webhookEvent.id, 'failed', 'Wallet not found for RevenueCat boost purchase');
                 return jsonResponse({ ok: false, message: 'Wallet not found for RevenueCat boost purchase' }, 404);
             }
 
@@ -192,6 +280,9 @@ serve(async (req) => {
                     reference_id: event.transaction_id,
                     metadata: {
                         source: 'revenuecat',
+                        environment: event.environment,
+                        store: event.store,
+                        is_sandbox: event.environment ? event.environment.toUpperCase() !== 'PRODUCTION' : null,
                         product_id: boostProductId,
                         transaction_id: event.transaction_id,
                         boost_id: boost.id,
@@ -200,6 +291,7 @@ serve(async (req) => {
 
             if (txError) throw txError;
 
+            await markWebhookEvent(supabase, webhookEvent.id, 'processed');
             return jsonResponse({
                 ok: true,
                 event_type: event.type,
@@ -211,6 +303,7 @@ serve(async (req) => {
         }
 
         if (!hasPremiumEntitlement(event)) {
+            await markWebhookEvent(supabase, webhookEvent.id, 'ignored', 'Non-premium RevenueCat event');
             return jsonResponse({ ok: true, ignored: true, message: 'Ignoring non-premium event' });
         }
 
@@ -249,6 +342,57 @@ serve(async (req) => {
 
         if (profileError) throw profileError;
 
+        if (deactivate) {
+            const nextStatus = event.type === 'REFUND' || event.type === 'REVOKE'
+                ? 'revoked'
+                : 'expired';
+
+            const { error: entitlementExpireError } = await supabase
+                .from('entitlements')
+                .update({
+                    status: nextStatus,
+                    expires_at: premiumExpiry ?? new Date().toISOString(),
+                    revoked_at: nextStatus === 'revoked' ? new Date().toISOString() : null,
+                    metadata: {
+                        source: 'revenuecat',
+                        event_type: event.type,
+                        product_id: event.product_id,
+                        transaction_id: event.transaction_id,
+                        original_transaction_id: event.original_transaction_id,
+                    },
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('user_id', userId)
+                .eq('source', 'revenuecat')
+                .in('status', ['active', 'cancelled']);
+
+            if (entitlementExpireError) throw entitlementExpireError;
+        } else {
+            const { data: entitlementResult, error: entitlementError } = await supabase.rpc('grant_paid_product_entitlements', {
+                p_user_id: userId,
+                p_product_id: 'premium_monthly',
+                p_source: 'revenuecat',
+                p_source_reference: sourceReference,
+                p_starts_at: getPurchaseStart(event),
+                p_expires_at: premiumExpiry,
+                p_metadata: {
+                    source: 'revenuecat',
+                    event_type: event.type,
+                    environment: event.environment,
+                    store: event.store,
+                    product_id: event.product_id,
+                    transaction_id: event.transaction_id,
+                    original_transaction_id: event.original_transaction_id,
+                    webhook_event_id: webhookEvent.id,
+                },
+            });
+
+            if (entitlementError) throw entitlementError;
+            if (!entitlementResult?.success) {
+                throw new Error(entitlementResult?.error || 'Failed to grant RevenueCat entitlement');
+            }
+        }
+
         // If purchase event (not expiration/refund/revoke), log a wallet transaction and update total_spent
         if (!deactivate && isPurchaseEvent(event)) {
             const { data: wallet, error: walletError } = await supabase
@@ -282,8 +426,11 @@ serve(async (req) => {
                         description: 'College Date Premium Subscription (Google Play)',
                         payment_method: 'google_play',
                         reference_id: event.transaction_id || `rc-sub-${Date.now()}`,
-                        metadata: {
-                            source: 'revenuecat',
+                    metadata: {
+                        source: 'revenuecat',
+                        environment: event.environment,
+                            store: event.store,
+                            is_sandbox: event.environment ? event.environment.toUpperCase() !== 'PRODUCTION' : null,
                             type: 'subscription',
                             product_id: event.product_id,
                             transaction_id: event.transaction_id,
@@ -292,6 +439,7 @@ serve(async (req) => {
             }
         }
 
+        await markWebhookEvent(supabase, webhookEvent.id, 'processed');
         return jsonResponse({
             ok: true,
             event_type: event.type,

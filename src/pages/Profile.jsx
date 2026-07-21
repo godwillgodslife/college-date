@@ -10,6 +10,7 @@ import './Profile.css';
 import './Profile_Earnings.css';
 import StatusInput from '../components/StatusInput';
 import StatusViewer from '../components/StatusViewer';
+import { useToast } from '../components/Toast';
 import { getUserStatuses } from '../services/statusService';
 import { formatLastSeen } from '../utils/formatTimestamp';
 import { requestProfileAiReview } from '../services/aiTrustService';
@@ -19,6 +20,7 @@ import { partnerWhatsAppUrl } from '../config/contactLinks';
 import useSWR from 'swr';
 import OptimizedImage from '../components/OptimizedImage';
 import { AnimatePresence } from 'framer-motion';
+import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
 
 function VoicePlayer({ src }) {
     const [playing, setPlaying] = useState(false);
@@ -66,7 +68,7 @@ function VoicePlayer({ src }) {
 
 function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const photosList = photos && photos.length > 0 ? photos : (avatarUrl ? [avatarUrl] : []);
+    const photosList = getProfilePhotos({ profile_photos: photos, avatar_url: avatarUrl });
 
     const nextPhoto = (e) => {
         e.stopPropagation();
@@ -134,6 +136,7 @@ export default function Profile() {
     const { userId } = useParams();
     const { currentUser, userProfile: myProfile, onlineUserIds, logout } = useAuth();
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
@@ -152,7 +155,7 @@ export default function Profile() {
         { revalidateOnFocus: false }
     );
 
-    const viewingProfile = isOwnProfile ? myProfile : profileResult?.data;
+    const viewingProfile = normalizeProfile(isOwnProfile ? myProfile : profileResult?.data);
     const profileLoading = isOwnProfile ? false : SWRProfileLoading;
 
 
@@ -221,7 +224,7 @@ export default function Profile() {
     );
 
     const userProfile = viewingProfile;
-    const isOnline = onlineUserIds.has(userProfile.id);
+    const isOnline = typeof onlineUserIds?.has === 'function' ? onlineUserIds.has(userProfile.id) : false;
 
     const displayName = userProfile?.full_name
         || userProfile?.username
@@ -259,8 +262,8 @@ export default function Profile() {
     const voiceIntro = userProfile?.voice_intro_url;
 
     // Compatibility helpers for viewing other profiles
-    const mutualInterests = (myProfile?.interests || []).filter(interest => 
-        (userProfile?.interests || []).includes(interest)
+    const mutualInterests = safeArray(myProfile?.interests).filter(interest => 
+        safeArray(userProfile?.interests).includes(interest)
     );
 
     const getCompatibilityScore = () => {
@@ -278,7 +281,7 @@ export default function Profile() {
                 // OWN PROFILE VIEW
                 <div className="profile-card own-profile-view animate-fade-in">
                     {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
-                    {(!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url && (
+                    {safeArray(userProfile?.profile_photos).length === 0 && !userProfile?.avatar_url && (
                         <div className="go-live-alert">
                             <span className="go-live-icon">📸</span>
                             <div className="go-live-text">
@@ -294,7 +297,7 @@ export default function Profile() {
                     )}
 
                     {/* VERIFICATION BANNER: Encourage users to verify they are real */}
-                    {!userProfile?.is_verified && (userProfile?.profile_photos?.length > 0 || userProfile?.avatar_url) && (
+                    {!userProfile?.is_verified && (safeArray(userProfile?.profile_photos).length > 0 || userProfile?.avatar_url) && (
                         <div className="verification-alert">
                             <div className="verification-text-block">
                                 <span className="verify-shield">🛡️</span>
@@ -399,7 +402,11 @@ export default function Profile() {
                             className="dashboard-card premium-card"
                             onClick={() => navigate('/premium')}
                         >
-                            <span className="card-icon">👑</span>
+                            <span className="card-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M2 19h20M3 10l4 4 5-8 5 8 4-4 1 9H2l1-9z"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Get Premium</span>
                         </button>
 
@@ -407,7 +414,12 @@ export default function Profile() {
                             className="dashboard-card"
                             onClick={() => navigate('/profile/edit')}
                         >
-                            <span className="card-icon">✏️</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Edit Profile</span>
                         </button>
 
@@ -415,7 +427,13 @@ export default function Profile() {
                             className="dashboard-card"
                             onClick={() => navigate('/wallet')}
                         >
-                            <span className="card-icon">💰</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <path d="M16 13a1 1 0 1 0 2 0 1 1 0 0 0-2 0z" fill="currentColor"/>
+                                    <path d="M2 10h20"/>
+                                </svg>
+                            </span>
                             <span className="card-title">
                                 {userProfile?.role === 'Female' ? 'Earnings' : 'Wallet'}
                             </span>
@@ -425,7 +443,15 @@ export default function Profile() {
                             className="dashboard-card"
                             onClick={() => navigate('/referrals')}
                         >
-                            <span className="card-icon">🎁</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 12 20 22 4 22 4 12"/>
+                                    <rect x="2" y="7" width="20" height="5"/>
+                                    <line x1="12" y1="22" x2="12" y2="7"/>
+                                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Referrals</span>
                         </button>
 
@@ -433,7 +459,12 @@ export default function Profile() {
                             className="dashboard-card"
                             onClick={() => navigate('/settings')}
                         >
-                            <span className="card-icon">⚙️</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Settings</span>
                         </button>
 
@@ -443,7 +474,12 @@ export default function Profile() {
                             rel="noopener noreferrer"
                             className="dashboard-card partner-card-link"
                         >
-                            <span className="card-icon">🤝</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M20 12c0 4.418-3.582 8-8 8a7.96 7.96 0 0 1-4.145-1.155L3 21l2.155-4.855A7.96 7.96 0 0 1 4 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Partner Up</span>
                         </a>
 
@@ -452,7 +488,12 @@ export default function Profile() {
                                 className="dashboard-card"
                                 onClick={() => navigate('/requests')}
                             >
-                                <span className="card-icon">💌</span>
+                                <span className="card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                </span>
                                 <span className="card-title">Requests</span>
                             </button>
                         )}
@@ -461,7 +502,13 @@ export default function Profile() {
                             className="dashboard-card"
                             onClick={() => navigate('/leaderboard')}
                         >
-                            <span className="card-icon">🏆</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="18 20 18 10"/>
+                                    <polyline points="12 20 12 4"/>
+                                    <polyline points="6 20 6 14"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Leaderboard</span>
                         </button>
 
@@ -472,7 +519,13 @@ export default function Profile() {
                                 navigate('/login', { replace: true });
                             }}
                         >
-                            <span className="card-icon">🚪</span>
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                    <polyline points="16 17 21 12 16 7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
+                                </svg>
+                            </span>
                             <span className="card-title">Logout</span>
                         </button>
                     </div>
@@ -561,11 +614,11 @@ export default function Profile() {
                         )}
 
                         {/* Interest Tags */}
-                        {userProfile?.interests?.length > 0 && (
+                        {safeArray(userProfile?.interests).length > 0 && (
                             <div className="profile-section-premium-block">
                                 <h4>Vibe Tags</h4>
                                 <div className="profile-interests-pills">
-                                    {userProfile.interests.map((interest, idx) => (
+                                    {safeArray(userProfile.interests).map((interest, idx) => (
                                         <span key={idx} className="interest-pill">{interest}</span>
                                     ))}
                                 </div>

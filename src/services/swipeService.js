@@ -1,5 +1,123 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
+import { recordFeedImpression } from './feedImpressionService';
+import { getProfilePhotos, normalizeProfile } from '../utils/profileData';
+
+const PROFILE_IMPRESSION_LOOKBACK_DAYS = 14;
+
+function hoursSince(value) {
+    if (!value) return Infinity;
+    const timestamp = new Date(value).getTime();
+    if (!Number.isFinite(timestamp)) return Infinity;
+    return (Date.now() - timestamp) / (1000 * 60 * 60);
+}
+
+function stableJitter(seed) {
+    const text = String(seed || '');
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+    }
+    return (Math.abs(hash) % 1000) / 1000;
+}
+
+async function fetchMatchedProfileIds(userId) {
+    if (!userId) return [];
+    try {
+        const { data, error } = await supabase
+            .from('matches')
+            .select('user1_id,user2_id')
+            .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+
+        if (error) throw error;
+
+        return (data || [])
+            .flatMap(match => [match.user1_id, match.user2_id])
+            .filter(id => id && id !== userId);
+    } catch (err) {
+        console.warn('fetchMatchedProfileIds skipped:', err.message);
+        return [];
+    }
+}
+
+async function fetchFeedImpressionMap(userId, entityType) {
+    if (!userId) return new Map();
+    const since = new Date(Date.now() - PROFILE_IMPRESSION_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+    try {
+        const { data, error } = await supabase
+            .from('feed_impressions')
+            .select('entity_id,last_seen_at,seen_count,last_engaged_at')
+            .eq('user_id', userId)
+            .eq('entity_type', entityType)
+            .gte('last_seen_at', since);
+
+        if (error) throw error;
+        return new Map((data || []).map(row => [row.entity_id, row]));
+    } catch (err) {
+        console.warn('fetchFeedImpressionMap skipped:', err.message);
+        return new Map();
+    }
+}
+
+function getDiscoveryScore(profile, impression, userId, filters, userProfile) {
+    const currentGender = (userProfile?.gender || '').toLowerCase();
+    const profileGender = (profile.gender || '').toLowerCase();
+    const oppositeGender = currentGender === 'male' ? 'female' : currentGender === 'female' ? 'male' : '';
+    const sameUniversity = userProfile?.university && profile.university === userProfile.university;
+
+    let score = 0;
+
+    if (filters.gender && filters.gender !== 'All') {
+        score += 60;
+    } else if (oppositeGender && profileGender === oppositeGender) {
+        score += 160;
+    } else if (oppositeGender) {
+        score -= 35;
+    }
+
+    if (sameUniversity) score += 45;
+    score += Math.min(100, Number(profile.completion_score || 0)) * 0.7;
+
+    const lastSeenHours = hoursSince(profile.last_seen_at || profile.last_active);
+    if (lastSeenHours <= 1) score += 40;
+    else if (lastSeenHours <= 24) score += 28;
+    else if (lastSeenHours <= 24 * 7) score += 16;
+
+    const createdHours = hoursSince(profile.created_at);
+    if (createdHours <= 24 * 7) score += 24;
+
+    const photoUpdatedHours = hoursSince(profile.photo_updated_at);
+    if (photoUpdatedHours <= 24 * 14) score += 18;
+
+    if (filters.category === 'Live' || filters.liveOnly) {
+        score += Math.max(0, 50 - lastSeenHours);
+    }
+
+    if (impression) {
+        const impressionHours = hoursSince(impression.last_seen_at);
+        if (impressionHours <= 1) score -= 500;
+        else if (impressionHours <= 6) score -= 350;
+        else if (impressionHours <= 24) score -= 220;
+        else if (impressionHours <= 72) score -= 120;
+        else if (impressionHours <= 24 * 7) score -= 60;
+        else score -= 20;
+
+        score -= Math.min(90, Number(impression.seen_count || 0) * 12);
+    }
+
+    score += stableJitter(`${userId}:${profile.id}`) * 28;
+    return score;
+}
+
+function applyDiscoveryFreshness(results, impressionMap, userId, filters, userProfile) {
+    return [...results].sort((a, b) => {
+        const bScore = getDiscoveryScore(b, impressionMap.get(b.id), userId, filters, userProfile);
+        const aScore = getDiscoveryScore(a, impressionMap.get(a.id), userId, filters, userProfile);
+        return bScore - aScore;
+    });
+}
 
 // Helper to get profiles for discovery with filters
 export async function getDiscoverProfiles(userId, filters = {}, userProfile = null) {
@@ -17,8 +135,15 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
 
         if (swipesError) throw swipesError;
 
+        const [matchedProfileIds, profileImpressions] = await Promise.all([
+            fetchMatchedProfileIds(userId),
+            fetchFeedImpressionMap(userId, 'profile')
+        ]);
+
         const excludeIds = swipedData.map(swipe => swipe.swiped_id).filter(Boolean);
+        matchedProfileIds.forEach(id => excludeIds.push(id));
         if (userId) excludeIds.push(userId);
+        const uniqueExcludeIds = [...new Set(excludeIds)];
 
         // 2. Fetch profiles from the new discovery view (v3)
         let query = supabase
@@ -28,9 +153,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             .or('avatar_url.not.is.null,profile_photos.not.eq.{}');
 
         // Exclude swiped profiles and self
-        if (excludeIds.length > 0) {
+        if (uniqueExcludeIds.length > 0) {
             // Standard PostgREST 'in' syntax for UUIDs: (uuid1,uuid2,...)
-            query = query.not('id', 'in', `(${excludeIds.join(',')})`);
+            query = query.not('id', 'in', `(${uniqueExcludeIds.join(',')})`);
         }
 
         // Apply Gender Filter (or default 90/10 ratio bias)
@@ -40,7 +165,6 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         } else if (currentUserGender) {
             // Default: show opposite gender 90% by ordering opposite gender first
             const normalizedGender = currentUserGender.toLowerCase();
-            const oppositeGender = normalizedGender === 'male' ? 'female' : 'male';
             query = query.order('gender', { ascending: normalizedGender === 'male' });
             // We pull more results then sort client-side for true 90/10 mix
         }
@@ -89,7 +213,13 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
 
         if (profilesError) throw profilesError;
 
-        let results = profiles || [];
+        let results = (profiles || []).map(profile => {
+            const normalizedProfile = normalizeProfile(profile);
+            return {
+                ...normalizedProfile,
+                profile_photos: getProfilePhotos(normalizedProfile)
+            };
+        });
 
         // ── GENDER BALANCING: 90/10 Ratio with Strict Top ──────────────────
         // When no manual filter set, we mix but heavily prioritize opposite gender at the top.
@@ -120,7 +250,11 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             // Actually, keep it simple: push university matches slightly higher but don't break the first row
             const topRow = results.slice(0, 4);
             const remaining = results.slice(4);
-            remaining.sort((a, b) => (a.university === userProfile.university ? -1 : 1));
+            remaining.sort((a, b) => {
+                if (a.university === userProfile.university && b.university !== userProfile.university) return -1;
+                if (b.university === userProfile.university && a.university !== userProfile.university) return 1;
+                return 0;
+            });
             results = [...topRow, ...remaining];
         }
 
@@ -163,13 +297,14 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             ...spotlightPool.slice(3) 
         ];
 
-        results = results.slice(0, 40);
-
         if (filters.category === 'Newest') {
             results.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
         } else if (filters.category === 'Trending') {
             results.sort((a, b) => (b.completion_score || 0) - (a.completion_score || 0));
         }
+
+        results = applyDiscoveryFreshness(results, profileImpressions, userId, filters, userProfile);
+        results = results.slice(0, 40);
 
         return { data: results, error: null };
     } catch (err) {
@@ -241,6 +376,8 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             throw error;
         }
 
+        recordFeedImpression('profile', swipedId, 'swipe', { engaged: true }).catch(() => {});
+
         // 2. Update Streak (Atomic RPC)
         const { data: streakResult } = await supabase.rpc('update_swipe_streak', { p_user_id: swiperId });
 
@@ -252,11 +389,26 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             if (isPremiumStandardSwipe) {
                 paymentResult = { success: true, type: 'premium_free' };
             } else {
-                const { data, error: paymentError } = await supabase.rpc('process_swipe_payment', {
+                const paymentArgs = {
                     p_swiper_id: swiperId,
                     p_swiped_id: swipedId,
                     p_swipe_type: swipeType
-                });
+                };
+                const clientOperationId = options.clientOperationId || options.client_operation_id;
+                const paymentWithOperationArgs = clientOperationId
+                    ? { ...paymentArgs, p_client_operation_id: clientOperationId }
+                    : paymentArgs;
+
+                let { data, error: paymentError } = await supabase.rpc('process_swipe_payment', paymentWithOperationArgs);
+
+                const signatureMismatch = paymentError?.message?.includes('Could not find the function')
+                    || paymentError?.message?.includes('schema cache');
+                if (signatureMismatch && clientOperationId) {
+                    if (options.requireIdempotentPayment === true) {
+                        throw new Error('Offline paid swipe sync requires the idempotent payment RPC migration.');
+                    }
+                    ({ data, error: paymentError } = await supabase.rpc('process_swipe_payment', paymentArgs));
+                }
 
                 paymentResult = data;
 
@@ -310,6 +462,15 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
+                    category: 'matches',
+                    entityType: 'match',
+                    entityId: matchId,
+                    conversationId: matchId,
+                    matchId,
+                    deepLink: matchId ? `/chat?chatId=${matchId}` : '/chat',
+                    priority: 'high',
+                    groupKey: `match:${matchId || participants.join(':')}`,
+                    dedupeKey: `match:${matchId || participants.join(':')}:${swipedId}`,
                     metadata: { match_id: matchId, url: '/chat' }
                 }),
                 createNotification({
@@ -318,6 +479,15 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
+                    category: 'matches',
+                    entityType: 'match',
+                    entityId: matchId,
+                    conversationId: matchId,
+                    matchId,
+                    deepLink: matchId ? `/chat?chatId=${matchId}` : '/chat',
+                    priority: 'high',
+                    groupKey: `match:${matchId || participants.join(':')}`,
+                    dedupeKey: `match:${matchId || participants.join(':')}:${swiperId}`,
                     metadata: { match_id: matchId, url: '/chat' }
                 })
             ]);
@@ -341,6 +511,13 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 type: 'like',
                 title: 'New Like! 👀',
                 content: swipeType === 'premium' ? 'Someone sent you a premium request!' : 'Someone just right-swiped you. Check your requests!',
+                category: 'requests',
+                entityType: 'swipe',
+                entityId: swipeRecord.id,
+                deepLink: '/requests',
+                priority: swipeType === 'premium' ? 'high' : 'normal',
+                groupKey: `requests:${swipedId}`,
+                dedupeKey: `like:${swipeRecord.id}`,
                 metadata: { swipe_id: swipeRecord.id, url: '/requests' }
             }).catch(e => console.warn('Notification failed silently:', e));
         }
@@ -478,6 +655,8 @@ export async function superSwipe(swiperId, swipedProfile) {
             return { data: null, error: useResult.error };
         }
 
+        recordFeedImpression('profile', swipedProfile.id, 'super_swipe', { engaged: true }).catch(() => {});
+
         // Send immediate notification to the swiped user.
         await createNotification({
             userId: swipedProfile.id,
@@ -485,6 +664,13 @@ export async function superSwipe(swiperId, swipedProfile) {
             type: 'super_swipe',
             title: '⭐ Super Swipe!',
             content: 'Someone sent you a Super Swipe! They really want to connect with you.',
+            category: 'requests',
+            entityType: 'swipe',
+            entityId: useResult.swipe_id,
+            deepLink: '/requests',
+            priority: 'high',
+            groupKey: `requests:${swipedProfile.id}`,
+            dedupeKey: `super_swipe:${useResult.swipe_id}`,
             metadata: { swipe_id: useResult.swipe_id, swiper_id: swiperId, url: '/requests' }
         });
 

@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getDiscoverProfiles, recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
-import { useDiscoveryProfiles } from '../hooks/useSWRData';
-import { updatePresence, saveGenderPreference } from '../services/profileService';
+import { recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
+import { getDiscoveryCacheKey, useDiscoveryProfiles } from '../hooks/useSWRData';
+import { saveGenderPreference } from '../services/profileService';
 import { supabase } from '../lib/supabase';
 import { getActiveBoosts } from '../services/paymentService';
 import SwipeCard from '../components/SwipeCard';
@@ -16,14 +16,21 @@ import StreakIndicator from '../components/StreakIndicator'; // NEW
 import { playCardSwipe } from '../lib/audioContext';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
-import { getOptimizedUrl } from '../components/OptimizedImage';
+import { getOptimizedUrl } from '../lib/imageUrl';
 import { hasActivePremium } from '../utils/premium';
+import { recordFeedImpression } from '../services/feedImpressionService';
+import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
+import { enqueueOfflineOperation, getQueuedOperations, removeOfflineOperation } from '../lib/offlineQueue';
+import { setCachedData } from '../lib/persistentCache';
 import './Match.css';
+
+const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
 
 export default function Match() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
+    const currentUserId = currentUser?.id;
 
     const [matchData, setMatchData] = useState(null);
     const [liveOnly, setLiveOnly] = useState(false);
@@ -43,8 +50,8 @@ export default function Match() {
         };
     });
 
-    const { data: swrProfiles, mutate: mutateProfiles, isValidating: profilesValidating } = useDiscoveryProfiles(
-        currentUser?.id,
+    const { data: swrProfiles, mutate: mutateProfiles } = useDiscoveryProfiles(
+        currentUserId,
         { ...filters, liveOnly },
         userProfile
     );
@@ -55,9 +62,9 @@ export default function Match() {
     const [superSwipesAvailable, setSuperSwipesAvailable] = useState(0);
     const [userStreak, setUserStreak] = useState(0); // For Streak System
     const [freeSwipes, setFreeSwipes] = useState(20); // Default to 20, synced in loadProfiles
-    const [swipeCount, setSwipeCount] = useState(0); // For Nudge A
+    const [, setSwipeCount] = useState(0); // For Nudge A
     const [showNudge, setShowNudge] = useState(false); // For popup
-    const [sessionSwipes, setSessionSwipes] = useState(0); // For Premium Nudge
+    const [, setSessionSwipes] = useState(0); // For Premium Nudge
     const [showPremiumNudge, setShowPremiumNudge] = useState(false); // Premium Nudge Modal
     const [showGenderMenu, setShowGenderMenu] = useState(false);
     const [pendingSwipeIds, setPendingSwipeIds] = useState([]);
@@ -70,30 +77,46 @@ export default function Match() {
     useEffect(() => {
         // Sync SWR data to local profiles stack
         if (swrProfiles) {
+            const queuedSwipeIds = new Set(
+                getQueuedOperations(currentUserId, 'record_swipe')
+                    .map(operation => operation.payload?.swipedId)
+                    .filter(Boolean)
+            );
             const processedProfiles = (swrProfiles || []).map(profile => {
-                const allPhotos = [...(profile.profile_photos || [])];
-                if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
-                    allPhotos.unshift(profile.avatar_url);
-                }
-                return { ...profile, profile_photos: allPhotos.filter(Boolean) };
+                const normalizedProfile = normalizeProfile(profile);
+                return { ...normalizedProfile, profile_photos: getProfilePhotos(normalizedProfile) };
             });
 
             // STRICT CLIENT-SIDE GATEKEEPING
-            const validProfiles = processedProfiles.filter(p => p.profile_photos && p.profile_photos.length > 0);
+            const validProfiles = processedProfiles.filter(p =>
+                p.profile_photos && p.profile_photos.length > 0 && !queuedSwipeIds.has(p.id)
+            );
 
-            setProfiles(validProfiles);
-            setLoading(false);
+            setTimeout(() => {
+                setProfiles(validProfiles);
+                setLoading(false);
+            }, 0);
         }
-    }, [swrProfiles]);
+    }, [swrProfiles, currentUserId]);
+
+    const loadBoosts = useCallback(async () => {
+        if (!currentUserId) return;
+        try {
+            const { data } = await getActiveBoosts(currentUserId);
+            setSuperSwipesAvailable(data.superSwipeCount);
+        } catch (err) {
+            console.error('Error loading boosts:', err);
+        }
+    }, [currentUserId]);
 
     useEffect(() => {
-        loadBoosts();
-    }, [currentUser]);
-
+        const timer = setTimeout(loadBoosts, 0);
+        return () => clearTimeout(timer);
+    }, [loadBoosts]);
 
     // Realtime Subscription
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUserId) return;
         const channel = supabase
             .channel('discovery-realtime')
             .on('postgres_changes', {
@@ -110,24 +133,15 @@ export default function Match() {
             .subscribe();
 
         return () => supabase.removeChannel(channel);
-    }, [currentUser]);
+    }, [currentUserId]);
 
     useEffect(() => {
-        if (currentUser && profiles.length > 0) {
+        if (currentUserId && profiles.length > 0) {
             const topProfile = profiles[0];
-            trackProfileView(currentUser.id, topProfile.id);
+            trackProfileView(currentUserId, topProfile.id);
+            recordFeedImpression('profile', topProfile.id, 'match').catch(() => {});
         }
-    }, [currentUser, profiles[0]?.id]);
-
-    async function loadBoosts() {
-        if (!currentUser) return;
-        try {
-            const { data } = await getActiveBoosts(currentUser.id);
-            setSuperSwipesAvailable(data.superSwipeCount);
-        } catch (err) {
-            console.error('Error loading boosts:', err);
-        }
-    }
+    }, [currentUserId, profiles]);
 
     // Countdown Timer for Swipe Reset
     useEffect(() => {
@@ -150,32 +164,37 @@ export default function Match() {
     }, [limitReached]);
 
     // SWR for Boosts & Limits
-    const { data: boostsRes } = useSWR(currentUser ? ['boosts', currentUser.id] : null, () => getActiveBoosts(currentUser.id));
-    const { data: limitsRes } = useSWR(currentUser ? ['limits', currentUser.id] : null, () => checkSwipeLimit(currentUser.id));
+    const { data: limitsRes } = useSWR(currentUserId ? ['limits', currentUserId] : null, () => checkSwipeLimit(currentUserId));
 
     useEffect(() => {
         if (limitsRes) {
-            if (isPremium) {
-                setFreeSwipes(0);
-                setLimitReached(null);
-                return;
-            }
-            setFreeSwipes(limitsRes.max - limitsRes.used);
-            if (!limitsRes.canSwipe) {
-                setLimitReached({ used: limitsRes.used, max: limitsRes.max });
-            }
+            setTimeout(() => {
+                if (isPremium) {
+                    setFreeSwipes(0);
+                    setLimitReached(null);
+                    return;
+                }
+                setFreeSwipes(limitsRes.max - limitsRes.used);
+                if (!limitsRes.canSwipe) {
+                    setLimitReached({ used: limitsRes.used, max: limitsRes.max });
+                }
+            }, 0);
         }
     }, [limitsRes, isPremium]);
 
-    const loadProfiles = async (reset = false) => {
-        // SWR handles this automatically now, but we keep the name for 
-        // backwards compatibility with the "threshold" reload logic.
-        mutateProfiles();
-    };
+    useEffect(() => {
+        const handleOfflineSyncComplete = () => {
+            mutateProfiles();
+            loadBoosts();
+        };
+
+        window.addEventListener('tcd:offline-sync-complete', handleOfflineSyncComplete);
+        return () => window.removeEventListener('tcd:offline-sync-complete', handleOfflineSyncComplete);
+    }, [mutateProfiles, currentUserId, loadBoosts]);
 
     const canStartSwipe = useCallback(async (direction, type = 'standard') => {
         if (!isPremium && direction === 'right' && type === 'standard') {
-            const { canSwipe, used, max } = await checkSwipeLimit(currentUser.id);
+            const { canSwipe, used, max } = await checkSwipeLimit(currentUserId);
 
             if (!canSwipe) {
                 setLimitReached({ used, max });
@@ -184,9 +203,24 @@ export default function Match() {
             }
         }
         return true;
-    }, [currentUser?.id, isPremium, addToast]);
+    }, [currentUserId, isPremium, addToast]);
 
     const handleSwipe = useCallback(async (direction, swipedProfile, type = 'standard', teaser = null) => {
+        if (!swipedProfile?.id) {
+            console.warn('[Match] Ignoring swipe without a valid profile:', { direction, swipedProfile });
+            addToast('Could not read this profile. Please try the next card.', 'error');
+            return;
+        }
+
+        const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+        const canQueueSwipeOffline = direction === 'left'
+            || (direction === 'right' && type === 'standard' && isPremium)
+            || (direction === 'right' && OFFLINE_PAID_SWIPES_ENABLED);
+        if (offline && !canQueueSwipeOffline) {
+            addToast('Connect to the internet to send paid requests or Super Swipes.', 'info');
+            return;
+        }
+
         playCardSwipe();
 
         setPendingSwipeIds(prev => prev.includes(swipedProfile.id) ? prev : [...prev, swipedProfile.id]);
@@ -194,6 +228,11 @@ export default function Match() {
         // 2. Optimistic Update (Local State ONLY, delayed so exit animation can finish)
         setProfiles(prev => {
             const updated = prev.filter(p => p.id !== swipedProfile.id);
+            const cacheKey = getDiscoveryCacheKey(currentUserId, { ...filters, liveOnly }, userProfile);
+            setCachedData(cacheKey, updated, {
+                userId: currentUserId,
+                type: 'discovery'
+            });
             // Defer SWR mutations & preloading to protect swipe animation FPS
             setTimeout(() => {
                 mutateProfiles(updated, false);
@@ -213,9 +252,32 @@ export default function Match() {
             setFreeSwipes(prev => Math.max(0, prev - 1));
         }
 
+        const offlineOperationId = `record_swipe:${currentUserId}:${swipedProfile.id}:${direction}:${type}`;
+        if (offline) {
+            enqueueOfflineOperation(currentUserId, {
+                id: offlineOperationId,
+                type: 'record_swipe',
+                payload: {
+                    swiperId: currentUserId,
+                    swipedId: swipedProfile.id,
+                    direction,
+                    swipeType: type,
+                    messageTeaser: teaser,
+                    isPremium,
+                    clientOperationId: offlineOperationId
+                }
+            });
+            addToast(direction === 'right'
+                ? 'Request saved. We will send it when your connection returns.'
+                : 'Pass saved. We will sync it when your connection returns.',
+                'info');
+            return;
+        }
+
         // 4. Record Swipe and Check for Match/Streak
-        const result = await recordSwipe(currentUser.id, swipedProfile.id, direction, type, teaser, {
-            isPremium
+        const result = await recordSwipe(currentUserId, swipedProfile.id, direction, type, teaser, {
+            isPremium,
+            clientOperationId: offlineOperationId
         });
 
         if (result.error) {
@@ -235,6 +297,8 @@ export default function Match() {
             }
             return;
         }
+
+        removeOfflineOperation(currentUserId, offlineOperationId);
 
         // Update streak if returned
         if (result.streak) setUserStreak(result.streak);
@@ -273,12 +337,17 @@ export default function Match() {
             }
             return next;
         });
-    }, [currentUser?.id, isPremium, userProfile?.completion_score, mutateProfiles, addToast]);
+    }, [currentUserId, isPremium, userProfile, filters, liveOnly, mutateProfiles, addToast]);
 
     const handleSuperSwipe = useCallback(async (swipedProfile) => {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            addToast('Connect to the internet to send a Super Swipe.', 'info');
+            return;
+        }
+
         setProfiles((prev) => prev.filter(p => p.id !== swipedProfile.id));
 
-        const { data, error } = await superSwipe(currentUser.id, swipedProfile);
+        const { error } = await superSwipe(currentUserId, swipedProfile);
 
         if (error) {
             console.error('Super Swipe Error:', error);
@@ -288,21 +357,42 @@ export default function Match() {
 
         setSuperSwipesAvailable(prev => Math.max(0, prev - 1));
         addToast(`⭐ Super Swipe sent! ${swipedProfile.full_name || 'They'} will get an instant notification!`, 'success');
-    }, [currentUser?.id, addToast]);
+    }, [currentUserId, addToast]);
 
     if (loading) return <LoadingSpinner fullScreen text="Finding matches..." />;
 
     // Quick Gender Menu (rendered inline)
-    const QuickGenderMenu = () => (
+    const quickGenderMenu = (
         <div className="gender-quick-menu" onClick={e => e.stopPropagation()}>
             {['Female', 'Male', 'All'].map(g => (
                 <button
                     key={g}
                     className={`gender-opt-btn ${filters.gender === g ? 'active' : ''}`}
-                    onClick={async () => {
-                        setFilters(prev => ({ ...prev, gender: g }));
-                        setShowGenderMenu(false);
-                        if (currentUser) await saveGenderPreference(currentUser.id, g);
+                        onClick={async () => {
+                            setFilters(prev => ({ ...prev, gender: g }));
+                            setShowGenderMenu(false);
+                        if (currentUserId) {
+                            const operationId = `save_gender_preference:${currentUserId}`;
+                            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                                enqueueOfflineOperation(currentUserId, {
+                                    id: operationId,
+                                    type: 'save_gender_preference',
+                                    payload: { userId: currentUserId, gender: g }
+                                });
+                            } else {
+                                const result = await saveGenderPreference(currentUserId, g);
+                                if (result?.error) {
+                                    enqueueOfflineOperation(currentUserId, {
+                                        id: operationId,
+                                        type: 'save_gender_preference',
+                                        payload: { userId: currentUserId, gender: g },
+                                        lastError: result.error
+                                    });
+                                } else {
+                                    removeOfflineOperation(currentUserId, operationId);
+                                }
+                            }
+                        }
                     }}
                 >
                     {g === 'Female' ? '👩 Women' : g === 'Male' ? '👨 Men' : '✨ All'}
@@ -316,12 +406,10 @@ export default function Match() {
             // Request geolocation permission when enabling
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        const { latitude, longitude } = pos.coords;
-
+                    () => {
                         setLiveOnly(true);
                     },
-                    (_err) => {
+                    () => {
                         // Permission denied or unavailable — fall back to university proximity silently
                         setLiveOnly(true); // Still enable "near me" via university matching
                     },
@@ -338,7 +426,7 @@ export default function Match() {
     return (
         <div className="discover-page">
             {/* GATEKEEPING: Show 'invisible' state if user has no photos */}
-            {((!userProfile?.profile_photos || userProfile.profile_photos.length === 0) && !userProfile?.avatar_url) ? (
+            {(safeArray(userProfile?.profile_photos).length === 0 && !userProfile?.avatar_url) ? (
                 <HiddenProfileBanner />
             ) : (
                 <>
@@ -357,7 +445,7 @@ export default function Match() {
                             >
                                 {filters.gender === 'Female' ? '👩 Women' : filters.gender === 'Male' ? '👨 Men' : '✨ All'}
                             </button>
-                            {showGenderMenu && <QuickGenderMenu />}
+                            {showGenderMenu && quickGenderMenu}
                             {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
                         </div>
 
@@ -431,10 +519,7 @@ export default function Match() {
                                 {/* HIDDEN PRELOADER: Silently download the next 5 profiles in the background */}
                                 <div style={{ display: 'none' }}>
                                     {profiles.slice(2, 7).map(profile => {
-                                        const photos = profile.profile_photos && profile.profile_photos.length > 0 
-                                            ? profile.profile_photos 
-                                            : [profile.avatar_url].filter(Boolean);
-                                        
+                                        const photos = getProfilePhotos(profile);
                                         if (!photos[0]) return null;
                                         // Use identical URL format so browser cache matches EXACTLY
                                         const preloadUrl = typeof getOptimizedUrl === 'function' ? getOptimizedUrl(photos[0], 800) : photos[0];
@@ -462,7 +547,27 @@ export default function Match() {
                                                     className={`filter-opt ${filters.gender === g ? 'active' : ''}`}
                                                     onClick={() => {
                                                         setFilters(prev => ({ ...prev, gender: g }));
-                                                        saveGenderPreference(currentUser.id, g);
+                                                        const operationId = `save_gender_preference:${currentUserId}`;
+                                                        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                                                            enqueueOfflineOperation(currentUserId, {
+                                                                id: operationId,
+                                                                type: 'save_gender_preference',
+                                                                payload: { userId: currentUserId, gender: g }
+                                                            });
+                                                        } else {
+                                                            saveGenderPreference(currentUserId, g).then((result) => {
+                                                                if (result?.error) {
+                                                                    enqueueOfflineOperation(currentUserId, {
+                                                                        id: operationId,
+                                                                        type: 'save_gender_preference',
+                                                                        payload: { userId: currentUserId, gender: g },
+                                                                        lastError: result.error
+                                                                    });
+                                                                } else {
+                                                                    removeOfflineOperation(currentUserId, operationId);
+                                                                }
+                                                            });
+                                                        }
                                                     }}
                                                 >
                                                     {g}

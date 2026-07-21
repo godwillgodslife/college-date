@@ -8,31 +8,43 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
 
 
     useEffect(() => {
-        if (isOpen && window.confetti) {
+        if (isOpen) {
+            let interval;
+            let cancelled = false;
             playMatchSuccess();
-            // Trigger confetti
-            const duration = 3 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
 
-            const randomInRange = (min, max) => Math.random() * (max - min) + min;
+            import('canvas-confetti').then(({ default: confetti }) => {
+                if (cancelled) return;
 
-            const interval = setInterval(() => {
-                const timeLeft = animationEnd - Date.now();
+                const duration = 3 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+                const randomInRange = (min, max) => Math.random() * (max - min) + min;
 
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
+                interval = setInterval(() => {
+                    const timeLeft = animationEnd - Date.now();
 
-                const particleCount = 50 * (timeLeft / duration);
-                window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-                window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-            }, 250);
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+                }, 250);
+            }).catch((error) => {
+                console.warn('[MatchCelebration] Confetti unavailable:', error);
+            });
 
             // Haptic vibration (if supported)
             if ('vibrate' in navigator) {
                 navigator.vibrate([100, 50, 100]);
             }
+
+            return () => {
+                cancelled = true;
+                if (interval) clearInterval(interval);
+            };
         }
     }, [isOpen]);
 

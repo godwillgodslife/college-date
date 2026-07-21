@@ -7,6 +7,8 @@ import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import ViewerTeaser from '../components/ViewerTeaser'; // NEW
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import { hasActivePremium } from '../utils/premium';
+import { CACHE_TTL } from '../lib/cachePolicy';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -28,6 +30,15 @@ export default function Dashboard() {
 
     useEffect(() => {
         if (!currentUser) return;
+
+        const cachedStats = getCachedData(['dashboard-stats', currentUser.id], {
+            ttlMs: CACHE_TTL.dashboard,
+            allowStale: true
+        });
+        if (cachedStats) {
+            setStats(cachedStats);
+            setIsLoadingStats(false);
+        }
 
         fetchStats();
 
@@ -133,7 +144,7 @@ export default function Dashboard() {
 
             const wallet = walletResult.data;
 
-            setStats({
+            const nextStats = {
                 matches: matchResult.count || 0,
                 messages: messageResult.count || 0,
                 balance: wallet?.available_balance || 0,
@@ -142,6 +153,11 @@ export default function Dashboard() {
                 freeSwipes: userProfile?.free_swipes || 0,
                 giftsReceived: giftResult.count || 0,
                 viewerCount: viewResult.count || 0
+            };
+            setStats(nextStats);
+            setCachedData(['dashboard-stats', currentUser.id], nextStats, {
+                userId: currentUser.id,
+                type: 'dashboard'
             });
         } catch (err) {
             console.error('Error fetching dashboard stats:', err);

@@ -2,212 +2,278 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.thecollegedate.com/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/login</loc>
-    <lastmod>2026-05-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/signup</loc>
-    <lastmod>2026-05-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/child-safety-standards.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/child-safety-standards</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/about.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/about</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/the-college-date.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/the-college-date</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.86</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/what-is-the-college-date.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/what-is-the-college-date</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.84</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/faq.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/faq</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/download.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/download</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.83</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/college-date.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/college-date</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/cd-app.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/cd-app</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.64</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/press.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/press</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.72</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/campus-dating.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/campus-dating</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/student-dating.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/student-dating</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/safety.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/safety</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/support.html</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.thecollegedate.com/support</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/privacy.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/privacy</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.45</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/terms.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/terms</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/delete-account.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/delete-account</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/college-dating-app.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://www.thecollegedate.com/college-dating-app</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/dating-app-for-students.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://www.thecollegedate.com/dating-app-for-students</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/campus-dating-safety.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://www.thecollegedate.com/campus-dating-safety</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/nigeria-dating-app.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/nigeria-dating-app</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/dating-app-in-nigeria.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/dating-app-in-nigeria</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/university-dating-nigeria.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/university-dating-nigeria</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/dating-app-for-university-students-nigeria.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/dating-app-for-university-students-nigeria</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/safe-dating-app-nigeria.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/safe-dating-app-nigeria</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.78</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/campus-dating-app-lagos.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/campus-dating-app-lagos</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.74</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/serious-relationship-app-nigeria-students.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/serious-relationship-app-nigeria-students</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.74</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/best-dating-site-for-students-nigeria.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/best-dating-site-for-students-nigeria</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.76</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/online-dating-app-for-undergraduates.html</loc>
-    <lastmod>2026-05-29</lastmod>
+    <loc>https://www.thecollegedate.com/online-dating-app-for-undergraduates</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.74</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/blog.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/how-to-meet-people-on-campus</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-as-a-fresher-nigeria</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-profile-picture-tips-students</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/first-message-examples-dating-apps</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/romance-scams-nigerian-students</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/what-not-to-share-on-dating-apps</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/campus-date-ideas-students</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/relationship-boundaries-for-students</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/green-flags-student-relationships</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/blog</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/blog/best-dating-apps-nigeria-students.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/blog/best-dating-apps-nigeria-students</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/blog/online-dating-for-nigerian-students.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/blog/online-dating-for-nigerian-students</loc>
+    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/blog/how-to-date-safely-on-campus-nigeria.html</loc>
-    <lastmod>2026-05-25</lastmod>
+    <loc>https://www.thecollegedate.com/blog/how-to-date-safely-on-campus-nigeria</loc>
+    <lastmod>2026-07-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-bio-examples-students</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.72</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/tools/dating-bio-generator</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.72</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/conversation-starters-dating-app</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.72</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/first-date-ideas-students</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.72</priority>
   </url>
 </urlset>

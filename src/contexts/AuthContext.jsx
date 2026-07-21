@@ -4,6 +4,9 @@ import { updatePresence } from '../services/profileService';
 import { logoutPushNotifications } from '../services/pushNotification';
 import { hasActivePremium } from '../utils/premium';
 import { clearAppCache, getCachedData, setCachedData } from '../lib/persistentCache';
+import { clearOfflineQueue } from '../lib/offlineQueue';
+import { clearMediaCache } from '../lib/mediaCache';
+import { normalizeProfile } from '../utils/profileData';
 
 const AuthContext = createContext(null);
 const NATIVE_AUTH_CALLBACK = 'com.collegedate.app://auth/callback';
@@ -55,6 +58,8 @@ function clearStoredAuthState() {
     }
 
     clearAppCache();
+    clearOfflineQueue();
+    clearMediaCache().catch(() => {});
 }
 
 function getOAuthRedirectUrl() {
@@ -89,17 +94,18 @@ export function AuthProvider({ children }) {
     // Helper to inject defaults for missing DB columns (Existing User Repair)
     const repairProfile = useCallback((profile, subscription = null) => {
         if (!profile) return null;
+        const normalizedProfile = normalizeProfile(profile);
         const subscriptionPremium = hasActivePremium(subscription);
         return {
-            ...profile,
-            call_minutes_today: profile.call_minutes_today ?? 0,
-            last_call_reset_at: profile.last_call_reset_at ?? new Date().toISOString(),
-            is_premium: subscriptionPremium || profile.is_premium === true,
-            premium_expires_at: profile.premium_expires_at ?? subscription?.current_period_end ?? null,
-            plan_type: subscriptionPremium ? 'Premium' : profile.plan_type,
-            subscription_status: subscription?.status ?? profile.subscription_status,
-            free_swipes: profile.free_swipes ?? 20,
-            completion_score: profile.completion_score ?? 0
+            ...normalizedProfile,
+            call_minutes_today: normalizedProfile.call_minutes_today ?? 0,
+            last_call_reset_at: normalizedProfile.last_call_reset_at ?? new Date().toISOString(),
+            is_premium: subscriptionPremium || normalizedProfile.is_premium === true,
+            premium_expires_at: normalizedProfile.premium_expires_at ?? subscription?.current_period_end ?? null,
+            plan_type: subscriptionPremium ? 'Premium' : normalizedProfile.plan_type,
+            subscription_status: subscription?.status ?? normalizedProfile.subscription_status,
+            free_swipes: normalizedProfile.free_swipes ?? 20,
+            completion_score: normalizedProfile.completion_score ?? 0
         };
     }, []);
 
@@ -153,6 +159,8 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let mounted = true;
         let lastUserId = null;
+        let pendingUser = null;
+        let hasPendingUser = false;
         const syncLock = { current: false };
 
         async function syncState(user) {
@@ -160,28 +168,30 @@ export function AuthProvider({ children }) {
             
             // Concurrency Guard: Prevent overlapping syncs from rattling the UI
             if (syncLock.current) {
-                console.log('[Auth Audit] Sync Lock active - ignoring redundant event');
-                return;
-            }
-
-            // Deduplication: If user hasn't changed and profile is already here, just ensure loading is off
-            if (user && user.id === lastUserId && userProfile) {
-                setLoading(false);
-                setProfileLoading(false);
+                pendingUser = user || null;
+                hasPendingUser = true;
+                console.log('[Auth Audit] Sync Lock active - queuing latest auth event');
                 return;
             }
 
             syncLock.current = true;
+            const previousUserId = lastUserId;
+            const nextUserId = user?.id || null;
+            const userChanged = previousUserId !== nextUserId;
             lastUserId = user?.id || null;
 
             // Update user immediately so simple checks (is user logged in?) pass
             setCurrentUser(user);
+            if (userChanged) {
+                setUserProfile(null);
+                setWalletBalance(0);
+            }
 
             if (user) {
                 console.log('[Auth Audit] Starting profile sync for:', user.id);
                 const cachedProfile = getCachedData(['auth-profile', user.id], { ttlMs: 10 * 60 * 1000 });
                 const cachedWallet = getCachedData(['auth-wallet', user.id], { ttlMs: 2 * 60 * 1000 });
-                if (cachedProfile && mounted) {
+                if (cachedProfile?.id === user.id && mounted) {
                     setUserProfile(cachedProfile);
                     setWalletBalance(cachedWallet?.available_balance || 0);
                     setProfileLoading(false);
@@ -215,7 +225,16 @@ export function AuthProvider({ children }) {
                 setProfileLoading(false);
                 setLoading(false);
                 syncLock.current = false;
-                console.log('[Auth Audit] Sync Complete ✓');
+                if (hasPendingUser && (pendingUser?.id || null) !== lastUserId) {
+                    const queuedUser = pendingUser;
+                    pendingUser = null;
+                    hasPendingUser = false;
+                    syncState(queuedUser);
+                } else {
+                    pendingUser = null;
+                    hasPendingUser = false;
+                }
+                console.log('[Auth Audit] Sync Complete done');
             }
         }
 
@@ -238,7 +257,7 @@ export function AuthProvider({ children }) {
         // 3. Safety Timeout (Shortened for faster failover)
         const timer = setTimeout(() => {
             if (mounted && loading) {
-                console.warn('[Auth] Safety timeout triggered — proceeding to app.');
+                console.warn('[Auth] Safety timeout triggered - proceeding to app.');
                 setLoading(false);
                 setProfileLoading(false);
             }
@@ -375,13 +394,14 @@ export function AuthProvider({ children }) {
             setProfileLoading(false);
             setLoading(false);
 
+            await logoutPushNotifications();
+
             const { error: logoutError } = await withTimeout(
                 supabase.auth.signOut({ scope: 'local' }),
                 5000,
                 'Logout timed out locally'
             );
             if (logoutError) throw logoutError;
-            await logoutPushNotifications();
             clearStoredAuthState();
             return { error: null };
         } catch (err) {

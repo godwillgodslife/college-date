@@ -9,15 +9,26 @@ import AndroidInstallButton from '../components/AndroidInstallButton';
 import { partnerWhatsAppUrl, supportWhatsAppUrl, founderLinkedInUrl } from '../config/contactLinks';
 import { useCachedAsync } from '../hooks/useCachedAsync';
 import { setCachedData } from '../lib/persistentCache';
+import { enqueueOfflineOperation, removeOfflineOperation } from '../lib/offlineQueue';
 import './Settings.css';
 
 const DEFAULT_SETTINGS = {
     match_notifications: true,
+    message_notifications: true,
+    request_notifications: true,
+    profile_activity_notifications: true,
+    social_notifications: true,
     view_notifications: true,
     confession_notifications: true,
     email_notifications: true,
     push_notifications: true,
     sound_enabled: true,
+    vibration_enabled: true,
+    message_previews_enabled: true,
+    quiet_hours_enabled: false,
+    quiet_hours_start: '22:00',
+    quiet_hours_end: '07:00',
+    marketing_notifications: true,
     show_online_status: true,
     incognito_mode: false
 };
@@ -28,6 +39,12 @@ export default function Settings() {
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
     const [restoring, setRestoring] = useState(false);
+    const showNotificationPreviewTools = import.meta.env.DEV
+        || window.Capacitor?.isNativePlatform?.()
+        || window.location.hostname === 'localhost'
+        || window.location.hostname === '127.0.0.1'
+        || window.location.hostname === 'www.thecollegedate.com'
+        || window.location.hostname.endsWith('.netlify.app');
 
     const fetchSettings = useCallback(async () => {
         if (!currentUser) return DEFAULT_SETTINGS;
@@ -51,20 +68,64 @@ export default function Settings() {
         }
     );
 
-    const handleToggle = async (key) => {
+    const saveSettingsChange = async (changes) => {
         if (!settings) return;
 
-        const newSettings = { ...settings, [key]: !settings[key] };
+        const newSettings = { ...settings, ...changes };
         setSettings(newSettings); // Optimistic update
         setCachedData(['settings', currentUser.id], newSettings);
+        window.dispatchEvent(new CustomEvent('tcd:notification-settings-updated', {
+            detail: newSettings
+        }));
 
         setSaving(true);
-        const { error } = await updateUserSettings(currentUser.id, { [key]: !settings[key] });
+        const operationId = `update_user_settings:${currentUser.id}:${Object.keys(changes).sort().join(',')}`;
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            enqueueOfflineOperation(currentUser.id, {
+                id: operationId,
+                type: 'update_user_settings',
+                payload: { userId: currentUser.id, changes }
+            });
+            addToast('Saved on this device. We will sync it when you are back online.', 'info');
+            setSaving(false);
+            return;
+        }
+
+        const { error } = await updateUserSettings(currentUser.id, changes);
         if (error) {
-            addToast('Failed to save setting', 'error');
-            setSettings(settings); // Revert
+            enqueueOfflineOperation(currentUser.id, {
+                id: operationId,
+                type: 'update_user_settings',
+                payload: { userId: currentUser.id, changes },
+                lastError: error
+            });
+            addToast('Saved locally. We will retry syncing this setting.', 'info');
+        } else {
+            removeOfflineOperation(currentUser.id, operationId);
         }
         setSaving(false);
+    };
+
+    const handleToggle = async (key) => {
+        if (!settings) return;
+        await saveSettingsChange({ [key]: !settings[key] });
+    };
+
+    const handleValueChange = async (key, value) => {
+        if (!settings) return;
+        await saveSettingsChange({ [key]: value });
+    };
+
+    const handlePreviewNotification = () => {
+        addToast('New message', 'info', 6500, {
+            variant: 'notification',
+            title: settings?.message_previews_enabled === false ? 'New message' : 'Amaka sent a message',
+            body: settings?.message_previews_enabled === false
+                ? 'Open The College Date to view this message.'
+                : 'Are you coming for faculty week tonight?',
+            icon: 'M',
+            meta: 'Message'
+        });
     };
 
     const handleLogout = async () => {
@@ -121,6 +182,40 @@ export default function Settings() {
             <div className="settings-section">
                 <h2 className="section-title">Notifications</h2>
                 <div className="settings-list">
+                    <div className="settings-subsection-label">Alert Types</div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Message Alerts</h3>
+                            <p>Get notified when someone sends you a chat message.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Message Alerts"
+                                checked={settings?.message_notifications !== false}
+                                onChange={() => handleToggle('message_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Request Alerts</h3>
+                            <p>Get notified for message and connection requests.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Request Alerts"
+                                checked={settings?.request_notifications !== false}
+                                onChange={() => handleToggle('request_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
                     <div className="settings-item">
                         <div className="item-info">
                             <h3>Match Alerts</h3>
@@ -129,12 +224,47 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
-                                checked={settings?.match_notifications}
+                                aria-label="Match Alerts"
+                                checked={settings?.match_notifications !== false}
                                 onChange={() => handleToggle('match_notifications')}
                             />
                             <span className="slider round"></span>
                         </label>
                     </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Profile Activity</h3>
+                            <p>Get notified when people interact with your profile.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Profile Activity"
+                                checked={settings?.profile_activity_notifications !== false}
+                                onChange={() => handleToggle('profile_activity_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Social Activity</h3>
+                            <p>Get notified for confessions and campus reactions.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Social Activity"
+                                checked={settings?.social_notifications !== false}
+                                onChange={() => handleToggle('social_notifications')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-subsection-label">Delivery</div>
 
                     <div className="settings-item">
                         <div className="item-info">
@@ -144,7 +274,8 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
-                                checked={settings?.email_notifications}
+                                aria-label="Email Notifications"
+                                checked={settings?.email_notifications !== false}
                                 onChange={() => handleToggle('email_notifications')}
                             />
                             <span className="slider round"></span>
@@ -159,12 +290,15 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
-                                checked={settings?.push_notifications}
+                                aria-label="Push Notifications"
+                                checked={settings?.push_notifications !== false}
                                 onChange={() => handleToggle('push_notifications')}
                             />
                             <span className="slider round"></span>
                         </label>
                     </div>
+
+                    <div className="settings-subsection-label">In-App Behavior</div>
 
                     <div className="settings-item">
                         <div className="item-info">
@@ -174,6 +308,7 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
+                                aria-label="In-App Sounds"
                                 checked={settings?.sound_enabled !== false}
                                 onChange={() => handleToggle('sound_enabled')}
                             />
@@ -183,12 +318,114 @@ export default function Settings() {
 
                     <div className="settings-item">
                         <div className="item-info">
+                            <h3>Vibration</h3>
+                            <p>Use light haptic feedback for new foreground alerts.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Vibration"
+                                checked={settings?.vibration_enabled !== false}
+                                onChange={() => handleToggle('vibration_enabled')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Message Previews</h3>
+                            <p>Show message text in push and email alerts.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Message Previews"
+                                checked={settings?.message_previews_enabled !== false}
+                                onChange={() => handleToggle('message_previews_enabled')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>Quiet Hours</h3>
+                            <p>Pause sounds, vibration, and popup alerts at night.</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Quiet Hours"
+                                checked={settings?.quiet_hours_enabled === true}
+                                onChange={() => handleToggle('quiet_hours_enabled')}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    {settings?.quiet_hours_enabled && (
+                        <div className="settings-item quiet-hours-item">
+                            <div className="item-info">
+                                <h3>Quiet Hours Window</h3>
+                                <p>Choose when alerts should stay silent.</p>
+                            </div>
+                            <div className="quiet-hours-inputs">
+                                <input
+                                    className="time-input"
+                                    type="time"
+                                    value={settings?.quiet_hours_start || '22:00'}
+                                    onChange={(event) => handleValueChange('quiet_hours_start', event.target.value)}
+                                    aria-label="Quiet hours start"
+                                />
+                                <span>to</span>
+                                <input
+                                    className="time-input"
+                                    type="time"
+                                    value={settings?.quiet_hours_end || '07:00'}
+                                    onChange={(event) => handleValueChange('quiet_hours_end', event.target.value)}
+                                    aria-label="Quiet hours end"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {showNotificationPreviewTools && (
+                        <div className="settings-item notification-preview-item">
+                            <div className="item-info">
+                                <h3>Notification QA Lab</h3>
+                                <p>Preview alerts and inspect this device's push readiness.</p>
+                            </div>
+                            <div className="notification-preview-actions">
+                                <button
+                                    type="button"
+                                    className="preview-notification-btn"
+                                    onClick={handlePreviewNotification}
+                                >
+                                    Preview
+                                </button>
+                                <button
+                                    type="button"
+                                    className="preview-notification-btn secondary"
+                                    onClick={() => navigate('/notification-preview')}
+                                >
+                                    Open lab
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="settings-subsection-label">Specific Activity</div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
                             <h3>👀 Profile View Alerts</h3>
                             <p>Get notified when someone views your profile.</p>
                         </div>
                         <label className="switch">
                             <input
                                 type="checkbox"
+                                aria-label="Profile View Alerts"
                                 checked={settings?.view_notifications !== false}
                                 onChange={() => handleToggle('view_notifications')}
                             />
@@ -204,6 +441,7 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
+                                aria-label="Confession Alerts"
                                 checked={settings?.confession_notifications !== false}
                                 onChange={() => handleToggle('confession_notifications')}
                             />
@@ -224,6 +462,7 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
+                                aria-label="Show Online Status"
                                 checked={settings?.show_online_status}
                                 onChange={() => handleToggle('show_online_status')}
                             />
@@ -239,6 +478,7 @@ export default function Settings() {
                         <label className="switch">
                             <input
                                 type="checkbox"
+                                aria-label="Incognito Mode"
                                 checked={settings?.incognito_mode}
                                 onChange={() => handleToggle('incognito_mode')}
                             />
@@ -271,7 +511,7 @@ export default function Settings() {
                             disabled={restoring}
                             onClick={async () => {
                                 setRestoring(true);
-                                const { data, error } = await verifyAndRestorePremium(currentUser.id);
+                                const { data, error } = await verifyAndRestorePremium();
                                 setRestoring(false);
                                 if (error) {
                                     addToast('Verification failed. Contact support if this persists.', 'error');

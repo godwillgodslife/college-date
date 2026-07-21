@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getCachedData, setCachedData } from '../lib/persistentCache';
+import { getCachedRecord, setCachedData } from '../lib/persistentCache';
 import { getMobileCache, setMobileCache } from '../lib/mobileCache';
 
 export function useCachedAsync(key, fetcher, {
@@ -10,8 +10,10 @@ export function useCachedAsync(key, fetcher, {
 } = {}) {
   const keyString = useMemo(() => (key ? JSON.stringify(key) : ''), [key]);
   const stableKey = useMemo(() => key, [keyString]);
-  const syncCached = stableKey ? getCachedData(stableKey, { ttlMs }) : undefined;
+  const syncCachedRecord = stableKey ? getCachedRecord(stableKey, { ttlMs, allowStale: true }) : undefined;
+  const syncCached = syncCachedRecord?.value;
   const [data, setData] = useState(syncCached ?? initialData);
+  const [isStale, setIsStale] = useState(Boolean(syncCachedRecord?.stale));
   const [loading, setLoading] = useState(Boolean(enabled && stableKey && data === undefined));
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -24,6 +26,7 @@ export function useCachedAsync(key, fetcher, {
     try {
       const fresh = await fetcher();
       setData(fresh);
+      setIsStale(false);
       setCachedData(stableKey, fresh);
       setMobileCache(stableKey, fresh);
       setError(null);
@@ -50,6 +53,7 @@ export function useCachedAsync(key, fetcher, {
       const cached = await getMobileCache(stableKey, { ttlMs });
       if (mounted && cached !== undefined) {
         setData(cached);
+        setIsStale(false);
         setLoading(false);
       }
 
@@ -62,5 +66,5 @@ export function useCachedAsync(key, fetcher, {
     };
   }, [enabled, refresh, stableKey, ttlMs]);
 
-  return { data, setData, loading, refreshing, error, refresh };
+  return { data, setData, loading, refreshing, error, refresh, isStale };
 }

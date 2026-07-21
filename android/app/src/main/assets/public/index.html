@@ -3,13 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/png" href="/favicon-64.png" sizes="64x64" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <title>The College Date - Campus Dating App for Students</title>
   <meta name="description"
@@ -36,174 +35,280 @@
   <meta name="twitter:image" content="https://www.thecollegedate.com/og-image.png" />
 
   <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
+{
+    "@context": "https://schema.org",
+    "@graph": [
         {
-          "@type": "Organization",
-          "@id": "https://www.thecollegedate.com/#organization",
-          "name": "The College Date",
-          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD", "CD app"],
-          "url": "https://www.thecollegedate.com/",
-          "logo": "https://www.thecollegedate.com/logo.png",
-          "sameAs": [
-            "https://www.instagram.com/thecollegedate?igsh=MXhxZHZiMzZtOGp6dw%3D%3D&utm_source=qr",
-            "https://play.google.com/store/apps/details?id=com.collegedate.app",
-            "https://www.thecollegedate.com/the-college-date.html",
-            "https://www.thecollegedate.com/about.html"
-          ],
-          "founder": {
-            "@type": "Person",
-            "@id": "https://www.thecollegedate.com/about.html#godswill-godlife-onah",
-            "name": "Godswill Godlife Onah",
-            "jobTitle": "Founder and System Architect",
-            "image": "https://www.thecollegedate.com/founder-godswill-godlife-onah.jpg",
+            "@type": "Organization",
+            "@id": "https://www.thecollegedate.com/#organization",
+            "name": "The College Date",
+            "alternateName": [
+                "TheCollegeDate",
+                "College Date",
+                "CollegeDate",
+                "TCD",
+                "CD app"
+            ],
+            "url": "https://www.thecollegedate.com/",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.thecollegedate.com/logo-512.png",
+                "width": 512,
+                "height": 512
+            },
             "sameAs": [
-              "https://www.instagram.com/godwillgodslife/",
-              "https://www.linkedin.com/in/god-swill-godlife-07191221a/",
-              "https://www.newaymarketingenterprise.com/"
-            ]
-          }
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://www.thecollegedate.com/#website",
-          "name": "The College Date",
-          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD"],
-          "url": "https://www.thecollegedate.com/",
-          "publisher": { "@id": "https://www.thecollegedate.com/#organization" },
-          "inLanguage": "en"
-        },
-        {
-          "@type": "WebApplication",
-          "@id": "https://www.thecollegedate.com/#app",
-          "name": "The College Date",
-          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD", "CD app"],
-          "url": "https://www.thecollegedate.com/",
-          "applicationCategory": "DatingApplication",
-          "operatingSystem": "Web, Android",
-          "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect around their school community.",
-          "publisher": { "@id": "https://www.thecollegedate.com/#organization" },
-          "audience": {
-            "@type": "Audience",
-            "audienceType": "Students and campus communities"
-          },
-          "areaServed": {
-            "@type": "Country",
-            "name": "Nigeria"
-          },
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          }
-        },
-        {
-          "@type": "MobileApplication",
-          "@id": "https://www.thecollegedate.com/#android-app",
-          "name": "The College Date",
-          "alternateName": ["TheCollegeDate", "College Date", "CollegeDate", "TCD", "CD app"],
-          "applicationCategory": "DatingApplication",
-          "operatingSystem": "Android",
-          "description": "The College Date Android app is available on Google Play. Campus dating and student social discovery for Nigerian university students.",
-          "downloadUrl": "https://play.google.com/store/apps/details?id=com.collegedate.app",
-          "installUrl": "https://play.google.com/store/apps/details?id=com.collegedate.app",
-          "identifier": "com.collegedate.app",
-          "publisher": { "@id": "https://www.thecollegedate.com/#organization" },
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          }
-        },
-        {
-          "@type": "FAQPage",
-          "@id": "https://www.thecollegedate.com/#faq",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "What is The College Date?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The College Date is a campus dating and social discovery app for students to meet, match, chat, and connect around school communities."
-              }
+                "https://www.instagram.com/thecollegedate?igsh=MXhxZHZiMzZtOGp6dw%3D%3D&utm_source=qr",
+                "https://play.google.com/store/apps/details?id=com.collegedate.app",
+                "https://www.thecollegedate.com/the-college-date",
+                "https://www.thecollegedate.com/about"
+            ],
+            "founder": {
+                "@type": "Person",
+                "@id": "https://www.thecollegedate.com/about#godswill-godlife-onah",
+                "name": "Godswill Godlife Onah",
+                "jobTitle": "Founder and System Architect",
+                "image": "https://www.thecollegedate.com/founder-godswill-godlife-onah.jpg",
+                "sameAs": [
+                    "https://www.instagram.com/godwillgodslife/",
+                    "https://www.linkedin.com/in/god-swill-godlife-07191221a/",
+                    "https://www.newaymarketingenterprise.com/"
+                ]
             },
-            {
-              "@type": "Question",
-              "name": "Is The College Date a dating app in Nigeria?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The College Date includes Nigeria-focused campus dating content and is positioned for students looking for dating apps, university dating, and safer student connections in Nigeria."
-              }
+            "email": "info@thecollegedate.com",
+            "contactPoint": [
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "customer support",
+                    "email": "info@thecollegedate.com",
+                    "availableLanguage": [
+                        "en"
+                    ]
+                },
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "safety support",
+                    "email": "godwillgodslife@gmail.com",
+                    "availableLanguage": [
+                        "en"
+                    ]
+                }
+            ],
+            "areaServed": {
+                "@type": "Country",
+                "name": "Nigeria"
             },
-            {
-              "@type": "Question",
-              "name": "How do I download The College Date app on Android?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The College Date Android app is available on Google Play. Download it at https://play.google.com/store/apps/details?id=com.collegedate.app"
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Does The College Date have an Instagram account?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. The official The College Date Instagram account is at https://www.instagram.com/thecollegedate — follow for updates, campus culture, and app news."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Is The College Date on Google Play?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. The College Date is available on the Google Play Store for Android devices at https://play.google.com/store/apps/details?id=com.collegedate.app"
-              }
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Nigerian university, polytechnic, and college students aged 18+"
             }
-          ]
+        },
+        {
+            "@type": "WebSite",
+            "@id": "https://www.thecollegedate.com/#website",
+            "name": "The College Date",
+            "alternateName": [
+                "TheCollegeDate",
+                "College Date",
+                "CollegeDate",
+                "TCD"
+            ],
+            "url": "https://www.thecollegedate.com/",
+            "publisher": {
+                "@id": "https://www.thecollegedate.com/#organization"
+            },
+            "inLanguage": "en",
+            "description": "Official website for The College Date, a campus dating and student social discovery app for adult students."
+        },
+        {
+            "@type": "WebApplication",
+            "@id": "https://www.thecollegedate.com/#app",
+            "name": "The College Date",
+            "alternateName": [
+                "TheCollegeDate",
+                "College Date",
+                "CollegeDate",
+                "TCD",
+                "CD app"
+            ],
+            "url": "https://www.thecollegedate.com/",
+            "applicationCategory": "DatingApplication",
+            "operatingSystem": "Web, Android",
+            "description": "The College Date is a campus dating and social app for students to meet, match, chat, and connect around their school community.",
+            "publisher": {
+                "@id": "https://www.thecollegedate.com/#organization"
+            },
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Nigerian university, polytechnic, and college students aged 18+"
+            },
+            "areaServed": {
+                "@type": "Country",
+                "name": "Nigeria"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "featureList": [
+                "Campus-focused discovery",
+                "Mutual matching",
+                "Private chat",
+                "Safety reporting",
+                "Premium discovery features"
+            ]
+        },
+        {
+            "@type": "MobileApplication",
+            "@id": "https://www.thecollegedate.com/#android-app",
+            "name": "The College Date",
+            "alternateName": [
+                "TheCollegeDate",
+                "College Date",
+                "CollegeDate",
+                "TCD",
+                "CD app"
+            ],
+            "applicationCategory": "DatingApplication",
+            "operatingSystem": "Android",
+            "description": "The College Date Android app is available on Google Play. Campus dating and student social discovery for Nigerian university students.",
+            "downloadUrl": "https://play.google.com/store/apps/details?id=com.collegedate.app",
+            "installUrl": "https://play.google.com/store/apps/details?id=com.collegedate.app",
+            "identifier": "com.collegedate.app",
+            "publisher": {
+                "@id": "https://www.thecollegedate.com/#organization"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Nigerian university, polytechnic, and college students aged 18+"
+            },
+            "areaServed": {
+                "@type": "Country",
+                "name": "Nigeria"
+            },
+            "featureList": [
+                "Android app access",
+                "Campus-focused discovery",
+                "Matching",
+                "Chat",
+                "Safety guidance"
+            ]
+        },
+        {
+            "@type": "FAQPage",
+            "@id": "https://www.thecollegedate.com/#faq",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "What is The College Date?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "The College Date is a campus dating and social discovery app for students to meet, match, chat, and connect around school communities."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Is The College Date a dating app in Nigeria?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "The College Date includes Nigeria-focused campus dating content and is positioned for students looking for dating apps, university dating, and safer student connections in Nigeria."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "How do I download The College Date app on Android?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "The College Date Android app is available on Google Play. Download it at https://play.google.com/store/apps/details?id=com.collegedate.app"
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Does The College Date have an Instagram account?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes. The official The College Date Instagram account is at https://www.instagram.com/thecollegedate - follow for updates, campus culture, and app news."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Is The College Date on Google Play?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes. The College Date is available on the Google Play Store for Android devices at https://play.google.com/store/apps/details?id=com.collegedate.app"
+                    }
+                }
+            ]
+        },
+        {
+            "@type": "SoftwareApplication",
+            "@id": "https://www.thecollegedate.com/#software",
+            "name": "The College Date",
+            "alternateName": [
+                "TheCollegeDate",
+                "College Date",
+                "CollegeDate",
+                "TCD",
+                "CD app"
+            ],
+            "url": "https://www.thecollegedate.com/",
+            "applicationCategory": "DatingApplication",
+            "operatingSystem": "Web, Android",
+            "description": "The College Date is a campus dating and student social discovery app for adult students to meet, match, chat, and connect around school communities.",
+            "publisher": {
+                "@id": "https://www.thecollegedate.com/#organization"
+            },
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Nigerian university, polytechnic, and college students aged 18+"
+            },
+            "areaServed": {
+                "@type": "Country",
+                "name": "Nigeria"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        },
+        {
+            "@type": "BreadcrumbList",
+            "@id": "https://www.thecollegedate.com/#breadcrumb",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "The College Date",
+                    "item": "https://www.thecollegedate.com/"
+                }
+            ]
         }
-      ]
-    }
+    ]
+}
   </script>
 
-  <!-- iOS PWA Splashes -->
-  <link rel="apple-touch-startup-image" href="/logo.png" />
   <meta name="apple-mobile-web-app-title" content="The College Date" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
+  <link rel="preload"
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
-    rel="stylesheet">
-  <script>
-    // Web-only SDKs: skip when running inside Capacitor native shell
-    var __isNativeUserAgent = navigator.userAgent.indexOf('TheCollegeDate-Android') !== -1;
-    var __isNative = __isNativeUserAgent || !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-
-    if (!__isNative) {
-      var osScript = document.createElement('script');
-      osScript.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-      osScript.defer = true;
-      document.head.appendChild(osScript);
-    }
-  </script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    var __isNativeCtx = __isNativeUserAgent || !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-    if (!__isNativeCtx && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      OneSignalDeferred.push(async function (OneSignal) {
-        await OneSignal.init({
-          appId: "eda29312-5e13-406f-a1bd-5c8a8e27e6c4",
-          allowLocalhostAsSecureOrigin: true,
-        });
-      });
-    }
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script type="module" crossorigin src="/assets/index-KurDbhYo.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/react-vendor-cIqpye9V.js">
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet">
+  </noscript>
+  <script type="module" crossorigin src="/assets/index-D9x1EhDQ.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-D7XHeoGm.js">
   <link rel="modulepreload" crossorigin href="/assets/supabase-BZ0N5lZN.js">
-  <link rel="modulepreload" crossorigin href="/assets/framer-motion-BooGa5F1.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-P6V1erVs.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-DT2UvH4l.css">
 </head>
 
 <body>
@@ -228,23 +333,23 @@
       </p>
       <p>
         Learn more:
-        <a href="/about.html">About The College Date</a>,
-        <a href="/the-college-date.html">official The College Date brand page</a>,
-        <a href="/what-is-the-college-date.html">what is The College Date</a>,
-        <a href="/faq.html">The College Date FAQ</a>,
-        <a href="/download.html">Download The College Date app</a>,
-        <a href="/college-date.html">College Date brand alias</a>,
-        <a href="/press.html">official brand facts</a>,
-        <a href="/campus-dating.html">Campus dating</a>,
-        <a href="/student-dating.html">Student dating</a>,
-        <a href="/nigeria-dating-app.html">Nigeria dating app</a>,
-        <a href="/dating-app-for-university-students-nigeria.html">dating app for university students in Nigeria</a>,
-        <a href="/best-dating-site-for-students-nigeria.html">best dating site for students in Nigeria</a>,
-        <a href="/online-dating-app-for-undergraduates.html">online dating app for undergraduates</a>,
-        <a href="/safety.html">Safety</a>,
-        <a href="/support.html">Support</a>,
-        <a href="/privacy.html">Privacy Policy</a>,
-        <a href="/delete-account.html">Delete Account</a>.
+        <a href="/about">About The College Date</a>,
+        <a href="/the-college-date">official The College Date brand page</a>,
+        <a href="/what-is-the-college-date">what is The College Date</a>,
+        <a href="/faq">The College Date FAQ</a>,
+        <a href="/download">Download The College Date app</a>,
+        <a href="/college-date">College Date brand alias</a>,
+        <a href="/press">official brand facts</a>,
+        <a href="/campus-dating">Campus dating</a>,
+        <a href="/student-dating">Student dating</a>,
+        <a href="/nigeria-dating-app">Nigeria dating app</a>,
+        <a href="/dating-app-for-university-students-nigeria">dating app for university students in Nigeria</a>,
+        <a href="/best-dating-site-for-students-nigeria">best dating site for students in Nigeria</a>,
+        <a href="/online-dating-app-for-undergraduates">online dating app for undergraduates</a>,
+        <a href="/safety">Safety</a>,
+        <a href="/support">Support</a>,
+        <a href="/privacy">Privacy Policy</a>,
+        <a href="/delete-account">Delete Account</a>.
       </p>
     </main>
   </noscript>

@@ -6,7 +6,12 @@ import BottomNav from './BottomNav';
 import PwaInstallBanner from './PwaInstallBanner';
 import { supabase } from '../lib/supabase';
 import PerformanceOverlay from './PerformanceOverlay';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useOfflineSync } from '../hooks/useOfflineSync';
+import { useAuth } from '../contexts/AuthContext';
 import './AppLayout.css';
+
+const MotionDiv = motion.div;
 
 // Fetches the announcement banner from app_config
 function AnnouncementBanner() {
@@ -17,13 +22,15 @@ function AnnouncementBanner() {
             try {
                 const { data } = await supabase
                     .from('app_config')
-                    .select('value')
-                    .eq('key', 'banner_message')
-                    .single();
-                if (data?.value && String(data.value).trim()) {
-                    setBanner(String(data.value));
+                    .select('key, value')
+                    .in('key', ['banner_message', 'banner_active']);
+                const config = Object.fromEntries((data || []).map(item => [item.key, item.value]));
+                if (config.banner_active === true && config.banner_message && String(config.banner_message).trim()) {
+                    setBanner(String(config.banner_message));
                 }
-            } catch { }
+            } catch (err) {
+                console.warn('Failed to load announcement banner:', err);
+            }
         }
         fetchBanner();
     }, []);
@@ -40,8 +47,10 @@ function AnnouncementBanner() {
 
 export default function AppLayout() {
     const location = useLocation();
-    const [isOffline, setIsOffline] = useState(!navigator.onLine);
+    const { currentUser } = useAuth();
+    const networkStatus = useNetworkStatus();
     const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+    useOfflineSync(currentUser?.id);
 
     const isFullScreenApp = ['/explore', '/snap'].includes(location.pathname) || (location.pathname === '/match' && isMobile);
     const isMiniprofileSetup = location.pathname === '/mini-profile-setup';
@@ -54,23 +63,12 @@ export default function AppLayout() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() => {
-        const handleOnline = () => setIsOffline(false);
-        const handleOffline = () => setIsOffline(true);
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
-
     return (
-        <div className={`app-layout ${isOffline ? 'is-offline' : ''}`}>
+        <div className={`app-layout ${!networkStatus.online ? 'is-offline' : ''} ${networkStatus.slow ? 'is-slow-network' : ''}`}>
             {/* Offline Status */}
-            {isOffline && (
+            {networkStatus.label && (
                 <div className="offline-status-bar">
-                    📡 You are currently offline. Using cached data.
+                    {networkStatus.label}
                 </div>
             )}
 
@@ -86,7 +84,7 @@ export default function AppLayout() {
             {/* Page Content */}
             <main className={`app-main ${isFullScreenApp ? 'full-screen' : ''} ${isAdmin ? 'admin-layout' : ''}`}>
                 <AnimatePresence mode="wait">
-                    <motion.div
+                    <MotionDiv
                         key={location.pathname}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -95,7 +93,7 @@ export default function AppLayout() {
                         className="page-transition-wrapper"
                     >
                         <Outlet />
-                    </motion.div>
+                    </MotionDiv>
                 </AnimatePresence>
             </main>
 

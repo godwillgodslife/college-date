@@ -5,6 +5,7 @@ import { uploadProfilePhoto, upsertProfile } from '../services/profileService';
 import { requestProfileAiReview } from '../services/aiTrustService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { safeArray } from '../utils/profileData';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import './MiniProfileSetup.css';
@@ -165,7 +166,17 @@ export default function MiniProfileSetup() {
 
     const [formData, setFormData] = useState(() => {
         const saved = localStorage.getItem('onboarding_data');
-        return saved ? JSON.parse(saved) : {
+        let parsed = null;
+        try {
+            parsed = saved ? JSON.parse(saved) : null;
+        } catch {
+            localStorage.removeItem('onboarding_data');
+        }
+        return parsed ? {
+            ...parsed,
+            interests: safeArray(parsed.interests),
+            profile_photos: safeArray(parsed.profile_photos)
+        } : {
             full_name: '',
             age: '',
             university: '',
@@ -191,7 +202,7 @@ export default function MiniProfileSetup() {
         if (!authLoading && userProfile) {
             const hasFullName = userProfile.full_name && userProfile.full_name.trim().length > 1;
             const hasUniversity = userProfile.university && userProfile.university !== 'None';
-            const hasPhoto = (userProfile.profile_photos?.filter(p => p && p !== '').length >= 1) || 
+            const hasPhoto = (safeArray(userProfile.profile_photos).filter(p => p && p !== '').length >= 1) || 
                              (userProfile.avatar_url && userProfile.avatar_url.startsWith('http'));
             const isManuallyComplete = userProfile.is_onboarded === true;
 
@@ -227,9 +238,10 @@ export default function MiniProfileSetup() {
     const handleInterestToggle = (interest) => {
         triggerHaptic();
         setFormData(prev => {
-            const interests = prev.interests.includes(interest)
-                ? prev.interests.filter(i => i !== interest)
-                : (prev.interests.length < 10 ? [...prev.interests, interest] : prev.interests);
+            const currentInterests = safeArray(prev.interests);
+            const interests = currentInterests.includes(interest)
+                ? currentInterests.filter(i => i !== interest)
+                : (currentInterests.length < 10 ? [...currentInterests, interest] : currentInterests);
             return { ...prev, interests };
         });
     };
@@ -244,7 +256,7 @@ export default function MiniProfileSetup() {
             if (error) throw new Error(error);
 
             setFormData(prev => {
-                const newPhotos = [...(prev.profile_photos || [])];
+                const newPhotos = [...safeArray(prev.profile_photos)];
                 newPhotos[index] = url;
                 return { ...prev, profile_photos: newPhotos };
             });
@@ -271,10 +283,10 @@ export default function MiniProfileSetup() {
                 age: parsedAge,
                 university: formData.university,
                 level: formData.level,
-                interests: formData.interests,
+                interests: safeArray(formData.interests),
                 attraction_goal: formData.intent,
-                profile_photos: formData.profile_photos,
-                avatar_url: formData.profile_photos[0],
+                profile_photos: safeArray(formData.profile_photos),
+                avatar_url: safeArray(formData.profile_photos)[0],
                 email: currentUser.email,
                 is_onboarded: true, // Explicitly mark as done
                 updated_at: new Date()
@@ -313,9 +325,9 @@ export default function MiniProfileSetup() {
         switch (currentStep) {
             case 0: return formData.full_name.trim().length > 1 && formData.age >= 18;
             case 1: return formData.university && formData.level;
-            case 2: return formData.interests.length >= 3;
+            case 2: return safeArray(formData.interests).length >= 3;
             case 3: return formData.intent;
-            case 4: return formData.profile_photos && formData.profile_photos.length > 0;
+            case 4: return safeArray(formData.profile_photos).length > 0;
             default: return true;
         }
     };
@@ -475,7 +487,7 @@ export default function MiniProfileSetup() {
                                     {INTERESTS_OPTIONS.map(vibe => (
                                         <button
                                             key={vibe}
-                                            className={`mood-bubble ${formData.interests.includes(vibe) ? 'active' : ''}`}
+                                            className={`mood-bubble ${safeArray(formData.interests).includes(vibe) ? 'active' : ''}`}
                                             onClick={() => handleInterestToggle(vibe)}
                                         >
                                             {vibe}
@@ -509,9 +521,9 @@ export default function MiniProfileSetup() {
                                 <div className="photo-upload-step">
                                     <div className="photos-grid">
                                         {[0, 1, 2].map(index => (
-                                            <div key={index} className={`quiz-photo-preview ${formData.profile_photos?.[index] ? 'has-photo' : ''}`}>
-                                                {formData.profile_photos?.[index] ? (
-                                                    <img src={formData.profile_photos[index]} alt={`Preview ${index + 1}`} />
+                                            <div key={index} className={`quiz-photo-preview ${safeArray(formData.profile_photos)[index] ? 'has-photo' : ''}`}>
+                                                {safeArray(formData.profile_photos)[index] ? (
+                                                    <img src={safeArray(formData.profile_photos)[index]} alt={`Preview ${index + 1}`} />
                                                 ) : (
                                                     <div className="photo-placeholder">
                                                         <span>📸</span>
@@ -525,7 +537,7 @@ export default function MiniProfileSetup() {
                                                         hidden
                                                         disabled={loading}
                                                     />
-                                                    {loading ? '...' : (formData.profile_photos?.[index] ? 'Change' : '+ Add')}
+                                                    {loading ? '...' : (safeArray(formData.profile_photos)[index] ? 'Change' : '+ Add')}
                                                 </label>
                                             </div>
                                         ))}

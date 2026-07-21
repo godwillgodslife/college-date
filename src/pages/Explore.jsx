@@ -10,6 +10,8 @@ import { useToast } from '../components/Toast';
 import ProfileDrawer from '../components/ProfileDrawer'; // NEW
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import { isRecentlyLive, isRecentlyActive } from '../utils/presence';
+import { recordFeedImpressions } from '../services/feedImpressionService';
+import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
 import './Explore.css';
 
 export default function Explore() {
@@ -29,6 +31,7 @@ export default function Explore() {
     });
 
     const [selectedProfile, setSelectedProfile] = useState(null);
+    const [showFilters, setShowFilters] = useState(false);
 
     const { data: swrProfiles, mutate: mutateProfiles, isLoading: profilesLoading } = useDiscoveryProfiles(
         currentUser?.id,
@@ -44,11 +47,8 @@ export default function Explore() {
     useEffect(() => {
         if (swrProfiles) {
             const processedProfiles = (swrProfiles || []).map(profile => {
-                const allPhotos = [...(profile.profile_photos || [])];
-                if (profile.avatar_url && !allPhotos.includes(profile.avatar_url)) {
-                    allPhotos.unshift(profile.avatar_url);
-                }
-                return { ...profile, profile_photos: allPhotos.filter(Boolean) };
+                const normalizedProfile = normalizeProfile(profile);
+                return { ...normalizedProfile, profile_photos: getProfilePhotos(normalizedProfile) };
             });
 
             // STRICT CLIENT-SIDE GATEKEEPING: Filter out anyone who still has 0 photos
@@ -89,6 +89,13 @@ export default function Explore() {
         }
     }, [currentUser?.id, profiles[0]?.id]);
 
+    const visibleProfileImpressionIds = profiles.slice(0, 16).map(profile => profile.id).join(',');
+
+    useEffect(() => {
+        if (!currentUser?.id || !visibleProfileImpressionIds) return;
+        recordFeedImpressions('profile', visibleProfileImpressionIds.split(','), 'explore');
+    }, [currentUser?.id, visibleProfileImpressionIds]);
+
     const loadProfiles = async (reset = false) => {
         mutateProfiles();
     };
@@ -118,7 +125,7 @@ export default function Explore() {
     // GATEKEEPING: If the current user has no photos, they can't appear in discovery.
     // Show them the 'hidden profile' state instead of the grid.
     const userHasNoPhotos =
-        (!userProfile?.profile_photos || userProfile.profile_photos.length === 0) &&
+        (safeArray(userProfile?.profile_photos).length === 0) &&
         !userProfile?.avatar_url;
 
     // Filter profiles based on Search and Live category client-side
@@ -182,6 +189,27 @@ export default function Explore() {
                     ⚙️ Filter
                 </button>
             </div>
+
+            {showFilters && (
+                <div className="explore-filter-panel">
+                    <div className="explore-filter-panel-header">
+                        <h3>Filters</h3>
+                        <button type="button" onClick={() => setShowFilters(false)}>Close</button>
+                    </div>
+                    <div className="explore-filter-options">
+                        {['All', 'Men', 'Women'].map((gender) => (
+                            <button
+                                key={gender}
+                                type="button"
+                                className={filters.gender === gender ? 'active' : ''}
+                                onClick={() => setFilters(prev => ({ ...prev, gender }))}
+                            >
+                                {gender}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Category Chips */}
             <div className="explore-categories">

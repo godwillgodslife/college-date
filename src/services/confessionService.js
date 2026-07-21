@@ -1,9 +1,67 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
+import { getFeedImpressionMap, recordFeedImpression } from './feedImpressionService';
 
 // Emoji set must match the UI (Confessions.jsx) AND the DB CHECK constraint
 // Migration: 20260706120000_update_confession_emoji_constraint.sql
 const REACTION_EMOJIS = ['🔥', '😂', '🙊', '🙏', '😢'];
+
+function hoursSince(value) {
+    if (!value) return Infinity;
+    const timestamp = new Date(value).getTime();
+    if (!Number.isFinite(timestamp)) return Infinity;
+    return (Date.now() - timestamp) / (1000 * 60 * 60);
+}
+
+function stableJitter(seed) {
+    const text = String(seed || '');
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+    }
+    return (Math.abs(hash) % 1000) / 1000;
+}
+
+function scoreConfession(confession, impression, userId) {
+    const ageHours = hoursSince(confession.created_at);
+    let score = 0;
+
+    if (ageHours <= 1) score += 90;
+    else if (ageHours <= 24) score += 75;
+    else if (ageHours <= 72) score += 50;
+    else if (ageHours <= 24 * 7) score += 25;
+    else score += 5;
+
+    score += Math.min(80, Number(confession.totalReactions || 0) * 5);
+    score += Math.min(50, Number(confession.commentCount || 0) * 8);
+    if (confession.isViral) score += 35;
+
+    if (confession.userReactions?.length) score -= 20;
+    if (confession.hasClaimed) score -= 35;
+
+    if (impression) {
+        const impressionHours = hoursSince(impression.last_seen_at);
+        if (impressionHours <= 1) score -= 400;
+        else if (impressionHours <= 6) score -= 280;
+        else if (impressionHours <= 24) score -= 180;
+        else if (impressionHours <= 72) score -= 90;
+        else if (impressionHours <= 24 * 7) score -= 45;
+        else score -= 15;
+
+        score -= Math.min(80, Number(impression.seen_count || 0) * 10);
+    }
+
+    score += stableJitter(`${userId}:${confession.id}`) * 35;
+    return score;
+}
+
+function rankConfessions(confessions, impressionMap, userId) {
+    return [...confessions].sort((a, b) => (
+        scoreConfession(b, impressionMap.get(b.id), userId)
+        - scoreConfession(a, impressionMap.get(a.id), userId)
+    ));
+}
 
 export async function getConfessions(university = null, userId = null) {
     try {
@@ -11,7 +69,7 @@ export async function getConfessions(university = null, userId = null) {
             .from('optimized_confessions')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(50);
+            .limit(100);
 
         if (university) {
             // Use case-insensitive matching and trim spaces to prevent "Uni " !== "Uni" bugs
@@ -20,6 +78,8 @@ export async function getConfessions(university = null, userId = null) {
 
         const { data, error } = await query;
         if (error) throw error;
+
+        const confessionImpressions = await getFeedImpressionMap(userId, 'confession', 14);
 
         // Map the pre-aggregated data from the view to the expected JS format
         const enriched = (data || []).map(c => {
@@ -47,7 +107,7 @@ export async function getConfessions(university = null, userId = null) {
             };
         });
 
-        return { data: enriched, error: null };
+        return { data: rankConfessions(enriched, confessionImpressions, userId), error: null };
     } catch (error) {
         console.error('Error fetching confessions:', error);
         return { data: [], error: error.message };
@@ -100,6 +160,8 @@ export async function addEmojiReaction(confessionId, userId, emoji) {
             });
             if (error) throw error;
 
+            recordFeedImpression('confession', confessionId, 'confession_reaction', { engaged: true }).catch(() => {});
+
             // Notify the poster
             const { data: confession } = await supabase
                 .from('confessions')
@@ -148,6 +210,8 @@ export async function claimConfession(confessionId, claimerId) {
             if (error.code === '23505') return { alreadyClaimed: true, error: null }; // duplicate
             throw error;
         }
+
+        recordFeedImpression('confession', confessionId, 'confession_claim', { engaged: true }).catch(() => {});
 
         // Notify the poster about the claim
         const { data: confession } = await supabase

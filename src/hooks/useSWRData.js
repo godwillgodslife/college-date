@@ -5,13 +5,18 @@ import { getConfessions } from '../services/confessionService';
 import { getLeaderboards } from '../services/leaderboardService';
 import { getConversations } from '../services/chatService';
 import { persistentSWR } from '../lib/persistentCache';
+import { CACHE_TTL } from '../lib/cachePolicy';
 
 /**
  * useDiscoveryProfiles
  * SWR Hook for the Match/Discovery feed
  */
+export function getDiscoveryCacheKey(userId, filters, userProfile) {
+    return userId ? ['discovery', userId, JSON.stringify(filters), userProfile?.university || '', userProfile?.interest_gender || ''] : null;
+}
+
 export function useDiscoveryProfiles(userId, filters, userProfile) {
-    const key = userId ? ['discovery', userId, JSON.stringify(filters), userProfile?.university || '', userProfile?.interest_gender || ''] : null;
+    const key = getDiscoveryCacheKey(userId, filters, userProfile);
 
     return useSWR(key, async () => {
         const { data, error } = await getDiscoverProfiles(userId, filters, userProfile);
@@ -20,7 +25,7 @@ export function useDiscoveryProfiles(userId, filters, userProfile) {
     }, persistentSWR(key, {
         revalidateOnFocus: false,
         dedupingInterval: 10000, // 10s dedupe
-        ttlMs: 2 * 60 * 1000
+        ttlMs: CACHE_TTL.discovery
     }));
 }
 
@@ -39,7 +44,7 @@ export function useConfessions(university, userId) {
     }, persistentSWR(key, {
         revalidateOnFocus: true,
         dedupingInterval: 5000,
-        ttlMs: 5 * 60 * 1000
+        ttlMs: CACHE_TTL.confessions
     }));
 }
 
@@ -75,7 +80,7 @@ export function useConversations(userId) {
     }, persistentSWR(key, {
         revalidateOnFocus: true,
         dedupingInterval: 3000,
-        ttlMs: 60 * 1000
+        ttlMs: CACHE_TTL.conversations
     }));
 
     return { data, error, isLoading, mutate };
@@ -97,6 +102,6 @@ export function useSWRProfile(userId) {
         return data;
     }, persistentSWR(key, {
         revalidateOnFocus: false,
-        ttlMs: 10 * 60 * 1000
+        ttlMs: CACHE_TTL.authProfile
     }));
 }

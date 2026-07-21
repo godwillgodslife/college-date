@@ -7,12 +7,6 @@ function isStorageAvailable() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
-function isNativeApp() {
-  return typeof window !== 'undefined' &&
-    window.Capacitor !== undefined &&
-    window.Capacitor.isNativePlatform?.();
-}
-
 function serializeKey(key) {
   return typeof key === 'string' ? key : JSON.stringify(key);
 }
@@ -21,7 +15,7 @@ function storageKey(key) {
   return `${CACHE_PREFIX}${serializeKey(key)}`;
 }
 
-export function getCachedData(key, { ttlMs = DEFAULT_TTL_MS } = {}) {
+export function getCachedRecord(key, { ttlMs = DEFAULT_TTL_MS, allowStale = false } = {}) {
   if (!isStorageAvailable()) return undefined;
 
   try {
@@ -29,23 +23,35 @@ export function getCachedData(key, { ttlMs = DEFAULT_TTL_MS } = {}) {
     if (!raw) return undefined;
 
     const cached = JSON.parse(raw);
-    if (!cached || Date.now() - cached.createdAt > ttlMs) {
+    const createdAt = cached?.createdAt || cached?.timestamp || 0;
+    const stale = !createdAt || Date.now() - createdAt > ttlMs;
+    if (!cached || (stale && !allowStale)) {
       window.localStorage.removeItem(storageKey(key));
       return undefined;
     }
 
-    return cached.value;
+    return {
+      ...cached,
+      createdAt,
+      stale,
+      value: cached.value
+    };
   } catch {
     return undefined;
   }
 }
 
-export function setCachedData(key, value) {
+export function getCachedData(key, { ttlMs = DEFAULT_TTL_MS, allowStale = false } = {}) {
+  return getCachedRecord(key, { ttlMs, allowStale })?.value;
+}
+
+export function setCachedData(key, value, metadata = {}) {
   if (!isStorageAvailable() || value === undefined) return;
 
   try {
     window.localStorage.setItem(storageKey(key), JSON.stringify({
       createdAt: Date.now(),
+      ...metadata,
       value
     }));
     setMobileCache(key, value);
@@ -55,10 +61,11 @@ export function setCachedData(key, value) {
 }
 
 export function persistentSWR(key, options = {}) {
-  if (!key || !isNativeApp()) return options;
+  if (!key || !isStorageAvailable()) return options;
 
   const ttlMs = options.ttlMs ?? DEFAULT_TTL_MS;
-  const fallbackData = options.fallbackData ?? getCachedData(key, { ttlMs });
+  const fallbackRecord = getCachedRecord(key, { ttlMs, allowStale: true });
+  const fallbackData = options.fallbackData ?? fallbackRecord?.value;
   const onSuccess = (data, swrKey, config) => {
     setCachedData(key, data);
     options.onSuccess?.(data, swrKey, config);
@@ -69,6 +76,7 @@ export function persistentSWR(key, options = {}) {
     ...rest,
     fallbackData,
     keepPreviousData: true,
+    isPaused: () => typeof navigator !== 'undefined' && navigator.onLine === false && fallbackData !== undefined,
     revalidateIfStale: true,
     onSuccess
   };

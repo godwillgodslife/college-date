@@ -71,7 +71,7 @@
                 <data android:scheme="@string/custom_url_scheme" />
             </intent-filter>
 
-            <!-- HTTPS deep links from thecollegedate.com -->
+            <!-- HTTPS app links from thecollegedate.com for OAuth and push notification taps. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -81,6 +81,31 @@
                     android:host="www.thecollegedate.com"
                     android:pathPrefix="/auth/callback"
                 />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/payment/callback" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/dashboard" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/match" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/explore" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/chat" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/messages" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/status" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/snap" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/profile" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/settings" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/referrals" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/wallet" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/requests" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/leaderboard" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/confessions" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/premium" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/viewers" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/notifications" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/notification-preview" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/notification-preview-lab" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/push-preview" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/push-lab" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/mini-profile-setup" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/call" />
+                <data android:scheme="https" android:host="www.thecollegedate.com" android:pathPrefix="/admin" />
             </intent-filter>
         </activity>
 

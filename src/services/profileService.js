@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { compressImage } from '../utils/imageCompressor';
+import { normalizeProfile, safeArray } from '../utils/profileData';
 
 // Helper for timeout
 const withTimeout = (promise, ms = 10000) => {
@@ -23,7 +24,7 @@ export async function getProfile(userId) {
         );
 
         if (error) throw error;
-        return { data, error: null };
+        return { data: normalizeProfile(data), error: null };
     } catch (err) {
         console.error('getProfile error:', err.message);
         return { data: null, error: err.message };
@@ -44,7 +45,7 @@ export async function createProfile(userId, profileData) {
         );
 
         if (error) throw error;
-        return { data, error: null };
+        return { data: normalizeProfile(data), error: null };
     } catch (err) {
         console.error('createProfile error:', err.message);
         return { data: null, error: err.message };
@@ -66,7 +67,7 @@ export async function updateProfile(userId, updates) {
         );
 
         if (error) throw error;
-        return { data, error: null };
+        return { data: normalizeProfile(data), error: null };
     } catch (err) {
         console.error('updateProfile error:', err.message);
         return { data: null, error: err.message };
@@ -81,7 +82,12 @@ export async function updateProfile(userId, updates) {
  */
 export async function upsertProfile(userId, profileData) {
     try {
-        const safeData = { ...profileData, updated_at: new Date().toISOString() };
+        const safeData = {
+            ...profileData,
+            interests: safeArray(profileData.interests),
+            profile_photos: safeArray(profileData.profile_photos),
+            updated_at: new Date().toISOString()
+        };
 
         // Use standard client-side upsert logic. RLS supports 'Users can update own profile'
         const { data, error } = await withTimeout(
@@ -94,7 +100,7 @@ export async function upsertProfile(userId, profileData) {
             throw error;
         }
 
-        return { data, error: null };
+        return { data: normalizeProfile(data), error: null };
     } catch (err) {
         console.error('upsertProfile error:', err.message);
         return { data: null, error: err.message };

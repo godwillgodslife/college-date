@@ -4,44 +4,60 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { hasActivePremium } from '../utils/premium';
+import { CACHE_TTL } from '../lib/cachePolicy';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './Viewers.css';
 
 export default function Viewers() {
     const { currentUser, userProfile } = useAuth();
     const [viewers, setViewers] = useState([]);
+    const [viewerSummary, setViewerSummary] = useState({ total_count: 0, premium: false, upgrade_required: false });
     const [loading, setLoading] = useState(true);
-    const isPremium = hasActivePremium(userProfile);
+    const isPremium = viewerSummary.premium || hasActivePremium(userProfile);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (currentUser) {
+            const cached = getCachedData(['viewers', currentUser.id], {
+                ttlMs: CACHE_TTL.viewers,
+                allowStale: true
+            });
+            if (cached) {
+                if (Array.isArray(cached)) {
+                    setViewers(cached);
+                    setViewerSummary({ total_count: cached.length, premium: hasActivePremium(userProfile), upgrade_required: false });
+                } else {
+                    setViewers(cached.items || []);
+                    setViewerSummary(cached.summary || { total_count: 0, premium: false, upgrade_required: false });
+                }
+                setLoading(false);
+            }
             fetchViewers();
         }
-    }, [currentUser]);
+    }, [currentUser, userProfile]);
 
     async function fetchViewers() {
         try {
-            setLoading(true);
-            // Fetch profile views with viewer profile info
+            if (!viewers.length) setLoading(true);
             const { data, error } = await supabase
-                .from('profile_views')
-                .select(`
-                    id,
-                    created_at,
-                    viewer:profiles!viewer_id (
-                        id,
-                        full_name,
-                        avatar_url,
-                        university,
-                        last_active
-                    )
-                `)
-                .eq('profile_owner_id', currentUser.id)
-                .order('created_at', { ascending: false })
-                .limit(20);
+                .rpc('get_profile_viewers_secure', { p_limit: 20 });
 
             if (error) throw error;
-            setViewers(data || []);
+            if (!data?.success) throw new Error(data?.error || 'Failed to load profile viewers');
+
+            const nextSummary = {
+                total_count: data.total_count || 0,
+                premium: data.premium === true,
+                upgrade_required: data.upgrade_required === true
+            };
+            const nextItems = data.items || [];
+
+            setViewers(nextItems);
+            setViewerSummary(nextSummary);
+            setCachedData(['viewers', currentUser.id], { items: nextItems, summary: nextSummary }, {
+                userId: currentUser.id,
+                type: 'viewers'
+            });
         } catch (err) {
             console.error('Error fetching viewers:', err);
         } finally {
@@ -59,7 +75,7 @@ export default function Viewers() {
             </header>
 
             <div className="viewers-list">
-                {viewers.length === 0 ? (
+                {viewerSummary.total_count === 0 ? (
                     <div className="no-viewers">
                         <div className="no-viewers-icon">🕶️</div>
                         <h3>No views yet today</h3>
@@ -71,29 +87,29 @@ export default function Viewers() {
                         )}
                     </div>
                 ) : (
-                    viewers.map((item) => (
-                        <div key={item.id} className="viewer-card">
-                            <div className={`viewer-avatar ${!isPremium ? 'blurred' : ''}`}>
+                    viewers.map((item, index) => (
+                        <div key={item.id || `${item.created_at}-${index}`} className="viewer-card">
+                            <div className={`viewer-avatar ${item.locked || !isPremium ? 'blurred' : ''}`}>
                                 <img
                                     src={item.viewer?.avatar_url || '/default-avatar.png'}
                                     alt="Viewer"
                                 />
                             </div>
                             <div className="viewer-info">
-                                <h3 className={!isPremium ? 'blurred-text' : ''}>
-                                    {isPremium ? item.viewer?.full_name : '•••••••• •••••'}
+                                <h3 className={item.locked || !isPremium ? 'blurred-text' : ''}>
+                                    {item.locked || !isPremium ? 'Hidden Viewer' : item.viewer?.full_name}
                                 </h3>
                                 <p>{new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
-                            {!isPremium && <div className="lock-icon">🔒</div>}
+                            {(item.locked || !isPremium) && <div className="lock-icon">🔒</div>}
                         </div>
                     ))
                 )}
             </div>
 
-            {!isPremium && viewers.length > 0 && (
+            {!isPremium && viewerSummary.total_count > 0 && (
                 <div className="premium-upsell-sticky">
-                    <h3>Unlock {viewers.length} Secret Admirers!</h3>
+                    <h3>Unlock {viewerSummary.total_count} Secret Admirers!</h3>
                     <p>See exactly who’s interested in you.</p>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                         <button className="btn-unlock-premium" onClick={() => navigate('/premium')} style={{ flex: 1 }}>

@@ -1,0 +1,15 @@
+feature,free_access,premium_access,frontend_gate,backend_gate,bypass_risk
+Registration,yes,yes,none,Supabase auth,low
+Profile editing,yes,yes,none,RLS unverified,medium
+Discovery,yes,yes,none,view/RLS unverified,medium
+Standard swipes,limited_or_wallet,unlimited,Match/ProfileDrawer,process_swipe_payment,medium
+Who viewed me,blurred,revealed,Viewers.jsx,unverified,high
+Who liked me,blurred_for_standard,revealed,Requests.jsx,unverified,high
+Advanced filters,apparently_yes,advertised,Match.jsx,none_found,high
+Priority discovery,no_claimed,yes_claimed,copy,visibility_score,medium
+Weekly boost,no_claimed,yes_claimed,copy,none_found,high
+Premium badge,no,yes,profile field,none_specific,medium
+Super Swipe,purchased_credit,purchased_credit,PremiumUpgrade/Match,send_super_swipe,medium
+Boost,purchased,purchased,PremiumUpgrade,purchase_boost_or_webhook,medium
+Gifts,wallet,wallet,GiftStore,process_gift_purchase,medium
+Messaging_after_match,yes,yes,Chat,message RLS unverified,medium

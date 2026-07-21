@@ -3,16 +3,29 @@ import { useAuth } from '../contexts/AuthContext';
 import {
     getWallet,
     getTransactions,
-    createTransaction,
-    completeTransaction,
-    initializePaystack,
+    PAYSTACK_PRODUCTS,
+    startPaystackPayment,
+    openHostedPaystackCheckout,
     getPayoutDetails,
-    updatePayoutDetails
+    updatePayoutDetails,
+    requestWalletWithdrawal
 } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { supabase } from '../lib/supabase';
 import './Wallet.css';
+
+const FUNDING_OPTIONS = [
+    { amount: 2000, productId: PAYSTACK_PRODUCTS.walletTopUps[2000] },
+    { amount: 5000, productId: PAYSTACK_PRODUCTS.walletTopUps[5000] },
+    { amount: 10000, productId: PAYSTACK_PRODUCTS.walletTopUps[10000] },
+    { amount: 20000, productId: PAYSTACK_PRODUCTS.walletTopUps[20000] }
+];
+
+const isNativeAndroid = () => {
+    if (typeof window === 'undefined' || !window.Capacitor?.isNativePlatform?.()) return false;
+    return window.Capacitor.getPlatform?.() === 'android';
+};
 
 export default function Wallet() {
     const { currentUser, userProfile } = useAuth();
@@ -141,9 +154,20 @@ export default function Wallet() {
     const handleFunding = async (e) => {
         e.preventDefault();
         const amount = parseFloat(fundingAmount);
+        const selectedFundingProduct = FUNDING_OPTIONS.find(option => option.amount === amount);
+
+        if (isNativeAndroid()) {
+            addToast('Wallet funding is available on the web. Android digital purchases use Google Play Billing.', 'info');
+            return;
+        }
 
         if (isNaN(amount) || amount < 2000) {
             addToast('Minimum deposit is ₦2,000', 'warning');
+            return;
+        }
+
+        if (!selectedFundingProduct) {
+            addToast('Choose one of the available wallet top-up amounts.', 'warning');
             return;
         }
 
@@ -156,50 +180,9 @@ export default function Wallet() {
         }
 
         try {
-            // 1. Create a pending transaction record
-            const { data: tx, error: txError } = await createTransaction({
-                wallet_id: wallet.id,
-                user_id: currentUser.id,
-                type: 'deposit',
-                amount: amount,
-                status: 'pending',
-                description: 'Wallet Funding via Flutterwave'
-            });
-
-            if (txError) throw txError;
-
-            // 2. Initialize Paystack
-            await initializePaystack({
-                public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-                reference: `CD-TX-${tx.id}`,
-                amount: amount,
-                email: currentUser.email,
-                metadata: {
-                    user_id: currentUser.id,
-                    tx_id: tx.id,
-                    type: 'deposit'
-                },
-                onSuccess: async (response) => {
-                    const { error: completeError } = await completeTransaction(
-                        tx.id,
-                        'success',
-                        response.reference,
-                        response
-                    );
-
-                    if (completeError) {
-                        addToast('Payment successful but wallet update failed.', 'error');
-                    } else {
-                        addToast('Wallet funded successfully!', 'success');
-                        loadWalletData();
-                        setIsProcessing(false);
-                    }
-                },
-                onCancel: () => {
-                    setIsProcessing(false);
-                }
-            });
-
+            const { data: payment, error } = await startPaystackPayment(selectedFundingProduct.productId);
+            if (error) throw new Error(error);
+            openHostedPaystackCheckout(payment);
         } catch (err) {
             console.error('Funding error:', err);
             addToast(err.message, 'error');
@@ -210,7 +193,6 @@ export default function Wallet() {
     const handleWithdrawal = async (e) => {
         e.preventDefault();
         const amount = parseFloat(withdrawalAmount);
-        const type = 'swipe_earnings'; // Default for ladies
 
         // Validation
         if (isNaN(amount) || amount < 15000) {
@@ -230,29 +212,15 @@ export default function Wallet() {
 
         setIsProcessing(true);
         try {
-            const { error: withdrawalErr } = await supabase
-                .from('withdrawals')
-                .insert({
-                    user_id: currentUser.id,
-                    amount: amount,
-                    type: type,
-                    status: 'pending',
-                    bank_details: { bank: 'User Bank', account: '1234567890' } // Placeholder
-                });
+            const { error } = await requestWalletWithdrawal(amount, {
+                bank_name: payoutDetails.bank_name,
+                account_number: payoutDetails.account_number,
+                account_name: payoutDetails.account_name,
+                paypal_email: payoutDetails.paypal_email,
+                preferred_method: payoutDetails.preferred_method
+            });
 
-            if (withdrawalErr) throw withdrawalErr;
-
-            // Deduct from available, move to pending
-            const { error: updateErr } = await supabase
-                .from('wallets')
-                .update({
-                    available_balance: wallet.available_balance - amount,
-                    pending_balance: (wallet.pending_balance || 0) + amount,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', wallet.id);
-
-            if (updateErr) throw updateErr;
+            if (error) throw new Error(error);
 
             addToast('Withdrawal request submitted! Payouts are processed weekly.', 'success');
             loadWalletData();
@@ -343,21 +311,29 @@ export default function Wallet() {
                     {!isLady ? (
                         <div className="wallet-actions">
                             <form onSubmit={handleFunding} className="funding-form">
-                                <label className="form-label">Min ₦2,000</label>
+                                <label className="form-label">Choose a wallet top-up</label>
+                                {isNativeAndroid() && (
+                                    <p style={{ margin: '0 0 0.75rem', color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.45 }}>
+                                        Wallet top-ups for digital features are available on the web. Android purchases use Google Play Billing.
+                                    </p>
+                                )}
                                 <div className="input-group">
-                                    <input
-                                        type="number"
-                                        placeholder="Amount"
+                                    <select
                                         value={fundingAmount}
                                         onChange={(e) => setFundingAmount(e.target.value)}
-                                        min="2000"
                                         className="funding-input"
-                                        disabled={isProcessing}
-                                    />
+                                        disabled={isProcessing || isNativeAndroid()}
+                                    >
+                                        {FUNDING_OPTIONS.map(option => (
+                                            <option key={option.productId} value={option.amount}>
+                                                NGN {option.amount.toLocaleString()}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <button
                                         type="submit"
                                         className="btn btn-primary btn-fund"
-                                        disabled={isProcessing}
+                                        disabled={isProcessing || isNativeAndroid()}
                                     >
                                         {isProcessing ? '...' : 'Add Funds'}
                                     </button>

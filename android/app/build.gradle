@@ -8,8 +8,8 @@ android {
         applicationId "com.collegedate.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 26
-        versionName "2.2.29"
+        versionCode 28
+        versionName "2.2.31"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the APK, modeled after .gitignore files.

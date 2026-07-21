@@ -40,6 +40,12 @@
     color: #fff;
 }
 
+.notif-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
 .mark-read-btn {
     background: none;
     border: none;
@@ -89,7 +95,18 @@
 }
 
 .notif-icon {
-    font-size: 20px;
+    display: grid;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 77, 184, 0.2), rgba(108, 99, 255, 0.18));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
     margin-right: 12px;
     margin-top: 2px;
 }

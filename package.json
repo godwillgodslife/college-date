@@ -1,13 +1,14 @@
 {
   "name": "cd2-0",
   "private": true,
-  "version": "2.2.29",
+  "version": "2.2.31",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "payment:remediation:test": "node scripts/payment-remediation-tests.mjs",
     "cap:dist": "npm run build && npx cap copy",
     "cap:sync": "npx cap sync",
     "android:clean-assets": "node scripts/clean-android-assets.mjs",
@@ -20,7 +21,9 @@
     "apk:debug": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
     "apk:build": "npm run build && npx cap copy && npx cap sync android && cd android && .\\gradlew assembleDebug",
     "aab:release": "npm run build && npm run android:clean-assets && npx cap sync android && npm run android:prepare-assets && npm run android:clean-build && cd android && .\\gradlew bundleRelease && cd .. && npm run aab:verify",
-    "icons:generate": "npx @capacitor/assets generate --android --ios"
+    "icons:generate": "npx @capacitor/assets generate --android --ios",
+    "prebuild": "npm run seo:generate",
+    "seo:generate": "node scripts/generate-sitemap.mjs && node scripts/generate-netlify-seo.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",

@@ -1,13 +1,17 @@
 import { useState, memo, useMemo, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import OptimizedImage, { getOptimizedUrl } from './OptimizedImage';
+import OptimizedImage from './OptimizedImage';
 import { useAuth } from '../contexts/AuthContext';
 import { isRecentlyActive, isRecentlyLive } from '../utils/presence';
+import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
 import { requestAiAssistant } from '../services/aiAssistantService';
+import { cacheMediaSource } from '../lib/mediaCache';
+import { getOptimizedUrl } from '../lib/imageUrl';
 import './SwipeCard.css';
 
 function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, onSuperSwipe, priority = false, isTop = true }) {
     const { userProfile: myProfile } = useAuth();
+    const displayProfile = normalizeProfile(profile) || {};
     const [exitX, setExitX] = useState(0);
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
     const [aiInsight, setAiInsight] = useState(null);
@@ -15,23 +19,21 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
     const [aiLoading, setAiLoading] = useState(false);
 
     const mutualInterests = useMemo(() => {
-        return (myProfile?.interests || []).filter(interest => 
-            (profile?.interests || []).includes(interest)
+        return safeArray(myProfile?.interests).filter(interest => 
+            safeArray(displayProfile?.interests).includes(interest)
         );
-    }, [myProfile?.interests, profile?.interests]);
+    }, [myProfile?.interests, displayProfile?.interests]);
 
     const compatibilityScore = useMemo(() => {
         let score = 55; // base score
-        if (profile?.intent && profile?.intent === myProfile?.intent) score += 20;
-        if (profile?.university && profile?.university === myProfile?.university) score += 15;
+        if (displayProfile?.intent && displayProfile?.intent === myProfile?.intent) score += 20;
+        if (displayProfile?.university && displayProfile?.university === myProfile?.university) score += 15;
         const mutualCount = mutualInterests.length;
         score += Math.min(15, mutualCount * 5);
         return Math.min(99, score);
-    }, [profile, myProfile, mutualInterests]);
+    }, [displayProfile, myProfile, mutualInterests]);
 
-    const photos = profile.profile_photos && profile.profile_photos.length > 0
-        ? profile.profile_photos
-        : [profile.avatar_url].filter(Boolean);
+    const photos = getProfilePhotos(displayProfile);
 
     // Preload next image in current carousel
     useEffect(() => {
@@ -40,6 +42,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
             nextImg.src = typeof getOptimizedUrl === 'function' 
                 ? getOptimizedUrl(photos[activePhotoIdx + 1], 800) 
                 : photos[activePhotoIdx + 1];
+            cacheMediaSource(nextImg.src).catch(() => {});
         }
     }, [activePhotoIdx, photos]);
 
@@ -62,7 +65,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
         }
 
         setExitX(direction === 'right' ? 300 : -300);
-        setTimeout(() => onSwipe(direction, profile), 260);
+        setTimeout(() => onSwipe(direction, displayProfile), 260);
     };
 
     const nextPhoto = (e) => {
@@ -79,13 +82,13 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
         }
     };
 
-    const isLive = isRecentlyLive(profile);
-    const recentlyActive = isRecentlyActive(profile);
+    const isLive = isRecentlyLive(displayProfile);
+    const recentlyActive = isRecentlyActive(displayProfile);
 
-    const displayName = profile.full_name || profile.username || 'User';
-    const age = profile.age || '';
-    const university = profile.university || 'University Student';
-    const bio = profile.bio || 'No bio yet';
+    const displayName = displayProfile.full_name || displayProfile.username || 'User';
+    const age = displayProfile.age || '';
+    const university = displayProfile.university || 'University Student';
+    const bio = displayProfile.bio || 'No bio yet';
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -103,8 +106,8 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
         setAiInsightType(task);
         setAiLoading(true);
         const { data, error } = await requestAiAssistant(task, {
-            targetProfileId: profile.id,
-            targetProfile: profile
+            targetProfileId: displayProfile.id,
+            targetProfile: displayProfile
         });
         if (!error) setAiInsight(data);
         setAiLoading(false);
@@ -235,10 +238,10 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                             {recentlyActive && (
                                 <span className="swipe-tag active-tag">🟢 Recently Active</span>
                             )}
-                            {profile.is_top_seeker && (
+                            {displayProfile.is_top_seeker && (
                                 <span className="swipe-tag top-seeker-tag">🔥 Top Seeker</span>
                             )}
-                            {profile.role === 'Female' && (
+                            {displayProfile.role === 'Female' && (
                                 <span className="swipe-tag premium-available">💎 Premium Unlock Available</span>
                             )}
                         </div>
@@ -262,14 +265,14 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                                             <p className="banner-desc">Common student goals & shared vibe.</p>
                                         )}
                                     </div>
-                                    {profile.department && <p><strong>Dept:</strong> {profile.department}</p>}
-                                    {profile.level && <p><strong>Level:</strong> {profile.level}</p>}
-                                    {profile.attraction_goal && <p><strong>Looking for:</strong> {profile.attraction_goal}</p>}
-                                    {profile.interests && profile.interests.length > 0 && (
+                                    {displayProfile.department && <p><strong>Dept:</strong> {displayProfile.department}</p>}
+                                    {displayProfile.level && <p><strong>Level:</strong> {displayProfile.level}</p>}
+                                    {displayProfile.attraction_goal && <p><strong>Looking for:</strong> {displayProfile.attraction_goal}</p>}
+                                    {safeArray(displayProfile.interests).length > 0 && (
                                         <div className="mt-2">
                                             <strong>Interests:</strong>
                                             <div className="flex flex-wrap gap-2 mt-1">
-                                                {profile.interests.map(i => <span key={i} className="swipe-tag text-xs">{i}</span>)}
+                                                {safeArray(displayProfile.interests).map(i => <span key={i} className="swipe-tag text-xs">{i}</span>)}
                                             </div>
                                         </div>
                                     )}
@@ -305,7 +308,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                                         const allowed = await onBeforeSwipe?.('left');
                                         if (allowed !== false) {
                                             setExitX(-300);
-                                            setTimeout(() => onSwipe('left'), 260);
+                                            setTimeout(() => onSwipe('left', displayProfile), 260);
                                         }
                                     }}
                                     aria-label="Pass Profile"
@@ -319,7 +322,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setExitX(300);
-                                            onSuperSwipe(profile);
+                                            onSuperSwipe(displayProfile);
                                         }}
                                         aria-label="Super Swipe"
                                     >
@@ -337,7 +340,7 @@ function SwipeCard({ profile, onSwipe, onBeforeSwipe, superSwipesAvailable = 0, 
                                         const allowed = await onBeforeSwipe?.('right');
                                         if (allowed !== false) {
                                             setExitX(300);
-                                            setTimeout(() => onSwipe('right'), 260);
+                                            setTimeout(() => onSwipe('right', displayProfile), 260);
                                         }
                                     }}
                                     aria-label="Like Profile"

@@ -1,0 +1,572 @@
+[
+  {
+    "name": "agora-D7Ps--8q.js",
+    "bytes": 1565247,
+    "gzip": 435845,
+    "ext": "js"
+  },
+  {
+    "name": "react-vendor-D7XHeoGm.js",
+    "bytes": 284974,
+    "gzip": 92215,
+    "ext": "js"
+  },
+  {
+    "name": "index-BDD1GHFC.js",
+    "bytes": 170656,
+    "gzip": 57906,
+    "ext": "js"
+  },
+  {
+    "name": "supabase-BZ0N5lZN.js",
+    "bytes": 170517,
+    "gzip": 45362,
+    "ext": "js"
+  },
+  {
+    "name": "AdminDashboard-BH7QlRq9.js",
+    "bytes": 156155,
+    "gzip": 34661,
+    "ext": "js"
+  },
+  {
+    "name": "framer-motion-BQleWtv9.js",
+    "bytes": 126997,
+    "gzip": 41740,
+    "ext": "js"
+  },
+  {
+    "name": "WireframeShowcase-6dSv7qcU.css",
+    "bytes": 86729,
+    "gzip": 15532,
+    "ext": "css"
+  },
+  {
+    "name": "WireframeShowcase-BWJ1wIUg.js",
+    "bytes": 81098,
+    "gzip": 17268,
+    "ext": "js"
+  },
+  {
+    "name": "landing-profile-amaka-DVMq9faz.webp",
+    "bytes": 80458,
+    "gzip": 80501,
+    "ext": "webp"
+  },
+  {
+    "name": "AdminDashboard-BLdsgWy1.css",
+    "bytes": 60525,
+    "gzip": 9754,
+    "ext": "css"
+  },
+  {
+    "name": "Chat-C3O3Uaod.js",
+    "bytes": 43674,
+    "gzip": 14011,
+    "ext": "js"
+  },
+  {
+    "name": "Chat-BGx1IiHK.css",
+    "bytes": 36718,
+    "gzip": 7484,
+    "ext": "css"
+  },
+  {
+    "name": "index-DT2UvH4l.css",
+    "bytes": 34518,
+    "gzip": 7637,
+    "ext": "css"
+  },
+  {
+    "name": "Match-BapNfOCX.css",
+    "bytes": 30950,
+    "gzip": 6821,
+    "ext": "css"
+  },
+  {
+    "name": "Match-CVHpoDnr.js",
+    "bytes": 23592,
+    "gzip": 8030,
+    "ext": "js"
+  },
+  {
+    "name": "AppLayout-DNzdIbgE.js",
+    "bytes": 21977,
+    "gzip": 7015,
+    "ext": "js"
+  },
+  {
+    "name": "Profile-AuElXp1L.css",
+    "bytes": 21033,
+    "gzip": 4668,
+    "ext": "css"
+  },
+  {
+    "name": "Profile-UgE_m5co.js",
+    "bytes": 20036,
+    "gzip": 5848,
+    "ext": "js"
+  },
+  {
+    "name": "landing-profile-tunde-BZq0yRr8.webp",
+    "bytes": 19904,
+    "gzip": 19932,
+    "ext": "webp"
+  },
+  {
+    "name": "AppLayout-D5Qg5cFx.css",
+    "bytes": 18554,
+    "gzip": 4440,
+    "ext": "css"
+  },
+  {
+    "name": "Landing-r-EHgHSs.css",
+    "bytes": 16383,
+    "gzip": 4094,
+    "ext": "css"
+  },
+  {
+    "name": "Settings-DvVZIIic.js",
+    "bytes": 15394,
+    "gzip": 3382,
+    "ext": "js"
+  },
+  {
+    "name": "landing-profile-zainab-DMPmOdcy.webp",
+    "bytes": 14518,
+    "gzip": 14541,
+    "ext": "webp"
+  },
+  {
+    "name": "Landing-DANiw-GD.js",
+    "bytes": 14479,
+    "gzip": 5129,
+    "ext": "js"
+  },
+  {
+    "name": "EditProfile-Ht4FfHLk.js",
+    "bytes": 13480,
+    "gzip": 4252,
+    "ext": "js"
+  },
+  {
+    "name": "MiniProfileSetup-CIC4Um8G.js",
+    "bytes": 13056,
+    "gzip": 4907,
+    "ext": "js"
+  },
+  {
+    "name": "Wallet-C7eJv8_g.js",
+    "bytes": 12546,
+    "gzip": 4121,
+    "ext": "js"
+  },
+  {
+    "name": "index-6K8U4MWC.js",
+    "bytes": 12058,
+    "gzip": 2871,
+    "ext": "js"
+  },
+  {
+    "name": "confetti.module-D_RVyC63.js",
+    "bytes": 10676,
+    "gzip": 4281,
+    "ext": "js"
+  },
+  {
+    "name": "Confessions-BGIBZTE7.js",
+    "bytes": 10592,
+    "gzip": 4248,
+    "ext": "js"
+  },
+  {
+    "name": "Explore-CpzrupFe.css",
+    "bytes": 10116,
+    "gzip": 2747,
+    "ext": "css"
+  },
+  {
+    "name": "landing-product-poster-CFl6YbEf.webp",
+    "bytes": 10114,
+    "gzip": 10137,
+    "ext": "webp"
+  },
+  {
+    "name": "web-BuJcdbpq.js",
+    "bytes": 10098,
+    "gzip": 2090,
+    "ext": "js"
+  },
+  {
+    "name": "Explore-CTuDo7L7.js",
+    "bytes": 9814,
+    "gzip": 3909,
+    "ext": "js"
+  },
+  {
+    "name": "formatDistanceToNow-Ctx6mZEP.js",
+    "bytes": 9762,
+    "gzip": 3395,
+    "ext": "js"
+  },
+  {
+    "name": "Dashboard-BkoEURHL.js",
+    "bytes": 9530,
+    "gzip": 3457,
+    "ext": "js"
+  },
+  {
+    "name": "Leaderboard-Mxy5RI5p.css",
+    "bytes": 9341,
+    "gzip": 2544,
+    "ext": "css"
+  },
+  {
+    "name": "PremiumUpgrade-QzGmcIJO.js",
+    "bytes": 9289,
+    "gzip": 3207,
+    "ext": "js"
+  },
+  {
+    "name": "NotificationPreviewLab-DPpUcTTf.js",
+    "bytes": 9198,
+    "gzip": 3107,
+    "ext": "js"
+  },
+  {
+    "name": "index-D8gQjEOS.js",
+    "bytes": 8118,
+    "gzip": 3312,
+    "ext": "js"
+  },
+  {
+    "name": "Leaderboard-DIlObTvY.js",
+    "bytes": 7872,
+    "gzip": 2451,
+    "ext": "js"
+  },
+  {
+    "name": "Wallet-DcS8U0Tf.css",
+    "bytes": 7858,
+    "gzip": 1809,
+    "ext": "css"
+  },
+  {
+    "name": "Dashboard-CfYnkaC8.css",
+    "bytes": 7744,
+    "gzip": 2093,
+    "ext": "css"
+  },
+  {
+    "name": "VoiceCallRoom-C2-vDX73.js",
+    "bytes": 7514,
+    "gzip": 2837,
+    "ext": "js"
+  },
+  {
+    "name": "Confessions-CoyD8hVd.css",
+    "bytes": 7457,
+    "gzip": 2151,
+    "ext": "css"
+  },
+  {
+    "name": "index-DiFuq029.js",
+    "bytes": 6686,
+    "gzip": 2541,
+    "ext": "js"
+  },
+  {
+    "name": "PremiumUpgrade-BkkbIAvu.css",
+    "bytes": 6442,
+    "gzip": 1872,
+    "ext": "css"
+  },
+  {
+    "name": "MiniProfileSetup-Bh67UugL.css",
+    "bytes": 6223,
+    "gzip": 1859,
+    "ext": "css"
+  },
+  {
+    "name": "Referrals-DCW_woDn.js",
+    "bytes": 6121,
+    "gzip": 2319,
+    "ext": "js"
+  },
+  {
+    "name": "Snap-Bi5lwiFF.css",
+    "bytes": 5766,
+    "gzip": 1639,
+    "ext": "css"
+  },
+  {
+    "name": "NotificationPreviewLab-OHvlkt3Y.css",
+    "bytes": 5483,
+    "gzip": 1298,
+    "ext": "css"
+  },
+  {
+    "name": "VoiceCallRoom-CxJDrwLq.css",
+    "bytes": 5406,
+    "gzip": 1632,
+    "ext": "css"
+  },
+  {
+    "name": "Signup-CY1viNfo.js",
+    "bytes": 5229,
+    "gzip": 2023,
+    "ext": "js"
+  },
+  {
+    "name": "Settings-DRtzzGo4.css",
+    "bytes": 5152,
+    "gzip": 1608,
+    "ext": "css"
+  },
+  {
+    "name": "Snap-DI1l05vw.js",
+    "bytes": 5108,
+    "gzip": 2050,
+    "ext": "js"
+  },
+  {
+    "name": "EditProfile-BIw3W1ot.css",
+    "bytes": 5097,
+    "gzip": 1711,
+    "ext": "css"
+  },
+  {
+    "name": "useSWRData-BeuWr6Q8.js",
+    "bytes": 5055,
+    "gzip": 1995,
+    "ext": "js"
+  },
+  {
+    "name": "Requests-BiiDCjb2.js",
+    "bytes": 4809,
+    "gzip": 2023,
+    "ext": "js"
+  },
+  {
+    "name": "Referrals-CsTt_HFL.css",
+    "bytes": 4742,
+    "gzip": 1433,
+    "ext": "css"
+  },
+  {
+    "name": "Auth-CzsWzZef.css",
+    "bytes": 4483,
+    "gzip": 1420,
+    "ext": "css"
+  },
+  {
+    "name": "Login-BctpvcM_.js",
+    "bytes": 3986,
+    "gzip": 1711,
+    "ext": "js"
+  },
+  {
+    "name": "NotificationCenter-2CraQ2TZ.css",
+    "bytes": 3968,
+    "gzip": 1146,
+    "ext": "css"
+  },
+  {
+    "name": "StatusUpdates-BOVBnhmm.js",
+    "bytes": 3829,
+    "gzip": 1483,
+    "ext": "js"
+  },
+  {
+    "name": "StatusUpdates-CcIJm_aN.css",
+    "bytes": 3709,
+    "gzip": 1122,
+    "ext": "css"
+  },
+  {
+    "name": "Requests-D_iwLRcH.css",
+    "bytes": 3425,
+    "gzip": 1202,
+    "ext": "css"
+  },
+  {
+    "name": "Viewers-BbbRN7vG.js",
+    "bytes": 2972,
+    "gzip": 1313,
+    "ext": "js"
+  },
+  {
+    "name": "statusService-Xoq6jZjm.js",
+    "bytes": 2914,
+    "gzip": 1019,
+    "ext": "js"
+  },
+  {
+    "name": "AuthCallback-BEPXc2bN.js",
+    "bytes": 2855,
+    "gzip": 1333,
+    "ext": "js"
+  },
+  {
+    "name": "NotificationCenter-BlPgYUzJ.js",
+    "bytes": 2843,
+    "gzip": 1218,
+    "ext": "js"
+  },
+  {
+    "name": "StatusViewer-V2fX1KvJ.css",
+    "bytes": 1846,
+    "gzip": 660,
+    "ext": "css"
+  },
+  {
+    "name": "StatusInput-D6pIM-_8.js",
+    "bytes": 1833,
+    "gzip": 940,
+    "ext": "js"
+  },
+  {
+    "name": "Viewers-tWc-rZiL.css",
+    "bytes": 1772,
+    "gzip": 718,
+    "ext": "css"
+  },
+  {
+    "name": "TourGuide-BRB5y-dw.js",
+    "bytes": 1731,
+    "gzip": 922,
+    "ext": "js"
+  },
+  {
+    "name": "StatusInput-CGKkqRuM.css",
+    "bytes": 1717,
+    "gzip": 756,
+    "ext": "css"
+  },
+  {
+    "name": "StatusViewer-DVZs71-P.js",
+    "bytes": 1625,
+    "gzip": 780,
+    "ext": "js"
+  },
+  {
+    "name": "TourGuide-D2NciZ5n.css",
+    "bytes": 1559,
+    "gzip": 679,
+    "ext": "css"
+  },
+  {
+    "name": "HiddenProfileBanner-BSJ5CvAa.css",
+    "bytes": 1352,
+    "gzip": 613,
+    "ext": "css"
+  },
+  {
+    "name": "PaymentCallback-D04Q-pZn.js",
+    "bytes": 1298,
+    "gzip": 752,
+    "ext": "js"
+  },
+  {
+    "name": "OptimizedImage-20OtdCLW.js",
+    "bytes": 1173,
+    "gzip": 710,
+    "ext": "js"
+  },
+  {
+    "name": "AndroidInstallButton-DxfD5-Rt.js",
+    "bytes": 1117,
+    "gzip": 605,
+    "ext": "js"
+  },
+  {
+    "name": "web-BVdw7Pn7.js",
+    "bytes": 1048,
+    "gzip": 524,
+    "ext": "js"
+  },
+  {
+    "name": "HiddenProfileBanner-CWr9uwaI.js",
+    "bytes": 1023,
+    "gzip": 520,
+    "ext": "js"
+  },
+  {
+    "name": "useCachedAsync-DNik8Mke.js",
+    "bytes": 957,
+    "gzip": 583,
+    "ext": "js"
+  },
+  {
+    "name": "AndroidInstallButton-tm4xq-FS.css",
+    "bytes": 875,
+    "gzip": 457,
+    "ext": "css"
+  },
+  {
+    "name": "web-B3qzekzj.js",
+    "bytes": 842,
+    "gzip": 400,
+    "ext": "js"
+  },
+  {
+    "name": "index-CQBwhUx3.js",
+    "bytes": 749,
+    "gzip": 447,
+    "ext": "js"
+  },
+  {
+    "name": "OptimizedImage-BaEWYHvx.css",
+    "bytes": 487,
+    "gzip": 272,
+    "ext": "css"
+  },
+  {
+    "name": "aiAssistantService-D_0oMbgx.js",
+    "bytes": 429,
+    "gzip": 299,
+    "ext": "js"
+  },
+  {
+    "name": "index-QY7a_CA5.js",
+    "bytes": 428,
+    "gzip": 284,
+    "ext": "js"
+  },
+  {
+    "name": "index-0gJ3oQyP.js",
+    "bytes": 413,
+    "gzip": 282,
+    "ext": "js"
+  },
+  {
+    "name": "contactLinks-BrLkbdQB.js",
+    "bytes": 406,
+    "gzip": 286,
+    "ext": "js"
+  },
+  {
+    "name": "index-BGomBeqt.js",
+    "bytes": 401,
+    "gzip": 279,
+    "ext": "js"
+  },
+  {
+    "name": "web-CRfLBV12.js",
+    "bytes": 379,
+    "gzip": 252,
+    "ext": "js"
+  },
+  {
+    "name": "aiTrustService-C0akwgmh.js",
+    "bytes": 356,
+    "gzip": 266,
+    "ext": "js"
+  },
+  {
+    "name": "web-BtWpm-Bn.js",
+    "bytes": 119,
+    "gzip": 126,
+    "ext": "js"
+  }
+]

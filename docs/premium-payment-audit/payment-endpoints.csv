@@ -1,0 +1,11 @@
+endpoint_or_rpc,type,auth,provider,db_effect,risk
+verify-paystack-transaction,edge_function,Supabase JWT plus getUser,Paystack,updates wallet_transactions and wallet_or_premium,critical_client_amount_trust
+verify-paystack-status,edge_function,JWT config unverified no internal user check,Paystack,updates profiles and subscriptions,high_restore_replay
+revenuecat-webhook,edge_function,static authorization secret,RevenueCat,updates subscriptions profiles boosts ledger,medium_replay_idempotency
+process_swipe_payment,rpc,auth.uid equals swiper in latest migration,wallet,charges wallet or marks free,medium_state_split
+check_and_reset_swipe_limit,rpc,unverified,none,reads_or_resets swipe_limits,medium
+decrement_wallet_balance,rpc,auth.uid equals user,wallet,deducts wallet,low
+increment_wallet_balance_admin,rpc,revoked from clients,none,credits wallet,low
+purchase_boost,rpc,live auth unverified,wallet,deducts wallet creates boost,high_if_unhardened
+send_super_swipe,rpc,definition not verified,wallet/boost,consumes credit creates swipe,medium
+process_gift_purchase,rpc,auth.uid equals sender,wallet,deducts sender credits receiver,medium

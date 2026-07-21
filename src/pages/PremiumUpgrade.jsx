@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { initializePaystack, createTransaction, completeTransaction, getSubscription, getWallet, payWithWallet, purchaseBoost, getActiveBoosts, getRevenueCatPackages, purchaseRevenueCatPackage, restoreRevenueCatPurchases } from '../services/paymentService';
+import { PAYSTACK_PRODUCTS, getSubscription, getWallet, payWithWallet, purchaseBoost, getActiveBoosts, getRevenueCatPackages, purchaseRevenueCatPackage, startPaystackPayment, openHostedPaystackCheckout } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -138,48 +138,9 @@ export default function PremiumUpgrade() {
     const handleWebSubscribe = async () => {
         setIsProcessing(true);
         try {
-            const { data: tx, error: txError } = await createTransaction({
-                user_id: currentUser.id,
-                type: 'subscription',
-                amount: 2900,
-                status: 'pending',
-                description: 'College Date Premium Subscription'
-            });
-
-            if (txError) throw txError;
-
-            await initializePaystack({
-                public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-                reference: `CD-SUB-${tx.id}`,
-                amount: 2900,
-                email: currentUser.email,
-                metadata: {
-                    user_id: currentUser.id,
-                    transaction_id: tx.id,
-                    type: 'subscription'
-                },
-                onSuccess: async (response) => {
-                    const { error: completeError } = await completeTransaction(
-                        tx.id,
-                        'success',
-                        response.reference,
-                        response
-                    );
-
-                    if (completeError) {
-                        addToast('Payment successful but activation failed. Contact support.', 'error');
-                    } else {
-                        addToast('Welcome to Premium! Your features are now unlocked.', 'success');
-                        loadSubscription();
-                        fetchProfile(currentUser.id);
-                    }
-                    setIsProcessing(false);
-                },
-                onCancel: () => {
-                    setIsProcessing(false);
-                }
-            });
-
+            const { data: payment, error } = await startPaystackPayment(PAYSTACK_PRODUCTS.premiumMonthly);
+            if (error) throw new Error(error);
+            openHostedPaystackCheckout(payment);
         } catch (err) {
             console.error('Subscription error:', err);
             addToast(err.message, 'error');

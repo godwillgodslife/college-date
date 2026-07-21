@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import { getNotificationDeepLink, getNotificationIcon } from '../utils/notificationRouting';
 import './NotificationTray.css';
 
 export default function NotificationTray({ onClose }) {
@@ -8,13 +9,13 @@ export default function NotificationTray({ onClose }) {
     const navigate = useNavigate();
     const trayRef = useRef(null);
 
-    // Close on click outside
     useEffect(() => {
         function handleClickOutside(event) {
             if (trayRef.current && !trayRef.current.contains(event.target)) {
                 onClose();
             }
         }
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onClose]);
@@ -23,66 +24,8 @@ export default function NotificationTray({ onClose }) {
         markRead(notification.id);
         onClose();
 
-        const actorId = notification.actor_id;
-        const matchId = notification.metadata?.match_id;
-
-        // Navigate based on type/metadata
-        if (notification.type === 'match' || notification.type === 'swipe_accepted') {
-            // Pass the matched user's ID so Chat.jsx opens the right conversation instantly
-            navigate('/chat', {
-                state: {
-                    openChatWith: actorId,
-                    chatId: matchId || null,
-                }
-            });
-        } else if (notification.type === 'message' || notification.type === 'new_message') {
-            navigate('/chat', {
-                state: {
-                    openChatWith: actorId,
-                    chatId: matchId || null,
-                }
-            });
-        } else if (notification.metadata?.url) {
-            navigate(notification.metadata.url);
-        } else if (notification.type === 'swipe_received' || notification.type === 'like') {
-            navigate('/requests');
-        } else if (notification.type === 'view' || notification.type === 'profile_view' || notification.type === 'checked_out') {
-            navigate('/viewers');
-        } else if (notification.type === 'trending' || notification.type === 'leaderboard') {
-            navigate('/leaderboard');
-        } else if (notification.type === 'confession') {
-            navigate('/confessions');
-        } else if (notification.type === 'verified') {
-            navigate('/profile');
-        } else if (notification.type === 'nearby') {
-            navigate('/explore');
-        } else if (notification.type === 'funds' || notification.type === 'payment') {
-            navigate('/wallet');
-        }
-    };
-
-
-    const getIcon = (type) => {
-        switch (type) {
-            case 'match':
-            case 'swipe_accepted': return '🔥';
-            case 'swipe_received':
-            case 'like': return '✨';
-            case 'payment':
-            case 'funds': return '💰';
-            case 'view':
-            case 'checked_out':
-            case 'profile_view': return '👀';
-            case 'snapshot_reaction': return '📸';
-            case 'status_update': return '⭕';
-            case 'message': return '💬';
-            case 'trending':
-            case 'leaderboard': return '📈';
-            case 'confession': return '🤫';
-            case 'verified': return '✅';
-            case 'nearby': return '📍';
-            default: return '🔔';
-        }
+        const destination = getNotificationDeepLink(notification);
+        navigate(destination.to, destination.state ? { state: destination.state } : undefined);
     };
 
     return (
@@ -90,26 +33,37 @@ export default function NotificationTray({ onClose }) {
             <div className="notif-header">
                 <h3>Notifications</h3>
                 {notifications.length > 0 && (
-                    <button className="mark-read-btn" onClick={markAllRead}>
-                        Mark all read
-                    </button>
+                    <div className="notif-header-actions">
+                        <button
+                            className="mark-read-btn"
+                            onClick={() => {
+                                onClose();
+                                navigate('/notifications');
+                            }}
+                        >
+                            View all
+                        </button>
+                        <button className="mark-read-btn" onClick={markAllRead}>
+                            Mark all read
+                        </button>
+                    </div>
                 )}
             </div>
 
             <div className="notif-list">
                 {notifications.length === 0 ? (
                     <div className="notif-empty">
-                        <span className="empty-icon">🔕</span>
+                        <span className="empty-icon">!</span>
                         <p>No new notifications</p>
                     </div>
                 ) : (
-                    notifications.map(notif => (
+                    notifications.map((notif) => (
                         <div
                             key={notif.id}
                             className={`notif-item ${!notif.is_read ? 'unread' : ''}`}
                             onClick={() => handleItemClick(notif)}
                         >
-                            <div className="notif-icon">{getIcon(notif.type)}</div>
+                            <div className="notif-icon">{getNotificationIcon(notif.type)}</div>
                             <div className="notif-content">
                                 <p className="notif-title">{notif.title}</p>
                                 <p className="notif-text">{notif.content}</p>

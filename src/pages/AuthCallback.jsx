@@ -6,6 +6,14 @@ import './Auth.css';
 
 const AUTH_TIMEOUT_MS = 12000;
 
+function getStoredRedirectTarget() {
+    const target = sessionStorage.getItem('post_auth_redirect') || '/';
+    sessionStorage.removeItem('post_auth_redirect');
+
+    if (!target.startsWith('/') || target.startsWith('//')) return '/';
+    return target;
+}
+
 function withTimeout(promise, label) {
     let timeoutId;
     const timeout = new Promise((_, reject) => {
@@ -123,7 +131,7 @@ export default function AuthCallback() {
                 }
 
                 if (session?.user) {
-                    navigate('/', { replace: true });
+                    navigate(getStoredRedirectTarget(), { replace: true });
                     setTimeout(() => {
                         ensureOAuthProfile(session).catch((profileError) => {
                             console.warn('OAuth profile repair skipped:', profileError.message);

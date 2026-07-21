@@ -1,6 +1,16 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 
+export const PAYSTACK_PRODUCTS = Object.freeze({
+    premiumMonthly: 'premium_monthly',
+    walletTopUps: Object.freeze({
+        2000: 'wallet_2000',
+        5000: 'wallet_5000',
+        10000: 'wallet_10000',
+        20000: 'wallet_20000'
+    })
+});
+
 /**
  * Get the current user's wallet
  */
@@ -59,19 +69,11 @@ export async function getTransactions(walletId) {
  * Create a pending transaction record
  */
 export async function createTransaction(transactionData) {
-    try {
-        const { data, error } = await supabase
-            .from('wallet_transactions')
-            .insert(transactionData)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return { data, error: null };
-    } catch (error) {
-        console.error('Error creating transaction:', error);
-        return { data: null, error: error.message };
-    }
+    void transactionData;
+    return {
+        data: null,
+        error: 'Client-created payment transactions are disabled. Use startPaystackPayment(productId).'
+    };
 }
 
 /**
@@ -79,12 +81,13 @@ export async function createTransaction(transactionData) {
  */
 export async function completeTransaction(transactionId, status, reference, metadata = {}) {
     try {
+        void transactionId;
         if (status !== 'success') {
             throw new Error('Only successful payments can be completed.');
         }
 
         const { data: verifiedPayment, error: verificationError } = await supabase.functions.invoke('verify-paystack-transaction', {
-            body: { transactionId, reference, metadata }
+            body: { reference }
         });
 
         if (verificationError) throw verificationError;
@@ -92,23 +95,23 @@ export async function completeTransaction(transactionId, status, reference, meta
             throw new Error(verifiedPayment?.message || 'Payment could not be verified.');
         }
 
-        const verifiedTx = verifiedPayment.transaction;
+        const verifiedTx = verifiedPayment.result;
 
-        if (verifiedTx?.type === 'deposit') {
+        if (verifiedTx?.product_type === 'wallet_funding') {
             createNotification({
-                userId: verifiedTx.user_id,
+                userId: metadata.user_id,
                 type: 'payment',
                 title: 'Deposit Successful!',
                 content: `NGN ${Number(verifiedTx.amount).toLocaleString()} has been added to your wallet.`,
-                metadata: { tx_id: verifiedTx.id, url: '/wallet' }
+                metadata: { reference, url: '/wallet' }
             }).catch(e => console.warn('Silent deposit notification fail:', e));
-        } else if (verifiedTx?.type === 'subscription') {
+        } else if (verifiedTx?.product_type === 'subscription') {
             createNotification({
-                userId: verifiedTx.user_id,
+                userId: metadata.user_id,
                 type: 'payment',
                 title: 'Premium Activated!',
                 content: 'Your account has been upgraded to Premium. Enjoy your new features!',
-                metadata: { tx_id: verifiedTx.id, url: '/settings' }
+                metadata: { reference, url: '/settings' }
             }).catch(e => console.warn('Silent payment notification fail:', e));
         }
 
@@ -124,74 +127,28 @@ export async function completeTransaction(transactionId, status, reference, meta
  */
 export async function payWithWallet(userId, amount, type, description) {
     try {
-        // 1. Get wallet
-        const { data: wallet, error: walletError } = await getWallet(userId);
-        if (walletError) throw walletError;
-
-        if (wallet.available_balance < amount) {
-            throw new Error('Insufficient wallet balance');
-        }
-
-        // 2. Create a completed transaction record
-        const { data: tx, error: txError } = await supabase
-            .from('wallet_transactions')
-            .insert({
-                user_id: userId,
-                wallet_id: wallet.id,
-                type: 'payment',
-                amount: amount,
-                status: 'completed',
-                description: description,
-                payment_method: 'wallet',
-                metadata: { type: type }
-            })
-            .select()
-            .single();
-
-        if (txError) throw txError;
-
-        // 3. Deduct from wallet using RPC
-        const { error: rpcError } = await supabase.rpc('decrement_wallet_balance', {
-            p_user_id: userId,
-            p_amount: amount
-        });
-
-        if (rpcError) throw rpcError;
-
-        // 4. Activate the service
         if (type === 'subscription') {
-            const premiumExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-            const { error: subError } = await supabase
-                .from('subscriptions')
-                .upsert({
-                    user_id: userId,
-                    plan_type: 'Premium',
-                    status: 'active',
-                    current_period_end: premiumExpiry,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id' });
-            if (subError) throw subError;
+            const { data, error } = await supabase.rpc('purchase_premium_with_wallet', {
+                p_product_id: PAYSTACK_PRODUCTS.premiumMonthly
+            });
 
-            const { error: profilePremiumError } = await supabase
-                .from('profiles')
-                .update({
-                    is_premium: true,
-                    premium_expires_at: premiumExpiry
-                })
-                .eq('id', userId);
-            if (profilePremiumError) throw profilePremiumError;
+            if (error) throw error;
+            if (!data?.success) {
+                throw new Error(data?.error || 'Wallet payment failed');
+            }
+
+            createNotification({
+                userId,
+                type: 'payment',
+                title: 'Payment Successful',
+                content: `NGN ${Number(amount).toLocaleString()} paid for ${description}`,
+                metadata: { reference: data.reference, url: '/wallet' }
+            }).catch(e => console.warn('Silent wallet payment notification error:', e));
+
+            return { data, error: null };
         }
 
-        // Notify user about Wallet Payment
-        createNotification({
-            userId: userId,
-            type: 'payment',
-            title: '💸 Payment Successful',
-            content: `₦${amount.toLocaleString()} paid for ${description}`,
-            metadata: { tx_id: tx.id, url: '/wallet' }
-        }).catch(e => console.warn('Silent wallet payment notification error:', e));
-
-        return { data: tx, error: null };
+        throw new Error('Wallet payments for this product must use a dedicated server RPC.');
     } catch (error) {
         console.error('Wallet payment error:', error);
         return { data: null, error: error.message };
@@ -217,6 +174,25 @@ export async function updatePayoutDetails(userId, details) {
         .single();
 }
 
+export async function requestWalletWithdrawal(amount, bankDetails = {}) {
+    try {
+        const { data, error } = await supabase.rpc('request_wallet_withdrawal', {
+            p_amount: amount,
+            p_bank_details: bankDetails
+        });
+
+        if (error) throw error;
+        if (!data?.success) {
+            throw new Error(data?.error || 'Withdrawal request failed');
+        }
+
+        return { data, error: null };
+    } catch (error) {
+        console.error('requestWalletWithdrawal error:', error);
+        return { data: null, error: error.message };
+    }
+}
+
 /**
  * Get user subscription status
  */
@@ -236,6 +212,50 @@ export async function getSubscription(userId) {
 /**
  * Initialize Paystack Payment
  */
+export async function startPaystackPayment(productId) {
+    try {
+        const { data, error } = await supabase.functions.invoke('initialize-paystack-payment', {
+            body: { productId }
+        });
+
+        if (error) throw error;
+        if (!data?.success) {
+            throw new Error(data?.message || 'Payment could not be initialized.');
+        }
+
+        return { data, error: null };
+    } catch (error) {
+        console.error('startPaystackPayment error:', error);
+        return { data: null, error: error.message };
+    }
+}
+
+export async function verifyPaystackPayment(reference) {
+    try {
+        const { data, error } = await supabase.functions.invoke('verify-paystack-transaction', {
+            body: { reference }
+        });
+
+        if (error) throw error;
+        if (!data?.success) {
+            throw new Error(data?.message || 'Payment could not be verified.');
+        }
+
+        return { data, error: null };
+    } catch (error) {
+        console.error('verifyPaystackPayment error:', error);
+        return { data: null, error: error.message };
+    }
+}
+
+export function openHostedPaystackCheckout(payment) {
+    if (!payment?.authorizationUrl) {
+        throw new Error('Missing Paystack authorization URL.');
+    }
+
+    window.location.assign(payment.authorizationUrl);
+}
+
 function loadPaystackScript() {
     if (typeof window === 'undefined') {
         return Promise.reject(new Error('Paystack is only available in the browser.'));
@@ -363,10 +383,10 @@ export async function getActiveBoosts(userId) {
  * against the Paystack API and updates is_premium if it is confirmed.
  * @param {string} userId
  */
-export async function verifyAndRestorePremium(userId) {
+export async function verifyAndRestorePremium() {
     try {
         const { data, error } = await supabase.functions.invoke('verify-paystack-status', {
-            body: { userId }
+            body: {}
         });
 
         if (error) throw error;

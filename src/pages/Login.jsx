@@ -1,8 +1,18 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import './Auth.css';
+
+function getSafeRedirectTarget(location) {
+    const stateTarget = location.state?.from?.pathname || location.state?.from;
+    const queryTarget = new URLSearchParams(location.search).get('redirect');
+    const target = stateTarget || queryTarget || '/';
+
+    if (typeof target !== 'string') return '/';
+    if (!target.startsWith('/') || target.startsWith('//')) return '/';
+    return target;
+}
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -13,6 +23,8 @@ export default function Login() {
     const { login, loginWithGoogle, error, clearError } = useAuth();
     const { error: showError } = useToast();
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTarget = getSafeRedirectTarget(location);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,12 +42,18 @@ export default function Login() {
         if (loginErr) {
             showError(loginErr);
         } else {
-            navigate('/', { replace: true });
+            sessionStorage.removeItem('post_auth_redirect');
+            navigate(redirectTarget, { replace: true });
         }
     };
 
     const handleGoogleLogin = async () => {
         setIsLoading(true);
+        if (redirectTarget !== '/') {
+            sessionStorage.setItem('post_auth_redirect', redirectTarget);
+        } else {
+            sessionStorage.removeItem('post_auth_redirect');
+        }
         const { error: err } = await loginWithGoogle();
         if (err) {
             showError(err);

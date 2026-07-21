@@ -1,34 +1,39 @@
 import { useState, useEffect } from 'react';
 import './NotificationSoftPrompt.css';
 
+function isLocalWeb() {
+    return import.meta.env.DEV
+        || window.location.hostname === 'localhost'
+        || window.location.hostname === '127.0.0.1'
+        || window.location.hostname === '[::1]'
+        || window.location.hostname.startsWith('192.168.')
+        || window.location.hostname.startsWith('10.')
+        || window.location.hostname.endsWith('.local')
+        || window.location.port !== '';
+}
+
+function isAuthPath() {
+    return ['/login', '/signup', '/auth'].some((path) => window.location.pathname.startsWith(path));
+}
+
 export default function NotificationSoftPrompt() {
     const [show, setShow] = useState(false);
     const [animating, setAnimating] = useState(false);
 
     useEffect(() => {
         const isNativePlatform = window.Capacitor?.isNativePlatform?.();
-        if (isNativePlatform) return;
-
-        const isLocal = import.meta.env.DEV ||
-                        window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1' || 
-                        window.location.hostname === '[::1]' ||
-                        window.location.hostname.startsWith('192.168.') || 
-                        window.location.hostname.startsWith('10.') || 
-                        window.location.hostname.endsWith('.local') ||
-                        window.location.port !== '';
-        if (isLocal) return;
+        if (isNativePlatform || isLocalWeb() || isAuthPath()) return;
 
         if (!window.OneSignalDeferred) return;
 
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(async function (OneSignal) {
             if (!OneSignal?.Notifications) return;
+
             const permission = OneSignal.Notifications.permission;
             const dismissed = localStorage.getItem('onesignal-prompt-dismissed');
 
             if (!permission && !dismissed) {
-                // Delay 4s so user can settle into the app
                 setTimeout(() => {
                     setAnimating(true);
                     setTimeout(() => setShow(true), 50);
@@ -40,6 +45,7 @@ export default function NotificationSoftPrompt() {
     const handleEnable = () => {
         setShow(false);
         if (!window.OneSignalDeferred) return;
+
         window.OneSignalDeferred.push(async function (OneSignal) {
             if (!OneSignal?.Notifications) return;
             await OneSignal.Notifications.requestPermission();
@@ -52,48 +58,41 @@ export default function NotificationSoftPrompt() {
         localStorage.setItem('onesignal-prompt-dismissed', 'true');
     };
 
-    const isLocal = import.meta.env.DEV ||
-                    window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' || 
-                    window.location.hostname === '[::1]' ||
-                    window.location.hostname.startsWith('192.168.') || 
-                    window.location.hostname.startsWith('10.') || 
-                    window.location.hostname.endsWith('.local') ||
-                    window.location.port !== '';
-
-    if (isLocal || !animating) return null;
+    if (isLocalWeb() || isAuthPath() || !animating) return null;
 
     return (
         <div className={`soft-prompt-overlay ${show ? 'visible' : ''}`} onClick={handleDismiss}>
-            <div className="soft-prompt-card" onClick={e => e.stopPropagation()}>
-                {/* Animated money rain */}
+            <div className="soft-prompt-card" onClick={(event) => event.stopPropagation()}>
                 <div className="money-rain" aria-hidden="true">
-                    {['💸', '💰', '💳', '💵', '🪙'].map((emoji, i) => (
-                        <span key={i} className={`money-drop drop-${i + 1}`}>{emoji}</span>
+                    {['$', 'CD', '+', 'N', '$'].map((label, index) => (
+                        <span key={index} className={`money-drop drop-${index + 1}`}>{label}</span>
                     ))}
                 </div>
 
                 <div className="soft-prompt-content">
                     <div className="soft-prompt-icon-ring">
-                        <span>🔔</span>
+                        <span>CD</span>
                     </div>
 
-                    <h3>Want to know the second you make money? 💸</h3>
-                    <p>Enable alerts so you <strong>never miss a credit</strong>. Get notified the moment someone swipes on you or pays for a vibe.</p>
+                    <h3>Get campus alerts the moment they happen</h3>
+                    <p>
+                        Enable notifications so you know when someone messages you, likes you, matches with you,
+                        or sends an account update.
+                    </p>
 
                     <div className="soft-prompt-preview">
                         <div className="preview-notif">
-                            <span className="preview-icon">💰</span>
+                            <span className="preview-icon">M</span>
                             <div>
-                                <strong>Credit Alert!</strong>
-                                <p>You just earned ₦250. Tap to see who paid.</p>
+                                <strong>New message</strong>
+                                <p>Amaka sent you a message. Tap to reply.</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="soft-prompt-actions">
                         <button className="btn-enable-notif" onClick={handleEnable}>
-                            Enable Alerts 🔔
+                            Enable alerts
                         </button>
                         <button className="btn-not-now" onClick={handleDismiss}>Not now</button>
                     </div>

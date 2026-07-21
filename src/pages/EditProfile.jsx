@@ -8,6 +8,7 @@ import VoiceRecorder from '../components/VoiceRecorder';
 import { supabase } from '../lib/supabase';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { requestProfileAiReview } from '../services/aiTrustService';
+import { safeArray } from '../utils/profileData';
 import './EditProfile.css';
 
 export default function EditProfile() {
@@ -60,9 +61,9 @@ export default function EditProfile() {
                 genotype: userProfile.genotype || '',
                 mbti: userProfile.mbti || '',
                 attraction_goal: userProfile.attraction_goal || '',
-                interests: userProfile.interests || [],
+                interests: safeArray(userProfile.interests),
                 intro_prompt: userProfile.intro_prompt || '',
-                profile_photos: userProfile.profile_photos || []
+                profile_photos: safeArray(userProfile.profile_photos)
             });
         }
     }, [userProfile]);
@@ -88,7 +89,7 @@ export default function EditProfile() {
             const { url, error } = await uploadProfilePhoto(file, currentUser.id, index);
             if (error) throw new Error(error);
 
-            const newPhotos = [...formData.profile_photos];
+            const newPhotos = [...safeArray(formData.profile_photos)];
             newPhotos[index] = url;
 
             // Auto-set first photo as avatar if avatar is missing
@@ -110,7 +111,7 @@ export default function EditProfile() {
     };
 
     const removePhoto = (index) => {
-        const newPhotos = [...formData.profile_photos];
+        const newPhotos = [...safeArray(formData.profile_photos)];
         newPhotos[index] = null;
         setFormData(prev => ({ ...prev, profile_photos: newPhotos }));
     };
@@ -136,7 +137,7 @@ export default function EditProfile() {
                 interests: formData.interests,
                 intro_prompt: formData.intro_prompt,
                 attraction_goal: formData.attraction_goal,
-                photo_count: formData.profile_photos.filter(Boolean).length,
+                photo_count: safeArray(formData.profile_photos).filter(Boolean).length,
                 has_voice_intro: Boolean(formData.voice_intro_url || voiceBlob)
             }
         });
@@ -184,9 +185,9 @@ export default function EditProfile() {
                 genotype: formData.genotype,
                 mbti: formData.mbti,
                 attraction_goal: formData.attraction_goal,
-                interests: formData.interests,
+                interests: safeArray(formData.interests),
                 intro_prompt: formData.intro_prompt,
-                profile_photos: formData.profile_photos,
+                profile_photos: safeArray(formData.profile_photos),
                 email: currentUser.email,
                 updated_at: new Date()
             };
@@ -226,10 +227,10 @@ export default function EditProfile() {
                         <h2 className="section-title">My Gallery</h2>
                         <div className="photo-grid-2x2">
                             {[0, 1, 2, 3].map((idx) => (
-                                <div key={idx} className={`photo-sq-slot ${formData.profile_photos[idx] ? 'filled' : ''}`}>
-                                    {formData.profile_photos[idx] ? (
+                                <div key={idx} className={`photo-sq-slot ${safeArray(formData.profile_photos)[idx] ? 'filled' : ''}`}>
+                                    {safeArray(formData.profile_photos)[idx] ? (
                                         <>
-                                            <img src={formData.profile_photos[idx]} alt={`Profile ${idx + 1}`} className="slot-img" />
+                                            <img src={safeArray(formData.profile_photos)[idx]} alt={`Profile ${idx + 1}`} className="slot-img" />
                                             <button
                                                 type="button"
                                                 className="delete-sq-btn"
@@ -477,11 +478,12 @@ export default function EditProfile() {
                                     <button
                                         key={interest}
                                         type="button"
-                                        className={`vibe-chip ${formData.interests.includes(interest) ? 'active' : ''}`}
+                                        className={`vibe-chip ${safeArray(formData.interests).includes(interest) ? 'active' : ''}`}
                                         onClick={() => {
-                                            const newInterests = formData.interests.includes(interest)
-                                                ? formData.interests.filter(i => i !== interest)
-                                                : [...formData.interests, interest];
+                                            const currentInterests = safeArray(formData.interests);
+                                            const newInterests = currentInterests.includes(interest)
+                                                ? currentInterests.filter(i => i !== interest)
+                                                : [...currentInterests, interest];
                                             setFormData(prev => ({ ...prev, interests: newInterests }));
                                         }}
                                     >

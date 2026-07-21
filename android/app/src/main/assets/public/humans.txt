@@ -19,4 +19,4 @@ Android package name: com.collegedate.app
 /* AI AND SEARCH */
 AI summary: https://www.thecollegedate.com/llms.txt
 Sitemap: https://www.thecollegedate.com/sitemap.xml
-Press and brand facts: https://www.thecollegedate.com/press.html
+Press and brand facts: https://www.thecollegedate.com/press

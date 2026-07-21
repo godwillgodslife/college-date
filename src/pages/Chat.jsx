@@ -46,10 +46,42 @@ const DISAPPEARING_OPTIONS = [
     { label: '30 days', seconds: 30 * 24 * 60 * 60 },
 ];
 
+function messageCacheKey(userId, matchId) {
+    return userId && matchId ? ['messages', userId, matchId] : null;
+}
+
+function queuedMessageToBubble(operation) {
+    const payload = operation?.payload || {};
+    if (!payload.matchId || !payload.senderId) return null;
+
+    return {
+        id: payload.optimisticId || operation.id,
+        match_id: payload.matchId,
+        sender_id: payload.senderId,
+        content: payload.content,
+        type: payload.type || 'text',
+        metadata: payload.metadata || {},
+        created_at: payload.createdAt || operation.createdAt || new Date().toISOString(),
+        is_read: false,
+        _pending: true,
+        _queued: true,
+        _failed: Boolean(operation.lastError),
+    };
+}
+
 import { useConversations } from '../hooks/useSWRData';
 import { Virtuoso } from 'react-virtuoso';
 import OptimizedImage from '../components/OptimizedImage';
 import { playSendSwoosh, playNotificationDing } from '../lib/audioContext';
+import { CACHE_LIMITS, CACHE_TTL, trimCacheList } from '../lib/cachePolicy';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
+import { cacheMediaSource, getCachedMediaObjectUrl } from '../lib/mediaCache';
+import {
+    drainOfflineQueue,
+    enqueueOfflineOperation,
+    getQueuedOperations,
+    removeOfflineOperation
+} from '../lib/offlineQueue';
 
 
 // ── Tick Read-Receipt Icons ────────────────────────────────────────────
@@ -81,24 +113,50 @@ function ChatMedia({ msg, type, isSent }) {
 
     useEffect(() => {
         let cancelled = false;
+        let objectUrl = null;
         const source = msg.metadata?.storage_path || msg.content;
         if (!source) return undefined;
 
         if (/^https?:\/\//i.test(source) || source.startsWith('blob:')) {
+            cacheMediaSource(source).catch(() => {});
             return undefined;
         }
 
-        getSignedChatMediaUrl(source).then(({ url, error }) => {
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            getCachedMediaObjectUrl(source).then((cachedUrl) => {
+                if (cancelled) return;
+                if (cachedUrl) {
+                    objectUrl = cachedUrl;
+                    setMediaUrl(cachedUrl);
+                } else {
+                    setLoadError('Media unavailable offline');
+                }
+            });
+            return () => {
+                cancelled = true;
+                if (objectUrl) window.URL.revokeObjectURL(objectUrl);
+            };
+        }
+
+        getSignedChatMediaUrl(source).then(async ({ url, error }) => {
             if (cancelled) return;
             if (error || !url) {
+                const cachedUrl = await getCachedMediaObjectUrl(source);
+                if (!cancelled && cachedUrl) {
+                    objectUrl = cachedUrl;
+                    setMediaUrl(cachedUrl);
+                    return;
+                }
                 setLoadError(error || 'Could not load media');
                 return;
             }
+            cacheMediaSource(url, { cacheKey: source }).catch(() => {});
             setMediaUrl(url);
         });
 
         return () => {
             cancelled = true;
+            if (objectUrl) window.URL.revokeObjectURL(objectUrl);
         };
     }, [msg.content, msg.metadata?.storage_path]);
 
@@ -183,23 +241,17 @@ export default function Chat() {
         
         const fetchActivityCounts = async () => {
             try {
-                // Fetch pending incoming swipes (likes)
-                const { count: likes, data: reqList } = await supabase
-                    .from('swipes')
-                    .select('id, swiper:profiles!swipes_swiper_id_fkey(id, full_name, avatar_url)', { count: 'exact' })
-                    .eq('swiped_id', currentUser.id)
-                    .eq('status', 'pending');
-                    
-                setLikesCount(likes || 0);
-                setPendingRequestsList(reqList || []);
+                const [admirersResult, viewersResult] = await Promise.all([
+                    supabase.rpc('get_admirers_secure', { p_limit: 10 }),
+                    supabase.rpc('get_profile_viewers_secure', { p_limit: 1 })
+                ]);
 
-                // Fetch profile views (views)
-                const { count: views } = await supabase
-                    .from('profile_views')
-                    .select('id', { count: 'exact' })
-                    .eq('profile_owner_id', currentUser.id);
-                    
-                setViewsCount(views || 0);
+                if (admirersResult.error) throw admirersResult.error;
+                if (viewersResult.error) throw viewersResult.error;
+
+                setLikesCount(admirersResult.data?.total_count || 0);
+                setPendingRequestsList(admirersResult.data?.premium ? (admirersResult.data?.items || []) : []);
+                setViewsCount(viewersResult.data?.total_count || 0);
             } catch (err) {
                 console.error('Error fetching activity counts:', err);
             }
@@ -375,7 +427,16 @@ export default function Chat() {
     useEffect(() => {
         if (!selectedConv || !selectedConv.id || selectedConv.id === 'null' || !currentUser || !userProfile) return;
         setPage(0);
-        setMessages([]);
+        const cachedMessages = getCachedData(messageCacheKey(currentUser.id, selectedConv.id), {
+            ttlMs: CACHE_TTL.messages,
+            allowStale: true
+        }) || [];
+        const queuedMessages = getQueuedOperations(currentUser.id, 'send_message')
+            .filter(operation => operation.payload?.matchId === selectedConv.id)
+            .map(queuedMessageToBubble)
+            .filter(Boolean);
+        const initialMessages = [...cachedMessages, ...queuedMessages].reduce(mergeMessageList, []);
+        setMessages(initialMessages);
         loadMessages(selectedConv.id, 0, true);
         markConversationRead(selectedConv.id, currentUser.id);
 
@@ -410,10 +471,17 @@ export default function Chat() {
 
     // ── Load messages (paginated) ──────────────────────────────────────
     async function loadMessages(matchId, pageNum = 0, reset = false) {
-        const { data, total } = await getMessages(matchId, pageNum);
+        const { data, total, error } = await getMessages(matchId, pageNum);
+
+        if (error && reset) {
+            return;
+        }
 
         if (reset) {
-            setMessages(data);
+            setMessages(prev => {
+                const pending = prev.filter(msg => msg._pending || msg._queued);
+                return [...data, ...pending].reduce(mergeMessageList, []);
+            });
             setHasMore(total > data.length);
         } else {
             setMessages(prev => {
@@ -423,6 +491,16 @@ export default function Chat() {
             setHasMore(total > (pageNum + 1) * 20 + messages.length);
         }
     }
+
+    useEffect(() => {
+        if (!currentUser?.id || !selectedConv?.id || selectedConv.id === 'null') return;
+        if (!Array.isArray(messages)) return;
+        setCachedData(
+            messageCacheKey(currentUser.id, selectedConv.id),
+            trimCacheList(messages, CACHE_LIMITS.messagesPerConversation),
+            { userId: currentUser.id, type: 'messages' }
+        );
+    }, [currentUser?.id, selectedConv?.id, messages]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -478,11 +556,39 @@ export default function Chat() {
         setSending(true);
         stopTyping();
 
+        const queuePayload = {
+            matchId: selectedConv.id,
+            senderId: currentUser.id,
+            content,
+            type: 'text',
+            metadata,
+            optimisticId,
+            createdAt: optimisticMsg.created_at
+        };
+
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            enqueueOfflineOperation(currentUser.id, {
+                id: `send_message:${clientNonce}`,
+                type: 'send_message',
+                payload: queuePayload
+            });
+            setSending(false);
+            addToast('You are offline. Message will send when connection returns.', 'info');
+            return;
+        }
+
         const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', metadata);
         if (error) {
-            setMessages(prev => prev.filter(m => m.id !== optimisticId));
-            addToast('Failed to send.', 'error');
+            enqueueOfflineOperation(currentUser.id, {
+                id: `send_message:${clientNonce}`,
+                type: 'send_message',
+                payload: queuePayload,
+                lastError: error?.message || String(error)
+            });
+            setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, _pending: true, _queued: true, _failed: true } : m));
+            addToast('Message saved. We will retry when your connection returns.', 'info');
         } else if (data) {
+            removeOfflineOperation(currentUser.id, `send_message:${clientNonce}`);
             setMessages(prev => mergeMessageList(prev, data));
             playSendSwoosh(); // Audible "sent" confirmation
         }
@@ -500,6 +606,51 @@ export default function Chat() {
         if (!error) setAiReplies(data?.replies || []);
         setAiReplyLoading(false);
     };
+
+    const flushPendingMessages = useCallback(async () => {
+        if (!currentUser?.id) return;
+
+        const result = await drainOfflineQueue(currentUser.id, {
+            send_message: async (operation) => {
+                const payload = operation.payload || {};
+                const { data, error } = await sendMessage(
+                    payload.matchId,
+                    payload.senderId,
+                    payload.content,
+                    payload.type || 'text',
+                    payload.metadata || {}
+                );
+
+                if (error) throw new Error(error?.message || String(error));
+
+                if (data && payload.matchId === selectedConv?.id) {
+                    setMessages(prev => mergeMessageList(prev, data));
+                }
+            }
+        }, { maxBatch: 5 });
+
+        if (result.processed > 0) {
+            revalidateConvs();
+            addToast(`${result.processed} pending message${result.processed === 1 ? '' : 's'} sent.`, 'success');
+        }
+    }, [addToast, currentUser?.id, mergeMessageList, revalidateConvs, selectedConv?.id]);
+
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const handleOnline = () => {
+            setTimeout(() => {
+                flushPendingMessages();
+            }, 800);
+        };
+
+        window.addEventListener('online', handleOnline);
+        if (navigator.onLine !== false) {
+            flushPendingMessages();
+        }
+
+        return () => window.removeEventListener('online', handleOnline);
+    }, [currentUser?.id, flushPendingMessages]);
 
     const handleTyping = () => {
         if (!selectedConv || !currentUser || !userProfile) return;

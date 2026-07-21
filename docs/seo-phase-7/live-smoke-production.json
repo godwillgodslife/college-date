@@ -1,0 +1,436 @@
+{
+  "base": "https://www.thecollegedate.com",
+  "checkedAt": "2026-07-21T01:35:58.691Z",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/download",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/download",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-app-for-university-students-nigeria",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-app-for-university-students-nigeria",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-app-in-nigeria",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-app-in-nigeria",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/campus-dating",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/campus-dating",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/student-dating",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/student-dating",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/safety",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/safety",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/campus-dating-safety",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/campus-dating-safety",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/blog/how-to-date-safely-on-campus-nigeria",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/blog/how-to-date-safely-on-campus-nigeria",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/blog/best-dating-apps-nigeria-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/blog/best-dating-apps-nigeria-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-bio-examples-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-bio-examples-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/tools/dating-bio-generator",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/tools/dating-bio-generator",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/conversation-starters-dating-app",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/conversation-starters-dating-app",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/first-date-ideas-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/first-date-ideas-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/safe-dating-app-nigeria",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/safe-dating-app-nigeria",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-app-for-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-app-for-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/online-dating-app-for-undergraduates",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/online-dating-app-for-undergraduates",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/how-to-meet-people-on-campus",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/how-to-meet-people-on-campus",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-as-a-fresher-nigeria",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-as-a-fresher-nigeria",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-profile-picture-tips-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/dating-profile-picture-tips-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/first-message-examples-dating-apps",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/first-message-examples-dating-apps",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/romance-scams-nigerian-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/romance-scams-nigerian-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/what-not-to-share-on-dating-apps",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/what-not-to-share-on-dating-apps",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/campus-date-ideas-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/campus-date-ideas-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/relationship-boundaries-for-students",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/relationship-boundaries-for-students",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/green-flags-student-relationships",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/green-flags-student-relationships",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/signup",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/dashboard",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/chat",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/auth/callback",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "noindex, nofollow",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/",
+      "metaRobots": "index, follow",
+      "indexability": "noindex"
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "status": 200,
+      "contentType": "application/octet-stream",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/favicon-64.png",
+      "status": 200,
+      "contentType": "image/png",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/logo-192.png",
+      "status": 200,
+      "contentType": "image/png",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/logo-512.png",
+      "status": 200,
+      "contentType": "image/png",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/llms.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml; charset=utf-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/sw-pwa.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/campus-dating.html",
+      "status": 301,
+      "contentType": "text/plain",
+      "xRobots": "",
+      "location": "/campus-dating",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/dating-app-in-nigeria.html",
+      "status": 301,
+      "contentType": "text/plain",
+      "xRobots": "",
+      "location": "/dating-app-in-nigeria",
+      "canonical": "",
+      "metaRobots": "",
+      "indexability": "indexable"
+    },
+    {
+      "path": "/phase7-nonexistent-1784597747777",
+      "status": 404,
+      "contentType": "text/html; charset=UTF-8",
+      "xRobots": "",
+      "location": "",
+      "canonical": "https://www.thecollegedate.com/404",
+      "metaRobots": "noindex, nofollow",
+      "indexability": "noindex"
+    }
+  ]
+}

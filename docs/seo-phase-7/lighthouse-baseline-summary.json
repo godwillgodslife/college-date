@@ -1,0 +1,4102 @@
+{
+  "mobile": {
+    "blog": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/blog-run1.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:24:14.923Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 852,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 918.842,
+          "lcp": 918.842,
+          "tbt": 2,
+          "cls": 0,
+          "si": 1744.5035120047958,
+          "interactive": 948.5420000000001,
+          "mainThread": 441.768,
+          "jsExec": 17.887999999999998,
+          "transfer": 6336,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4070,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/blog-run2.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:24:36.738Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1143,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 974.003,
+          "lcp": 974.003,
+          "tbt": 3.500000000000057,
+          "cls": 0,
+          "si": 1838.1592120003522,
+          "interactive": 1005.3530000000001,
+          "mainThread": 531.9159999999999,
+          "jsExec": 19.412,
+          "transfer": 6314,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4071,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/blog-run3.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:25:00.776Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 959,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 889.681,
+          "lcp": 889.681,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1593.2077160020408,
+          "interactive": 889.681,
+          "mainThread": 339.412,
+          "jsExec": 14.244,
+          "transfer": 6315,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4070,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/blog-run2.json",
+        "url": "https://www.thecollegedate.com/blog",
+        "fetchTime": "2026-07-21T00:24:36.738Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1143,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 974.003,
+        "lcp": 974.003,
+        "tbt": 3.500000000000057,
+        "cls": 0,
+        "si": 1838.1592120003522,
+        "interactive": 1005.3530000000001,
+        "mainThread": 531.9159999999999,
+        "jsExec": 19.412,
+        "transfer": 6314,
+        "resource": 20314,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/blog",
+            "transferSize": 4071,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "campus-dating": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/campus-dating-run1.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:21:35.305Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 701,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 970.333,
+          "lcp": 970.333,
+          "tbt": 6.000000000000057,
+          "cls": 0,
+          "si": 1554.9047859967168,
+          "interactive": 1004.4330000000001,
+          "mainThread": 591.2839999999999,
+          "jsExec": 18.56,
+          "transfer": 6162,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1459,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3895,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1459,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/campus-dating-run2.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:22:02.290Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 640,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 949,
+          "lcp": 949,
+          "tbt": 6,
+          "cls": 0,
+          "si": 1696.209120004252,
+          "interactive": 983.1000000000001,
+          "mainThread": 474.516,
+          "jsExec": 13.847999999999999,
+          "transfer": 6137,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3894,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/campus-dating-run3.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:22:30.414Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 636.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 990.204,
+          "lcp": 990.204,
+          "tbt": 3,
+          "cls": 0,
+          "si": 1638.635598000011,
+          "interactive": 1021.0039999999999,
+          "mainThread": 589.0360000000001,
+          "jsExec": 16.311999999999998,
+          "transfer": 6137,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3894,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/campus-dating-run2.json",
+        "url": "https://www.thecollegedate.com/campus-dating",
+        "fetchTime": "2026-07-21T00:22:02.290Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 640,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 949,
+        "lcp": 949,
+        "tbt": 6,
+        "cls": 0,
+        "si": 1696.209120004252,
+        "interactive": 983.1000000000001,
+        "mainThread": 474.516,
+        "jsExec": 13.847999999999999,
+        "transfer": 6137,
+        "resource": 18872,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/campus-dating",
+            "transferSize": 3894,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "dating-app-in-nigeria": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-app-in-nigeria-run1.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:19:29.525Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 862,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 960.458,
+          "lcp": 960.458,
+          "tbt": 6,
+          "cls": 0,
+          "si": 1901.050210008499,
+          "interactive": 994.558,
+          "mainThread": 573.1840000000002,
+          "jsExec": 27.124,
+          "transfer": 6248,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4005,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-app-in-nigeria-run2.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:20:09.674Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 684.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1004.646,
+          "lcp": 1004.646,
+          "tbt": 7,
+          "cls": 0,
+          "si": 1915.877836000765,
+          "interactive": 1039.846,
+          "mainThread": 657.924,
+          "jsExec": 24.912,
+          "transfer": 6251,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4007,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-app-in-nigeria-run3.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:21:12.973Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 670.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1015.28,
+          "lcp": 1015.28,
+          "tbt": 8.5,
+          "cls": 0,
+          "si": 1868.8403820033518,
+          "interactive": 1052.13,
+          "mainThread": 651.9640000000002,
+          "jsExec": 16.916,
+          "transfer": 6273,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4007,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-app-in-nigeria-run2.json",
+        "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+        "fetchTime": "2026-07-21T00:20:09.674Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 684.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 1004.646,
+        "lcp": 1004.646,
+        "tbt": 7,
+        "cls": 0,
+        "si": 1915.877836000765,
+        "interactive": 1039.846,
+        "mainThread": 657.924,
+        "jsExec": 24.912,
+        "transfer": 6251,
+        "resource": 19602,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+            "transferSize": 4007,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 809,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "dating-bio-generator": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-bio-generator-run1.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:25:22.334Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1076.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1069,
+          "lcp": 1069,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1742.5877859939637,
+          "interactive": 1069,
+          "mainThread": 610.836,
+          "jsExec": 13.676,
+          "transfer": 8168,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2275,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3650,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2275,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-bio-generator-run2.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:25:45.289Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1096.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1136.8535000000002,
+          "lcp": 1136.8535000000002,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1830.0066900006175,
+          "interactive": 1136.8535000000002,
+          "mainThread": 794.3799999999999,
+          "jsExec": 22.808,
+          "transfer": 8167,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2275,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3649,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2275,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-bio-generator-run3.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:26:10.723Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 670,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 962.5600000000001,
+          "lcp": 962.5600000000001,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1780.2927560064347,
+          "interactive": 962.5600000000002,
+          "mainThread": 453.02000000000004,
+          "jsExec": 17.752000000000002,
+          "transfer": 8190,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2275,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3649,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2275,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/dating-bio-generator-run2.json",
+        "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+        "fetchTime": "2026-07-21T00:25:45.289Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1096.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 1136.8535000000002,
+        "lcp": 1136.8535000000002,
+        "tbt": 0,
+        "cls": 0,
+        "si": 1830.0066900006175,
+        "interactive": 1136.8535000000002,
+        "mainThread": 794.3799999999999,
+        "jsExec": 22.808,
+        "transfer": 8167,
+        "resource": 24549,
+        "requests": 4,
+        "jsTransfer": 2275,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+            "transferSize": 3649,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+            "transferSize": 2275,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "download": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/download-run1.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:18:07.176Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1081.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 987.789,
+          "lcp": 987.789,
+          "tbt": 5.5,
+          "cls": 0,
+          "si": 1742.0358199956775,
+          "interactive": 1021.339,
+          "mainThread": 609.3280000000001,
+          "jsExec": 16.092,
+          "transfer": 5032,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2766,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/download-run2.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:18:34.626Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 626.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1054,
+          "lcp": 1054,
+          "tbt": 6,
+          "cls": 0,
+          "si": 1838.501976002634,
+          "interactive": 1088.1000000000001,
+          "mainThread": 611.2160000000001,
+          "jsExec": 20.908,
+          "transfer": 5032,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2765,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/download-run3.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:19:00.878Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 631,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 930,
+          "lcp": 930,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2632.194818002239,
+          "interactive": 930,
+          "mainThread": 409.1360000000001,
+          "jsExec": 15.232,
+          "transfer": 5033,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1458,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2766,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1458,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/download-run2.json",
+        "url": "https://www.thecollegedate.com/download",
+        "fetchTime": "2026-07-21T00:18:34.626Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 626.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 1054,
+        "lcp": 1054,
+        "tbt": 6,
+        "cls": 0,
+        "si": 1838.501976002634,
+        "interactive": 1088.1000000000001,
+        "mainThread": 611.2160000000001,
+        "jsExec": 20.908,
+        "transfer": 5032,
+        "resource": 14974,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1436,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/download",
+            "transferSize": 2765,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1436,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 831,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "home": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/home-run1.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:16:37.842Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 699,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 65,
+          "acc": 94,
+          "bp": 79,
+          "seo": 100,
+          "fcp": 4449.414999999999,
+          "lcp": 5891.325000000001,
+          "tbt": 41.00000000000091,
+          "cls": 0,
+          "si": 5631.826393995358,
+          "interactive": 5891.325000000001,
+          "mainThread": 2187.9759999999987,
+          "jsExec": 451.26399999999967,
+          "transfer": 1365122,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238235,
+          "cssTransfer": 16230,
+          "imgTransfer": 700440,
+          "fontTransfer": 80721,
+          "thirdParty": 324910,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229496,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228217,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 162404,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161875,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151157,
+              "resourceType": "Image"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/home-run2.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:17:07.079Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 741.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 69,
+          "acc": 94,
+          "bp": 79,
+          "seo": 100,
+          "fcp": 3247.4735,
+          "lcp": 5734.7215,
+          "tbt": 114,
+          "cls": 0,
+          "si": 4879.976682805687,
+          "interactive": 5734.721500000001,
+          "mainThread": 1978.1560000000009,
+          "jsExec": 386.95600000000087,
+          "transfer": 1365409,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238238,
+          "cssTransfer": 16231,
+          "imgTransfer": 700520,
+          "fontTransfer": 80721,
+          "thirdParty": 325134,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229334,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228235,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 162567,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161914,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151218,
+              "resourceType": "Image"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/home-run3.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:17:36.325Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 926,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 68,
+          "acc": 94,
+          "bp": 79,
+          "seo": 100,
+          "fcp": 4337.889999999999,
+          "lcp": 5498.085999999999,
+          "tbt": 23,
+          "cls": 0,
+          "si": 5108.028384007204,
+          "interactive": 5498.085999999999,
+          "mainThread": 2367.175999999996,
+          "jsExec": 493.59200000000044,
+          "transfer": 1365484,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238257,
+          "cssTransfer": 16230,
+          "imgTransfer": 700591,
+          "fontTransfer": 80721,
+          "thirdParty": 325208,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229342,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228224,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 162585,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161883,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151293,
+              "resourceType": "Image"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/home-run3.json",
+        "url": "https://www.thecollegedate.com/",
+        "fetchTime": "2026-07-21T00:17:36.325Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 926,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 68,
+        "acc": 94,
+        "bp": 79,
+        "seo": 100,
+        "fcp": 4337.889999999999,
+        "lcp": 5498.085999999999,
+        "tbt": 23,
+        "cls": 0,
+        "si": 5108.028384007204,
+        "interactive": 5498.085999999999,
+        "mainThread": 2367.175999999996,
+        "jsExec": 493.59200000000044,
+        "transfer": 1365484,
+        "resource": 1995355,
+        "requests": 21,
+        "jsTransfer": 238257,
+        "cssTransfer": 16230,
+        "imgTransfer": 700591,
+        "fontTransfer": 80721,
+        "thirdParty": 325208,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/og-image.png",
+            "transferSize": 229342,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+            "transferSize": 228224,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 162585,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 161883,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+            "transferSize": 151293,
+            "resourceType": "Image"
+          }
+        ]
+      }
+    },
+    "login": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/login-run1.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:26:32.549Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 965.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 70,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3542.4610000000002,
+          "lcp": 5262.2350000000015,
+          "tbt": 95,
+          "cls": 0,
+          "si": 4764.988163995644,
+          "interactive": 5262.235000000002,
+          "mainThread": 1447.3639999999994,
+          "jsExec": 375.5319999999998,
+          "transfer": 626902,
+          "resource": 1405718,
+          "requests": 15,
+          "jsTransfer": 235708,
+          "cssTransfer": 13577,
+          "imgTransfer": 161921,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161921,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161920,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89162,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60584,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/login-run2.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:27:06.533Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1132.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 72,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3138.6335,
+          "lcp": 4922.9955,
+          "tbt": 185.00000000000045,
+          "cls": 0,
+          "si": 4108.347877993443,
+          "interactive": 4922.995500000001,
+          "mainThread": 2098.0519999999988,
+          "jsExec": 533.5199999999999,
+          "transfer": 626783,
+          "resource": 1405718,
+          "requests": 15,
+          "jsTransfer": 235645,
+          "cssTransfer": 13591,
+          "imgTransfer": 161921,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161921,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161874,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60639,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/login-run3.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:27:35.922Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 653,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 72,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3084.9230000000002,
+          "lcp": 5683.416,
+          "tbt": 58,
+          "cls": 0,
+          "si": 4035.9313980011148,
+          "interactive": 5683.416000000001,
+          "mainThread": 1483.9359999999992,
+          "jsExec": 355.1400000000007,
+          "transfer": 627235,
+          "resource": 1405718,
+          "requests": 16,
+          "jsTransfer": 235659,
+          "cssTransfer": 13581,
+          "imgTransfer": 40,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 162369,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161873,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89106,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60663,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/login-run2.json",
+        "url": "https://www.thecollegedate.com/login",
+        "fetchTime": "2026-07-21T00:27:06.533Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1132.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 72,
+        "acc": 90,
+        "bp": 100,
+        "seo": 61,
+        "fcp": 3138.6335,
+        "lcp": 4922.9955,
+        "tbt": 185.00000000000045,
+        "cls": 0,
+        "si": 4108.347877993443,
+        "interactive": 4922.995500000001,
+        "mainThread": 2098.0519999999988,
+        "jsExec": 533.5199999999999,
+        "transfer": 626783,
+        "resource": 1405718,
+        "requests": 15,
+        "jsTransfer": 235645,
+        "cssTransfer": 13591,
+        "imgTransfer": 161921,
+        "fontTransfer": 48464,
+        "thirdParty": 49926,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 161921,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 161874,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+            "transferSize": 89105,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+            "transferSize": 60639,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+            "transferSize": 48464,
+            "resourceType": "Font"
+          }
+        ]
+      }
+    },
+    "safety": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/safety-run1.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:22:53.261Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 855,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 917.0550000000001,
+          "lcp": 917.0550000000001,
+          "tbt": 4.5,
+          "cls": 0,
+          "si": 1680.1645799978971,
+          "interactive": 949.5050000000001,
+          "mainThread": 469.884,
+          "jsExec": 14.315999999999999,
+          "transfer": 6052,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1458,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3786,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1458,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/safety-run2.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:23:16.765Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1016,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 915.684,
+          "lcp": 915.684,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2368.7018460058625,
+          "interactive": 915.684,
+          "mainThread": 370.8999999999999,
+          "jsExec": 15.912,
+          "transfer": 6052,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1457,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3787,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1457,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/safety-run3.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:23:47.146Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 600.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 1078,
+          "lcp": 1078,
+          "tbt": 4.5,
+          "cls": 0,
+          "si": 1868.7575479973405,
+          "interactive": 1110.45,
+          "mainThread": 641.9359999999998,
+          "jsExec": 19.263999999999996,
+          "transfer": 6055,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3787,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 832,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/safety-run2.json",
+        "url": "https://www.thecollegedate.com/safety",
+        "fetchTime": "2026-07-21T00:23:16.765Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1016,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 915.684,
+        "lcp": 915.684,
+        "tbt": 0,
+        "cls": 0,
+        "si": 2368.7018460058625,
+        "interactive": 915.684,
+        "mainThread": 370.8999999999999,
+        "jsExec": 15.912,
+        "transfer": 6052,
+        "resource": 18500,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1457,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/safety",
+            "transferSize": 3787,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1457,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "signup": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/signup-run1.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:28:04.884Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 915,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 69,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3473.9454999999994,
+          "lcp": 5787.065499999999,
+          "tbt": 65,
+          "cls": 0,
+          "si": 4338.398900000376,
+          "interactive": 5787.065499999999,
+          "mainThread": 1781.1600000000003,
+          "jsExec": 400.55600000000084,
+          "transfer": 627625,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235974,
+          "cssTransfer": 13603,
+          "imgTransfer": 63,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 162361,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161916,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60640,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/signup-run2.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:28:36.107Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 776.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 74,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3355.6320000000005,
+          "lcp": 4764.082000000001,
+          "tbt": 84,
+          "cls": 0,
+          "si": 4044.849802000407,
+          "interactive": 4764.082000000002,
+          "mainThread": 1665.5119999999993,
+          "jsExec": 417.6960000000012,
+          "transfer": 627166,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235941,
+          "cssTransfer": 13608,
+          "imgTransfer": 161921,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161921,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161897,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60640,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/mobile/signup-run3.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:29:01.308Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 788.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 73,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 3493.5150000000003,
+          "lcp": 4987.74,
+          "tbt": 63,
+          "cls": 0,
+          "si": 4417.310286005542,
+          "interactive": 4987.74,
+          "mainThread": 1573.5679999999986,
+          "jsExec": 394.2920000000011,
+          "transfer": 627090,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235957,
+          "cssTransfer": 13592,
+          "imgTransfer": 161921,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161921,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161874,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89106,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60641,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/mobile/signup-run3.json",
+        "url": "https://www.thecollegedate.com/signup",
+        "fetchTime": "2026-07-21T00:29:01.308Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 788.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 73,
+        "acc": 90,
+        "bp": 100,
+        "seo": 61,
+        "fcp": 3493.5150000000003,
+        "lcp": 4987.74,
+        "tbt": 63,
+        "cls": 0,
+        "si": 4417.310286005542,
+        "interactive": 4987.74,
+        "mainThread": 1573.5679999999986,
+        "jsExec": 394.2920000000011,
+        "transfer": 627090,
+        "resource": 1406961,
+        "requests": 15,
+        "jsTransfer": 235957,
+        "cssTransfer": 13592,
+        "imgTransfer": 161921,
+        "fontTransfer": 48464,
+        "thirdParty": 49926,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 161921,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 161874,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+            "transferSize": 89106,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+            "transferSize": 60641,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+            "transferSize": 48464,
+            "resourceType": "Font"
+          }
+        ]
+      }
+    }
+  },
+  "desktop": {
+    "blog": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/blog-run1.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:36:18.526Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 731.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 259.096,
+          "lcp": 259.096,
+          "tbt": 0,
+          "cls": 0,
+          "si": 636.2978416682774,
+          "interactive": 259.096,
+          "mainThread": 131.38,
+          "jsExec": 1.9389999999999998,
+          "transfer": 6314,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4071,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/blog-run2.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:36:45.130Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 727.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 261,
+          "lcp": 261,
+          "tbt": 0,
+          "cls": 0,
+          "si": 623.9300749991089,
+          "interactive": 261,
+          "mainThread": 90.916,
+          "jsExec": 2.0179999999999993,
+          "transfer": 6336,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1458,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4070,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1458,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/blog-run3.json",
+          "url": "https://www.thecollegedate.com/blog",
+          "fetchTime": "2026-07-21T00:37:11.874Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 751.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 263,
+          "lcp": 263,
+          "tbt": 0,
+          "cls": 0,
+          "si": 619.8333249961958,
+          "interactive": 263,
+          "mainThread": 88.85099999999998,
+          "jsExec": 0.987,
+          "transfer": 6314,
+          "resource": 20314,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/blog",
+              "transferSize": 4070,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/blog-run2.json",
+        "url": "https://www.thecollegedate.com/blog",
+        "fetchTime": "2026-07-21T00:36:45.130Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 727.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 261,
+        "lcp": 261,
+        "tbt": 0,
+        "cls": 0,
+        "si": 623.9300749991089,
+        "interactive": 261,
+        "mainThread": 90.916,
+        "jsExec": 2.0179999999999993,
+        "transfer": 6336,
+        "resource": 20314,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1458,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/blog",
+            "transferSize": 4070,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1458,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "campus-dating": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/campus-dating-run1.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:33:39.677Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 942.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 278,
+          "lcp": 278,
+          "tbt": 0,
+          "cls": 0,
+          "si": 786.174016667592,
+          "interactive": 278,
+          "mainThread": 126.12699999999998,
+          "jsExec": 1.5090000000000001,
+          "transfer": 6163,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1459,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3895,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1459,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/campus-dating-run2.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:34:06.633Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1046,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 268.09799999999996,
+          "lcp": 268.09799999999996,
+          "tbt": 0,
+          "cls": 0,
+          "si": 621.6142250017135,
+          "interactive": 268.09799999999996,
+          "mainThread": 132.21700000000004,
+          "jsExec": 2.078,
+          "transfer": 6137,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3894,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/campus-dating-run3.json",
+          "url": "https://www.thecollegedate.com/campus-dating",
+          "fetchTime": "2026-07-21T00:34:33.787Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 650.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 327.745,
+          "lcp": 327.745,
+          "tbt": 0,
+          "cls": 0,
+          "si": 796.0154666670436,
+          "interactive": 327.745,
+          "mainThread": 155.39300000000003,
+          "jsExec": 1.7279999999999995,
+          "transfer": 6161,
+          "resource": 18872,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/campus-dating",
+              "transferSize": 3894,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/campus-dating-run2.json",
+        "url": "https://www.thecollegedate.com/campus-dating",
+        "fetchTime": "2026-07-21T00:34:06.633Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1046,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 268.09799999999996,
+        "lcp": 268.09799999999996,
+        "tbt": 0,
+        "cls": 0,
+        "si": 621.6142250017135,
+        "interactive": 268.09799999999996,
+        "mainThread": 132.21700000000004,
+        "jsExec": 2.078,
+        "transfer": 6137,
+        "resource": 18872,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/campus-dating",
+            "transferSize": 3894,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "dating-app-in-nigeria": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-app-in-nigeria-run1.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:32:24.538Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 954,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 278,
+          "lcp": 278,
+          "tbt": 0,
+          "cls": 0,
+          "si": 638.0030083357667,
+          "interactive": 278,
+          "mainThread": 131.46599999999998,
+          "jsExec": 2.1089999999999995,
+          "transfer": 6249,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4006,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-app-in-nigeria-run2.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:32:46.216Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 809,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 270.106,
+          "lcp": 270.106,
+          "tbt": 0,
+          "cls": 0,
+          "si": 655.6865500009253,
+          "interactive": 279.456,
+          "mainThread": 154.32800000000003,
+          "jsExec": 1.1840000000000002,
+          "transfer": 6249,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4006,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-app-in-nigeria-run3.json",
+          "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+          "fetchTime": "2026-07-21T00:33:13.406Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 832.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 260.673,
+          "lcp": 260.673,
+          "tbt": 0,
+          "cls": 0,
+          "si": 594.2396749997944,
+          "interactive": 260.673,
+          "mainThread": 103.79300000000002,
+          "jsExec": 1.8389999999999995,
+          "transfer": 6272,
+          "resource": 19602,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1458,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+              "transferSize": 4006,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1458,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-app-in-nigeria-run2.json",
+        "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+        "fetchTime": "2026-07-21T00:32:46.216Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 809,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 270.106,
+        "lcp": 270.106,
+        "tbt": 0,
+        "cls": 0,
+        "si": 655.6865500009253,
+        "interactive": 279.456,
+        "mainThread": 154.32800000000003,
+        "jsExec": 1.1840000000000002,
+        "transfer": 6249,
+        "resource": 19602,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+            "transferSize": 4006,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "dating-bio-generator": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-bio-generator-run1.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:37:37.601Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 858,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 247.927,
+          "lcp": 247.927,
+          "tbt": 0,
+          "cls": 0,
+          "si": 592.5556416657755,
+          "interactive": 247.927,
+          "mainThread": 123.32899999999998,
+          "jsExec": 1.097,
+          "transfer": 8167,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2288,
+          "cssTransfer": 1422,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3649,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2288,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1422,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-bio-generator-run2.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:38:02.511Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1027.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 319.02700000000004,
+          "lcp": 319.02700000000004,
+          "tbt": 0,
+          "cls": 0,
+          "si": 828.9862416680719,
+          "interactive": 319.02700000000004,
+          "mainThread": 174.46,
+          "jsExec": 1.0590000000000002,
+          "transfer": 8192,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2275,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3649,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2275,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 832,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-bio-generator-run3.json",
+          "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+          "fetchTime": "2026-07-21T00:38:27.926Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 686,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 289.113,
+          "lcp": 289.113,
+          "tbt": 0,
+          "cls": 0,
+          "si": 655.9741250019878,
+          "interactive": 289.11300000000006,
+          "mainThread": 171.96499999999997,
+          "jsExec": 1.936,
+          "transfer": 8192,
+          "resource": 24549,
+          "requests": 4,
+          "jsTransfer": 2275,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+              "transferSize": 3649,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+              "transferSize": 2275,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 832,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/dating-bio-generator-run2.json",
+        "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+        "fetchTime": "2026-07-21T00:38:02.511Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 1027.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 319.02700000000004,
+        "lcp": 319.02700000000004,
+        "tbt": 0,
+        "cls": 0,
+        "si": 828.9862416680719,
+        "interactive": 319.02700000000004,
+        "mainThread": 174.46,
+        "jsExec": 1.0590000000000002,
+        "transfer": 8192,
+        "resource": 24549,
+        "requests": 4,
+        "jsTransfer": 2275,
+        "cssTransfer": 1436,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/tools/dating-bio-generator",
+            "transferSize": 3649,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/tools/dating-bio-generator.js",
+            "transferSize": 2275,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1436,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 832,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "download": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/download-run1.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:31:10.857Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1103,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 261,
+          "lcp": 261,
+          "tbt": 0,
+          "cls": 0,
+          "si": 651.7665249995887,
+          "interactive": 261,
+          "mainThread": 95.36899999999997,
+          "jsExec": 2.0699999999999994,
+          "transfer": 5009,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2765,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/download-run2.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:31:35.306Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 685,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 278.77099999999996,
+          "lcp": 278.77099999999996,
+          "tbt": 0,
+          "cls": 0,
+          "si": 741.5662333358695,
+          "interactive": 278.77099999999996,
+          "mainThread": 143.849,
+          "jsExec": 1.4300000000000002,
+          "transfer": 5010,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2766,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 808,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/download-run3.json",
+          "url": "https://www.thecollegedate.com/download",
+          "fetchTime": "2026-07-21T00:32:02.595Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 793.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 251.531,
+          "lcp": 251.531,
+          "tbt": 0,
+          "cls": 0,
+          "si": 641.3543999987662,
+          "interactive": 251.531,
+          "mainThread": 105.369,
+          "jsExec": 1.8059999999999998,
+          "transfer": 5010,
+          "resource": 14974,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1436,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/download",
+              "transferSize": 2765,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1436,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/download-run2.json",
+        "url": "https://www.thecollegedate.com/download",
+        "fetchTime": "2026-07-21T00:31:35.306Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 685,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 278.77099999999996,
+        "lcp": 278.77099999999996,
+        "tbt": 0,
+        "cls": 0,
+        "si": 741.5662333358695,
+        "interactive": 278.77099999999996,
+        "mainThread": 143.849,
+        "jsExec": 1.4300000000000002,
+        "transfer": 5010,
+        "resource": 14974,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1436,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/download",
+            "transferSize": 2766,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1436,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 808,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "home": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/home-run1.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:29:31.487Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 725,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 84,
+          "acc": 94,
+          "bp": 78,
+          "seo": 100,
+          "fcp": 1469.8265000000001,
+          "lcp": 1835.3575,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2053.411437835037,
+          "interactive": 1835.3575,
+          "mainThread": 604.0479999999988,
+          "jsExec": 113.84800000000017,
+          "transfer": 1365118,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238194,
+          "cssTransfer": 16268,
+          "imgTransfer": 700902,
+          "fontTransfer": 80721,
+          "thirdParty": 324908,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229787,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228390,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161917,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161898,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151158,
+              "resourceType": "Image"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/home-run2.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:30:08.562Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 800,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 78,
+          "acc": 94,
+          "bp": 78,
+          "seo": 100,
+          "fcp": 1866.51,
+          "lcp": 2101.1150000000002,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2415.6568364994755,
+          "interactive": 2101.1150000000007,
+          "mainThread": 892.7149999999987,
+          "jsExec": 132.74999999999991,
+          "transfer": 1365358,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238234,
+          "cssTransfer": 16229,
+          "imgTransfer": 700961,
+          "fontTransfer": 80721,
+          "thirdParty": 325152,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229776,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228216,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 162083,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161914,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151233,
+              "resourceType": "Image"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/home-run3.json",
+          "url": "https://www.thecollegedate.com/",
+          "fetchTime": "2026-07-21T00:30:38.264Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 1029.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 77,
+          "acc": 94,
+          "bp": 78,
+          "seo": 100,
+          "fcp": 1497.8279999999997,
+          "lcp": 2466.9329999999995,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2292.057926499194,
+          "interactive": 2466.933,
+          "mainThread": 761.2339999999994,
+          "jsExec": 126.41099999999993,
+          "transfer": 1365343,
+          "resource": 1995355,
+          "requests": 21,
+          "jsTransfer": 238169,
+          "cssTransfer": 16294,
+          "imgTransfer": 700660,
+          "fontTransfer": 80721,
+          "thirdParty": 325138,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/og-image.png",
+              "transferSize": 229351,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+              "transferSize": 228354,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 162365,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161917,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+              "transferSize": 151224,
+              "resourceType": "Image"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/home-run2.json",
+        "url": "https://www.thecollegedate.com/",
+        "fetchTime": "2026-07-21T00:30:08.562Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 800,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 78,
+        "acc": 94,
+        "bp": 78,
+        "seo": 100,
+        "fcp": 1866.51,
+        "lcp": 2101.1150000000002,
+        "tbt": 0,
+        "cls": 0,
+        "si": 2415.6568364994755,
+        "interactive": 2101.1150000000007,
+        "mainThread": 892.7149999999987,
+        "jsExec": 132.74999999999991,
+        "transfer": 1365358,
+        "resource": 1995355,
+        "requests": 21,
+        "jsTransfer": 238234,
+        "cssTransfer": 16229,
+        "imgTransfer": 700961,
+        "fontTransfer": 80721,
+        "thirdParty": 325152,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/og-image.png",
+            "transferSize": 229776,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/icon-DFmE-I9m.png",
+            "transferSize": 228216,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 162083,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 161914,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://images.pexels.com/photos/18028056/pexels-photo-18028056.jpeg?auto=compress&cs=tinysrgb&w=900",
+            "transferSize": 151233,
+            "resourceType": "Image"
+          }
+        ]
+      }
+    },
+    "login": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/login-run1.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:38:54.620Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 635,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 83,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1780.4375000000002,
+          "lcp": 1780.4375000000002,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1962.6747490833866,
+          "interactive": 1780.4375000000005,
+          "mainThread": 641.6519999999995,
+          "jsExec": 126.45000000000014,
+          "transfer": 626795,
+          "resource": 1405718,
+          "requests": 15,
+          "jsTransfer": 235661,
+          "cssTransfer": 13577,
+          "imgTransfer": 161930,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161930,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161874,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89162,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60584,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/login-run2.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:39:23.756Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 825.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 85,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1482.6979999999999,
+          "lcp": 1812.058,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1850.7227275831842,
+          "interactive": 1812.058,
+          "mainThread": 602.8769999999994,
+          "jsExec": 118.99699999999984,
+          "transfer": 626814,
+          "resource": 1405718,
+          "requests": 15,
+          "jsTransfer": 235649,
+          "cssTransfer": 13591,
+          "imgTransfer": 161922,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161922,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161898,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60641,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/login-run3.json",
+          "url": "https://www.thecollegedate.com/login",
+          "fetchTime": "2026-07-21T00:39:52.284Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 668,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 81,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1786.228,
+          "lcp": 2004.466,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1990.9499066685023,
+          "interactive": 2004.466,
+          "mainThread": 604.7279999999995,
+          "jsExec": 118.15500000000004,
+          "transfer": 627303,
+          "resource": 1405718,
+          "requests": 16,
+          "jsTransfer": 235658,
+          "cssTransfer": 13582,
+          "imgTransfer": 39,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 162364,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161944,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89106,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60663,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/login-run1.json",
+        "url": "https://www.thecollegedate.com/login",
+        "fetchTime": "2026-07-21T00:38:54.620Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 635,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 83,
+        "acc": 90,
+        "bp": 100,
+        "seo": 61,
+        "fcp": 1780.4375000000002,
+        "lcp": 1780.4375000000002,
+        "tbt": 0,
+        "cls": 0,
+        "si": 1962.6747490833866,
+        "interactive": 1780.4375000000005,
+        "mainThread": 641.6519999999995,
+        "jsExec": 126.45000000000014,
+        "transfer": 626795,
+        "resource": 1405718,
+        "requests": 15,
+        "jsTransfer": 235661,
+        "cssTransfer": 13577,
+        "imgTransfer": 161930,
+        "fontTransfer": 48464,
+        "thirdParty": 49926,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 161930,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 161874,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+            "transferSize": 89162,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+            "transferSize": 60584,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+            "transferSize": 48464,
+            "resourceType": "Font"
+          }
+        ]
+      }
+    },
+    "safety": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/safety-run1.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:34:59.908Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 865,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 279,
+          "lcp": 279,
+          "tbt": 0,
+          "cls": 0,
+          "si": 731.0545583322023,
+          "interactive": 279,
+          "mainThread": 128.007,
+          "jsExec": 1.8639999999999997,
+          "transfer": 6030,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3786,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/safety-run2.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:35:27.850Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 691.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 273.413,
+          "lcp": 273.413,
+          "tbt": 0,
+          "cls": 0,
+          "si": 757.1473083345329,
+          "interactive": 273.413,
+          "mainThread": 144.814,
+          "jsExec": 2.3489999999999993,
+          "transfer": 6053,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3787,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 831,
+              "resourceType": "Other"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/safety-run3.json",
+          "url": "https://www.thecollegedate.com/safety",
+          "fetchTime": "2026-07-21T00:35:53.670Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 651.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 100,
+          "acc": 100,
+          "bp": 96,
+          "seo": 100,
+          "fcp": 296,
+          "lcp": 296,
+          "tbt": 0,
+          "cls": 0,
+          "si": 761.5521083361779,
+          "interactive": 296,
+          "mainThread": 135.393,
+          "jsExec": 1.4319999999999995,
+          "transfer": 6030,
+          "resource": 18500,
+          "requests": 3,
+          "jsTransfer": 0,
+          "cssTransfer": 1435,
+          "imgTransfer": 0,
+          "fontTransfer": 0,
+          "thirdParty": 0,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/safety",
+              "transferSize": 3786,
+              "resourceType": "Document"
+            },
+            {
+              "url": "https://www.thecollegedate.com/seo-page.css",
+              "transferSize": 1435,
+              "resourceType": "Stylesheet"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.ico",
+              "transferSize": 809,
+              "resourceType": "Other"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/safety-run2.json",
+        "url": "https://www.thecollegedate.com/safety",
+        "fetchTime": "2026-07-21T00:35:27.850Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 691.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 100,
+        "acc": 100,
+        "bp": 96,
+        "seo": 100,
+        "fcp": 273.413,
+        "lcp": 273.413,
+        "tbt": 0,
+        "cls": 0,
+        "si": 757.1473083345329,
+        "interactive": 273.413,
+        "mainThread": 144.814,
+        "jsExec": 2.3489999999999993,
+        "transfer": 6053,
+        "resource": 18500,
+        "requests": 3,
+        "jsTransfer": 0,
+        "cssTransfer": 1435,
+        "imgTransfer": 0,
+        "fontTransfer": 0,
+        "thirdParty": 0,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/safety",
+            "transferSize": 3787,
+            "resourceType": "Document"
+          },
+          {
+            "url": "https://www.thecollegedate.com/seo-page.css",
+            "transferSize": 1435,
+            "resourceType": "Stylesheet"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.ico",
+            "transferSize": 831,
+            "resourceType": "Other"
+          }
+        ]
+      }
+    },
+    "signup": {
+      "runs": [
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/signup-run1.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:40:16.432Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 688,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 82,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1596.1940000000002,
+          "lcp": 2027.593,
+          "tbt": 0,
+          "cls": 0,
+          "si": 2041.5152223327066,
+          "interactive": 2027.5930000000003,
+          "mainThread": 518.408999999999,
+          "jsExec": 104.21200000000024,
+          "transfer": 627113,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235955,
+          "cssTransfer": 13591,
+          "imgTransfer": 161921,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161921,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161898,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60640,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/signup-run2.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:40:47.117Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 889.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 84,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1547.1084999999998,
+          "lcp": 1905.9235,
+          "tbt": 0,
+          "cls": 0,
+          "si": 1835.436108166085,
+          "interactive": 1905.9235000000003,
+          "mainThread": 561.9619999999996,
+          "jsExec": 94.13100000000024,
+          "transfer": 627112,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235956,
+          "cssTransfer": 13592,
+          "imgTransfer": 161941,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161941,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161875,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89105,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60640,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        },
+        {
+          "file": "docs/seo-phase-7/lighthouse-baseline/desktop/signup-run3.json",
+          "url": "https://www.thecollegedate.com/signup",
+          "fetchTime": "2026-07-21T00:41:12.672Z",
+          "lh": "12.8.2",
+          "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "env": {
+            "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+            "benchmarkIndex": 815.5,
+            "credits": {
+              "axe-core": "4.12.1"
+            }
+          },
+          "perf": 82,
+          "acc": 90,
+          "bp": 100,
+          "seo": 61,
+          "fcp": 1559.2350000000001,
+          "lcp": 2037.8850000000002,
+          "tbt": 0,
+          "cls": 0.002678620124213232,
+          "si": 1834.8199762496965,
+          "interactive": 2037.8850000000002,
+          "mainThread": 515.2439999999988,
+          "jsExec": 95.66400000000026,
+          "transfer": 627105,
+          "resource": 1406961,
+          "requests": 15,
+          "jsTransfer": 235959,
+          "cssTransfer": 13592,
+          "imgTransfer": 161922,
+          "fontTransfer": 48464,
+          "thirdParty": 49926,
+          "largest": [
+            {
+              "url": "https://www.thecollegedate.com/logo.png",
+              "transferSize": 161922,
+              "resourceType": "Image"
+            },
+            {
+              "url": "https://www.thecollegedate.com/favicon.png",
+              "transferSize": 161882,
+              "resourceType": "Other"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+              "transferSize": 89106,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+              "transferSize": 60641,
+              "resourceType": "Script"
+            },
+            {
+              "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+              "transferSize": 48464,
+              "resourceType": "Font"
+            }
+          ]
+        }
+      ],
+      "median": {
+        "file": "docs/seo-phase-7/lighthouse-baseline/desktop/signup-run3.json",
+        "url": "https://www.thecollegedate.com/signup",
+        "fetchTime": "2026-07-21T00:41:12.672Z",
+        "lh": "12.8.2",
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+        "env": {
+          "networkUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+          "benchmarkIndex": 815.5,
+          "credits": {
+            "axe-core": "4.12.1"
+          }
+        },
+        "perf": 82,
+        "acc": 90,
+        "bp": 100,
+        "seo": 61,
+        "fcp": 1559.2350000000001,
+        "lcp": 2037.8850000000002,
+        "tbt": 0,
+        "cls": 0.002678620124213232,
+        "si": 1834.8199762496965,
+        "interactive": 2037.8850000000002,
+        "mainThread": 515.2439999999988,
+        "jsExec": 95.66400000000026,
+        "transfer": 627105,
+        "resource": 1406961,
+        "requests": 15,
+        "jsTransfer": 235959,
+        "cssTransfer": 13592,
+        "imgTransfer": 161922,
+        "fontTransfer": 48464,
+        "thirdParty": 49926,
+        "largest": [
+          {
+            "url": "https://www.thecollegedate.com/logo.png",
+            "transferSize": 161922,
+            "resourceType": "Image"
+          },
+          {
+            "url": "https://www.thecollegedate.com/favicon.png",
+            "transferSize": 161882,
+            "resourceType": "Other"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/react-vendor-CsbKeDsF.js",
+            "transferSize": 89106,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://www.thecollegedate.com/assets/index-HN1wf6eI.js",
+            "transferSize": 60641,
+            "resourceType": "Script"
+          },
+          {
+            "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+            "transferSize": 48464,
+            "resourceType": "Font"
+          }
+        ]
+      }
+    }
+  }
+}

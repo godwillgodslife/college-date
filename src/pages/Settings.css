@@ -44,6 +44,17 @@
     overflow: hidden;
 }
 
+.settings-subsection-label {
+    padding: 1rem 1.5rem 0.55rem;
+    background: rgba(255, 255, 255, 0.025);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--accent-primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 .settings-item {
     padding: 1.25rem 1.5rem;
     display: flex;
@@ -71,6 +82,73 @@
     font-size: 0.85rem;
     margin: 0;
     color: var(--text-secondary);
+}
+
+.quiet-hours-item {
+    gap: 1rem;
+}
+
+.quiet-hours-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.time-input {
+    width: 96px;
+    padding: 0.6rem 0.65rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+    font: inherit;
+    color-scheme: dark;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: rgba(255, 107, 157, 0.75);
+    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.12);
+}
+
+.notification-preview-item {
+    background: linear-gradient(90deg, rgba(108, 99, 255, 0.08), rgba(255, 107, 157, 0.08));
+}
+
+.notification-preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.preview-notification-btn {
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.65rem 0.95rem;
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 850;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(108, 99, 255, 0.26);
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.preview-notification-btn.secondary {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+
+.preview-notification-btn:hover {
+    filter: brightness(1.07);
+    transform: translateY(-1px);
 }
 
 /* Switch Styles */
@@ -276,4 +354,20 @@ input:checked+.slider:before {
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@media (max-width: 520px) {
+    .quiet-hours-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .quiet-hours-inputs {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .time-input {
+        width: min(42vw, 132px);
+    }
 }

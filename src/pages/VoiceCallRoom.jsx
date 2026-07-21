@@ -1,5 +1,4 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import AgoraRTC from 'agora-rtc-sdk-ng';
 import { useAuth } from '../contexts/AuthContext';
 import { incrementCallMinutes } from '../services/profileService';
 import { useRef, useEffect, useState } from 'react';
@@ -27,6 +26,7 @@ export default function VoiceCallRoom() {
     const hasStartedRef = useRef(false);
     const ringtoneRef = useRef(null);
     const connectTimeoutRef = useRef(null);
+    const agoraRTCRef = useRef(null);
 
     const [isConnecting, setIsConnecting] = useState(true);
     const [callError, setCallError] = useState('');
@@ -103,6 +103,13 @@ export default function VoiceCallRoom() {
             video: callType === 'video',
         });
         stream.getTracks().forEach((track) => track.stop());
+    };
+
+    const loadAgoraRTC = async () => {
+        if (agoraRTCRef.current) return agoraRTCRef.current;
+        const agoraModule = await import('agora-rtc-sdk-ng');
+        agoraRTCRef.current = agoraModule.default || agoraModule;
+        return agoraRTCRef.current;
     };
 
     const startRingtone = () => {
@@ -194,11 +201,14 @@ export default function VoiceCallRoom() {
             sessionStartRef.current = Date.now();
             await requestMediaAccess();
 
-            const tokenPayload = await getAgoraCallToken({
-                roomID,
-                userName: userFullName,
-                callType,
-            });
+            const [tokenPayload, AgoraRTC] = await Promise.all([
+                getAgoraCallToken({
+                    roomID,
+                    userName: userFullName,
+                    callType,
+                }),
+                loadAgoraRTC(),
+            ]);
 
             const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
             clientRef.current = client;

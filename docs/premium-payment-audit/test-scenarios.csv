@@ -1,0 +1,13 @@
+id,type,scenario,expected_result
+T-001,unit,hasActivePremium expired profile,false
+T-002,unit,hasActivePremium active subscription,true
+T-003,integration,Paystack amount manipulation attempt,rejected
+T-004,integration,Paystack successful payment with interrupted callback,recovered by webhook
+T-005,integration,Paystack restore old expired payment,does_not_extend
+T-006,integration,RevenueCat INITIAL_PURCHASE webhook,activates_entitlement_once
+T-007,integration,RevenueCat duplicate RENEWAL webhook,idempotent_no_duplicate_ledger
+T-008,e2e,Free user attempts direct viewers API,redacted
+T-009,e2e,Android purchase then web login,premium_visible_after_sync
+T-010,e2e,Wallet Premium purchase with entitlement write failure,rolled_back
+T-011,concurrency,Parallel paid swipes with low balance,no_overspend
+T-012,concurrency,Offline paid swipe duplicate operation ID,single_charge

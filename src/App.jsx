@@ -5,48 +5,91 @@ import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { initPushNotifications } from './services/pushNotification.js';
 import { initializeRevenueCat } from './services/paymentService.js';
-import { warmupNativeDataCache } from './services/cacheWarmupService.js';
+import { warmupAppDataCache } from './services/cacheWarmupService.js';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
-import AppLayout from './components/AppLayout.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import NotificationSoftPrompt from './components/NotificationSoftPrompt.jsx';
 import { SWRProvider } from './lib/perfSWR.jsx';
 import { performanceMonitor } from './utils/performanceMonitor';
+import { hasLocalAdminAccess } from './utils/adminAccess';
+import { safeArray } from './utils/profileData';
+import { normalizeNotificationRoute, openNotificationRoute } from './utils/notificationRouting';
 
 import AdminRoute from './components/AdminRoute.jsx';
 
+const CHUNK_RELOAD_KEY = 'college-date-chunk-reload-attempted';
+
+function isChunkLoadError(error) {
+  const message = String(error?.message || error || '');
+  return /Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed|dynamically imported module/i.test(message);
+}
+
+function lazyWithRetry(factory) {
+  return lazy(async () => {
+    try {
+      return await factory();
+    } catch (error) {
+      if (
+        typeof window !== 'undefined' &&
+        isChunkLoadError(error) &&
+        window.sessionStorage?.getItem(CHUNK_RELOAD_KEY) !== '1'
+      ) {
+        window.sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+        window.location.reload();
+        return new Promise(() => {});
+      }
+
+      throw error;
+    }
+  });
+}
+
 // Lazy load Pages
-const Landing = lazy(() => import('./pages/Landing'));
-const Login = lazy(() => import('./pages/Login'));
-const Signup = lazy(() => import('./pages/Signup'));
-const AuthCallback = lazy(() => import('./pages/AuthCallback'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Match = lazy(() => import('./pages/Match'));
-const Explore = lazy(() => import('./pages/Explore'));
-const Chat = lazy(() => import('./pages/Chat'));
-const StatusUpdates = lazy(() => import('./pages/StatusUpdates'));
-const Snap = lazy(() => import('./pages/Snap'));
-const Profile = lazy(() => import('./pages/Profile'));
-const EditProfile = lazy(() => import('./pages/EditProfile'));
-const Settings = lazy(() => import('./pages/Settings'));
-const Referrals = lazy(() => import('./pages/Referrals'));
-const Wallet = lazy(() => import('./pages/Wallet'));
-const Requests = lazy(() => import('./pages/Requests'));
-const Leaderboard = lazy(() => import('./pages/Leaderboard'));
-const Confessions = lazy(() => import('./pages/Confessions'));
-const PremiumUpgrade = lazy(() => import('./pages/PremiumUpgrade'));
-const Viewers = lazy(() => import('./pages/Viewers'));
-const MiniProfileSetup = lazy(() => import('./pages/MiniProfileSetup'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const VoiceCallRoom = lazy(() => import('./pages/VoiceCallRoom'));
-const WireframeShowcase = lazy(() => import('./pages/WireframeShowcase'));
+const Landing = lazyWithRetry(() => import('./pages/Landing'));
+const Login = lazyWithRetry(() => import('./pages/Login'));
+const Signup = lazyWithRetry(() => import('./pages/Signup'));
+const AuthCallback = lazyWithRetry(() => import('./pages/AuthCallback'));
+const PaymentCallback = lazyWithRetry(() => import('./pages/PaymentCallback'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
+const Match = lazyWithRetry(() => import('./pages/Match'));
+const Explore = lazyWithRetry(() => import('./pages/Explore'));
+const Chat = lazyWithRetry(() => import('./pages/Chat'));
+const StatusUpdates = lazyWithRetry(() => import('./pages/StatusUpdates'));
+const Snap = lazyWithRetry(() => import('./pages/Snap'));
+const Profile = lazyWithRetry(() => import('./pages/Profile'));
+const EditProfile = lazyWithRetry(() => import('./pages/EditProfile'));
+const Settings = lazyWithRetry(() => import('./pages/Settings'));
+const Referrals = lazyWithRetry(() => import('./pages/Referrals'));
+const Wallet = lazyWithRetry(() => import('./pages/Wallet'));
+const Requests = lazyWithRetry(() => import('./pages/Requests'));
+const Leaderboard = lazyWithRetry(() => import('./pages/Leaderboard'));
+const Confessions = lazyWithRetry(() => import('./pages/Confessions'));
+const PremiumUpgrade = lazyWithRetry(() => import('./pages/PremiumUpgrade'));
+const Viewers = lazyWithRetry(() => import('./pages/Viewers'));
+const MiniProfileSetup = lazyWithRetry(() => import('./pages/MiniProfileSetup'));
+const NotificationCenter = lazyWithRetry(() => import('./pages/NotificationCenter'));
+const NotificationPreviewLab = lazyWithRetry(() => import('./pages/NotificationPreviewLab'));
+const AdminDashboard = lazyWithRetry(() => (
+  import.meta.env.DEV
+    ? import('./pages/AdminDashboard.jsx?admin-permission-flags-v2')
+    : import('./pages/AdminDashboard')
+));
+const VoiceCallRoom = lazyWithRetry(() => import('./pages/VoiceCallRoom'));
+const WireframeShowcase = lazyWithRetry(() => import('./pages/WireframeShowcase'));
 
 // Components that can be lazy loaded
-const TourGuide = lazy(() => import('./components/TourGuide'));
+const AppLayout = lazyWithRetry(() => import('./components/AppLayout.jsx'));
+const TourGuide = lazyWithRetry(() => import('./components/TourGuide'));
 
-function isNativePlatform() {
-  return typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
+function getSafeAuthRedirect(location, fallback = '/') {
+  const stateTarget = location.state?.from?.pathname || location.state?.from;
+  const queryTarget = new URLSearchParams(location.search).get('redirect');
+  const target = stateTarget || queryTarget || fallback;
+
+  if (typeof target !== 'string') return fallback;
+  if (!target.startsWith('/') || target.startsWith('//')) return fallback;
+  return target;
 }
 
 function preloadRouteChunks() {
@@ -74,6 +117,7 @@ function preloadRouteChunks() {
       import('./pages/PremiumUpgrade'),
       import('./pages/Viewers'),
       import('./pages/MiniProfileSetup'),
+      import('./pages/NotificationCenter'),
       import('./components/TourGuide'),
     ];
 
@@ -102,6 +146,7 @@ function SmartHomeRoute() {
 
   if (loading || profileLoading) return <LoadingSpinner fullScreen />;
   if (!currentUser) return <Landing />;
+  if (hasLocalAdminAccess(currentUser)) return <Navigate to="/admin" replace />;
 
   // 1. Basic field check (Only essentials)
   // We use a more resilient check that allows for slight data variations
@@ -109,7 +154,7 @@ function SmartHomeRoute() {
   const hasUniversity = userProfile?.university && userProfile?.university !== 'None';
   
   // 2. Photo check
-  const hasPhoto = (userProfile?.profile_photos?.filter(p => p && p !== '').length >= 1) || 
+  const hasPhoto = (safeArray(userProfile?.profile_photos).filter(p => p && p !== '').length >= 1) || 
                    (userProfile?.avatar_url && userProfile?.avatar_url.startsWith('http'));
 
   // 3. New: Explicit marked-complete flag (optional backup)
@@ -132,10 +177,7 @@ function ProfiledRoute({ id, children }) {
   const onRender = (
     profilerId,
     phase,
-    actualDuration,
-    baseDuration,
-    startTime,
-    commitTime
+    actualDuration
   ) => {
     if (performanceMonitor.isEnabled()) {
       performanceMonitor.endRouteTransition(window.location.pathname, actualDuration);
@@ -153,8 +195,14 @@ function ProfiledRoute({ id, children }) {
   );
 }
 
+function CanonicalNotificationRouteRedirect() {
+  const location = useLocation();
+  const destination = normalizeNotificationRoute(`${location.pathname}${location.search}${location.hash}`);
+  return <Navigate to={destination} replace />;
+}
+
 function AppRoutes() {
-  const { currentUser, userProfile, loading } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -176,8 +224,11 @@ function AppRoutes() {
   }, []);
 
   useEffect(() => {
-    preloadRouteChunks();
-  }, []);
+    window.sessionStorage?.removeItem(CHUNK_RELOAD_KEY);
+    if (currentUser) {
+      preloadRouteChunks();
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (currentUser) {
@@ -186,19 +237,19 @@ function AppRoutes() {
         if (typeof window.requestIdleCallback === 'function') {
           window.requestIdleCallback(() => {
             initPushNotifications(currentUser.id);
-            setupOneSignal(currentUser.id);
+            setupOneSignal();
             initializeRevenueCat(currentUser.id);
           });
         } else {
           setTimeout(() => {
             initPushNotifications(currentUser.id);
-            setupOneSignal(currentUser.id);
+            setupOneSignal();
             initializeRevenueCat(currentUser.id);
           }, 2000); // 2s delay fallback
         }
       };
 
-      const setupOneSignal = (uid) => {
+      const setupOneSignal = () => {
         // OneSignal web SDK is only available in browser, not in Capacitor native
         const isNativePlatform = window.Capacitor?.isNativePlatform?.();
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -209,8 +260,7 @@ function AppRoutes() {
               const data = event?.notification?.additionalData || {};
               const url = data.url;
               if (url) {
-                window.history.pushState({}, '', url);
-                window.dispatchEvent(new PopStateEvent('popstate'));
+                openNotificationRoute(url);
               }
             };
             OneSignal.Notifications.addEventListener('click', handleClick);
@@ -224,7 +274,7 @@ function AppRoutes() {
 
   useEffect(() => {
     if (currentUser) {
-      warmupNativeDataCache(currentUser.id, userProfile);
+      warmupAppDataCache(currentUser.id, userProfile);
     }
   }, [currentUser, userProfile]);
 
@@ -242,14 +292,21 @@ function AppRoutes() {
         />
         <Route
           path="/login"
-          element={currentUser ? <Navigate to="/" replace /> : <Login />}
+          element={currentUser ? <Navigate to={getSafeAuthRedirect(location)} replace /> : <Login />}
         />
         <Route
           path="/signup"
-          element={currentUser ? <Navigate to="/" replace /> : <Signup />}
+          element={currentUser ? <Navigate to={getSafeAuthRedirect(location)} replace /> : <Signup />}
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/wireframes" element={<WireframeShowcase />} />
+        <Route path="/notification-preview" element={<NotificationPreviewLab />} />
+        <Route path="/notification-preview-lab" element={<NotificationPreviewLab />} />
+        <Route path="/push-preview" element={<NotificationPreviewLab />} />
+        <Route path="/push-lab" element={<NotificationPreviewLab />} />
+        <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
+        <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
 
         {/* Protected routes with AppLayout shell always mounted */}
         <Route element={<AppLayout />}>
@@ -278,6 +335,7 @@ function AppRoutes() {
             <Route path="/confessions" element={<ProfiledRoute id="Confessions"><Confessions /></ProfiledRoute>} />
             <Route path="/premium" element={<ProfiledRoute id="PremiumUpgrade"><PremiumUpgrade /></ProfiledRoute>} />
             <Route path="/viewers" element={<ProfiledRoute id="Viewers"><Viewers /></ProfiledRoute>} />
+            <Route path="/notifications" element={<ProfiledRoute id="NotificationCenter"><NotificationCenter /></ProfiledRoute>} />
             <Route path="/mini-profile-setup" element={<ProfiledRoute id="MiniProfileSetup"><MiniProfileSetup /></ProfiledRoute>} />
           </Route>
         </Route>

@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import brandIcon from '../../assets/icon.png';
-// feature-graphic-1024x500.png was never created; fallback to og-image.png
-const featureGraphic = '/og-image.png';
+import brandIcon from '../assets/landing-brand-icon.webp';
+import featureGraphic from '../assets/landing-product-poster.webp';
+import profileImageOne from '../assets/landing-profile-amaka.webp';
+import profileImageTwo from '../assets/landing-profile-tunde.webp';
+import profileImageThree from '../assets/landing-profile-zainab.webp';
 import { partnerWhatsAppUrl, founderLinkedInUrl } from '../config/contactLinks';
 import './Landing.css';
 
@@ -36,8 +39,23 @@ const productMoments = [
 ];
 
 export default function Landing() {
+    const [loadSecondaryProfileImages, setLoadSecondaryProfileImages] = useState(false);
     const isNative = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
                      (import.meta.env.DEV && new URLSearchParams(window.location.search).has('native-preview'));
+
+    useEffect(() => {
+        if (isNative) return undefined;
+
+        const loadImages = () => setLoadSecondaryProfileImages(true);
+
+        if (typeof window.requestIdleCallback === 'function') {
+            const idleId = window.requestIdleCallback(loadImages, { timeout: 2500 });
+            return () => window.cancelIdleCallback?.(idleId);
+        }
+
+        const timeoutId = window.setTimeout(loadImages, 2200);
+        return () => window.clearTimeout(timeoutId);
+    }, [isNative]);
 
     if (isNative) {
         return (
@@ -85,8 +103,8 @@ export default function Landing() {
     return (
         <main className="landing-page">
             <header className="landing-nav">
-                <a href="/" className="landing-brand" aria-label="The College Date home">
-                    <img src={brandIcon} alt="" />
+                <a href="/" className="landing-brand">
+                    <img src={brandIcon} alt="" width="40" height="40" />
                     <span>The<span>College</span>Date</span>
                 </a>
 
@@ -94,7 +112,7 @@ export default function Landing() {
                     <a href="#how-it-works">How it works</a>
                     <a href="#safety">Safety</a>
                     <a href="#premium">Premium</a>
-                    <a href="/support.html">Partner</a>
+                    <a href="/support">Partner</a>
                 </nav>
 
                 <div className="landing-nav-actions">
@@ -166,11 +184,14 @@ export default function Landing() {
                     <div className="phone-shell">
                         <div className="phone-status">9:41</div>
                         <div className="phone-topbar">
-                            <img src={brandIcon} alt="" />
+                            <img src={brandIcon} alt="" width="25" height="25" />
                             <span>TheCollegeDate</span>
                         </div>
                         <div className="profile-preview">
-                            <div className="profile-slide profile-slide-one">
+                            <div
+                                className="profile-slide profile-slide-one"
+                                style={{ backgroundImage: `url(${profileImageOne})` }}
+                            >
                                 <div className="profile-copy">
                                     <strong>Amaka, 21</strong>
                                     <span>University of Lagos</span>
@@ -182,7 +203,10 @@ export default function Landing() {
                                     <span>Study dates</span>
                                 </div>
                             </div>
-                            <div className="profile-slide profile-slide-two">
+                            <div
+                                className="profile-slide profile-slide-two"
+                                style={loadSecondaryProfileImages ? { backgroundImage: `url(${profileImageTwo})` } : undefined}
+                            >
                                 <div className="profile-copy">
                                     <strong>Tunde, 23</strong>
                                     <span>Obafemi Awolowo University</span>
@@ -194,7 +218,10 @@ export default function Landing() {
                                     <span>Live music</span>
                                 </div>
                             </div>
-                            <div className="profile-slide profile-slide-three">
+                            <div
+                                className="profile-slide profile-slide-three"
+                                style={loadSecondaryProfileImages ? { backgroundImage: `url(${profileImageThree})` } : undefined}
+                            >
                                 <div className="profile-copy">
                                     <strong>Zainab, 20</strong>
                                     <span>University of Ibadan</span>
@@ -207,10 +234,22 @@ export default function Landing() {
                                 </div>
                             </div>
                         </div>
-                        <div className="match-actions">
-                            <button type="button" aria-label="Pass">X</button>
-                            <button type="button" aria-label="Like">Like</button>
-                            <button type="button" aria-label="Super Swipe">Star</button>
+                        <div className="landing-match-actions">
+                            <button type="button" aria-label="Pass">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+                                    <path d="M18 6L6 18M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <button type="button" aria-label="Like">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            </button>
+                            <button type="button" aria-label="Super Swipe">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -244,7 +283,14 @@ export default function Landing() {
 
             <section className="landing-section landing-product-section">
                 <div className="product-poster">
-                    <img src={featureGraphic} alt="The College Date promotional graphic" />
+                    <img
+                        src={featureGraphic}
+                        alt="The College Date promotional graphic"
+                        width="720"
+                        height="352"
+                        loading="lazy"
+                        decoding="async"
+                    />
                 </div>
                 <div className="section-copy">
                     <h2>More than a swipe. It is a connection.</h2>
@@ -269,9 +315,9 @@ export default function Landing() {
                     </p>
                 </div>
                 <div className="safety-rail">
-                    <a href="/safety.html">Safety center</a>
-                    <a href="/child-safety-standards.html">Child safety standards</a>
-                    <a href="/campus-dating-safety.html">Campus dating safety</a>
+                    <a href="/safety">Safety center</a>
+                    <a href="/child-safety-standards">Child safety standards</a>
+                    <a href="/campus-dating-safety">Campus dating safety</a>
                 </div>
             </section>
 
@@ -295,22 +341,22 @@ export default function Landing() {
             <footer className="landing-footer">
                 <div>
                     <a href="/" className="landing-brand landing-brand--footer">
-                        <img src={brandIcon} alt="" />
+                        <img src={brandIcon} alt="" width="32" height="32" />
                         <span>The<span>College</span>Date</span>
                     </a>
                     <p>Real connections. Real you.</p>
                 </div>
 
                 <div className="landing-footer-links" aria-label="The College Date information links">
-                    <a href="/about.html">About</a>
-                    <a href="/campus-dating.html">Campus Dating</a>
-                    <a href="/student-dating.html">Student Dating</a>
-                    <a href="/nigeria-dating-app.html">Nigeria Dating</a>
-                    <a href="/university-dating-nigeria.html">University Dating</a>
-                    <a href="/college-dating-app.html">College App</a>
-                    <a href="/dating-app-for-students.html">For Students</a>
-                    <a href="/blog.html">Dating Guides</a>
-                    <a href="/support.html">Support</a>
+                    <a href="/about">About</a>
+                    <a href="/campus-dating">Campus Dating</a>
+                    <a href="/student-dating">Student Dating</a>
+                    <a href="/nigeria-dating-app">Nigeria Dating</a>
+                    <a href="/university-dating-nigeria">University Dating</a>
+                    <a href="/college-dating-app">College App</a>
+                    <a href="/dating-app-for-students">For Students</a>
+                    <a href="/blog">Dating Guides</a>
+                    <a href="/support">Support</a>
                     <a href="https://www.instagram.com/thecollegedate?igsh=MXhxZHZiMzZtOGp6dw%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
                     <a href={founderLinkedInUrl} target="_blank" rel="noopener noreferrer">Founder LinkedIn</a>
                     <a href={partnerWhatsAppUrl} target="_blank" rel="noopener noreferrer">Become a Partner</a>

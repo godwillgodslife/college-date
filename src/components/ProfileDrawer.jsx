@@ -10,6 +10,9 @@ import StatusViewer from './StatusViewer';
 import { getUserStatuses } from '../services/statusService';
 import { hasActivePremium } from '../utils/premium';
 import { isRecentlyLive } from '../utils/presence';
+import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
+import { CACHE_TTL } from '../lib/cachePolicy';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './ProfileDrawer.css';
 
 export default function ProfileDrawer({ isOpen, profile, onClose }) {
@@ -44,8 +47,17 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
     // Check for active statuses when profile changes
     useEffect(() => {
         const fetchStatuses = async (pId) => {
+            const cached = getCachedData(['profile-statuses', pId], {
+                ttlMs: CACHE_TTL.statuses,
+                allowStale: true
+            });
+            if (cached) setUserStatuses(cached);
+
             const { data } = await getUserStatuses(pId);
             setUserStatuses(data || []);
+            setCachedData(['profile-statuses', pId], data || [], {
+                type: 'statuses'
+            });
         };
 
         if (profile?.id) {
@@ -55,12 +67,14 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
         }
     }, [profile, activeProfile, isOpen]);
 
-    const displayProfile = profile || activeProfile;
+    const displayProfile = normalizeProfile(profile || activeProfile);
 
     if (!displayProfile) return null;
 
     const isPremium = hasActivePremium(userProfile);
     const isLive = isRecentlyLive(displayProfile);
+    const displayPhotos = getProfilePhotos(displayProfile);
+    const displayInterests = safeArray(displayProfile.interests);
 
     const handleVibe = async () => {
         // 1. Check wallet balance
@@ -145,8 +159,8 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                     <div className="drawer-scroll-content">
                         {/* Photo Carousel */}
                         <div className="drawer-photos">
-                            {displayProfile.profile_photos?.length > 0 ? (
-                                displayProfile.profile_photos.map((photo, idx) => (
+                            {displayPhotos.length > 0 ? (
+                                displayPhotos.map((photo, idx) => (
                                     <div
                                         key={idx}
                                         className={`drawer-photo-wrapper ${userStatuses.length > 0 ? 'has-status' : ''}`}
@@ -201,11 +215,11 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                             )}
 
                             {/* Vibe Tags */}
-                            {displayProfile.interests?.length > 0 && (
+                            {displayInterests.length > 0 && (
                                 <div className="drawer-vibes">
                                     <h3>The Vibe</h3>
                                     <div className="vibe-tags">
-                                        {displayProfile.interests.map((tag, idx) => (
+                                        {displayInterests.map((tag, idx) => (
                                             <span key={idx} className="vibe-tag">{tag}</span>
                                         ))}
                                     </div>

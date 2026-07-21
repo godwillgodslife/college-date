@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrefetch } from '../hooks/usePrefetch';
 import { useNotifications } from '../contexts/NotificationContext';
 import { triggerLightHaptic } from '../utils/haptics';
+import { NOTIFICATION_CATEGORIES } from '../utils/notificationRouting';
 import './BottomNav.css';
 
 const navItems = [
@@ -40,10 +40,7 @@ export default function BottomNav() {
     const { prefetch } = usePrefetch();
     
     // Connect notifications context
-    const { notifications } = useNotifications();
-    const unreadNotifications = useMemo(() => {
-        return (notifications || []).filter(n => !n.is_read);
-    }, [notifications]);
+    const { unreadByCategory = {} } = useNotifications();
 
     return (
         <nav className="bottom-nav">
@@ -54,17 +51,17 @@ export default function BottomNav() {
                 // Category-based notification counts
                 let badgeCount = 0;
                 if (item.path === '/chat') {
-                    // Chat messages & call logs
-                    badgeCount = unreadNotifications.filter(n => n.type === 'message' || n.type === 'call').length;
+                    badgeCount = unreadByCategory[NOTIFICATION_CATEGORIES.MESSAGES] || 0;
                 } else if (item.path === '/match') {
-                    // Likes, matches, and super swipes
-                    badgeCount = unreadNotifications.filter(n => ['match', 'like', 'super_swipe'].includes(n.type)).length;
+                    badgeCount = (unreadByCategory[NOTIFICATION_CATEGORIES.MATCHES] || 0)
+                        + (unreadByCategory[NOTIFICATION_CATEGORIES.REQUESTS] || 0);
                 } else if (item.path === '/confessions') {
-                    // Confession reactions and claims
-                    badgeCount = unreadNotifications.filter(n => n.type === 'snapshot_reaction').length;
+                    badgeCount = unreadByCategory[NOTIFICATION_CATEGORIES.SOCIAL] || 0;
                 } else if (item.path === '/profile') {
-                    // General notifications (views, payment, system, etc.)
-                    badgeCount = unreadNotifications.filter(n => !['message', 'call', 'match', 'like', 'super_swipe', 'snapshot_reaction'].includes(n.type)).length;
+                    badgeCount = (unreadByCategory[NOTIFICATION_CATEGORIES.PROFILE_ACTIVITY] || 0)
+                        + (unreadByCategory[NOTIFICATION_CATEGORIES.ACCOUNT] || 0)
+                        + (unreadByCategory[NOTIFICATION_CATEGORIES.SYSTEM] || 0)
+                        + (unreadByCategory[NOTIFICATION_CATEGORIES.GENERAL] || 0);
                 }
 
                 return (

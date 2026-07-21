@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App.jsx';
 import './styles/androidPolish.css';
+import { openNotificationRoute } from './utils/notificationRouting.js';
 
 // ─────────────────────────────────────────────
 // Platform Detection
@@ -12,6 +13,10 @@ import './styles/androidPolish.css';
 const isNative = typeof window !== 'undefined' &&
   window.Capacitor !== undefined &&
   window.Capacitor.isNativePlatform();
+
+const isLocalDevHost = typeof window !== 'undefined' &&
+  import.meta.env.DEV &&
+  ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
 
 if (isNative) {
   document.documentElement.classList.add('is-native-app');
@@ -36,7 +41,11 @@ async function clearNativeWebCaches() {
 
     if ('caches' in window) {
       const keys = await caches.keys();
-      await Promise.all(keys.map((key) => caches.delete(key)));
+      await Promise.all(
+        keys
+          .filter((key) => !key.startsWith('tcd-media-cache-'))
+          .map((key) => caches.delete(key))
+      );
     }
   } catch (error) {
     console.warn('[Capacitor] Cache cleanup skipped:', error);
@@ -44,6 +53,39 @@ async function clearNativeWebCaches() {
 }
 
 clearNativeWebCaches();
+
+async function clearLocalDevWebCaches() {
+  if (!isLocalDevHost) return;
+
+  try {
+    const hadController = Boolean(navigator.serviceWorker?.controller);
+
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((key) => !key.startsWith('tcd-media-cache-'))
+          .map((key) => caches.delete(key))
+      );
+    }
+
+    if (hadController && window.sessionStorage?.getItem('local-dev-sw-cleared') !== '1') {
+      window.sessionStorage.setItem('local-dev-sw-cleared', '1');
+      const url = new URL(window.location.href);
+      url.searchParams.set('devCacheCleared', String(Date.now()));
+      window.location.replace(url.toString());
+    }
+  } catch (error) {
+    console.warn('[Dev] Local cache cleanup skipped:', error);
+  }
+}
+
+clearLocalDevWebCaches();
 
 // ─────────────────────────────────────────────
 // PWA Service Worker — Web only
@@ -87,26 +129,12 @@ async function initCapacitor() {
   if (!isNative) return;
 
   try {
-    const getRouteFromDeepLink = (incomingUrl) => {
-      const url = new URL(incomingUrl);
+    const handleIncomingUrl = async (incomingUrl, source = 'appUrlOpen') => {
+      if (!incomingUrl) return;
 
-      if (url.protocol === 'com.collegedate.app:') {
-        const routePath = `/${url.host}${url.pathname}`.replace(/\/+/g, '/');
-        return `${routePath}${url.search}${url.hash}`;
-      }
+      console.log(`[Capacitor] Deep link received from ${source}:`, incomingUrl);
 
-      return `${url.pathname}${url.search}${url.hash}`;
-    };
-
-    // 1. Handle incoming deep links (Supabase OAuth callback)
-    //    e.g. com.collegedate.app://auth/callback?access_token=...
-    const { App: CapApp } = await import('@capacitor/app');
-    CapApp.addListener('appUrlOpen', async (data) => {
-      if (!data?.url) return;
-      console.log('[Capacitor] Deep link received:', data.url);
       try {
-        const path = getRouteFromDeepLink(data.url);
-
         try {
           const { Browser } = await import('@capacitor/browser');
           await Browser.close();
@@ -114,12 +142,26 @@ async function initCapacitor() {
           console.warn('[Capacitor] Browser close skipped:', browserError);
         }
 
-        // Push the path + search params into React Router
-        window.history.pushState({}, '', path);
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        openNotificationRoute(incomingUrl, '/notifications');
       } catch (e) {
         console.error('[Capacitor] Failed to parse deep link URL:', e);
       }
+    };
+
+    // 1. Handle incoming deep links and notification/app-link taps.
+    const { App: CapApp } = await import('@capacitor/app');
+    if (typeof CapApp.getLaunchUrl === 'function') {
+      CapApp.getLaunchUrl().then((launch) => {
+        if (launch?.url) {
+          handleIncomingUrl(launch.url, 'launch');
+        }
+      }).catch((error) => {
+        console.warn('[Capacitor] Launch URL check skipped:', error);
+      });
+    }
+
+    CapApp.addListener('appUrlOpen', async (data) => {
+      await handleIncomingUrl(data?.url, 'appUrlOpen');
     });
 
     // 2. Handle Android hardware back button on root route (exit app)

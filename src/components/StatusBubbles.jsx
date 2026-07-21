@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecentStatuses } from '../services/statusService';
 import OptimizedImage from './OptimizedImage';
+import { CACHE_TTL } from '../lib/cachePolicy';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './StatusBubbles.css';
 
 export default function StatusBubbles() {
@@ -9,11 +11,16 @@ export default function StatusBubbles() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        loadStatuses();
-    }, []);
-
     const loadStatuses = async () => {
+        const cached = getCachedData('recent-status-bubbles', {
+            ttlMs: CACHE_TTL.statuses,
+            allowStale: true
+        });
+        if (cached) {
+            setStatuses(cached);
+            setLoading(false);
+        }
+
         const { data } = await getRecentStatuses();
         // Group by user to show unique bubbles
         const uniqueStatuses = [];
@@ -28,8 +35,14 @@ export default function StatusBubbles() {
             });
         }
         setStatuses(uniqueStatuses);
+        setCachedData('recent-status-bubbles', uniqueStatuses, { type: 'statuses' });
         setLoading(false);
     };
+
+    useEffect(() => {
+        const timer = setTimeout(loadStatuses, 0);
+        return () => clearTimeout(timer);
+    }, []);
 
     if (loading || statuses.length === 0) return null;
 

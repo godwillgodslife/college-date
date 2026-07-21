@@ -114,6 +114,23 @@ export async function getMessages(matchId, page = 0) {
 export async function sendMessage(matchId, senderId, content, type = 'text', metadata = {}) {
     console.log(`[CHAT-TRACE] sendMessage fired! matchId: ${matchId}, senderId: ${senderId}`);
     try {
+        const clientNonce = metadata?.client_nonce;
+        if (clientNonce) {
+            const { data: existingMessage, error: existingError } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('match_id', matchId)
+                .eq('sender_id', senderId)
+                .eq('metadata->>client_nonce', clientNonce)
+                .maybeSingle();
+
+            if (existingError) {
+                console.warn('sendMessage client_nonce lookup failed:', existingError.message);
+            } else if (existingMessage) {
+                return { data: existingMessage, error: null };
+            }
+        }
+
         const { data, error } = await supabase
             .from('messages')
             .insert({
@@ -148,7 +165,17 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
                     type: isCall ? 'call' : 'message',
                     title: isCall ? `Incoming ${callType === 'video' ? 'Video' : 'Voice'} Call` : 'New Message',
                     content: isCall ? 'Tap to join the call.' : type === 'text' ? content : `Sent a ${type}`,
+                    category: 'messages',
+                    entityType: 'message',
+                    entityId: data.id,
+                    conversationId: matchId,
+                    matchId,
+                    deepLink: isCall ? `/call/${matchId}?type=${callType}` : `/chat?chatId=${matchId}`,
+                    priority: 'high',
+                    groupKey: `chat:${matchId}`,
+                    dedupeKey: `message:${data.id}`,
                     metadata: {
+                        message_id: data.id,
                         match_id: matchId,
                         url: isCall ? `/call/${matchId}?type=${callType}` : `/chat?chatId=${matchId}`,
                         call_type: isCall ? callType : undefined

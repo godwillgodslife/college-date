@@ -584,8 +584,17 @@
 }
 
 .dashboard-card .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.6rem;
     line-height: 1;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s ease;
+}
+
+.dashboard-card:hover .card-icon {
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .dashboard-card .card-title {
@@ -599,6 +608,10 @@
     border-color: rgba(0, 210, 255, 0.2);
 }
 
+.dashboard-card.partner-card-link .card-icon {
+    color: #00d2ff;
+}
+
 .dashboard-card.partner-card-link:hover {
     border-color: #00d2ff;
     box-shadow: 0 8px 24px rgba(0, 210, 255, 0.15);
@@ -606,6 +619,10 @@
 
 .dashboard-card.logout-card {
     border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dashboard-card.logout-card .card-icon {
+    color: #ef4444;
 }
 
 .dashboard-card.logout-card:hover {
@@ -617,6 +634,10 @@
     grid-column: span 2;
     border-color: rgba(168, 85, 247, 0.25);
     background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.03));
+}
+
+.dashboard-card.premium-card .card-icon {
+    color: #c084fc;
 }
 
 .dashboard-card.premium-card:hover {

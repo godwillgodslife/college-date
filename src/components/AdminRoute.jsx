@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { hasLocalAdminAccess } from '../utils/adminAccess';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function AdminRoute({ children }) {
     const { currentUser, loading, profileLoading } = useAuth();
     const [adminState, setAdminState] = useState({ checking: true, allowed: false });
+    const hasLocalAccess = hasLocalAdminAccess(currentUser);
 
     useEffect(() => {
         let isMounted = true;
@@ -14,6 +16,11 @@ export default function AdminRoute({ children }) {
         async function checkAdminAccess() {
             if (loading || profileLoading || !currentUser) {
                 setAdminState({ checking: false, allowed: false });
+                return;
+            }
+
+            if (hasLocalAccess) {
+                setAdminState({ checking: false, allowed: true });
                 return;
             }
 
@@ -34,14 +41,14 @@ export default function AdminRoute({ children }) {
         return () => {
             isMounted = false;
         };
-    }, [currentUser, loading, profileLoading]);
+    }, [currentUser, loading, profileLoading, hasLocalAccess]);
 
     if (loading || profileLoading || (currentUser && adminState.checking)) {
         return <LoadingSpinner fullScreen text="Checking credentials..." />;
     }
 
     if (!currentUser) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" replace state={{ from: { pathname: '/admin' } }} />;
     }
 
     if (!adminState.allowed) {

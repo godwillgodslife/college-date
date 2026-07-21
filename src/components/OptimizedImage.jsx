@@ -1,19 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { performanceMonitor } from '../utils/performanceMonitor';
+import { cacheMediaSource, getCachedMediaObjectUrl } from '../lib/mediaCache';
+import { getOptimizedUrl } from '../lib/imageUrl';
 import './OptimizedImage.css';
-
-/**
- * OptimizedImage component for high performance on 1GB RAM devices.
- * Uses Supabase image transformation and lazy loading.
- */
-export function getOptimizedUrl(src, width, quality = 60) {
-    if (!src) return src;
-    
-    // Supabase Free Tier actively blocks requests that contain 'width' or 'quality' 
-    // query parameters, returning a 400 Bad Request instead of ignoring them.
-    // We must return the raw URL exactly as it is for Free tier compatibility.
-    return src;
-}
 
 export default function OptimizedImage({
     src,
@@ -26,10 +15,41 @@ export default function OptimizedImage({
     priority = false
 }) {
     const optimizedUrl = getOptimizedUrl(src, width, quality);
-    const startTimeRef = useRef(performance.now());
+    const [cachedDisplay, setCachedDisplay] = useState({ source: null, url: null });
+    const displayUrl = cachedDisplay.source === optimizedUrl && cachedDisplay.url
+        ? cachedDisplay.url
+        : optimizedUrl;
+    const startTimeRef = useRef(0);
 
     useEffect(() => {
         startTimeRef.current = performance.now();
+    }, [optimizedUrl]);
+
+    useEffect(() => {
+        let cancelled = false;
+        let objectUrl = null;
+
+        async function hydrateCachedImage() {
+            if (!optimizedUrl) return;
+
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                const cachedUrl = await getCachedMediaObjectUrl(optimizedUrl);
+                if (!cancelled && cachedUrl) {
+                    objectUrl = cachedUrl;
+                    setCachedDisplay({ source: optimizedUrl, url: cachedUrl });
+                }
+                return;
+            }
+
+            cacheMediaSource(optimizedUrl).catch(() => {});
+        }
+
+        hydrateCachedImage();
+
+        return () => {
+            cancelled = true;
+            if (objectUrl) window.URL.revokeObjectURL(objectUrl);
+        };
     }, [optimizedUrl]);
 
     const handleLoad = () => {
@@ -51,9 +71,9 @@ export default function OptimizedImage({
                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
                 />
             )}
-            {optimizedUrl && (
+            {displayUrl && (
                 <img
-                    src={optimizedUrl}
+                    src={displayUrl}
                     alt={alt}
                     className="opt-image-main visible"
                     loading={priority ? "eager" : "lazy"}
