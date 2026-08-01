@@ -1,0 +1,7 @@
+-keep class kotlinx.serialization.** { *; }
+-keepclassmembers class **$$serializer { *; }
+-keep class io.github.jan.supabase.** { *; }
+-keep class io.ktor.** { *; }
+-keep class kotlin.time.** { *; }
+-dontwarn io.ktor.**
+-dontwarn kotlinx.atomicfu.**
