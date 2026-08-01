@@ -17,13 +17,16 @@ The existing React/Vite/Capacitor web application remains in place under the rep
 
 ## Public Configuration
 
-The project intentionally does not commit Supabase keys. Configure the anon/publishable key outside source control:
+The project intentionally does not commit Supabase keys. Configure the project URL and anon/publishable key outside source control in `local.properties`, `~/.gradle/gradle.properties`, environment variables, or the repository-root `.env` used by the existing web app.
 
 ```properties
-COLLEGE_DATE_SUPABASE_ANON_KEY=your-public-anon-or-publishable-key
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-public-anon-or-publishable-key
 ```
 
-You can set it in `~/.gradle/gradle.properties` or as an environment variable.
+The Gradle build also accepts the existing web names `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, plus the Android-specific aliases `COLLEGE_DATE_SUPABASE_URL` and `COLLEGE_DATE_SUPABASE_ANON_KEY`. See `local.properties.example` for a credential-free template.
+
+Release builds fail when no anon/publishable key is configured, so a placeholder cannot be shipped accidentally.
 
 ## Local Build
 

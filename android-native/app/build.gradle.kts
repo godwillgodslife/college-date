@@ -1,3 +1,6 @@
+import java.util.Properties
+import org.gradle.api.GradleException
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,8 +10,36 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
-private fun ProviderFactory.publicConfig(name: String, fallback: String = ""): String =
-    gradleProperty(name).orElse(environmentVariable(name)).orElse(fallback).get()
+private val localConfig = Properties().apply {
+    rootProject.file("local.properties")
+        .takeIf { it.isFile }
+        ?.inputStream()
+        ?.use(::load)
+}
+
+private val rootEnvConfig = Properties().apply {
+    rootProject.projectDir.parentFile
+        ?.resolve(".env")
+        ?.takeIf { it.isFile }
+        ?.inputStream()
+        ?.use(::load)
+}
+
+private fun String.cleanConfigValue(): String =
+    trim().trim('"').trim('\'')
+
+private fun ProviderFactory.publicConfig(vararg names: String, fallback: String = ""): String {
+    names.forEach { name ->
+        gradleProperty(name).orNull?.cleanConfigValue()?.takeIf { it.isNotBlank() }?.let { return it }
+        environmentVariable(name).orNull?.cleanConfigValue()?.takeIf { it.isNotBlank() }?.let { return it }
+        localConfig.getProperty(name)?.cleanConfigValue()?.takeIf { it.isNotBlank() }?.let { return it }
+        rootEnvConfig.getProperty(name)?.cleanConfigValue()?.takeIf { it.isNotBlank() }?.let { return it }
+    }
+    return fallback
+}
+
+private fun ProviderFactory.isReleaseRequested(): Boolean =
+    gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
 
 android {
     namespace = "com.collegedate.app"
@@ -27,10 +58,22 @@ android {
         }
 
         val supabaseUrl = providers.publicConfig(
+            "SUPABASE_URL",
             "COLLEGE_DATE_SUPABASE_URL",
-            "https://gedoyoleoscgxgdqszzc.supabase.co",
+            "VITE_SUPABASE_URL",
+            fallback = "https://gedoyoleoscgxgdqszzc.supabase.co",
         )
-        val supabaseAnonKey = providers.publicConfig("COLLEGE_DATE_SUPABASE_ANON_KEY")
+        val supabaseAnonKey = providers.publicConfig(
+            "SUPABASE_ANON_KEY",
+            "COLLEGE_DATE_SUPABASE_ANON_KEY",
+            "VITE_SUPABASE_ANON_KEY",
+        )
+        if (providers.isReleaseRequested() && supabaseAnonKey.isBlank()) {
+            throw GradleException(
+                "Release builds require SUPABASE_ANON_KEY, COLLEGE_DATE_SUPABASE_ANON_KEY, " +
+                    "or VITE_SUPABASE_ANON_KEY from an ignored local config source.",
+            )
+        }
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
         buildConfigField("String", "AUTH_CALLBACK_SCHEME", "\"com.collegedate.app\"")

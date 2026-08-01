@@ -19,6 +19,19 @@ class AuthRouteDeciderTest {
     }
 
     @Test
+    fun missingConfigurationGoesToWelcome() {
+        assertEquals(AppRoute.Welcome, AuthRouteDecider.destinationFor(AuthState.ConfigurationMissing))
+    }
+
+    @Test
+    fun emailVerificationRequiredGoesToVerificationScreen() {
+        assertEquals(
+            AppRoute.EmailVerification,
+            AuthRouteDecider.destinationFor(AuthState.EmailVerificationRequired("student@example.com")),
+        )
+    }
+
+    @Test
     fun authenticatedOnboardedUsersGoToMain() {
         assertEquals(AppRoute.Main, AuthRouteDecider.destinationFor(AuthState.SignedIn(session)))
     }

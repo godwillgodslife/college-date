@@ -46,7 +46,7 @@ fun CollegeDateNavHost(
 
         if (shouldNavigate) {
             navController.navigate(target.route) {
-                popUpTo(AppRoute.Splash.route) {
+                popUpTo(navController.graph.id) {
                     inclusive = true
                 }
                 launchSingleTop = true

@@ -51,7 +51,7 @@ fun WelcomeScreen(
                 style = MaterialTheme.typography.bodyLarge,
             )
             if (configurationMissing) {
-                ErrorBanner("Set COLLEGE_DATE_SUPABASE_ANON_KEY before using live authentication.")
+                ErrorBanner("Set the public Supabase configuration before using live authentication.")
             }
         }
 

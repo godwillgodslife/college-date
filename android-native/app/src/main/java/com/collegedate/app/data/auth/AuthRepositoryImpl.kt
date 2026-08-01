@@ -47,7 +47,9 @@ class AuthRepositoryImpl @Inject constructor(
                             _authState.value = AuthState.SignedOut
                         }
 
-                        is RemoteAuthStatus.Authenticated -> hydrateSession(status.user)
+                        is RemoteAuthStatus.Authenticated -> {
+                            _authState.value = hydrateSession(status.user)
+                        }
                     }
                 }
             }
