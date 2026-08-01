@@ -174,7 +174,8 @@ No production profile rows, user emails, phone numbers, messages, wallet records
 
 ## 12. Commit Hash
 
-The package commit hash is recorded in the final response and, if followed by a docs-only hash-recording commit, in this section.
+- Package commit: `6dbcf09` (`security: add hardened staging RPC subset`)
+- Hash-recording docs commit: pending at the time this line was added.
 
 ## 13. Is The Baseline Safe To Apply To Staging?
 
