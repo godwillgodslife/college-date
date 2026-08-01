@@ -18,8 +18,10 @@ Production migration is not approved until every item below is checked and evide
 - [x] Production migration history inspected; proposed `20260801120000_restrict_anonymous_profile_access` migration is not applied.
 - [x] PostgREST/Data API role surface reviewed at object-grant level for `anon`, `authenticated`, and `PUBLIC` on the profile and profile-derived objects in scope.
 - [x] Connected Supabase project list inspected; only production `College Date` / `gedoyoleoscgxgdqszzc` was visible.
+- [x] Updated connection inspected; staging project `College Date Staging` / `pxobauvatbjncluuunyq` is now visible and production is not visible.
 - [ ] Supabase dashboard Data API exposed-schema settings reviewed by project owner.
-- [ ] Separate staging Supabase project positively identified.
+- [x] Separate staging Supabase project positively identified.
+- [ ] Production-equivalent schema-only staging baseline exists.
 
 ## Migration Readiness
 
@@ -41,6 +43,7 @@ Production migration is not approved until every item below is checked and evide
 ## Staging Gates
 
 - [ ] Staging migration applied successfully.
+- [ ] Staging schema reconstructed from a reviewed schema-only baseline.
 - [ ] Staging post-migration inspection output archived.
 - [ ] Anonymous profile table read test passed.
 - [ ] Anonymous private-column read test passed.

@@ -227,7 +227,7 @@ Findings:
 
 ## Staging Safety Verdict
 
-Verdict: safe to trial in staging as a first-stage anonymous profile-access remediation, with product-flow smoke tests and rollback rehearsal required before production.
+Verdict: safe to trial in staging only after a production-equivalent schema-only staging baseline exists, with product-flow smoke tests and rollback rehearsal required before production.
 
 Why it is suitable for staging:
 
@@ -238,6 +238,7 @@ Why it is suitable for staging:
 
 Why it is not production-approved yet:
 
+- Staging schema reconstruction is currently blocked because the connected staging project has no College Date app tables and the repository does not contain a complete from-empty schema history, including no canonical `CREATE TABLE public.profiles`.
 - Authenticated non-owner direct `profiles` reads remain broad until a safe discovery/matched-profile API contract exists.
 - `discovery_feed_v3` exposes more profile fields than native discovery should consume.
 - `optimized_confessions` still exposes identifiers that need a separate anonymity review.
@@ -245,6 +246,23 @@ Why it is not production-approved yet:
 - Staging anonymous, owner, non-owner, and web/native smoke tests have not been run after applying this migration.
 
 Do not apply this migration to production until [profile-rls-production-approval-checklist.md](C:/college-date/docs/native-android/profile-rls-production-approval-checklist.md) is complete.
+
+## Staging Attempt On 2026-08-01
+
+Connected staging project:
+
+- Project: `College Date Staging`
+- Ref: `pxobauvatbjncluuunyq`
+- Organization: `hekkdwsfxzaplyipyoes`
+- Region: `eu-west-1`
+
+Outcome: blocked before remote writes.
+
+Baseline inspection showed no public app tables, no public app views, no migration history, no storage buckets, no Edge Functions, and no realtime publication tables. Repository inspection showed the committed migrations assume existing base tables and no canonical `CREATE TABLE public.profiles` exists in the repository SQL.
+
+Remote staging changes made: none.
+
+Results are recorded in [profile-rls-staging-results.md](C:/college-date/docs/native-android/profile-rls-staging-results.md) and [staging-schema-reconstruction-plan.md](C:/college-date/docs/native-android/staging-schema-reconstruction-plan.md).
 
 ## 15. Rollback Procedure
 

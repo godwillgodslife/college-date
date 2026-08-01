@@ -2,7 +2,7 @@
 
 Date: 2026-08-01
 
-Status: staging package prepared and committed candidate ready. Do not apply to production.
+Status: staging package prepared and committed candidate ready. Staging application is blocked until a production-equivalent schema-only baseline exists. Do not apply to production.
 
 Final package hashes:
 
@@ -13,19 +13,22 @@ Final package hashes:
 
 ## Connected Project Status
 
-Finalization check through the connected Supabase tools found only the production project:
+Current connected staging project:
 
-- Project name: `College Date`
-- Project ref: `gedoyoleoscgxgdqszzc`
-- Organization: `lhxcomfjmkhcikbysuli`
-- Classification: production
-- Test-data-only status: not test data only; production backend
-- Current migration state: production does not contain `20260801120000_restrict_anonymous_profile_access`
+- Project name: `College Date Staging`
+- Project ref: `pxobauvatbjncluuunyq`
+- Organization: `hekkdwsfxzaplyipyoes`
+- Classification: staging
+- Current migration state: empty
 
-No separate staging project could be positively identified. Supabase branch listing did not return a usable staging branch. Therefore the migration was not applied and the staging test matrix was not executed.
+Production project `gedoyoleoscgxgdqszzc` is not visible in the current Supabase connection and must not be accessed or reconnected for this staging pass.
+
+Staging schema reconstruction is blocked. The project has no College Date app tables or views, and the repository does not contain a complete from-empty schema history. See [profile-rls-staging-results.md](C:/college-date/docs/native-android/profile-rls-staging-results.md).
 
 ## Before Migration
 
+- Create or apply a reviewed schema-only baseline migration that defines the College Date app schema without production data.
+- Confirm the baseline contains `public.profiles` and the profile-derived views required by the remediation.
 - Capture current policies and grants by running [profile-rls-live-inspection.sql](C:/college-date/docs/native-android/profile-rls-live-inspection.sql) against staging.
 - Compare staging metadata against [profile-rls-live-readonly-findings.md](C:/college-date/docs/native-android/profile-rls-live-readonly-findings.md); investigate drift before applying.
 - Export migration history from staging with the Supabase Dashboard or CLI.
