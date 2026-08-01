@@ -8,69 +8,92 @@ Production project `gedoyoleoscgxgdqszzc` was not accessed or modified.
 
 ## Objective
 
-Remove the first-stage transitional authenticated `profiles SELECT USING (true)` policy and replace it with narrow profile access contracts suitable for native Android.
+Validate that direct authenticated profile access is owner-only and that all non-owner profile exposure now happens through intentionally narrow RPC contracts.
+
+## Root Cause
+
+The original anonymous profile-access issue was caused by broad public access to `public.profiles` and profile-derived views. The follow-up authenticated exposure was caused by a transitional authenticated `profiles SELECT USING (true)` policy and direct client grants on broad profile-derived views.
+
+The staging remediation removes both classes of exposure:
+
+- anonymous direct table/view access remains blocked;
+- authenticated direct `profiles` access is owner-only through RLS;
+- raw profile-derived views are not granted to client roles;
+- non-owner discovery and matched-profile reads are mediated by reviewed RPCs that derive caller identity from `auth.uid()`.
 
 ## Migration
 
-Created and applied:
+Applied in staging:
 
 - `supabase/migrations/20260801163000_restrict_authenticated_profile_access.sql`
 - SHA-256: `D2793AE8BF87107EEF98A7E5239956806DD703EAE38B22BCEFFAB08818D34EBC`
 
-Rollback created and rehearsed:
+Rollback rehearsed in staging:
 
 - `docs/native-android/authenticated-profile-isolation-rollback.sql`
 - SHA-256: `DFF9D1F6B2EABB6388123588A17D3C30573B4DAEBC4A6BCF5BA0149FCB46A096`
 
-The Supabase CLI migration generator was not available on this workstation, so the timestamped migration filename was created manually and this limitation is documented.
+The Supabase CLI migration generator was not available on this workstation, so the timestamped migration file was created manually.
 
-## What Changed
-
-- Removed `Authenticated users can read profiles for current app screens`.
-- Removed duplicate first-stage profile owner policies.
-- Recreated exactly four owner-only `profiles` policies:
-  - select own profile
-  - insert own profile
-  - update own profile
-  - delete own profile
-- Removed direct client grants on:
-  - `discovery_feed_v3`
-  - `leaderboard_big_spenders`
-  - `leaderboard_campus_stars`
-  - `leaderboard_most_wanted`
-  - `leaderboard_unified`
-  - `optimized_confessions`
-- Kept all profile-derived views as `security_invoker=true`.
-- Added `get_matched_profile(uuid)` as the safe matched-user profile contract.
-- Replaced broad authenticated table update with column-level `profiles` update grants.
-
-## Final Staging State
+## Final Staging Metadata
 
 | Check | Result |
 | --- | --- |
-| Profile policy count | 4 |
+| `profiles` policy count | 4 |
 | Broad authenticated profile read policy | Absent |
 | Public profile read policy | Absent |
+| `anon` profile policy | Absent |
 | `anon` can select `profiles` | No |
 | `authenticated` can select `profiles` | Yes, constrained by owner-only RLS |
-| Client grants on raw profile-derived views | 0 |
-| `get_matched_profile(uuid)` present | Yes |
-| `get_matched_profile(uuid)` anonymous execute | No |
-| `get_matched_profile(uuid)` authenticated execute | Yes |
-| `get_matched_profile(uuid)` `search_path` | `''` |
-| Profiles rows | 0 |
-| Matches rows | 0 |
-| Reports rows | 0 |
-| Confessions rows | 0 |
-| Storage objects | 0 |
+| `authenticated` table-level update on `profiles` | No |
+| `authenticated` can update protected profile fields | No |
+| Raw `discovery_feed_v3` client grants | No `anon` or `authenticated` select |
+| Raw `leaderboard_unified` client grants | No `anon` or `authenticated` select |
+| Raw `optimized_confessions` client grants | No `anon` or `authenticated` select |
+| All three reviewed views use `security_invoker` | Yes |
 
-## Column-Level Write Controls
+Reviewed views:
 
-Allowed direct owner update example:
+| View | Owner | `security_invoker` | `anon` select | `authenticated` select |
+| --- | --- | --- | --- | --- |
+| `discovery_feed_v3` | `postgres` | `true` | No | No |
+| `leaderboard_unified` | `postgres` | `true` | No | No |
+| `optimized_confessions` | `postgres` | `true` | No | No |
 
-- `full_name`
+Reviewed app-facing RPCs:
 
-Denied protected direct owner updates:
+| Function | SECURITY DEFINER | `search_path` | `anon` execute | `authenticated` execute |
+| --- | --- | --- | --- | --- |
+| `apply_referral_code(p_code text)` | Yes | `''` | No | Yes |
+| `get_confession_feed(p_university text, p_limit integer, p_offset integer)` | Yes | `''` | No | Yes |
+| `get_discovery_profiles(p_limit integer, p_offset integer, p_filters jsonb)` | Yes | `''` | No | Yes |
+| `get_leaderboard_profiles(p_kind text, p_limit integer)` | Yes | `''` | No | Yes |
+| `get_matched_profile(p_profile_id uuid)` | Yes | `''` | No | Yes |
+| `toggle_confession_reaction(p_confession_id uuid, p_emoji text)` | Yes | `''` | No | Yes |
+| `validate_referral_code(p_code text)` | Yes | `''` | Yes, intentional | Yes |
+
+## Runtime Isolation Results
+
+Final runtime pass: 69 passed, 0 failed.
+
+| Area | Result |
+| --- | --- |
+| Owner can read own profile | Passed |
+| Owner can update approved self fields | Passed |
+| Owner can complete onboarding through approved fields | Passed |
+| Owner cannot update protected fields | Passed |
+| Owner cannot change profile ownership | Passed |
+| Owner cannot directly read another full profile | Passed |
+| Non-owner cannot directly read another full profile | Passed |
+| Non-owner cannot update another profile | Passed |
+| Anonymous direct profile access | Passed, rejected |
+| Discovery RPC returns safe card fields only | Passed |
+| Matched-profile RPC returns safe matched fields only | Passed |
+| Blocked/reported profile access through RPC | Passed, filtered |
+| Leaderboard RPC exposes only public leaderboard fields | Passed |
+| Confession feed excludes author identity fields | Passed |
+
+Protected direct-update fields denied at runtime:
 
 - `is_premium`
 - `premium_expires_at`
@@ -78,77 +101,44 @@ Denied protected direct owner updates:
 - `referral_code`
 - `is_banned`
 - `push_token`
+- `ai_verification_status`
 - `ai_review_summary`
-
-Direct owner profile editing should still prefer `update_current_profile(jsonb)`.
+- `ai_review_flags`
+- `is_shadow_banned`
 
 ## Safe Access Contracts
 
 | Surface | Contract |
 | --- | --- |
 | Current user profile | Direct `profiles` owner-only RLS or `get_current_profile()` |
-| Discovery profile | `get_discovery_profiles(...)` only |
-| Matched-user profile | `get_matched_profile(uuid)` only |
-| Leaderboard | `get_leaderboard_profiles(text, integer)` only |
-| Confessions | `get_confession_feed(text, integer, integer)` and `toggle_confession_reaction(uuid, text)` |
-| Referral validation | `validate_referral_code(text)` only public RPC |
+| Owner profile edit | Column-limited owner update or `update_current_profile(jsonb)` |
+| Discovery cards | `get_discovery_profiles(...)` |
+| Matched-user profile | `get_matched_profile(uuid)` |
+| Leaderboard | `get_leaderboard_profiles(text, integer)` |
+| Confessions feed | `get_confession_feed(text, integer, integer)` |
+| Confession reactions | `toggle_confession_reaction(uuid, text)` |
+| Referral validation | `validate_referral_code(text)`, intentionally public |
+| Referral application | `apply_referral_code(text)`, authenticated only |
 
-## Anonymous REST Results
+Native Android and web clients should not query `profiles`, `discovery_feed_v3`, `leaderboard_unified`, or `optimized_confessions` for non-owner profile surfaces.
 
-Final staging after rollback/reapply:
+## Auth Trigger Finding
 
-| Probe | Result |
-| --- | --- |
-| `profiles?select=id&limit=1` | `401` |
-| `discovery_feed_v3?select=*&limit=1` | `401` |
-| `leaderboard_unified?select=*&limit=1` | `401` |
-| `optimized_confessions?select=*&limit=1` | `401` |
-| `rpc/get_discovery_profiles` | `401` |
-| `rpc/get_matched_profile` | `401` |
-| `rpc/get_leaderboard_profiles` | `401` |
-| `rpc/get_confession_feed` | `401` |
-| `rpc/validate_referral_code` | `200` |
+Staging Auth user creation surfaced a profile bootstrap bug in `public.handle_new_user()`: if Auth user metadata omits `gender`, the trigger can attempt to insert a `profiles.gender = null` value because the null check does not catch `NULL NOT IN (...)`.
 
-No profile rows were selected or printed.
-
-## Runtime Owner/Non-Owner Tests
-
-Blocked.
-
-Disposable staging Auth users could not be created or confirmed:
-
-- public signup reaches staging but `.test` and `example.com` synthetic domains are rejected;
-- app-domain synthetic signup hit `over_email_send_rate_limit`;
-- connected tools do not expose Auth admin user creation;
-- direct SQL insert into `auth.users` was not used because it is disallowed.
-
-## Rollback Rehearsal
-
-Passed.
-
-1. Applied stricter migration.
-2. Verified hardened metadata state.
-3. Applied rollback.
-4. Verified rollback restored the first-stage transitional authenticated baseline:
-   - broad authenticated profile read policy present;
-   - authenticated raw view grants restored;
-   - `get_matched_profile(uuid)` removed;
-   - anonymous profile access still blocked.
-5. Reapplied stricter migration.
-6. Verified final hardened state.
-
-Staging ended hardened.
+Runtime fixtures worked by passing complete lowercase profile metadata during admin user creation. Before production signup hardening, update or review the trigger so missing or malformed metadata falls back safely without violating `profiles.gender NOT NULL`.
 
 ## Advisor Results
 
-Security advisor:
+Security advisors:
 
-- Duplicate permissive `profiles` policy finding is gone.
-- Remaining `rls_enabled_no_policy` INFO findings are for deferred later-phase tables.
-- `validate_referral_code(text)` remains intentionally anonymous-callable.
-- Authenticated app-facing `SECURITY DEFINER` RPC warnings remain, including the new `get_matched_profile(uuid)`.
+- Duplicate permissive `profiles` policy findings are resolved.
+- Remaining `rls_enabled_no_policy` INFO findings are for schema-only/deferred tables that are closed by RLS until their feature contracts are reviewed.
+- `validate_referral_code(text)` remains an intentional anonymous `SECURITY DEFINER` RPC.
+- Authenticated `SECURITY DEFINER` warnings remain for app-facing RPCs and must be accepted or hardened function-by-function before production apply.
+- Supabase Auth leaked-password protection is disabled.
 
-Performance advisor:
+Performance advisors:
 
 - Six unindexed foreign-key INFO findings remain:
   - `admin_audit_logs.admin_user_id`
@@ -157,12 +147,10 @@ Performance advisor:
   - `payment_attempts.product_id`
   - `swipe_payment_operations.swiped_id`
   - `wallet_ledger.wallet_id`
-- Unused-index INFO findings remain expected because staging has no traffic.
+- Many unused-index INFO findings remain expected in a fresh staging project with little traffic.
 
 ## Verdict
 
-The authenticated profile isolation migration is metadata-verified and rollback-tested in staging. It is a safer production candidate than the first-stage remediation because it removes broad authenticated profile reads and raw profile-derived view access.
+Authenticated profile isolation is verified in staging at metadata and runtime levels. The proposed migration is safe for continued staging use and is ready for production approval review.
 
-Production promotion is still not recommended until disposable confirmed staging users are available and owner/non-owner runtime tests pass.
-
-Native Android Phase 2 should not begin yet.
+Production promotion is recommended only after explicit approval, fresh production read-only preflight checks, acknowledgement of the intentional `validate_referral_code` public RPC, and resolution or acceptance of the Auth trigger and advisor caveats above.
