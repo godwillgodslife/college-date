@@ -1,0 +1,77 @@
+-- The College Date staging schema baseline
+-- Source: production metadata from Supabase project gedoyoleoscgxgdqszzc on 2026-08-01.
+-- Scope: function and trigger inventory only.
+--
+-- IMPORTANT:
+-- Production contains 104 public functions, 100 of which are SECURITY DEFINER.
+-- Supabase security advisors also report anon/authenticated executable SECURITY DEFINER
+-- functions and one mutable search_path function. To avoid copying production-specific
+-- privileged behavior into staging without review, this baseline does not recreate
+-- function bodies automatically.
+--
+-- Staging bootstrap rule:
+-- 1. Apply table, constraint, view, RLS, storage, and Realtime baseline files.
+-- 2. Review repository migrations that define functions.
+-- 3. Apply only reviewed functions with explicit search_path, explicit grants, and no
+--    production-specific URLs, secrets, or owner-only constants.
+-- 4. Create triggers only after their target functions are present.
+
+-- Function inventory captured from production metadata:
+-- Total public functions: 104
+-- SECURITY DEFINER functions: 100
+-- Mutable search_path functions: 1 (public.process_referral_rewards)
+--
+-- High-risk categories requiring review before staging reproduction:
+-- - Admin RPCs: admin_* and make_admin
+-- - Money/payment RPCs: process_verified_payment, increment_wallet_balance*,
+--   decrement_wallet_balance, purchase_premium_with_wallet, request_wallet_withdrawal
+-- - Notification RPCs and trigger helpers: insert_notification, notify_*, register_notification_device
+-- - Discovery/matching RPCs: process_swipe_payment, send_super_swipe, accept_swipe_request
+-- - Referral RPCs: generate_referral_code, apply/validate referral-code functions from local migrations
+
+-- Trigger inventory captured from production metadata. Keep commented until reviewed
+-- function bodies are present in staging.
+--
+-- create trigger confession_notification_trigger
+-- after insert or update on public.confessions
+-- for each row execute function public.notify_on_confession();
+--
+-- create trigger set_message_expiry_from_match
+-- before insert on public.messages
+-- for each row execute function public.set_message_expiry_from_match();
+--
+-- create trigger on_profile_view_insert
+-- after insert on public.profile_views
+-- for each row execute function public.notify_on_profile_view();
+--
+-- create trigger on_profile_created_referral
+-- before insert on public.profiles
+-- for each row execute function public.handle_new_profile_referral();
+--
+-- create trigger tr_sync_referral
+-- after insert or update on public.profiles
+-- for each row execute function public.sync_referral_from_profile();
+--
+-- create trigger track_photo_update
+-- before update on public.profiles
+-- for each row execute function public.update_photo_timestamp();
+--
+-- create trigger on_new_referral
+-- after insert on public.referrals
+-- for each row execute function public.check_referral_milestones();
+--
+-- create trigger tr_on_new_referral
+-- after insert on public.referrals
+-- for each row execute function public.process_referral_rewards();
+--
+-- create trigger premium_swipe_auto_match
+-- after insert or update on public.swipes
+-- for each row execute function public.auto_match_premium_swipes();
+--
+-- create trigger swipe_notification_trigger
+-- after insert or update on public.swipes
+-- for each row execute function public.notify_on_swipe();
+--
+-- create trigger on_wallet_transaction_created
+-- after insert on public.wallet_transactions
+-- for each row execute function public.on_wallet_earning_trigger();
