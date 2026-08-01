@@ -29,6 +29,14 @@
 -- - Discovery/matching RPCs: process_swipe_payment, send_super_swipe, accept_swipe_request
 -- - Referral RPCs: generate_referral_code, apply/validate referral-code functions from local migrations
 
+-- Reviewed staging subset:
+-- See 035_required_functions_hardened.sql for the first approved local-only
+-- function package. It resolves only the bootstrap triggers and RPCs needed for
+-- profile creation/onboarding, referral-code validation, safe discovery,
+-- standard swipe/match testing, leaderboard reads, and confession feed/reactions.
+-- It intentionally omits production payment, wallet reward, push delivery,
+-- call, admin, and scheduled maintenance functions.
+
 -- Trigger inventory captured from production metadata. Keep commented until reviewed
 -- function bodies are present in staging.
 --
@@ -55,6 +63,10 @@
 -- create trigger track_photo_update
 -- before update on public.profiles
 -- for each row execute function public.update_photo_timestamp();
+--
+-- These profile bootstrap triggers are implemented in
+-- 035_required_functions_hardened.sql together with auth.users
+-- on_auth_user_created and calculate_profile_completion.
 --
 -- create trigger on_new_referral
 -- after insert on public.referrals

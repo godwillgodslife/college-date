@@ -19,12 +19,13 @@ Target staging project:
    - `supabase/baseline/010_tables.sql`
    - `supabase/baseline/020_constraints_and_indexes.sql`
    - `supabase/baseline/030_functions_and_triggers.sql`
+   - `supabase/baseline/035_required_functions_hardened.sql`
    - `supabase/baseline/040_views.sql`
    - `supabase/baseline/050_rls_and_grants.sql`
    - `supabase/baseline/060_storage_and_realtime.sql`
    - `supabase/baseline/070_staging_seed_structure.sql`
 3. Apply repository migrations classified as required afterward:
-   - `20260725130000_secure_referral_code_flow.sql`, after referral/security review.
+   - `20260725130000_secure_referral_code_flow.sql` is superseded for initial staging bootstrap by the reviewed referral RPCs in `035_required_functions_hardened.sql`; do not apply both without a diff review.
    - Any reviewed function/RPC migrations needed for the specific staging test surface.
 4. Apply `20260801120000_restrict_anonymous_profile_access.sql` as the first-stage RLS remediation rehearsal.
 5. Create synthetic test users in staging only.
@@ -191,4 +192,3 @@ Deferred until reviewed:
 ## RLS Remediation Sequence
 
 The committed remediation `20260801120000_restrict_anonymous_profile_access.sql` should be rehearsed after the baseline because it is the production-intended first-stage fix for anonymous profile access. The baseline already reflects its security direction, but staging should still run the migration to prove idempotence, rollback, and app compatibility.
-
