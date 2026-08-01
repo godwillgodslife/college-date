@@ -369,32 +369,20 @@ security invoker
 set search_path to ''
 as $$
 declare
-    v_profile jsonb := to_jsonb(new);
     v_score integer := 0;
 begin
-    if coalesce(v_profile->>'full_name', '') <> '' then v_score := v_score + 15; end if;
-    if coalesce(v_profile->>'bio', '') <> '' then v_score := v_score + 15; end if;
-    if coalesce(v_profile->>'university', '') <> '' then v_score := v_score + 10; end if;
-    if coalesce(v_profile->>'gender', '') <> '' then v_score := v_score + 10; end if;
-    if coalesce(v_profile->>'age', '') <> '' then v_score := v_score + 10; end if;
-    if coalesce(v_profile->>'avatar_url', '') <> ''
-       or case
-            when jsonb_typeof(v_profile->'profile_photos') = 'array'
-            then jsonb_array_length(v_profile->'profile_photos')
-            else 0
-          end > 0
-       or case
-            when jsonb_typeof(v_profile->'photos') = 'array'
-            then jsonb_array_length(v_profile->'photos')
-            else 0
-          end > 0 then
+    if coalesce(new.full_name, '') <> '' then v_score := v_score + 15; end if;
+    if coalesce(new.bio, '') <> '' then v_score := v_score + 15; end if;
+    if coalesce(new.university, '') <> '' then v_score := v_score + 10; end if;
+    if coalesce(new.gender, '') <> '' then v_score := v_score + 10; end if;
+    if coalesce(new.age, 0) > 0 then v_score := v_score + 10; end if;
+    if coalesce(new.avatar_url, '') <> ''
+       or coalesce(array_length(new.profile_photos, 1), 0) > 0
+       or coalesce(array_length(new.photos, 1), 0) > 0 then
         v_score := v_score + 25;
     end if;
-    if case
-        when jsonb_typeof(v_profile->'interests') = 'array'
-        then jsonb_array_length(v_profile->'interests')
-        else 0
-      end > 0 then
+    if jsonb_typeof(coalesce(new.interests, '[]'::jsonb)) = 'array'
+       and jsonb_array_length(coalesce(new.interests, '[]'::jsonb)) > 0 then
         v_score := v_score + 15;
     end if;
 

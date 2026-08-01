@@ -2,103 +2,84 @@
 
 Date: 2026-08-01
 
-Production migration is not approved until every item below is checked and evidence is linked.
+Production migration is not approved until every unchecked item below is completed and evidence is linked. Production project `gedoyoleoscgxgdqszzc` must not be modified without explicit approval.
 
-## Required Evidence
+## Evidence Already Captured
 
-- [x] Exact live `public.profiles` RLS status captured in [profile-rls-live-readonly-findings.md](C:/college-date/docs/native-android/profile-rls-live-readonly-findings.md).
-- [x] Exact live `public.profiles` policy names, roles, commands, `USING`, and `WITH CHECK` expressions reviewed.
-- [x] Exact live grants on `profiles`, `discovery_feed_v3`, `leaderboard_unified`, `optimized_confessions`, and additional profile-derived leaderboard views reviewed.
-- [x] View owners and `security_invoker` settings reviewed for profile-derived views.
-- [x] View definitions/columns reviewed for private profile fields.
-- [x] Access-related `SECURITY DEFINER` functions identified.
-- [x] Access-related function `search_path` configuration inspected at metadata level.
-- [x] Execute grants for anonymous-callable `SECURITY DEFINER` functions reviewed at metadata level.
-- [x] Supabase security advisor output reviewed for profile/view/function-related blockers.
-- [x] Production migration history inspected; proposed `20260801120000_restrict_anonymous_profile_access` migration is not applied.
-- [x] PostgREST/Data API role surface reviewed at object-grant level for `anon`, `authenticated`, and `PUBLIC` on the profile and profile-derived objects in scope.
-- [x] Connected Supabase project list inspected; only production `College Date` / `gedoyoleoscgxgdqszzc` was visible.
-- [x] Updated connection inspected; staging project `College Date Staging` / `pxobauvatbjncluuunyq` is now visible and production is not visible.
-- [ ] Supabase dashboard Data API exposed-schema settings reviewed by project owner.
-- [x] Separate staging Supabase project positively identified.
-- [ ] Production-equivalent schema-only staging baseline exists.
+- [x] Production root cause identified from prior read-only inspection: broad public `profiles` policy plus anonymous table/view grants.
+- [x] Staging project positively identified: `College Date Staging` / `pxobauvatbjncluuunyq`.
+- [x] Production project was not accessed during staging apply.
+- [x] Staging baseline applied to `pxobauvatbjncluuunyq`.
+- [x] Public app table row count in staging is `0`; no production data was copied.
+- [x] Remediation migration hash verified: `BB482DE77DC813162333981A3DA69FC46AAA10BE776391ED4AB0B1849CBEAAD7`.
+- [x] Rollback hash verified: `46DE6935E6288A52153A7D9A267E848C2FD193F0B02BC60A3A59AA2738433CE9`.
+- [x] Remediation applied to staging.
+- [x] Rollback rehearsed on staging.
+- [x] Remediation reapplied after rollback.
+- [x] Staging finished with anonymous profile/view access blocked.
+- [x] `leaderboard_unified` verified as `security_invoker=true` in final staging state.
+- [x] Hardened RPC subset applied to staging.
+- [x] Hardened RPC grants verified at metadata level.
+- [x] Supabase security and performance advisors run against staging.
 
-## Migration Readiness
+## Required Before Production Apply
 
-- [x] Migration updated to match exact live policy names found on 2026-08-01.
-- [x] Migration reviewed for idempotency at static SQL level.
-- [x] Migration reviewed for rollback safety at static SQL level.
-- [x] Migration does not disable RLS.
-- [x] Migration does not grant broad public access.
-- [x] Migration does not modify payment, wallet, or premium logic.
-- [x] Migration does not delete production data.
-- [x] Migration intentionally leaves SECURITY DEFINER RPC grant hardening to a separate approved task.
-- [x] Migration hash recorded: `BB482DE77DC813162333981A3DA69FC46AAA10BE776391ED4AB0B1849CBEAAD7`.
-- [x] Rollback hash recorded: `46DE6935E6288A52153A7D9A267E848C2FD193F0B02BC60A3A59AA2738433CE9`.
-- [x] Rollback statically reviewed against inspected production baseline.
-- [ ] Migration syntax validated in staging or an isolated database.
-- [ ] Rollback syntax validated in staging or an isolated database.
-- [ ] Rollback procedure executed successfully in staging after a test apply.
-
-## Staging Gates
-
-- [ ] Staging migration applied successfully.
-- [ ] Staging schema reconstructed from a reviewed schema-only baseline.
-- [ ] Staging post-migration inspection output archived.
-- [ ] Anonymous profile table read test passed.
-- [ ] Anonymous private-column read test passed.
-- [ ] Anonymous discovery view read test passed.
-- [ ] Anonymous leaderboard view read test passed.
-- [ ] Anonymous confessions view read test passed.
-- [ ] Owner self-profile read test passed.
-- [ ] Owner self-profile update test passed.
-- [ ] Owner protected-field update denial test passed.
-- [ ] Non-owner direct profile read behavior documented as transitional; strict denial deferred until safe discovery/matched-profile contracts are available.
-- [ ] Non-owner direct profile update denial test passed.
-- [ ] Authenticated discovery still works under transitional policy.
-- [ ] Blocking/exclusion tests passed.
-- [ ] Confession anonymity test passed.
+- [ ] Re-run production read-only metadata inspection immediately before any approved production write.
+- [ ] Confirm Supabase dashboard Data API exposed-schema settings with the product owner.
+- [ ] Create disposable staging Auth users without storing or printing credentials.
+- [ ] Run REST/API anonymous tests from a network that resolves `pxobauvatbjncluuunyq.supabase.co`.
+- [ ] Run authenticated owner tests with real staging sessions.
+- [ ] Run authenticated non-owner tests with real staging sessions.
+- [ ] Confirm owner can read/update only permitted self-profile fields.
+- [ ] Confirm owner cannot update Premium, wallet, referral rewards, moderation, or admin fields.
+- [ ] Confirm non-owner cannot update another profile.
+- [ ] Replace or explicitly approve the transitional authenticated `profiles` `SELECT USING (true)` policy.
+- [ ] Consolidate duplicate `profiles` policies to clear `multiple_permissive_policies`.
+- [ ] Confirm direct authenticated reads from `discovery_feed_v3` are not needed by native Android.
+- [ ] Confirm `get_discovery_profiles(...)` is the only native discovery source.
+- [ ] Verify `get_discovery_profiles(...)` with live users: empty result, pagination, blocked/reported exclusion, prior swipe exclusion, and safe returned columns.
+- [ ] Verify referral validation/application with live staging users.
+- [ ] Verify standard swipe and mutual match RPCs with live staging users.
+- [ ] Verify leaderboard and confession RPCs with live staging users.
+- [ ] Decide whether intentionally public `validate_referral_code(text)` as `SECURITY DEFINER` is accepted or replaced.
+- [ ] Review authenticated `SECURITY DEFINER` RPC advisor warnings and accept or harden them.
+- [ ] Add or document indexes for remaining unindexed foreign keys if they are in production scope.
+- [ ] Keep payment, wallet, Premium, push, call, and admin fixes out of this production profile-RLS apply unless separately approved.
 
 ## Functional Gates
 
-- [ ] Web landing page smoke test passed.
-- [ ] Web registration smoke test passed.
-- [ ] Web login smoke test passed.
-- [ ] Web password reset smoke test passed.
-- [ ] Web onboarding smoke test passed.
-- [ ] Web referral validation smoke test passed.
-- [ ] Web discovery smoke test passed.
-- [ ] Web swipe smoke test passed.
-- [ ] Web matches smoke test passed.
-- [ ] Web messages smoke test passed.
-- [ ] Web profile viewing/editing smoke test passed.
-- [ ] Web leaderboard smoke test passed.
-- [ ] Web confessions smoke test passed.
-- [ ] Web notifications smoke test passed.
-- [ ] Web premium display smoke test passed.
-- [ ] Web wallet display smoke test passed.
-- [ ] Native auth cold-launch smoke test passed.
-- [ ] Native login/session-restore/logout smoke tests passed.
-- [ ] Native incomplete-profile routing smoke test passed.
-- [ ] Native completed-profile routing smoke test passed.
+- [ ] Web landing page smoke test passed after staging remediation.
+- [ ] Web registration smoke test passed after staging remediation.
+- [ ] Web login smoke test passed after staging remediation.
+- [ ] Web password reset smoke test passed after staging remediation.
+- [ ] Web onboarding smoke test passed after staging remediation.
+- [ ] Web referral validation smoke test passed after staging remediation.
+- [ ] Web discovery smoke test passed after staging remediation.
+- [ ] Web swipe/match smoke test passed after staging remediation.
+- [ ] Web profile viewing/editing smoke test passed after staging remediation.
+- [ ] Web leaderboard smoke test passed after staging remediation.
+- [ ] Web confessions smoke test passed after staging remediation.
+- [ ] Native auth cold-launch smoke test passed against staging.
+- [ ] Native login/session-restore/logout smoke tests passed against staging.
+- [ ] Native incomplete-profile routing smoke test passed against staging.
+- [ ] Native completed-profile routing smoke test passed against staging.
 
-## Data Contract Gates
+## Rollback Gates
 
-- [ ] Discovery fields reviewed and approved, or native discovery remains blocked.
-- [ ] Confessions anonymity verified, or native confessions remains blocked.
-- [ ] Leaderboard fields reviewed, including whether exact `total_spent` should be exposed.
-- [ ] Referral validation response reviewed.
-- [ ] No private user data exposed to anonymous clients.
-- [ ] Authenticated private profile-field minimization is tracked as a required follow-up.
-- [ ] No service-role key or secret is used in public clients.
-- [ ] Rollback procedure reviewed and verified.
-- [ ] Product owner approval recorded with date and approver.
-- [ ] Separate SECURITY DEFINER RPC hardening task approved or explicitly deferred with accepted risk.
+- [x] Emergency rollback SQL exists.
+- [x] Emergency rollback SHA-256 verified.
+- [x] Rollback rehearsed on staging.
+- [x] Remediation reapply after rollback succeeded on staging.
+- [ ] Product owner understands rollback reopens anonymous `profiles` and profile-derived view access.
+- [ ] Production rollback owner assigned.
+- [ ] Production monitoring owner assigned.
 
 ## Production Decision
 
 - [ ] Approved for production application.
 - [ ] Production apply timestamp planned.
-- [ ] Monitoring owner assigned.
-- [ ] Rollback owner assigned.
-- [ ] Native Phase 2 unblock decision recorded after production verification.
+- [ ] Production rollback window planned.
+- [ ] Monitoring queries and REST probes prepared.
+- [ ] Native Android Phase 2 unblock decision recorded after production verification.
+
+Current recommendation: do not apply to production yet.

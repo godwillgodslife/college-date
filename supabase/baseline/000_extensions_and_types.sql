@@ -12,6 +12,16 @@ create schema if not exists extensions;
 create extension if not exists pgcrypto with schema extensions;
 create extension if not exists "uuid-ossp" with schema extensions;
 
+-- Fresh staging projects may contain a platform/demo event-trigger helper that
+-- advisors flag because clients inherit public EXECUTE on SECURITY DEFINER
+-- functions. Keep the helper if present, but remove client-callable access.
+do $$
+begin
+    if to_regprocedure('public.rls_auto_enable()') is not null then
+        revoke all on function public.rls_auto_enable() from public, anon, authenticated;
+    end if;
+end $$;
+
 -- Production also has pg_stat_statements in schema extensions. It is platform telemetry,
 -- not required for application reconstruction, so it is not created by this app baseline.
 

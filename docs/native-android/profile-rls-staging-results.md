@@ -2,161 +2,144 @@
 
 Date: 2026-08-01
 
-## 1. Staging Project
+Project used: `College Date Staging` / `pxobauvatbjncluuunyq` in organization `hekkdwsfxzaplyipyoes`, region `eu-west-1`.
 
-- Project name: `College Date Staging`
-- Project reference: `pxobauvatbjncluuunyq`
-- Organization: `hekkdwsfxzaplyipyoes`
-- Region: `eu-west-1`
-- Status: `ACTIVE_HEALTHY`
-- Capability: read/write
+Production project `gedoyoleoscgxgdqszzc` was not accessed or modified.
 
-Production project `gedoyoleoscgxgdqszzc` was not visible in the current connection and was not accessed.
+## Summary
 
-## 2. Hash Verification
+The staging schema bootstrap is now applied, the first-stage anonymous-profile remediation is applied, rollback was rehearsed on staging, and remediation was reapplied. Staging finished in the remediated state.
+
+The pass is not a full production approval because disposable staging Auth users could not be created and live authenticated owner/non-owner tests could not run from this workstation.
+
+## Final Security State
+
+| Check | Result |
+| --- | --- |
+| Broad `Public profiles are viewable by everyone` policy | Absent |
+| `anon` can select `public.profiles` | No |
+| `anon` can select `public.discovery_feed_v3` | No |
+| `anon` can select `public.leaderboard_unified` | No |
+| `anon` can select `public.optimized_confessions` | No |
+| `leaderboard_unified` | `security_invoker=true` |
+| Public app table rows | 0 |
+| Storage objects | 0 |
+
+## Applied Migration History
+
+| Order | Migration name | Result |
+| ---: | --- | --- |
+| 1 | `baseline_000_extensions_and_types` | Applied |
+| 2 | `baseline_010_tables` | Applied |
+| 3 | `baseline_020_constraints_and_indexes` | Applied |
+| 4 | `baseline_030_functions_and_triggers_inventory` | Applied |
+| 5 | `baseline_035a_referral_profile_bootstrap` | Applied |
+| 6 | `p035b1_completion_score` | Applied |
+| 7 | `p035b2_profile_read` | Applied |
+| 8 | `p035b3_profile_update_presence` | Applied |
+| 9 | `p035c_discovery_quota` | Applied |
+| 10 | `p035d_feed_swipe` | Applied |
+| 11 | `p035e_match_leaderboard_confessions` | Applied |
+| 12 | `p035f_triggers_grants` | Applied |
+| 13 | `baseline_040_views` | Applied |
+| 14 | `baseline_050_rls_and_grants` | Applied |
+| 15 | `baseline_060_storage_and_realtime` | Applied |
+| 16 | `baseline_070_staging_seed_structure` | Applied |
+| 17 | `restrict_anonymous_profile_access_20260801120000` | Applied |
+| 18 | `staging_profile_rls_rollback_rehearsal` | Applied |
+| 19 | `staging_profile_rls_reapply_remediation` | Applied |
+
+## Object Counts
+
+| Object | Count |
+| --- | ---: |
+| Public base tables | 47 |
+| Public views | 6 |
+| Public functions | 22 |
+| Public policies | 24 |
+| Public base tables without RLS | 0 |
+| Storage buckets | 7 |
+| Storage objects | 0 |
+| Realtime publication tables | 5 |
+
+## Hash Verification
+
+- Remediation hash passed: `BB482DE77DC813162333981A3DA69FC46AAA10BE776391ED4AB0B1849CBEAAD7`
+- Rollback hash passed: `46DE6935E6288A52153A7D9A267E848C2FD193F0B02BC60A3A59AA2738433CE9`
+
+Current detailed baseline hashes are recorded in [staging-bootstrap-and-security-results.md](C:/college-date/docs/native-android/staging-bootstrap-and-security-results.md).
+
+## Anonymous Tests
+
+Metadata-level anonymous tests passed:
+
+- `anon` has no `SELECT` privilege on `public.profiles`.
+- `anon` has no `SELECT` privilege on `public.discovery_feed_v3`.
+- `anon` has no `SELECT` privilege on `public.leaderboard_unified`.
+- `anon` has no `SELECT` privilege on `public.optimized_confessions`.
+- `anon` cannot execute authenticated-only RPCs.
+- `anon` can execute only the intentionally public `validate_referral_code(text)`.
+
+REST-level anonymous tests are blocked by local DNS failure for `pxobauvatbjncluuunyq.supabase.co`.
+
+## Owner Tests
+
+Blocked. Disposable staging Auth users could not be created because:
+
+- SQL writes to `auth.users` were rejected by the connected tooling/platform.
+- REST Auth signup/login/password-reset calls could not run locally because DNS resolution for `pxobauvatbjncluuunyq.supabase.co` fails on this workstation.
+
+## Non-Owner Tests
+
+Blocked for live sessions.
+
+Policy review shows the final production-intended state is not strict enough for non-owner private profile isolation yet: the transitional authenticated policy `Authenticated users can read profiles for current app screens` uses `USING (true)`.
+
+## Discovery Contract
+
+`get_discovery_profiles(...)` was verified from connected staging function metadata/body. It returns only approved card fields and excludes email, phone, push identifiers, wallet fields, referral details, notification settings, moderation flags, AI-review fields, and admin flags.
+
+Native discovery must use `get_discovery_profiles(...)`. It must not query `profiles.select('*')` or `discovery_feed_v3` directly.
+
+## Rollback Rehearsal
 
 Passed.
 
-- Migration: `supabase/migrations/20260801120000_restrict_anonymous_profile_access.sql`
-- Migration SHA-256: `BB482DE77DC813162333981A3DA69FC46AAA10BE776391ED4AB0B1849CBEAAD7`
-- Rollback: `docs/native-android/profile-rls-emergency-rollback.sql`
-- Rollback SHA-256: `46DE6935E6288A52153A7D9A267E848C2FD193F0B02BC60A3A59AA2738433CE9`
+1. Remediated state was captured.
+2. Rollback was applied to staging.
+3. Rollback restored the old broad anonymous access contract and set `leaderboard_unified` to `security_invoker=false`.
+4. Remediation was reapplied.
+5. Final staging state again blocks anonymous profile/view reads and sets `leaderboard_unified` to `security_invoker=true`.
 
-## 3. Baseline State
+## Advisor Findings
 
-Staging is effectively empty for the College Date application schema.
+Security advisor:
 
-- Existing migrations: none.
-- Public tables: none.
-- Public views: none.
-- Public indexes: none.
-- Public foreign keys: none.
-- Public triggers: none.
-- Public functions: `public.rls_auto_enable()`.
-- Storage buckets: none.
-- Realtime publication tables: none.
-- Edge Functions: none.
-- Storage metadata tables: default Supabase storage tables exist with RLS enabled.
+- Deferred later-phase tables have RLS enabled with no policies. This keeps those tables closed until reviewed.
+- `validate_referral_code(text)` is intentionally anonymous-callable.
+- Authenticated app-facing `SECURITY DEFINER` RPC warnings remain and require live session testing.
 
-No sensitive rows were selected. No production data was copied.
+Performance advisor:
 
-## 4. Schema Reconstruction Result
+- Six unindexed foreign-key INFO findings remain.
+- Many unused-index INFO findings are expected in empty staging.
+- `profiles` has multiple permissive policies due duplicate baseline plus remediation owner policies.
 
-Blocked before remote writes.
+## Functional Smoke Results
 
-The repository does not contain a complete from-empty migration history. The committed migrations and root SQL fragments assume `public.profiles` and other base objects already exist. A repository search found no canonical `CREATE TABLE public.profiles` statement.
+| Flow | Result |
+| --- | --- |
+| Registration | Blocked by DNS/Auth access |
+| Login | Blocked by DNS/Auth access |
+| Password reset | Blocked by DNS/Auth access |
+| Onboarding | Blocked by missing Auth test users |
+| Own profile read/update | Blocked by missing Auth test users |
+| Discovery | Metadata contract passed; live test blocked |
+| Swipe/match | Metadata only; live test blocked |
+| Leaderboard | Metadata contract passed; live test blocked |
+| Confessions/reactions | Metadata contract passed; live test blocked |
+| Messaging/payments/push/calls | Deferred and not tested |
 
-Because `public.profiles` is required by the remediation migration and by the profile, discovery, messaging, wallet, referral, and confession objects, reconstructing staging from the current repository would require inventing schema. That would not be production-equivalent or safe.
+## Recommendation
 
-See [staging-schema-reconstruction-plan.md](C:/college-date/docs/native-android/staging-schema-reconstruction-plan.md).
-
-## 5. Migration Result
-
-Not applied.
-
-Reason: staging schema reconstruction is blocked by missing base schema. The remediation migration requires `public.profiles` and profile-derived views/policies/grants to exist.
-
-Objects modified remotely: none.
-
-## 6. Rollback Result
-
-Not rehearsed.
-
-Reason: remediation migration was not applied. Rehearsing rollback without a reconstructed schema would not validate the production-like rollback path.
-
-## 7. Anonymous Tests
-
-Blocked.
-
-Reason: `public.profiles`, `discovery_feed_v3`, `leaderboard_unified`, `optimized_confessions`, and the other target views do not exist in staging.
-
-## 8. Owner Tests
-
-Blocked.
-
-Reason: no app schema and no synthetic test users were created.
-
-## 9. Non-Owner Tests
-
-Blocked.
-
-Reason: no app schema and no synthetic test users were created.
-
-## 10. Functional Smoke Tests
-
-| Flow | Result | Notes |
-| --- | --- | --- |
-| Registration | Blocked | Staging app schema not reconstructed. |
-| Login | Blocked | Synthetic users were not created. |
-| Password reset | Not tested | Auth configuration was not changed. |
-| Onboarding | Blocked | `profiles` does not exist. |
-| Referral validation | Blocked | Referral RPC/table not reconstructed. |
-| Own-profile loading | Blocked | `profiles` does not exist. |
-| Profile editing | Blocked | `profiles` does not exist. |
-| Discovery | Blocked | `discovery_feed_v3` and base discovery objects do not exist. |
-| Swiping | Blocked | `swipes` does not exist. |
-| Matches | Blocked | `matches` does not exist. |
-| Messaging | Blocked | `messages` does not exist. |
-| Leaderboard | Blocked | `leaderboard_unified` does not exist. |
-| Confessions | Blocked | confession tables/views do not exist. |
-| Notifications | Blocked | app notification tables/functions not reconstructed. |
-| Premium display | Blocked | premium/subscription objects not reconstructed. |
-| Wallet display | Blocked | wallet objects not reconstructed. |
-
-## 11. Security Advisor Results
-
-Staging security advisor findings:
-
-- Medium: `public.rls_auto_enable()` is a `SECURITY DEFINER` function executable by `anon`.
-- Medium: `public.rls_auto_enable()` is a `SECURITY DEFINER` function executable by `authenticated`.
-
-Staging performance advisor findings:
-
-- None returned.
-
-These are baseline staging helper-function findings, not findings caused by the profile remediation migration.
-
-## 12. Schema Drift
-
-Major drift from captured production metadata:
-
-- Production had many public tables, policies, views, functions, storage policies, and migrations.
-- Staging currently has no College Date public app tables or views.
-- Staging has no Edge Functions.
-- Staging has no storage buckets.
-- Staging has no migration history.
-
-## 13. External Configuration Blockers
-
-Not configured or not verified:
-
-- Supabase Auth test users.
-- Staging web environment variables.
-- Staging native Android local configuration.
-- Storage buckets and policies.
-- Edge Function secrets.
-- Payment provider test settings.
-- Push notification provider settings.
-
-## 14. Regressions
-
-None observed, because no staging app schema changes were applied.
-
-## 15. Remaining Security Work
-
-- Add a production-equivalent schema-only staging baseline without copying production data.
-- Apply only reviewed migrations after the baseline exists.
-- Run the anonymous/owner/non-owner security matrix.
-- Rehearse rollback and reapply remediation.
-- Review and harden `SECURITY DEFINER` function grants separately.
-- Build safe authenticated profile/discovery contracts to remove transitional broad authenticated profile reads.
-
-## 16. Production Recommendation
-
-Production promotion is not recommended.
-
-The remediation package remains prepared and committed, but it has not been validated against a reconstructed staging schema.
-
-## 17. Native Phase 2
-
-Native Android Phase 2 remains blocked.
+Do not promote to production and do not begin native Android Phase 2 yet. The remediation is safe to continue testing in staging, but production needs live disposable-user RLS/RPC tests and removal or replacement of the broad transitional authenticated profile policy.
