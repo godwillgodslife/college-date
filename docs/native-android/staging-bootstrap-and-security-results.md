@@ -271,3 +271,37 @@ The staging schema bootstrap, remediation apply, rollback, and reapply mechanics
 ## Native Android Phase 2 Verdict
 
 Native Android Phase 2 should not begin yet. The database foundation is much closer, but authenticated profile isolation and live Auth/RPC smoke tests are still blocked.
+
+## Second-Phase Authenticated Profile Isolation Update
+
+Added on 2026-08-01:
+
+- `supabase/migrations/20260801163000_restrict_authenticated_profile_access.sql`
+- `docs/native-android/authenticated-profile-isolation-rollback.sql`
+- `docs/native-android/authenticated-profile-isolation-report.md`
+- `docs/native-android/staging-auth-connectivity-report.md`
+- `docs/native-android/staging-auth-runtime-test-results.md`
+- `docs/native-android/native-matched-profile-contract.md`
+
+Staging migration history now also includes:
+
+- `restrict_authenticated_profile_access_20260801163000`
+- `rollback_restrict_authenticated_profile_access_rehearsal`
+- `reapply_restrict_authenticated_profile_access`
+
+Final second-phase staging state:
+
+| Check | Result |
+| --- | --- |
+| `profiles` policies | 4 owner-only policies |
+| Broad authenticated profile-read policy | Absent |
+| Client grants on raw profile-derived views | 0 |
+| `get_matched_profile(uuid)` | Present, authenticated-only |
+| Anonymous REST `profiles` read | `401` |
+| Anonymous REST raw view reads | `401` |
+| Anonymous authenticated-only RPC calls | `401` |
+| Anonymous `validate_referral_code` | `200` |
+
+The previous duplicate permissive `profiles` policy advisor finding is resolved. Runtime owner/non-owner tests remain blocked by disposable Auth-user creation: public signup reaches staging, but email validation rejects test/example domains and app-domain signup hit Supabase Auth `over_email_send_rate_limit`.
+
+Updated verdict: metadata-level authenticated profile isolation is complete in staging, but production promotion and native Android Phase 2 remain blocked until confirmed disposable staging users are available and live owner/non-owner/RPC tests pass.

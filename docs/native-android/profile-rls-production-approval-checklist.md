@@ -21,6 +21,12 @@ Production migration is not approved until every unchecked item below is complet
 - [x] Hardened RPC subset applied to staging.
 - [x] Hardened RPC grants verified at metadata level.
 - [x] Supabase security and performance advisors run against staging.
+- [x] Second-phase authenticated profile isolation migration applied to staging.
+- [x] Transitional authenticated `profiles SELECT USING (true)` policy removed in staging.
+- [x] Duplicate permissive `profiles` policies consolidated in staging.
+- [x] Direct authenticated grants on raw profile-derived views removed in staging.
+- [x] `get_matched_profile(uuid)` safe matched-profile contract created in staging.
+- [x] Second-phase rollback rehearsed on staging and remediation reapplied.
 
 ## Required Before Production Apply
 
@@ -33,10 +39,10 @@ Production migration is not approved until every unchecked item below is complet
 - [ ] Confirm owner can read/update only permitted self-profile fields.
 - [ ] Confirm owner cannot update Premium, wallet, referral rewards, moderation, or admin fields.
 - [ ] Confirm non-owner cannot update another profile.
-- [ ] Replace or explicitly approve the transitional authenticated `profiles` `SELECT USING (true)` policy.
-- [ ] Consolidate duplicate `profiles` policies to clear `multiple_permissive_policies`.
-- [ ] Confirm direct authenticated reads from `discovery_feed_v3` are not needed by native Android.
-- [ ] Confirm `get_discovery_profiles(...)` is the only native discovery source.
+- [x] Replace or explicitly approve the transitional authenticated `profiles` `SELECT USING (true)` policy in staging.
+- [x] Consolidate duplicate `profiles` policies to clear `multiple_permissive_policies` in staging.
+- [x] Confirm direct authenticated reads from `discovery_feed_v3` are not needed by native Android.
+- [x] Confirm `get_discovery_profiles(...)` is the only native discovery source.
 - [ ] Verify `get_discovery_profiles(...)` with live users: empty result, pagination, blocked/reported exclusion, prior swipe exclusion, and safe returned columns.
 - [ ] Verify referral validation/application with live staging users.
 - [ ] Verify standard swipe and mutual match RPCs with live staging users.
@@ -82,4 +88,4 @@ Production migration is not approved until every unchecked item below is complet
 - [ ] Monitoring queries and REST probes prepared.
 - [ ] Native Android Phase 2 unblock decision recorded after production verification.
 
-Current recommendation: do not apply to production yet.
+Current recommendation: do not apply to production yet. The staging metadata state is hardened, but live disposable-user owner/non-owner tests remain blocked by Auth user creation and confirmation-email rate limiting.
