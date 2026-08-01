@@ -164,7 +164,7 @@ The generated-file scan found only warning text containing `service-role` and di
 
 ## 15. Commit Hash
 
-Pending commit.
+`3720081` (`database: add schema-only staging baseline`)
 
 ## 16. Ready To Apply To Staging?
 
