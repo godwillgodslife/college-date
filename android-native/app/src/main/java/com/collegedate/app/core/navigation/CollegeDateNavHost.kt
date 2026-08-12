@@ -2,7 +2,7 @@ package com.collegedate.app.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +17,7 @@ import com.collegedate.app.feature.auth.PasswordRecoveryScreen
 import com.collegedate.app.feature.auth.RegistrationScreen
 import com.collegedate.app.feature.auth.WelcomeScreen
 import com.collegedate.app.feature.main.MainShell
-import com.collegedate.app.feature.onboarding.OnboardingPlaceholderScreen
+import com.collegedate.app.feature.onboarding.OnboardingScreen
 import com.collegedate.app.feature.splash.SplashScreen
 
 @Composable
@@ -30,21 +30,7 @@ fun CollegeDateNavHost(
 
     LaunchedEffect(uiState.authState, currentRoute) {
         val target = AuthRouteDecider.destinationFor(uiState.authState)
-        val route = currentRoute
-
-        val shouldNavigate =
-            route != target.route &&
-                when (uiState.authState) {
-                    AuthState.Checking -> route != AppRoute.Splash.route
-                    AuthState.SignedOut,
-                    AuthState.ConfigurationMissing,
-                    -> route?.startsWith("main/") == true || route == AppRoute.Onboarding.route
-                    is AuthState.EmailVerificationRequired -> route != AppRoute.EmailVerification.route
-                    is AuthState.NeedsOnboarding -> route != AppRoute.Onboarding.route
-                    is AuthState.SignedIn -> route?.startsWith("main/") != true
-                }
-
-        if (shouldNavigate) {
+        if (AuthRouteDecider.shouldNavigate(uiState.authState, currentRoute)) {
             navController.navigate(target.route) {
                 popUpTo(navController.graph.id) {
                     inclusive = true
@@ -108,7 +94,7 @@ fun CollegeDateNavHost(
             )
         }
         composable(AppRoute.Onboarding.route) {
-            OnboardingPlaceholderScreen(
+            OnboardingScreen(
                 onLogout = authViewModel::logout,
             )
         }

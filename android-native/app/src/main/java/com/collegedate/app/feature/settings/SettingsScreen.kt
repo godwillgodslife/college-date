@@ -19,9 +19,10 @@ import com.collegedate.app.core.designsystem.components.CollegeDateSecondaryButt
 @Composable
 fun SettingsScreen(
     onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
             .padding(20.dp),

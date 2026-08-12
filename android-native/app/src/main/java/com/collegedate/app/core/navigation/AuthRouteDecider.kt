@@ -19,4 +19,26 @@ object AuthRouteDecider {
             route == AppRoute.Register.route ||
             route == AppRoute.PasswordRecovery.route ||
             route == AppRoute.EmailVerification.route
+
+    fun shouldNavigate(authState: AuthState, currentRoute: String?): Boolean {
+        if (currentRoute == null) return false
+
+        val targetRoute = destinationFor(authState).route
+        if (currentRoute == targetRoute) return false
+
+        return when (authState) {
+            AuthState.Checking -> false
+            AuthState.SignedOut,
+            AuthState.ConfigurationMissing,
+            -> currentRoute != AppRoute.Welcome.route &&
+                currentRoute != AppRoute.Login.route &&
+                currentRoute != AppRoute.Register.route &&
+                currentRoute != AppRoute.PasswordRecovery.route
+
+            is AuthState.EmailVerificationRequired -> true
+            is AuthState.NeedsOnboarding -> true
+            is AuthState.SignedIn ->
+                currentRoute != AppRoute.Main.route && !currentRoute.startsWith("main/")
+        }
+    }
 }

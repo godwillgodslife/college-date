@@ -27,7 +27,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val appPreferences: SessionPreferences,
     private val dispatchersProvider: DispatchersProvider,
-    @ApplicationScope private val applicationScope: CoroutineScope,
+    @param:ApplicationScope private val applicationScope: CoroutineScope,
 ) : AuthRepository {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Checking)
     override val authState: StateFlow<AuthState> = _authState

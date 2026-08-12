@@ -28,6 +28,17 @@ private val rootEnvConfig = Properties().apply {
 private fun String.cleanConfigValue(): String =
     trim().trim('"').trim('\'')
 
+private fun String.asBuildConfigString(): String =
+    replace("\\", "\\\\").replace("\"", "\\\"")
+
+private fun String.looksLikePlaceholderConfig(): Boolean {
+    val normalized = lowercase()
+    return normalized.contains("your-") ||
+        normalized.contains("placeholder") ||
+        normalized.contains("example") ||
+        normalized == "changeme"
+}
+
 private fun ProviderFactory.publicConfig(vararg names: String, fallback: String = ""): String {
     names.forEach { name ->
         gradleProperty(name).orNull?.cleanConfigValue()?.takeIf { it.isNotBlank() }?.let { return it }
@@ -38,8 +49,9 @@ private fun ProviderFactory.publicConfig(vararg names: String, fallback: String 
     return fallback
 }
 
-private fun ProviderFactory.isReleaseRequested(): Boolean =
-    gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+private val stagingSupabaseUrl = "https://pxobauvatbjncluuunyq.supabase.co"
+private val stagingProjectRef = "pxobauvatbjncluuunyq"
+private val productionProjectRef = "gedoyoleoscgxgdqszzc"
 
 android {
     namespace = "com.collegedate.app"
@@ -61,21 +73,41 @@ android {
             "SUPABASE_URL",
             "COLLEGE_DATE_SUPABASE_URL",
             "VITE_SUPABASE_URL",
-            fallback = "https://gedoyoleoscgxgdqszzc.supabase.co",
         )
         val supabaseAnonKey = providers.publicConfig(
             "SUPABASE_ANON_KEY",
             "COLLEGE_DATE_SUPABASE_ANON_KEY",
             "VITE_SUPABASE_ANON_KEY",
         )
-        if (providers.isReleaseRequested() && supabaseAnonKey.isBlank()) {
+        if (supabaseUrl.isBlank() || supabaseAnonKey.isBlank()) {
             throw GradleException(
-                "Release builds require SUPABASE_ANON_KEY, COLLEGE_DATE_SUPABASE_ANON_KEY, " +
-                    "or VITE_SUPABASE_ANON_KEY from an ignored local config source.",
+                "Native Android Phase 2 requires SUPABASE_URL and SUPABASE_ANON_KEY from " +
+                    "android-native/local.properties or another ignored local config source.",
             )
         }
-        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
+        if (supabaseUrl.looksLikePlaceholderConfig() || supabaseAnonKey.looksLikePlaceholderConfig()) {
+            throw GradleException(
+                "Native Android Phase 2 Supabase config still contains placeholder values. " +
+                    "Use ignored local staging config before building.",
+            )
+        }
+        if (supabaseUrl.contains(productionProjectRef, ignoreCase = true)) {
+            throw GradleException(
+                "Native Android Phase 2 must not use the production Supabase project " +
+                    "$productionProjectRef. Configure staging project $stagingProjectRef instead.",
+            )
+        }
+        if (supabaseUrl != stagingSupabaseUrl) {
+            throw GradleException(
+                "Native Android Phase 2 is locked to staging Supabase URL $stagingSupabaseUrl. " +
+                    "Configured value was $supabaseUrl.",
+            )
+        }
+        buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.asBuildConfigString()}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseAnonKey.asBuildConfigString()}\"")
+        buildConfigField("String", "SUPABASE_ENVIRONMENT", "\"STAGING\"")
+        buildConfigField("String", "SUPABASE_PROJECT_REF", "\"$stagingProjectRef\"")
+        buildConfigField("Boolean", "SHOW_ENVIRONMENT_BADGE", "BuildConfig.DEBUG")
         buildConfigField("String", "AUTH_CALLBACK_SCHEME", "\"com.collegedate.app\"")
         buildConfigField("String", "AUTH_CALLBACK_HOST", "\"auth\"")
         buildConfigField("String", "AUTH_CALLBACK_PATH", "\"callback\"")

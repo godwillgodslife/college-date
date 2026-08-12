@@ -1,9 +1,13 @@
 package com.collegedate.app.data.profile
 
 import com.collegedate.app.core.common.OperationResult
+import com.collegedate.app.core.database.dao.CachedDiscoveryProfileDao
 import com.collegedate.app.core.database.dao.CachedProfileDao
+import com.collegedate.app.core.database.entity.CachedDiscoveryProfileEntity
 import com.collegedate.app.core.database.entity.CachedProfileEntity
 import com.collegedate.app.core.testing.TestDispatchersProvider
+import com.collegedate.app.domain.profile.EditableProfile
+import com.collegedate.app.domain.profile.ProfilePhoto
 import com.collegedate.app.domain.profile.UserProfile
 import java.io.IOException
 import kotlinx.coroutines.flow.Flow
@@ -48,10 +52,34 @@ class ProfileRepositoryImplTest {
         assertEquals("Unable to load profile state.", (result as OperationResult.Failure).message)
     }
 
+    @Test
+    fun refreshCurrentUserProfileReturnsIdentityScopedCacheWhenOffline() = runTest(dispatcher) {
+        dao.upsert(cachedProfile("user-1", isOnboarded = true))
+        val repository = repository(FakeProfileRemoteDataSource(error = IOException("offline")))
+
+        val result = repository.refreshCurrentUserProfile("user-1")
+
+        assertTrue(result is OperationResult.Success)
+        val profile = (result as OperationResult.Success).value
+        assertEquals("user-1", profile?.id)
+        assertTrue(profile?.isOnboarded == true)
+    }
+
+    @Test
+    fun refreshCurrentUserProfileDoesNotUseAnotherUsersCache() = runTest(dispatcher) {
+        dao.upsert(cachedProfile("user-2", isOnboarded = true))
+        val repository = repository(FakeProfileRemoteDataSource(error = IOException("offline")))
+
+        val result = repository.refreshCurrentUserProfile("user-1")
+
+        assertTrue(result is OperationResult.Failure)
+    }
+
     private fun repository(remote: ProfileRemoteDataSource): ProfileRepositoryImpl =
         ProfileRepositoryImpl(
             remoteDataSource = remote,
             cachedProfileDao = dao,
+            cachedDiscoveryProfileDao = FakeCachedDiscoveryProfileDao(),
             dispatchersProvider = TestDispatchersProvider(dispatcher),
         )
 }
@@ -60,28 +88,83 @@ private class FakeProfileRemoteDataSource(
     private val profile: UserProfile? = null,
     private val error: Throwable? = null,
 ) : ProfileRemoteDataSource {
-    override suspend fun fetchCurrentUserProfile(profileId: String): UserProfile? {
+    override suspend fun fetchCurrentUserProfile(): UserProfile? {
         error?.let { throw it }
         return profile
+    }
+
+    override suspend fun updateCurrentProfile(profile: EditableProfile): UserProfile {
+        error?.let { throw it }
+        return UserProfile(
+            id = "user-1",
+            displayName = profile.fullName,
+            username = "student",
+            avatarUrl = profile.avatarUrl,
+            isOnboarded = profile.isOnboarded == true,
+        )
+    }
+
+    override suspend fun uploadProfilePhoto(
+        ownerUserId: String,
+        bytes: ByteArray,
+        contentType: String,
+    ): ProfilePhoto {
+        error?.let { throw it }
+        return ProfilePhoto("https://example.com/photo.jpg", "$ownerUserId/photo.jpg", true)
     }
 }
 
 private class FakeCachedProfileDao : CachedProfileDao {
-    private val profiles = MutableStateFlow<CachedProfileEntity?>(null)
+    private val profiles = mutableMapOf<String, CachedProfileEntity>()
+    private val observedProfile = MutableStateFlow<CachedProfileEntity?>(null)
     var lastUpsert: CachedProfileEntity? = null
 
-    override fun observeProfile(profileId: String): Flow<CachedProfileEntity?> = profiles
+    override fun observeProfile(profileId: String): Flow<CachedProfileEntity?> {
+        observedProfile.value = profiles[profileId]
+        return observedProfile
+    }
+
+    override suspend fun profileSnapshot(profileId: String): CachedProfileEntity? = profiles[profileId]
 
     override suspend fun upsert(profile: CachedProfileEntity) {
         lastUpsert = profile
-        profiles.value = profile
+        profiles[profile.id] = profile
+        observedProfile.value = profile
     }
 
     override suspend fun delete(profileId: String) {
-        profiles.value = null
+        profiles.remove(profileId)
+        observedProfile.value = null
     }
 
     override suspend fun clear() {
-        profiles.value = null
+        profiles.clear()
+        observedProfile.value = null
+    }
+}
+
+private fun cachedProfile(id: String, isOnboarded: Boolean) = CachedProfileEntity(
+    id = id,
+    displayName = "Cached student",
+    username = "cached-student",
+    avatarUrl = null,
+    isOnboarded = isOnboarded,
+    cachedAtMillis = 1L,
+)
+
+private class FakeCachedDiscoveryProfileDao : CachedDiscoveryProfileDao {
+    var didClear = false
+
+    override fun observeProfiles(): Flow<List<CachedDiscoveryProfileEntity>> =
+        MutableStateFlow(emptyList())
+
+    override suspend fun profilesSnapshot(): List<CachedDiscoveryProfileEntity> = emptyList()
+
+    override suspend fun upsertAll(profiles: List<CachedDiscoveryProfileEntity>) = Unit
+
+    override suspend fun delete(profileId: String) = Unit
+
+    override suspend fun clear() {
+        didClear = true
     }
 }

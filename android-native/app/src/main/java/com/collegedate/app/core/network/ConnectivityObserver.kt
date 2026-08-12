@@ -37,14 +37,18 @@ class ConnectivityObserver @Inject constructor(
                 }
 
                 override fun onLost(network: Network) {
-                    trySend(currentStatus(connectivityManager))
+                    trySend(NetworkStatus.Unavailable)
+                }
+
+                override fun onUnavailable() {
+                    trySend(NetworkStatus.Unavailable)
                 }
 
                 override fun onCapabilitiesChanged(
                     network: Network,
                     networkCapabilities: NetworkCapabilities,
                 ) {
-                    trySend(currentStatus(connectivityManager))
+                    trySend(networkStatus(networkCapabilities))
                 }
             }
 
@@ -57,12 +61,22 @@ class ConnectivityObserver @Inject constructor(
         val network = connectivityManager.activeNetwork ?: return NetworkStatus.Unavailable
         val capabilities =
             connectivityManager.getNetworkCapabilities(network) ?: return NetworkStatus.Unavailable
-        return if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        ) {
-            NetworkStatus.Available
-        } else {
-            NetworkStatus.Unavailable
-        }
+        return networkStatus(capabilities)
     }
+
+    private fun networkStatus(capabilities: NetworkCapabilities): NetworkStatus =
+        networkStatus(
+            hasInternetCapability = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET),
+            hasValidatedCapability = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED),
+        )
 }
+
+internal fun networkStatus(
+    hasInternetCapability: Boolean,
+    hasValidatedCapability: Boolean,
+): NetworkStatus =
+    if (hasInternetCapability && hasValidatedCapability) {
+        NetworkStatus.Available
+    } else {
+        NetworkStatus.Unavailable
+    }

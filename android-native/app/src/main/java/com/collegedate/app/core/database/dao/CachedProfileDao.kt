@@ -12,6 +12,9 @@ interface CachedProfileDao {
     @Query("SELECT * FROM cached_profiles WHERE id = :profileId")
     fun observeProfile(profileId: String): Flow<CachedProfileEntity?>
 
+    @Query("SELECT * FROM cached_profiles WHERE id = :profileId")
+    suspend fun profileSnapshot(profileId: String): CachedProfileEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(profile: CachedProfileEntity)
 

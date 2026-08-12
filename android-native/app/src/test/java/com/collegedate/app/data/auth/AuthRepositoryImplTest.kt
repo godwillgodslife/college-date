@@ -6,7 +6,10 @@ import com.collegedate.app.core.network.PublicSupabaseConfig
 import com.collegedate.app.core.testing.TestDispatchersProvider
 import com.collegedate.app.domain.auth.AuthState
 import com.collegedate.app.domain.auth.RegistrationRole
+import com.collegedate.app.domain.profile.EditableProfile
 import com.collegedate.app.domain.profile.ProfileRepository
+import com.collegedate.app.domain.profile.ProfilePhoto
+import com.collegedate.app.domain.profile.University
 import com.collegedate.app.domain.profile.UserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -203,6 +206,9 @@ class AuthRepositoryImplTest {
             config = PublicSupabaseConfig(
                 url = "https://example.supabase.co",
                 anonKey = "anon",
+                environment = "STAGING",
+                projectRef = "pxobauvatbjncluuunyq",
+                showEnvironmentBadge = true,
                 callbackScheme = "com.collegedate.app",
                 callbackHost = "auth",
                 callbackPath = "callback",
@@ -262,6 +268,32 @@ private class FakeProfileRepository(
 
     override suspend fun refreshCurrentUserProfile(profileId: String): OperationResult<UserProfile?> =
         OperationResult.Success(profile)
+
+    override suspend fun refreshCurrentUserProfile(): OperationResult<UserProfile?> =
+        OperationResult.Success(profile)
+
+    override suspend fun updateCurrentProfile(profile: EditableProfile): OperationResult<UserProfile> =
+        OperationResult.Success(
+            UserProfile(
+                id = "user-1",
+                displayName = profile.fullName,
+                username = "student",
+                avatarUrl = profile.avatarUrl,
+                isOnboarded = profile.isOnboarded == true,
+            ),
+        )
+
+    override suspend fun completeOnboarding(profile: EditableProfile): OperationResult<UserProfile> =
+        updateCurrentProfile(profile.copy(isOnboarded = true))
+
+    override suspend fun uploadProfilePhoto(
+        ownerUserId: String,
+        bytes: ByteArray,
+        contentType: String,
+    ): OperationResult<ProfilePhoto> =
+        OperationResult.Success(ProfilePhoto("https://example.com/photo.jpg", "$ownerUserId/photo.jpg", true))
+
+    override fun searchUniversities(query: String): List<University> = emptyList()
 
     override suspend fun clearLocalProfile(profileId: String) = Unit
 

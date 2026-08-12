@@ -47,8 +47,22 @@ sealed interface AppRoute {
         override val route = "main/messages"
     }
 
+    data object Confessions : AppRoute {
+        override val route = "main/confessions"
+    }
+
     data object Profile : AppRoute {
         override val route = "main/profile"
+    }
+
+    data object EditProfile : AppRoute {
+        override val route = "main/profile/edit"
+    }
+
+    data object MatchedProfile : AppRoute {
+        override val route = "main/matched-profile/{profileId}"
+
+        fun createRoute(profileId: String): String = "main/matched-profile/$profileId"
     }
 
     data object Premium : AppRoute {

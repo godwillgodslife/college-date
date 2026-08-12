@@ -2,6 +2,8 @@ package com.collegedate.app.app.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.collegedate.app.BuildConfig
 import com.collegedate.app.core.common.ApplicationScope
 import com.collegedate.app.core.common.DispatchersProvider
@@ -13,6 +15,14 @@ import com.collegedate.app.core.network.PublicSupabaseConfig
 import com.collegedate.app.data.auth.AuthRemoteDataSource
 import com.collegedate.app.data.auth.AuthRepositoryImpl
 import com.collegedate.app.data.auth.SupabaseAuthRemoteDataSource
+import com.collegedate.app.data.discovery.DiscoveryRemoteDataSource
+import com.collegedate.app.data.discovery.DiscoveryRepository
+import com.collegedate.app.data.discovery.DiscoveryRepositoryImpl
+import com.collegedate.app.data.discovery.SupabaseDiscoveryRemoteDataSource
+import com.collegedate.app.data.matching.MatchingRemoteDataSource
+import com.collegedate.app.data.matching.MatchingRepository
+import com.collegedate.app.data.matching.MatchingRepositoryImpl
+import com.collegedate.app.data.matching.SupabaseMatchingRemoteDataSource
 import com.collegedate.app.data.profile.ProfileRemoteDataSource
 import com.collegedate.app.data.profile.ProfileRepositoryImpl
 import com.collegedate.app.data.profile.SupabaseProfileRemoteDataSource
@@ -48,6 +58,26 @@ abstract class AppBindingsModule {
     @Binds
     @Singleton
     abstract fun bindProfileRemoteDataSource(dataSource: SupabaseProfileRemoteDataSource): ProfileRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindDiscoveryRepository(repository: DiscoveryRepositoryImpl): DiscoveryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDiscoveryRemoteDataSource(
+        dataSource: SupabaseDiscoveryRemoteDataSource,
+    ): DiscoveryRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindMatchingRepository(repository: MatchingRepositoryImpl): MatchingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMatchingRemoteDataSource(
+        dataSource: SupabaseMatchingRemoteDataSource,
+    ): MatchingRemoteDataSource
 }
 
 @Module
@@ -69,6 +99,9 @@ object AppModule {
         PublicSupabaseConfig(
             url = BuildConfig.SUPABASE_URL,
             anonKey = BuildConfig.SUPABASE_ANON_KEY,
+            environment = BuildConfig.SUPABASE_ENVIRONMENT,
+            projectRef = BuildConfig.SUPABASE_PROJECT_REF,
+            showEnvironmentBadge = BuildConfig.SHOW_ENVIRONMENT_BADGE,
             callbackScheme = BuildConfig.AUTH_CALLBACK_SCHEME,
             callbackHost = BuildConfig.AUTH_CALLBACK_HOST,
             callbackPath = BuildConfig.AUTH_CALLBACK_PATH,
@@ -84,13 +117,19 @@ object AppModule {
             context,
             CollegeDateDatabase::class.java,
             "college-date-native.db",
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     fun providePendingWriteDao(database: CollegeDateDatabase) = database.pendingWriteDao()
 
     @Provides
     fun provideCachedProfileDao(database: CollegeDateDatabase) = database.cachedProfileDao()
+
+    @Provides
+    fun provideCachedDiscoveryProfileDao(database: CollegeDateDatabase) =
+        database.cachedDiscoveryProfileDao()
 
     @Provides
     fun provideIoDispatcher(provider: DispatchersProvider): CoroutineDispatcher = provider.io
@@ -104,4 +143,65 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSessionPreferences(appPreferences: AppPreferences): SessionPreferences = appPreferences
+
+    private val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN email TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN gender TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN age INTEGER")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN university TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN bio TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN phone TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN photosJson TEXT NOT NULL DEFAULT '[]'")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN profilePhotosJson TEXT NOT NULL DEFAULT '[]'")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN interestsJson TEXT NOT NULL DEFAULT '[]'")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN faculty TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN department TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN level TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN mbti TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN attractionGoal TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN interestGender TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN introPrompt TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN voiceIntroUrl TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN anthem TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN locationStatus TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN isVerified INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN completionScore INTEGER")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN lastSeenAt TEXT")
+            db.execSQL("ALTER TABLE cached_profiles ADD COLUMN lastActive TEXT")
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS cached_discovery_profiles (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    displayName TEXT,
+                    username TEXT,
+                    gender TEXT,
+                    age INTEGER,
+                    university TEXT,
+                    faculty TEXT,
+                    department TEXT,
+                    level TEXT,
+                    bio TEXT,
+                    avatarUrl TEXT,
+                    photosJson TEXT NOT NULL,
+                    profilePhotosJson TEXT NOT NULL,
+                    interestsJson TEXT NOT NULL,
+                    introPrompt TEXT,
+                    voiceIntroUrl TEXT,
+                    anthem TEXT,
+                    attractionGoal TEXT,
+                    isVerified INTEGER NOT NULL,
+                    completionScore INTEGER,
+                    lastSeenAt TEXT,
+                    lastActive TEXT,
+                    isLive INTEGER NOT NULL,
+                    isBoosted INTEGER NOT NULL,
+                    seenCount INTEGER,
+                    sortIndex INTEGER NOT NULL,
+                    cachedAtMillis INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
 }

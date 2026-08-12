@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.collegedate.app.core.designsystem.theme.CollegePremium
 import com.collegedate.app.core.designsystem.theme.CollegePurple
@@ -81,7 +82,13 @@ fun CollegeDateBadge(
     AssistChip(
         modifier = modifier,
         onClick = {},
-        label = { Text(text) },
+        label = {
+            Text(
+                text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         leadingIcon = if (premium) {
             {
                 Icon(

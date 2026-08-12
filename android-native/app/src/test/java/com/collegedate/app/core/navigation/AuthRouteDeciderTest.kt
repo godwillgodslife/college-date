@@ -48,4 +48,44 @@ class AuthRouteDeciderTest {
     fun expiredOrSignedOutSessionRoutesAwayFromMain() {
         assertEquals(AppRoute.Welcome, AuthRouteDecider.destinationFor(AuthState.SignedOut))
     }
+
+    @Test
+    fun noSessionRoutesFromSplashToWelcome() {
+        assertEquals(
+            true,
+            AuthRouteDecider.shouldNavigate(AuthState.SignedOut, AppRoute.Splash.route),
+        )
+    }
+
+    @Test
+    fun signedOutStatePreservesLoginForm() {
+        assertEquals(
+            false,
+            AuthRouteDecider.shouldNavigate(AuthState.SignedOut, AppRoute.Login.route),
+        )
+    }
+
+    @Test
+    fun loginLoadingDoesNotNavigateBackToSplash() {
+        assertEquals(
+            false,
+            AuthRouteDecider.shouldNavigate(AuthState.Checking, AppRoute.Login.route),
+        )
+    }
+
+    @Test
+    fun authenticatedStateRoutesFromLoginToMain() {
+        assertEquals(
+            true,
+            AuthRouteDecider.shouldNavigate(AuthState.SignedIn(session), AppRoute.Login.route),
+        )
+    }
+
+    @Test
+    fun authenticatedStatePreservesMainDestination() {
+        assertEquals(
+            false,
+            AuthRouteDecider.shouldNavigate(AuthState.SignedIn(session), AppRoute.Main.route),
+        )
+    }
 }

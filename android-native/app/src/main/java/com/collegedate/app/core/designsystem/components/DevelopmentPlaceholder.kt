@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 fun DevelopmentPlaceholderScreen(
     title: String,
     description: String,
+    modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
 ) {
@@ -24,7 +25,7 @@ fun DevelopmentPlaceholderScreen(
         bottomBar = bottomBar,
     ) { innerPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),

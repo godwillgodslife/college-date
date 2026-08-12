@@ -5,11 +5,11 @@
 sdk.dir=C\:\\Users\\you\\AppData\\Local\\Android\\Sdk
 
 # Public Supabase client configuration only.
-# Use the project URL and public anon/publishable key.
+# Phase 2 native Android builds are locked to verified staging.
 # Never add service-role keys, payment secrets, signing passwords, or service-account JSON here.
-SUPABASE_URL=https://your-project-ref.supabase.co
-SUPABASE_ANON_KEY=your-public-anon-or-publishable-key
+SUPABASE_URL=https://pxobauvatbjncluuunyq.supabase.co
+SUPABASE_ANON_KEY=your-staging-public-anon-or-publishable-key
 
 # The Gradle build also accepts these existing web aliases:
-# VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-# VITE_SUPABASE_ANON_KEY=your-public-anon-or-publishable-key
+# VITE_SUPABASE_URL=https://pxobauvatbjncluuunyq.supabase.co
+# VITE_SUPABASE_ANON_KEY=your-staging-public-anon-or-publishable-key
