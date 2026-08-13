@@ -26,16 +26,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.collegedate.app.core.designsystem.theme.CollegePurple
 
 /**
@@ -161,6 +167,8 @@ fun CollegeDatePhotoPlaceholderCard(
 fun CollegeDateAvatar(
     size: Int = 56,
     modifier: Modifier = Modifier,
+    imageUrl: String? = null,
+    contentDescription: String = "User avatar",
     hasOnlineDot: Boolean = false,
 ) {
     Box(modifier = modifier) {
@@ -169,13 +177,35 @@ fun CollegeDateAvatar(
             shape = CircleShape,
             color = CollegePurple.copy(alpha = 0.2f),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "User Avatar",
-                    tint = CollegePurple,
-                    modifier = Modifier.size((size * 0.5).dp),
-                )
+            if (imageUrl.isNullOrBlank()) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = contentDescription,
+                        tint = CollegePurple,
+                        modifier = Modifier.size((size * 0.5).dp),
+                    )
+                }
+            } else {
+                var imageLoaded by remember(imageUrl) { mutableStateOf(false) }
+                Box(contentAlignment = Alignment.Center) {
+                    if (!imageLoaded) {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = null,
+                            tint = CollegePurple,
+                            modifier = Modifier.size((size * 0.5).dp),
+                        )
+                    }
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = contentDescription,
+                        contentScale = ContentScale.Crop,
+                        onSuccess = { imageLoaded = true },
+                        onError = { imageLoaded = false },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
         if (hasOnlineDot) {

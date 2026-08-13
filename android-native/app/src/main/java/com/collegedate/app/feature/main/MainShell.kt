@@ -23,6 +23,8 @@ import com.collegedate.app.core.designsystem.components.DevelopmentPlaceholderSc
 import com.collegedate.app.core.navigation.AppRoute
 import com.collegedate.app.feature.discovery.DiscoveryScreen
 import com.collegedate.app.feature.matches.MatchedProfileScreen
+import com.collegedate.app.feature.messages.ChatScreen
+import com.collegedate.app.feature.messages.InboxScreen
 import com.collegedate.app.feature.profile.EditProfileScreen
 import com.collegedate.app.feature.profile.ProfileHubScreen
 import com.collegedate.app.feature.settings.SettingsScreen
@@ -43,9 +45,12 @@ fun MainShell(
         CollegeDateNavItem(AppRoute.Profile.route, "Profile", Icons.Outlined.PersonOutline),
     )
 
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val isChatRoute = currentRoute == AppRoute.Chat.route
+
     Scaffold(
         topBar = {
-            CollegeDateTopBar(
+            if (!isChatRoute) CollegeDateTopBar(
                 title = "The College Date",
                 unreadNotificationCount = unreadNotificationCount,
                 walletBalance = walletBalanceDisplay,
@@ -58,9 +63,9 @@ fun MainShell(
             )
         },
         bottomBar = {
-            CollegeDateBottomBar(
+            if (!isChatRoute) CollegeDateBottomBar(
                 items = navItems,
-                currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route,
+                currentRoute = currentRoute,
                 onDestinationClick = { item ->
                     navController.navigate(item.route) {
                         launchSingleTop = true
@@ -93,9 +98,19 @@ fun MainShell(
                 )
             }
             composable(AppRoute.Messages.route) {
-                DevelopmentPlaceholderScreen(
-                    title = "Messages & Inbox",
-                    description = "Realtime messaging, calls, and push notifications are deferred for a later native phase.",
+                InboxScreen(
+                    onConversationClick = { matchId ->
+                        navController.navigate(AppRoute.Chat.createRoute(matchId))
+                    },
+                    modifier = Modifier.padding(paddingValues),
+                )
+            }
+            composable(
+                route = AppRoute.Chat.route,
+                arguments = listOf(navArgument("matchId") { type = NavType.StringType }),
+            ) {
+                ChatScreen(
+                    onBack = { navController.popBackStack() },
                     modifier = Modifier.padding(paddingValues),
                 )
             }

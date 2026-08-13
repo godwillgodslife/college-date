@@ -47,6 +47,12 @@ sealed interface AppRoute {
         override val route = "main/messages"
     }
 
+    data object Chat : AppRoute {
+        override val route = "main/messages/{matchId}"
+
+        fun createRoute(matchId: String): String = "main/messages/$matchId"
+    }
+
     data object Confessions : AppRoute {
         override val route = "main/confessions"
     }

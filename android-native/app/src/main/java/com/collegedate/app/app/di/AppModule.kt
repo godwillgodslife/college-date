@@ -23,6 +23,10 @@ import com.collegedate.app.data.matching.MatchingRemoteDataSource
 import com.collegedate.app.data.matching.MatchingRepository
 import com.collegedate.app.data.matching.MatchingRepositoryImpl
 import com.collegedate.app.data.matching.SupabaseMatchingRemoteDataSource
+import com.collegedate.app.data.messaging.MessagingRemoteDataSource
+import com.collegedate.app.data.messaging.MessagingRepository
+import com.collegedate.app.data.messaging.MessagingRepositoryImpl
+import com.collegedate.app.data.messaging.SupabaseMessagingRemoteDataSource
 import com.collegedate.app.data.profile.ProfileRemoteDataSource
 import com.collegedate.app.data.profile.ProfileRepositoryImpl
 import com.collegedate.app.data.profile.SupabaseProfileRemoteDataSource
@@ -78,6 +82,12 @@ abstract class AppBindingsModule {
     abstract fun bindMatchingRemoteDataSource(
         dataSource: SupabaseMatchingRemoteDataSource,
     ): MatchingRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindMessagingRemoteDataSource(
+        dataSource: SupabaseMessagingRemoteDataSource,
+    ): MessagingRemoteDataSource
 }
 
 @Module
@@ -86,6 +96,20 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDispatchersProvider(): DispatchersProvider = StandardDispatchersProvider
+
+    @Provides
+    @Singleton
+    fun provideMessagingRepository(
+        remoteDataSource: MessagingRemoteDataSource,
+        cachedConversationDao: com.collegedate.app.core.database.dao.CachedConversationDao,
+        cachedMessageDao: com.collegedate.app.core.database.dao.CachedMessageDao,
+        dispatchersProvider: DispatchersProvider,
+    ): MessagingRepository = MessagingRepositoryImpl(
+        remoteDataSource,
+        cachedConversationDao,
+        cachedMessageDao,
+        dispatchersProvider,
+    )
 
     @Provides
     @Singleton
@@ -118,7 +142,7 @@ object AppModule {
             CollegeDateDatabase::class.java,
             "college-date-native.db",
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
 
     @Provides
@@ -130,6 +154,12 @@ object AppModule {
     @Provides
     fun provideCachedDiscoveryProfileDao(database: CollegeDateDatabase) =
         database.cachedDiscoveryProfileDao()
+
+    @Provides
+    fun provideCachedConversationDao(database: CollegeDateDatabase) = database.cachedConversationDao()
+
+    @Provides
+    fun provideCachedMessageDao(database: CollegeDateDatabase) = database.cachedMessageDao()
 
     @Provides
     fun provideIoDispatcher(provider: DispatchersProvider): CoroutineDispatcher = provider.io
@@ -201,6 +231,55 @@ object AppModule {
                     cachedAtMillis INTEGER NOT NULL
                 )
                 """.trimIndent(),
+            )
+        }
+    }
+
+    private val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS cached_conversations (
+                    ownerUserId TEXT NOT NULL,
+                    matchId TEXT NOT NULL,
+                    otherUserId TEXT NOT NULL,
+                    otherDisplayName TEXT NOT NULL,
+                    otherAvatarUrl TEXT,
+                    otherLastActive TEXT,
+                    lastMessageId TEXT,
+                    lastMessageContent TEXT,
+                    lastMessageType TEXT,
+                    lastMessageSenderId TEXT,
+                    lastMessageIsRead INTEGER NOT NULL,
+                    lastMessageCreatedAt TEXT,
+                    unreadCount INTEGER NOT NULL,
+                    sortIndex INTEGER NOT NULL,
+                    cachedAtMillis INTEGER NOT NULL,
+                    PRIMARY KEY(ownerUserId, matchId)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS cached_messages (
+                    ownerUserId TEXT NOT NULL,
+                    id TEXT NOT NULL,
+                    matchId TEXT NOT NULL,
+                    senderId TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    type TEXT NOT NULL,
+                    isRead INTEGER NOT NULL,
+                    createdAt TEXT,
+                    readAt TEXT,
+                    expiresAt TEXT,
+                    cachedAtMillis INTEGER NOT NULL,
+                    PRIMARY KEY(ownerUserId, id)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_cached_messages_ownerUserId_matchId_createdAt " +
+                    "ON cached_messages(ownerUserId, matchId, createdAt)",
             )
         }
     }

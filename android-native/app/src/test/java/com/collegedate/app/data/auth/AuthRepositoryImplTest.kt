@@ -4,6 +4,9 @@ import com.collegedate.app.core.common.OperationResult
 import com.collegedate.app.core.datastore.SessionPreferences
 import com.collegedate.app.core.network.PublicSupabaseConfig
 import com.collegedate.app.core.testing.TestDispatchersProvider
+import com.collegedate.app.data.messaging.MessagingRepository
+import com.collegedate.app.domain.messaging.ChatMessage
+import com.collegedate.app.domain.messaging.ConversationSummary
 import com.collegedate.app.domain.auth.AuthState
 import com.collegedate.app.domain.auth.RegistrationRole
 import com.collegedate.app.domain.profile.EditableProfile
@@ -185,7 +188,8 @@ class AuthRepositoryImplTest {
         val remote = FakeAuthRemoteDataSource()
         val preferences = FakeSessionPreferences()
         val profile = FakeProfileRepository(profile = null)
-        val repository = repository(remote, profile, preferences, this)
+        val messaging = FakeMessagingRepository()
+        val repository = repository(remote, profile, preferences, messaging, this)
 
         val result = repository.logout()
 
@@ -193,6 +197,7 @@ class AuthRepositoryImplTest {
         assertTrue(remote.didSignOut)
         assertTrue(preferences.didClear)
         assertTrue(profile.didClearAll)
+        assertTrue(messaging.didClearAll)
         assertEquals(AuthState.SignedOut, repository.authState.value)
     }
 
@@ -200,6 +205,7 @@ class AuthRepositoryImplTest {
         remote: AuthRemoteDataSource = FakeAuthRemoteDataSource(),
         profile: FakeProfileRepository = FakeProfileRepository(profile = null),
         preferences: FakeSessionPreferences = FakeSessionPreferences(),
+        messaging: FakeMessagingRepository = FakeMessagingRepository(),
         scope: CoroutineScope,
     ): AuthRepositoryImpl =
         AuthRepositoryImpl(
@@ -216,10 +222,27 @@ class AuthRepositoryImplTest {
             ),
             remoteDataSource = remote,
             profileRepository = profile,
+            messagingRepository = messaging,
             appPreferences = preferences,
             dispatchersProvider = TestDispatchersProvider(dispatcher),
             applicationScope = scope,
         )
+}
+
+private class FakeMessagingRepository : MessagingRepository {
+    var didClearAll = false
+    override fun observeConversations(): Flow<List<ConversationSummary>> = emptyFlow()
+    override fun observeConversation(matchId: String): Flow<ConversationSummary?> = emptyFlow()
+    override fun observeMessages(matchId: String): Flow<List<ChatMessage>> = emptyFlow()
+    override fun observeRealtimeMessages(matchId: String): Flow<ChatMessage> = emptyFlow()
+    override suspend fun refreshConversations() = OperationResult.Success(emptyList<ConversationSummary>())
+    override suspend fun refreshMessages(matchId: String) = OperationResult.Success(emptyList<ChatMessage>())
+    override suspend fun sendTextMessage(matchId: String, content: String, clientNonce: String) =
+        OperationResult.Failure(com.collegedate.app.core.common.FailureType.Unknown, "Unused")
+    override suspend fun markMessagesRead(matchId: String) = OperationResult.Success(0)
+    override suspend fun cacheRealtimeMessage(message: ChatMessage) = Unit
+    override suspend fun currentUserId(): String? = null
+    override suspend fun clearAllLocalMessages() { didClearAll = true }
 }
 
 private class FakeAuthRemoteDataSource(

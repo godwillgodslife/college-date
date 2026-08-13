@@ -6,6 +6,7 @@ import com.collegedate.app.core.common.FailureType
 import com.collegedate.app.core.common.OperationResult
 import com.collegedate.app.core.datastore.SessionPreferences
 import com.collegedate.app.core.network.PublicSupabaseConfig
+import com.collegedate.app.data.messaging.MessagingRepository
 import com.collegedate.app.domain.auth.AuthRepository
 import com.collegedate.app.domain.auth.AuthState
 import com.collegedate.app.domain.auth.RegistrationRole
@@ -25,6 +26,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val config: PublicSupabaseConfig,
     private val remoteDataSource: AuthRemoteDataSource,
     private val profileRepository: ProfileRepository,
+    private val messagingRepository: MessagingRepository,
     private val appPreferences: SessionPreferences,
     private val dispatchersProvider: DispatchersProvider,
     @param:ApplicationScope private val applicationScope: CoroutineScope,
@@ -44,6 +46,8 @@ class AuthRepositoryImpl @Inject constructor(
                         RemoteAuthStatus.SignedOut,
                         -> {
                             appPreferences.clearPersonalState()
+                            profileRepository.clearAllLocalProfiles()
+                            messagingRepository.clearAllLocalMessages()
                             _authState.value = AuthState.SignedOut
                         }
 
@@ -68,6 +72,8 @@ class AuthRepositoryImpl @Inject constructor(
                 val user = remoteDataSource.currentUser()
                 if (user == null) {
                     appPreferences.clearPersonalState()
+                    profileRepository.clearAllLocalProfiles()
+                    messagingRepository.clearAllLocalMessages()
                     AuthState.SignedOut
                 } else {
                     hydrateSession(user)
@@ -152,6 +158,7 @@ class AuthRepositoryImpl @Inject constructor(
                 remoteDataSource.signOut()
                 appPreferences.clearPersonalState()
                 profileRepository.clearAllLocalProfiles()
+                messagingRepository.clearAllLocalMessages()
             }.fold(
                 onSuccess = {
                     _authState.value = AuthState.SignedOut
