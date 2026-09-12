@@ -1,8 +1,60 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
 import PublicHeader from '../../components/PublicHeader';
 import PublicFooter from '../../components/PublicFooter';
 import './StaticPageViewer.css';
+
+/**
+ * Determine page category, parent backlink, and badge styling based on slug
+ */
+function getPageMetadata(slug) {
+  if (['safety', 'campus-dating-safety', 'child-safety-standards', 'romance-scams-nigerian-students', 'what-not-to-share-on-dating-apps'].includes(slug)) {
+    return {
+      category: 'Campus Safety',
+      badge: '🛡️ CAMPUS SAFETY',
+      parentName: 'Safety Center',
+      parentHref: '/safety'
+    };
+  }
+  if (['privacy', 'terms', 'delete-account'].includes(slug)) {
+    return {
+      category: 'Trust & Standards',
+      badge: '🔒 LEGAL & TRUST',
+      parentName: 'Safety Center',
+      parentHref: '/safety'
+    };
+  }
+  if (['about', 'support', 'download', 'press', 'faq'].includes(slug)) {
+    return {
+      category: 'The Platform',
+      badge: '🏛️ CAMPUS SOCIAL',
+      parentName: 'Home',
+      parentHref: '/'
+    };
+  }
+  if (slug === 'how-it-works') {
+    return {
+      category: 'Getting Started',
+      badge: '✨ HOW IT WORKS',
+      parentName: 'Home',
+      parentHref: '/'
+    };
+  }
+  if (slug.startsWith('blog/') || slug === 'blog') {
+    return {
+      category: 'Campus Blog',
+      badge: '📝 DATING GUIDES',
+      parentName: 'All Guides',
+      parentHref: '/blog'
+    };
+  }
+  return {
+    category: 'Student Advice',
+    badge: '🎓 CAMPUS DATING',
+    parentName: 'Guides & Advice',
+    parentHref: '/blog'
+  };
+}
 
 export default function StaticPageViewer({ explicitSlug }) {
   const location = useLocation();
@@ -13,6 +65,7 @@ export default function StaticPageViewer({ explicitSlug }) {
   const [pageTitle, setPageTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Compute the clean slug to fetch
   const getSlug = useCallback(() => {
@@ -25,6 +78,15 @@ export default function StaticPageViewer({ explicitSlug }) {
   }, [explicitSlug, params.slug, location.pathname]);
 
   const slug = getSlug();
+  const meta = useMemo(() => getPageMetadata(slug), [slug]);
+
+  // Estimate read time based on text length
+  const readTime = useMemo(() => {
+    if (!content) return 3;
+    const plainText = content.replace(/<[^>]+>/g, ' ');
+    const wordCount = plainText.trim().split(/\s+/).length;
+    return Math.max(2, Math.ceil(wordCount / 200));
+  }, [content]);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,8 +118,8 @@ export default function StaticPageViewer({ explicitSlug }) {
           // 2. Extract main element content
           const mainEl = doc.querySelector('main');
           if (mainEl) {
-            // Remove the legacy inline nav and footer since we render PublicHeader & PublicFooter
-            const legacyNav = mainEl.querySelector('nav');
+            // Remove the legacy inline primary nav and footer since we render modern PublicHeader & PublicFooter
+            const legacyNav = mainEl.querySelector('nav:not(.toc)');
             if (legacyNav) legacyNav.remove();
 
             const legacyFooter = mainEl.querySelector('footer');
@@ -78,9 +140,11 @@ export default function StaticPageViewer({ explicitSlug }) {
             setTimeout(() => {
               const target = document.getElementById(location.hash.slice(1));
               if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
+                const yOffset = -90;
+                const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
               }
-            }, 80);
+            }, 120);
           } else {
             window.scrollTo({ top: 0, behavior: 'instant' });
           }
@@ -102,39 +166,98 @@ export default function StaticPageViewer({ explicitSlug }) {
     };
   }, [slug, location.hash]);
 
-  // Intercept internal link clicks to keep navigation inside the SPA
+  // Copy current URL to clipboard with feedback
+  const handleShare = useCallback(() => {
+    navigator.clipboard?.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2400);
+  }, []);
+
+  // Universal click interceptor: handles relative links, absolute domain links, hash jumps, and buttons
   const handleContentClick = useCallback(
     (e) => {
-      const anchor = e.target.closest('a');
-      if (!anchor) return;
-
-      const href = anchor.getAttribute('href');
-      if (!href) return;
-
-      // Handle on-page anchor links smoothly
-      if (href.startsWith('#')) {
-        e.preventDefault();
-        const target = document.getElementById(href.slice(1));
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
+      // 1. Handle interactive buttons inside content
+      const button = e.target.closest('button');
+      if (button) {
+        const dataHref = button.getAttribute('data-href');
+        if (dataHref) {
+          e.preventDefault();
+          navigate(dataHref);
+          return;
+        }
+        if (button.getAttribute('data-action') === 'back') {
+          e.preventDefault();
+          navigate(-1);
+          return;
         }
         return;
       }
 
-      // Handle external links or protocol links (wa.me, mailto, etc.)
-      if (
-        href.startsWith('http://') ||
-        href.startsWith('https://') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('tel:') ||
-        anchor.getAttribute('target') === '_blank'
-      ) {
-        return; // allow browser default
+      // 2. Handle interactive anchor links
+      const anchor = e.target.closest('a');
+      if (!anchor) return;
+
+      const rawHref = anchor.getAttribute('href');
+      if (!rawHref) return;
+
+      // Handle on-page anchor jump smoothly with header offset
+      if (rawHref.startsWith('#')) {
+        e.preventDefault();
+        const targetId = rawHref.slice(1);
+        const target = document.getElementById(targetId);
+        if (target) {
+          const yOffset = -90;
+          const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          window.history.replaceState(null, '', `#${targetId}`);
+        }
+        return;
       }
 
-      // Internal route: navigate via React Router
+      // External protocol links (WhatsApp, email, tel)
+      if (
+        rawHref.startsWith('mailto:') ||
+        rawHref.startsWith('tel:') ||
+        rawHref.startsWith('sms:') ||
+        rawHref.includes('wa.me')
+      ) {
+        return; // Allow standard browser handling
+      }
+
+      // Parse absolute vs relative URLs
+      let targetPath = rawHref;
+      try {
+        if (targetPath.startsWith('http://') || targetPath.startsWith('https://')) {
+          const urlObj = new URL(targetPath);
+          const isOurHost = 
+            urlObj.hostname === window.location.hostname ||
+            urlObj.hostname === 'www.thecollegedate.com' ||
+            urlObj.hostname === 'thecollegedate.com' ||
+            urlObj.hostname === 'localhost' ||
+            urlObj.hostname === '127.0.0.1';
+
+          if (isOurHost) {
+            targetPath = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            // Truly external third-party link
+            return;
+          }
+        }
+      } catch {
+        // Continue with targetPath
+      }
+
+      // Strip .html extension if present
+      targetPath = targetPath.replace(/\.html(\?|#|$)/, '$1');
+
+      // Ensure leading slash for client routing
+      if (!targetPath.startsWith('/') && !targetPath.startsWith('#')) {
+        targetPath = '/' + targetPath;
+      }
+
+      // Smooth internal navigation
       e.preventDefault();
-      navigate(href);
+      navigate(targetPath);
       window.scrollTo({ top: 0, behavior: 'instant' });
     },
     [navigate]
@@ -144,6 +267,35 @@ export default function StaticPageViewer({ explicitSlug }) {
     <div className="static-page-layout">
       <PublicHeader themeVariant="light" />
 
+      {/* ── EDITORIAL BREADCRUMB & BACKLINK BAR ── */}
+      <div className="editorial-backlink-bar">
+        <div className="editorial-backlink-container">
+          <div className="editorial-backlink-left">
+            <Link to={meta.parentHref} className="editorial-back-button" aria-label={`Back to ${meta.parentName}`}>
+              <span className="back-arrow">←</span>
+              <span>Back to {meta.parentName}</span>
+            </Link>
+            <span className="editorial-crumb-divider">/</span>
+            <span className="editorial-category-badge">{meta.badge}</span>
+          </div>
+
+          <div className="editorial-backlink-right">
+            <span className="editorial-meta-pill">⏱️ {readTime} min read</span>
+            <span className="editorial-meta-pill verified-pill">🎓 Student Verified</span>
+            <button
+              type="button"
+              className="editorial-share-button"
+              onClick={handleShare}
+              title="Copy page link"
+              aria-label="Copy page link"
+            >
+              {copied ? '✓ Copied link' : '🔗 Share'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT CONTAINER ── */}
       <main className="static-page-main" onClick={handleContentClick}>
         {loading ? (
           <div className="static-page-skeleton" aria-busy="true" aria-label="Loading page content">
@@ -154,6 +306,7 @@ export default function StaticPageViewer({ explicitSlug }) {
           </div>
         ) : error ? (
           <div className="static-page-error" role="alert">
+            <div className="error-icon">🧭</div>
             <h2>Page Not Found</h2>
             <p>The page you requested could not be found or is temporarily unavailable.</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
@@ -176,6 +329,24 @@ export default function StaticPageViewer({ explicitSlug }) {
           />
         )}
       </main>
+
+      {/* ── EDITORIAL BOTTOM ACTION BAR ── */}
+      {!loading && !error && (
+        <div className="editorial-bottom-bar">
+          <div className="editorial-bottom-container">
+            <Link to="/blog" className="editorial-bottom-link">
+              ← Browse All Dating Guides & Advice
+            </Link>
+            <button
+              type="button"
+              className="editorial-back-to-top"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              ↑ Back to top
+            </button>
+          </div>
+        </div>
+      )}
 
       <PublicFooter />
     </div>
