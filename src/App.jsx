@@ -1,6 +1,7 @@
 import { useEffect, lazy, Suspense, Profiler } from 'react';
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { initPushNotifications } from './services/pushNotification.js';
@@ -49,6 +50,8 @@ function lazyWithRetry(factory) {
 const Landing = lazyWithRetry(() => import('./pages/Landing'));
 const Login = lazyWithRetry(() => import('./pages/Login'));
 const Signup = lazyWithRetry(() => import('./pages/Signup'));
+const ForgotPassword = lazyWithRetry(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'));
 const AuthCallback = lazyWithRetry(() => import('./pages/AuthCallback'));
 const PaymentCallback = lazyWithRetry(() => import('./pages/PaymentCallback'));
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
@@ -77,6 +80,11 @@ const AdminDashboard = lazyWithRetry(() => (
 ));
 const VoiceCallRoom = lazyWithRetry(() => import('./pages/VoiceCallRoom'));
 const WireframeShowcase = lazyWithRetry(() => import('./pages/WireframeShowcase'));
+const AndroidUXComparison = lazyWithRetry(() => import('./pages/AndroidUXComparison'));
+const AndroidUXReview = lazyWithRetry(() => import('./pages/AndroidUXReview'));
+const AndroidDesignReview = lazyWithRetry(() => import('./pages/AndroidDesignReview'));
+const StaticPageViewer = lazyWithRetry(() => import('./pages/public/StaticPageViewer'));
+import { PUBLIC_SEO_SLUGS, PUBLIC_BLOG_SLUGS } from './constants/publicSeoRoutes';
 
 // Components that can be lazy loaded
 const AppLayout = lazyWithRetry(() => import('./components/AppLayout.jsx'));
@@ -298,15 +306,41 @@ function AppRoutes() {
           path="/signup"
           element={currentUser ? <Navigate to={getSafeAuthRedirect(location)} replace /> : <Signup />}
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/wireframes" element={<WireframeShowcase />} />
+        <Route path="/android-ux-comparison" element={<AndroidUXComparison />} />
+        <Route path="/ux-lab" element={<AndroidUXComparison />} />
+        <Route path="/ux-approval" element={<AndroidUXComparison />} />
+        <Route path="/android-ux-review" element={<AndroidUXReview />} />
+        <Route path="/ux-review" element={<AndroidUXReview />} />
+        <Route path="/android-design-review" element={<AndroidDesignReview />} />
+        <Route path="/design-review" element={<AndroidDesignReview />} />
         <Route path="/notification-preview" element={<NotificationPreviewLab />} />
         <Route path="/notification-preview-lab" element={<NotificationPreviewLab />} />
         <Route path="/push-preview" element={<NotificationPreviewLab />} />
         <Route path="/push-lab" element={<NotificationPreviewLab />} />
         <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
+
+        {/* Public Content & Editorial Pages */}
+        {PUBLIC_SEO_SLUGS.map((slug) => (
+          <Route
+            key={slug}
+            path={`/${slug}`}
+            element={<StaticPageViewer explicitSlug={slug} />}
+          />
+        ))}
+        {PUBLIC_BLOG_SLUGS.map((slug) => (
+          <Route
+            key={`blog-${slug}`}
+            path={`/blog/${slug}`}
+            element={<StaticPageViewer explicitSlug={`blog/${slug}`} />}
+          />
+        ))}
+        <Route path="/tools/dating-bio-generator" element={<StaticPageViewer explicitSlug="tools/dating-bio-generator" />} />
 
         {/* Protected routes with AppLayout shell always mounted */}
         <Route element={<AppLayout />}>
@@ -374,16 +408,18 @@ function AppRoutes() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <SWRProvider>
-          <NotificationSoftPrompt />
-          <ToastProvider>
-            <NotificationProvider>
-              <AppRoutes />
-            </NotificationProvider>
-          </ToastProvider>
-        </SWRProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SWRProvider>
+            <NotificationSoftPrompt />
+            <ToastProvider>
+              <NotificationProvider>
+                <AppRoutes />
+              </NotificationProvider>
+            </ToastProvider>
+          </SWRProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

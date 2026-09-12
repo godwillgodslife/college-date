@@ -57,10 +57,10 @@ export default function PublicHeader({ themeVariant = 'transparent' }) {
 
           {/* Desktop Navigation Links */}
           <nav className="public-header__nav" aria-label="Primary Navigation">
-            <a href={location.pathname === '/' ? '#how-it-works' : '/how-it-works'} className="public-header__link">How it works</a>
-            <a href="/safety" className="public-header__link">Safety</a>
-            <a href="/premium" className="public-header__link">Premium</a>
-            <a href="/support" className="public-header__link">Partner</a>
+            <Link to="/how-it-works" className="public-header__link">How it works</Link>
+            <Link to="/safety" className="public-header__link">Safety</Link>
+            <Link to="/premium" className="public-header__link">Premium</Link>
+            <Link to="/support" className="public-header__link">Partner</Link>
           </nav>
 
           {/* Right CTAs */}
@@ -113,13 +113,13 @@ export default function PublicHeader({ themeVariant = 'transparent' }) {
         </div>
 
         <nav className="public-mobile-drawer__nav" aria-label="Mobile Navigation">
-          <a href={location.pathname === '/' ? '#how-it-works' : '/how-it-works'} onClick={() => setMobileMenuOpen(false)}>How it works</a>
-          <a href="/safety" onClick={() => setMobileMenuOpen(false)}>Safety</a>
-          <a href="/premium" onClick={() => setMobileMenuOpen(false)}>Premium</a>
-          <a href="/support" onClick={() => setMobileMenuOpen(false)}>Partner</a>
-          <a href="/about" onClick={() => setMobileMenuOpen(false)}>About Us</a>
-          <a href="/blog" onClick={() => setMobileMenuOpen(false)}>Dating Guides</a>
-          <a href="/download" onClick={() => setMobileMenuOpen(false)}>Get the App</a>
+          <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)}>How it works</Link>
+          <Link to="/safety" onClick={() => setMobileMenuOpen(false)}>Safety</Link>
+          <Link to="/premium" onClick={() => setMobileMenuOpen(false)}>Premium</Link>
+          <Link to="/support" onClick={() => setMobileMenuOpen(false)}>Partner</Link>
+          <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+          <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Dating Guides</Link>
+          <Link to="/download" onClick={() => setMobileMenuOpen(false)}>Get the App</Link>
         </nav>
 
         <div className="public-mobile-drawer__actions">

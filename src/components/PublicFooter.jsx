@@ -36,13 +36,13 @@ export default function PublicFooter() {
           <div className="public-footer__col">
             <h4 className="public-footer__heading">Campus Social</h4>
             <ul className="public-footer__list">
-              <li><a href="/#how-it-works">How It Works</a></li>
-              <li><a href="/about">About Us</a></li>
-              <li><a href="/campus-dating">Campus Dating</a></li>
-              <li><a href="/student-dating">Student Dating</a></li>
-              <li><a href="/nigeria-dating-app">Nigeria Dating</a></li>
-              <li><a href="/university-dating-nigeria">University Dating</a></li>
-              <li><a href="/blog">Dating Guides & Advice</a></li>
+              <li><Link to="/how-it-works">How It Works</Link></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/campus-dating">Campus Dating</Link></li>
+              <li><Link to="/student-dating">Student Dating</Link></li>
+              <li><Link to="/nigeria-dating-app">Nigeria Dating</Link></li>
+              <li><Link to="/university-dating-nigeria">University Dating</Link></li>
+              <li><Link to="/blog">Dating Guides & Advice</Link></li>
             </ul>
           </div>
 
@@ -50,12 +50,12 @@ export default function PublicFooter() {
           <div className="public-footer__col">
             <h4 className="public-footer__heading">Safety & Standards</h4>
             <ul className="public-footer__list">
-              <li><a href="/safety">Safety Center</a></li>
-              <li><a href="/campus-dating-safety">Campus Meeting Safety</a></li>
-              <li><a href="/child-safety-standards">Child Safety Standards</a></li>
-              <li><a href="/privacy">Privacy Policy</a></li>
-              <li><a href="/terms">Terms of Service</a></li>
-              <li><a href="/delete-account">Account Deletion</a></li>
+              <li><Link to="/safety">Safety Center</Link></li>
+              <li><Link to="/campus-dating-safety">Campus Meeting Safety</Link></li>
+              <li><Link to="/child-safety-standards">Child Safety Standards</Link></li>
+              <li><Link to="/privacy">Privacy Policy</Link></li>
+              <li><Link to="/terms">Terms of Service</Link></li>
+              <li><Link to="/delete-account">Account Deletion</Link></li>
             </ul>
           </div>
 
@@ -63,9 +63,9 @@ export default function PublicFooter() {
           <div className="public-footer__col">
             <h4 className="public-footer__heading">Connect & Partner</h4>
             <ul className="public-footer__list">
-              <li><a href="/premium">Get Premium</a></li>
-              <li><a href="/download">Download Android App</a></li>
-              <li><a href="/support">Become a Partner</a></li>
+              <li><Link to="/premium">Get Premium</Link></li>
+              <li><Link to="/download">Download Android App</Link></li>
+              <li><Link to="/support">Become a Partner</Link></li>
               <li>
                 <a href={partnerWhatsAppUrl} target="_blank" rel="noopener noreferrer">
                   Official WhatsApp

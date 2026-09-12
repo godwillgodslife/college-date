@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PublicHeader from '../components/PublicHeader';
 import PublicFooter from '../components/PublicFooter';
@@ -115,6 +116,11 @@ const CAMPUS_FEATURES = [
 ];
 
 export default function Landing() {
+  // Restore landing page title on mount
+  useEffect(() => {
+    document.title = 'The College Date — Real connections. Real you. | Campus Dating for Students';
+  }, []);
+
   // Initialize scroll-triggered reveals
   useScrollReveal();
 

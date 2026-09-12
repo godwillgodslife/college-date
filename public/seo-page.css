@@ -38,6 +38,23 @@
   }
 }
 
+:root[data-theme="dark"],
+html[data-theme="dark"] {
+  --bg-primary: #0b0d10;
+  --bg-secondary: #131318;
+  --bg-card: #131318;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #667085;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.14);
+  --accent-primary: #e34baf;
+  --accent-secondary: #d946ef;
+  --accent-soft: rgba(227, 75, 175, 0.14);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
