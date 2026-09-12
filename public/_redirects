@@ -4,6 +4,7 @@ http://thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 
 # Canonical extensionless public SEO URLs
+/how-it-works.html  /how-it-works  301!
 /child-safety-standards.html  /child-safety-standards  301!
 /about.html  /about  301!
 /the-college-date.html  /the-college-date  301!
@@ -41,6 +42,16 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /campus-date-ideas-students.html  /campus-date-ideas-students  301!
 /relationship-boundaries-for-students.html  /relationship-boundaries-for-students  301!
 /green-flags-student-relationships.html  /green-flags-student-relationships  301!
+/red-flags-student-relationships.html  /red-flags-student-relationships  301!
+/healthy-relationship-university-students.html  /healthy-relationship-university-students  301!
+/signs-someone-likes-you-college.html  /signs-someone-likes-you-college  301!
+/long-distance-relationship-students.html  /long-distance-relationship-students  301!
+/talking-stage-students.html  /talking-stage-students  301!
+/situationship-vs-relationship.html  /situationship-vs-relationship  301!
+/how-to-reject-someone-politely.html  /how-to-reject-someone-politely  301!
+/breakup-recovery-college-students.html  /breakup-recovery-college-students  301!
+/student-dating-etiquette.html  /student-dating-etiquette  301!
+/questions-before-dating.html  /questions-before-dating  301!
 /blog.html  /blog  301!
 /blog/best-dating-apps-nigeria-students.html  /blog/best-dating-apps-nigeria-students  301!
 /blog/online-dating-for-nigerian-students.html  /blog/online-dating-for-nigerian-students  301!
@@ -51,6 +62,7 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /first-date-ideas-students.html  /first-date-ideas-students  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
+/how-it-works  /how-it-works.html  200
 /child-safety-standards  /child-safety-standards.html  200
 /about  /about.html  200
 /the-college-date  /the-college-date.html  200
@@ -88,6 +100,16 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /campus-date-ideas-students  /campus-date-ideas-students.html  200
 /relationship-boundaries-for-students  /relationship-boundaries-for-students.html  200
 /green-flags-student-relationships  /green-flags-student-relationships.html  200
+/red-flags-student-relationships  /red-flags-student-relationships.html  200
+/healthy-relationship-university-students  /healthy-relationship-university-students.html  200
+/signs-someone-likes-you-college  /signs-someone-likes-you-college.html  200
+/long-distance-relationship-students  /long-distance-relationship-students.html  200
+/talking-stage-students  /talking-stage-students.html  200
+/situationship-vs-relationship  /situationship-vs-relationship.html  200
+/how-to-reject-someone-politely  /how-to-reject-someone-politely.html  200
+/breakup-recovery-college-students  /breakup-recovery-college-students.html  200
+/student-dating-etiquette  /student-dating-etiquette.html  200
+/questions-before-dating  /questions-before-dating.html  200
 /blog  /blog.html  200
 /blog/best-dating-apps-nigeria-students  /blog/best-dating-apps-nigeria-students.html  200
 /blog/online-dating-for-nigerian-students  /blog/online-dating-for-nigerian-students.html  200
@@ -100,6 +122,8 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 # Known React application routes
 /login  /index.html  200
 /signup  /index.html  200
+/forgot-password  /index.html  200
+/reset-password  /index.html  200
 /dashboard  /index.html  200
 /match  /index.html  200
 /explore  /index.html  200

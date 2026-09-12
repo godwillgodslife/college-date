@@ -2,6 +2,7 @@ export const siteOrigin = 'https://www.thecollegedate.com';
 
 export const seoPages = [
   { path: '/', source: 'index.html', changefreq: 'weekly', priority: '1.0' },
+  { path: '/how-it-works', source: 'public/how-it-works.html', changefreq: 'monthly', priority: '0.85' },
   { path: '/child-safety-standards', source: 'public/child-safety-standards.html', changefreq: 'yearly', priority: '0.2' },
   { path: '/about', source: 'public/about.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/the-college-date', source: 'public/the-college-date.html', changefreq: 'monthly', priority: '0.86' },
@@ -39,6 +40,16 @@ export const seoPages = [
   { path: '/campus-date-ideas-students', source: 'public/campus-date-ideas-students.html', changefreq: 'monthly', priority: '0.7' },
   { path: '/relationship-boundaries-for-students', source: 'public/relationship-boundaries-for-students.html', changefreq: 'monthly', priority: '0.7' },
   { path: '/green-flags-student-relationships', source: 'public/green-flags-student-relationships.html', changefreq: 'monthly', priority: '0.7' },
+  { path: '/red-flags-student-relationships', source: 'public/red-flags-student-relationships.html', changefreq: 'monthly', priority: '0.7' },
+  { path: '/healthy-relationship-university-students', source: 'public/healthy-relationship-university-students.html', changefreq: 'monthly', priority: '0.7' },
+  { path: '/signs-someone-likes-you-college', source: 'public/signs-someone-likes-you-college.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/long-distance-relationship-students', source: 'public/long-distance-relationship-students.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/talking-stage-students', source: 'public/talking-stage-students.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/situationship-vs-relationship', source: 'public/situationship-vs-relationship.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/how-to-reject-someone-politely', source: 'public/how-to-reject-someone-politely.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/breakup-recovery-college-students', source: 'public/breakup-recovery-college-students.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/student-dating-etiquette', source: 'public/student-dating-etiquette.html', changefreq: 'monthly', priority: '0.68' },
+  { path: '/questions-before-dating', source: 'public/questions-before-dating.html', changefreq: 'monthly', priority: '0.68' },
   { path: '/blog', source: 'public/blog.html', changefreq: 'weekly', priority: '0.75' },
   { path: '/blog/best-dating-apps-nigeria-students', source: 'public/blog/best-dating-apps-nigeria-students.html', changefreq: 'monthly', priority: '0.75' },
   { path: '/blog/online-dating-for-nigerian-students', source: 'public/blog/online-dating-for-nigerian-students.html', changefreq: 'monthly', priority: '0.75' },
@@ -52,6 +63,8 @@ export const seoPages = [
 export const appShellRoutes = [
   '/login',
   '/signup',
+  '/forgot-password',
+  '/reset-password',
   '/dashboard',
   '/match',
   '/explore',
@@ -85,6 +98,8 @@ export const appShellRoutes = [
 export const privateNoindexRoutes = [
   '/login',
   '/signup',
+  '/forgot-password',
+  '/reset-password',
   '/dashboard',
   '/match',
   '/explore',

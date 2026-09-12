@@ -1,0 +1,534 @@
+/* ═══════════════════════════════════════════════════════════
+   The College Date — Signature Hero Card Stack Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.hero-card-stack {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  min-height: 580px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+}
+
+/* ── Floating Metric Pill ────────────────────────────────── */
+.hero-stack-metric {
+  position: absolute;
+  top: 10px;
+  right: -20px;
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: var(--cd-canvas, #ffffff);
+  border: 1px solid var(--cd-border, rgba(15, 23, 42, 0.08));
+  border-radius: 9999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: floatSubtle 6s ease-in-out infinite;
+}
+
+:root[data-theme="dark"] .hero-stack-metric {
+  background: #161622;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.hero-stack-metric__icon {
+  font-size: 1.25rem;
+}
+
+.hero-stack-metric__copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.hero-stack-metric__copy strong {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--cd-text-primary, #0b0d10);
+}
+
+:root[data-theme="dark"] .hero-stack-metric__copy strong {
+  color: #f8fafc;
+}
+
+.hero-stack-metric__copy span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--cd-text-secondary, #667085);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Organic Polaroid / Sticker ──────────────────────────── */
+.hero-stack-polaroid {
+  position: absolute;
+  bottom: 24px;
+  left: -24px;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #0b0d10;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
+  transform: rotate(-4deg);
+  animation: floatSubtle 7s ease-in-out infinite reverse;
+}
+
+:root[data-theme="dark"] .hero-stack-polaroid {
+  background: #1a1a24;
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.hero-stack-polaroid__tag {
+  font-family: var(--font-handwriting, 'Caveat', cursive);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--cd-accent-pink, #e34baf);
+  line-height: 1.1;
+}
+
+.hero-stack-polaroid__note {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* ── Layered Background Cards ────────────────────────────── */
+.hero-layered-card {
+  position: absolute;
+  width: 250px;
+  height: 440px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.hero-layered-card:hover {
+  opacity: 1 !important;
+}
+
+.hero-layered-card--left {
+  left: -20px;
+  top: 50px;
+  transform: rotate(-7deg) scale(0.92);
+  opacity: 0.82;
+}
+
+.hero-layered-card--left:hover {
+  transform: rotate(-5deg) scale(0.95);
+}
+
+.hero-layered-card--right {
+  right: -20px;
+  top: 60px;
+  transform: rotate(7deg) scale(0.92);
+  opacity: 0.82;
+}
+
+.hero-layered-card--right:hover {
+  transform: rotate(5deg) scale(0.95);
+}
+
+.hero-layered-card__image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-layered-card__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.8) 90%);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+.hero-layered-card__info {
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.hero-layered-card__info strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.hero-layered-card__info span {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* ── Central Smartphone Frame ────────────────────────────── */
+.hero-phone-shell {
+  position: relative;
+  z-index: 6;
+  width: 290px;
+  height: 560px;
+  background: #0b0d10;
+  border-radius: 40px;
+  padding: 8px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    0 24px 60px -10px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+  animation: phoneFloat 6s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+/* Status Bar */
+.hero-phone-status {
+  height: 24px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.phone-island {
+  width: 68px;
+  height: 14px;
+  background: #000000;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+
+.island-lens {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.phone-indicators {
+  display: flex;
+  gap: 4px;
+  font-size: 0.625rem;
+  opacity: 0.8;
+}
+
+/* Phone App Topbar */
+.hero-phone-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 8px;
+  color: #ffffff;
+}
+
+.phone-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.phone-brand img {
+  border-radius: 5px;
+}
+
+.phone-live-dot {
+  font-size: 0.6875rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Screen Area */
+.hero-phone-screen {
+  flex: 1;
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #000000;
+}
+
+.hero-phone-photo {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.hero-fade-in {
+  animation: heroPhotoFade 0.5s ease forwards;
+}
+
+@keyframes heroPhotoFade {
+  from { opacity: 0.4; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Bottom Copy Scrim inside Screen */
+.hero-phone-copy {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 28px 14px 14px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.88) 65%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-phone-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-phone-name-row h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.hero-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+
+.hero-phone-school {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.hero-phone-location {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 6px;
+}
+
+.hero-phone-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hero-interest-pill {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+}
+
+/* Phone Bottom Actions */
+.hero-phone-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 10px;
+}
+
+.hero-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.hero-action-btn:hover {
+  transform: scale(1.08);
+}
+
+.hero-action-btn--pass {
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.hero-action-btn--like {
+  width: 50px;
+  height: 50px;
+  background: var(--cd-accent-pink, #e34baf);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(227, 75, 175, 0.4);
+}
+
+.hero-action-btn--star {
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f59e0b;
+}
+
+/* ── Pagination Selector Dots ────────────────────────────── */
+.hero-stack-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  z-index: 10;
+}
+
+.hero-stack-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--cd-text-muted, #94a3b8);
+  opacity: 0.35;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: width 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.hero-stack-dot.is-active {
+  width: 24px;
+  opacity: 1;
+  background: var(--cd-accent-pink, #e34baf);
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes phoneFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .hero-card-stack {
+    max-width: 360px;
+    min-height: 520px;
+    margin-top: 16px;
+  }
+
+  .hero-phone-shell {
+    width: 270px;
+    height: 520px;
+  }
+
+  .hero-layered-card {
+    width: 210px;
+    height: 380px;
+  }
+
+  .hero-layered-card--left {
+    left: -10px;
+    top: 40px;
+  }
+
+  .hero-layered-card--right {
+    right: -10px;
+    top: 50px;
+  }
+
+  .hero-stack-metric {
+    right: 0;
+    top: -10px;
+    padding: 6px 12px;
+  }
+
+  .hero-stack-polaroid {
+    left: 0;
+    bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-card-stack {
+    max-width: 320px;
+    min-height: 480px;
+  }
+
+  .hero-phone-shell {
+    width: min(260px, 80vw);
+    height: 490px;
+  }
+
+  .hero-layered-card {
+    width: 180px;
+    height: 340px;
+  }
+
+  .hero-layered-card--left {
+    left: -4px;
+    top: 30px;
+  }
+
+  .hero-layered-card--right {
+    right: -4px;
+    top: 40px;
+  }
+
+  .hero-stack-metric {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-phone-shell,
+  .hero-stack-metric,
+  .hero-stack-polaroid,
+  .hero-fade-in {
+    animation: none !important;
+  }
+}
