@@ -62,13 +62,31 @@
   font-weight: 500;
   color: inherit;
   opacity: 0.78;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
   position: relative;
-  padding: 4px 0;
+  padding: 6px 0;
+}
+
+.public-header__link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--cd-accent-pink, #e34baf);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .public-header__link:hover {
   opacity: 1;
+}
+
+.public-header__link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* ── Right Actions ───────────────────────────────────────── */
@@ -348,3 +366,18 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .public-header,
+  .public-header__link,
+  .public-header__link::after,
+  .public-header__login,
+  .public-header__cta,
+  .public-mobile-drawer,
+  .public-mobile-backdrop {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+

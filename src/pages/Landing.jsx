@@ -2,29 +2,92 @@ import { Link } from 'react-router-dom';
 import PublicHeader from '../components/PublicHeader';
 import PublicFooter from '../components/PublicFooter';
 import HeroCardStack from '../components/HeroCardStack';
-import featureGraphic from '../assets/landing-product-poster.webp';
+import { useScrollReveal } from '../hooks/useScrollReveal';
+
+// Authentic Student Photography Assets
+import storyUnilagCouple from '../assets/story-unilag-couple.jpg';
+import storyIfeanyiOau from '../assets/story-ifeanyi-oau.jpg';
+import storyUiCouple from '../assets/story-ui-couple.jpg';
+import campusStudentWalk from '../assets/campus-student-walk.jpg';
+
+// Core App UI Section Screenshots & Mockups
+import appCallScreen from '../assets/app-call-screen.png';
+import appConfessions from '../assets/app-confessions.png';
+import appChatTray from '../assets/app-chat-tray.png';
+import appLocationModal from '../assets/app-location-modal.png';
+import appServiceEscrow from '../assets/app-service-escrow.png';
+import appExploreGrid from '../assets/app-explore-grid.png';
+
 import './Landing.css';
 
 const HOW_IT_WORKS_STEPS = [
   {
     step: '01',
-    title: 'Create Profile',
-    text: "Show who you are and what you're looking for with verified university and department credentials.",
+    title: 'Create Your Profile',
+    text: 'Register with your verified Nigerian university, department, and level. Vision AI scans your portrait to ensure 100% genuine student profiles.',
+    image: campusStudentWalk,
+    badgeText: '✓ Vision AI Verified',
+    tag: 'Single Face Approved',
   },
   {
     step: '02',
-    title: 'Discover',
-    text: 'Explore verified students near your campus, lecture halls, and faculty hangouts with intentional filters.',
+    title: 'Discover Around Campus',
+    text: 'Explore student profiles filtered by your campus, faculty, academic year, and shared vibes—from study dates to exam-crunch partners.',
+    image: appExploreGrid,
+    badgeText: '📍 UNILAG · OAU · UI',
+    tag: 'Faculty & Hall Filters',
   },
   {
     step: '03',
-    title: 'Match',
-    text: "When there's mutual interest, it's a match. Instant notification with zero awkward guessing.",
+    title: 'Match with Mutual Intent',
+    text: "Swipe right or send a like with zero awkward pressure. When there's mutual interest, you're instantly matched. No unwanted spam.",
+    image: null, // Interactive mutual badge preview
+    badgeText: "🎉 It's a Campus Match!",
+    tag: 'Mutual Interest Only',
   },
   {
     step: '04',
-    title: 'Chat',
-    text: 'Start real conversations and build connections with voice notes, media, and smart AI campus icebreakers.',
+    title: 'Chat & Meet Safely',
+    text: 'Start meaningful conversations with high-clarity voice notes, view-once photos, campus gifts (Cold Zobo, Suya), and safe meetup location pins.',
+    image: appChatTray,
+    badgeText: '💬 WhatsApp-Grade Chat',
+    tag: 'Voice Notes & Escrow',
+  },
+];
+
+const STUDENT_STORIES = [
+  {
+    id: 'unilag-chiamaka-david',
+    names: 'Chiamaka & David',
+    school: 'University of Lagos',
+    shortSchool: 'UNILAG',
+    dept: 'Mass Comm & Law',
+    quote: '"Met during 300L exam crunch at UNILAG Main Library. We started with study dates along the lagoon walk and never looked back."',
+    image: storyUnilagCouple,
+    vibeTag: 'Study Dates → Real Love',
+    campusSpot: 'Main Library & Lagoon Walk',
+  },
+  {
+    id: 'oau-ifeanyi',
+    names: 'Ifeanyi',
+    school: 'Obafemi Awolowo University',
+    shortSchool: 'OAU Ile-Ife',
+    dept: 'Architecture · 500L',
+    quote: '"Finally a campus dating app where every profile is a verified student from my university, not random bots or ghost accounts."',
+    image: storyIfeanyiOau,
+    vibeTag: 'Studio Vibe',
+    campusSpot: 'Studio Side · Awolowo Hall',
+  },
+  {
+    id: 'ui-zainab-fola',
+    names: 'Zainab & Fola',
+    school: 'University of Ibadan',
+    shortSchool: 'UI Ibadan',
+    dept: 'Economics & Sociology',
+    quote: '"Matched during Faculty Week at UI. Love how safe, intentional, and genuinely student-centered the whole experience feels."',
+    image: storyUiCouple,
+    vibeTag: 'Faculty Week Match',
+    campusSpot: 'Kenneth Dike Quad',
   },
 ];
 
@@ -32,33 +95,29 @@ const CAMPUS_FEATURES = [
   {
     icon: '🛡️',
     title: 'Safe & Verified',
-    text: 'Real students, real profiles. AI photo scanning and strict student-only verification standards.',
+    text: 'Real students, real profiles. Vision AI biometric scanning and strict student-only verification standards.',
   },
   {
     icon: '🏛️',
     title: 'Campus Focused',
-    text: 'Only students, only campuses. Meet people right inside your institution and neighboring schools.',
+    text: 'Exclusively for students. Meet people right inside your institution, faculty quads, and neighboring campuses.',
   },
   {
     icon: '🎯',
-    title: 'Built for You',
-    text: 'Made for school life: course-mate discovery, anonymous confessions, and semester vibes.',
+    title: 'Built for Campus Life',
+    text: 'Made for your student rhythm: course-mate discovery, anonymous secrets, and semester vibes.',
   },
   {
     icon: '🤝',
     title: 'Real Connections',
-    text: 'Beyond the screen: study dates, faculty hangouts, and genuine long-term relationships.',
+    text: 'Beyond the screen: faculty study dates, campus event hangouts, and authentic relationships.',
   },
 ];
 
-const PRODUCT_MOMENTS = [
-  'Smart discovery built exclusively around student communities',
-  'Flexible premium tiers: 1 Month, 3 Months, and Annual with daily rates',
-  'Safe WhatsApp-grade messaging, voice notes, and campus gifts',
-  'Vision AI photo moderation and strict 18+ student eligibility',
-];
-
 export default function Landing() {
+  // Initialize scroll-triggered reveals
+  useScrollReveal();
+
   return (
     <main className="landing-page">
       {/* ── SHARED PUBLIC HEADER ── */}
@@ -67,7 +126,7 @@ export default function Landing() {
       {/* ── HERO SECTION ── */}
       <section className="landing-hero" aria-labelledby="landing-hero-title">
         <div className="landing-hero__container">
-          <div className="landing-hero-copy">
+          <div className="landing-hero-copy" data-reveal>
             <div className="editorial-eyebrow">
               <span className="eyebrow-dot"></span>
               CAMPUS DATING & SOCIAL
@@ -80,7 +139,7 @@ export default function Landing() {
 
             <p className="landing-hero-description">
               The College Date is built for the confidence, culture, and everyday rhythm of
-              campus life. Meet students around your school, match with intention, and start
+              campus life. Meet verified students around your school, match with intention, and start
               conversations that feel real.
             </p>
 
@@ -159,20 +218,20 @@ export default function Landing() {
           </div>
 
           {/* ── SIGNATURE HERO PRODUCT ANIMATION (CARD STACK) ── */}
-          <div className="landing-hero-visual">
+          <div className="landing-hero-visual" data-reveal>
             <HeroCardStack />
           </div>
         </div>
       </section>
 
-      {/* ── SECTION: HOW IT WORKS ── */}
-      <section className="landing-section landing-how-section" id="how-it-works">
+      {/* ── SECTION: HOW IT WORKS (WITH VISUAL STEP PREVIEWS) ── */}
+      <section className="landing-section landing-how-section" id="how-it-works" data-reveal>
         <div className="landing-section__container">
-          <div className="section-header-editorial">
+          <div className="section-header-editorial" data-reveal>
             <div>
               <span className="editorial-eyebrow">— HOW IT WORKS</span>
               <h2>It's simple.</h2>
-              <p>Four steps to meet real students who understand your campus world.</p>
+              <p>Four intentional steps to meet verified students who share your campus world.</p>
             </div>
             <a href="/safety" className="editorial-link">
               <span>Learn more about safety</span>
@@ -181,93 +240,266 @@ export default function Landing() {
           </div>
 
           <div className="how-it-works-grid">
-            {HOW_IT_WORKS_STEPS.map((item) => (
-              <article className="how-step-card" key={item.step}>
-                <span className="step-number">{item.step}</span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
+            {HOW_IT_WORKS_STEPS.map((item, index) => (
+              <article className={`how-step-card stagger-${index + 1}`} key={item.step} data-reveal>
+                <div className="how-step-card__header">
+                  <span className="step-number">{item.step}</span>
+                  <span className="how-step-tag">{item.tag}</span>
+                </div>
+
+                {/* Visual Step Illustration / UI Snippet */}
+                <div className="how-step-visual">
+                  {item.step === '01' && (
+                    <div className="how-preview-step1">
+                      <img src={campusStudentWalk} alt="Student profile photo verification" className="how-step-thumb" />
+                      <div className="how-step-chip">
+                        <span className="chip-tick">✓</span>
+                        <span>Vision AI: Single Face Verified</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.step === '02' && (
+                    <div className="how-preview-step2">
+                      <img src={appExploreGrid} alt="Campus student discovery grid" className="how-step-thumb-wide" />
+                      <div className="how-step-pills">
+                        <span>🏛️ UNILAG</span>
+                        <span>📚 400L</span>
+                        <span>🎨 Arts</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.step === '03' && (
+                    <div className="how-preview-step3">
+                      <div className="how-match-dialog">
+                        <span className="match-sparkle">✨</span>
+                        <strong>It's a Campus Match!</strong>
+                        <p>You and Amaka liked each other</p>
+                        <div className="match-avatars-row">
+                          <span className="mini-avatar avatar-1">🎓</span>
+                          <span className="match-heart">❤️</span>
+                          <span className="mini-avatar avatar-2">👩🏾</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.step === '04' && (
+                    <div className="how-preview-step4">
+                      <div className="how-chat-bubble">
+                        <div className="chat-audio-wave">
+                          <span className="audio-play-btn">▶</span>
+                          <div className="audio-wave-sim">
+                            <span className="audio-wave-bar"></span>
+                            <span className="audio-wave-bar"></span>
+                            <span className="audio-wave-bar"></span>
+                            <span className="audio-wave-bar"></span>
+                            <span className="audio-wave-bar"></span>
+                          </div>
+                          <span className="audio-time">0:24</span>
+                        </div>
+                        <div className="chat-micro-pills">
+                          <span className="chat-reaction-pill">❤️ 1</span>
+                          <span className="chat-gift-pill">🎁 Cold Zobo</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="how-step-title">{item.title}</h3>
+                <p className="how-step-text">{item.text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION: STUDENT STORIES / SOCIAL PROOF ── */}
-      <section className="landing-section landing-stories-section" id="stories">
+      {/* ── SECTION: CAMPUS RELATIONSHIP LAYER (BENTO GRID WITH REAL APP IMAGERY) ── */}
+      <section className="landing-section landing-bento-section" id="campus-features" data-reveal>
         <div className="landing-section__container">
-          <div className="stories-layout">
-            <div className="stories-copy">
-              <span className="editorial-eyebrow">— STUDENT STORIES</span>
-              <h2>
-                Real people.<br />
-                <span className="landing-headline-accent">Real experiences.</span>
-              </h2>
-              <p>
-                From first matches to lifelong study partners, The College Date is where
-                authentic campus moments come alive. Discover students who understand your
-                lecture timetables, hostel memories, and university culture.
-              </p>
-              <div className="stories-actions">
-                <Link to="/signup" className="landing-primary-button">
-                  <span>Start your story</span>
-                  <span className="btn-arrow">→</span>
-                </Link>
+          <div className="section-header-editorial text-center" data-reveal>
+            <span className="editorial-eyebrow">— CAMPUS RELATIONSHIP LAYER</span>
+            <h2>Experience every dimension of student connection.</h2>
+            <p>From crystal-clear voice notes to anonymous confessions and safe daylight library meetups.</p>
+          </div>
+
+          <div className="bento-grid">
+            {/* Bento Card 1: Audio & Video Calling (Prominent Featured Card) */}
+            <div className="bento-card bento-card--featured" data-reveal>
+              <div className="bento-card__badge">
+                <span className="live-dot-pulse"></span>
+                <span>Agora RTC · Voice & Video</span>
+              </div>
+              <div className="bento-card__copy">
+                <h3>Crystal-Clear Campus Audio & Video Calls</h3>
+                <p>
+                  Talk for hours with your match without ever sharing your private WhatsApp or phone number.
+                  High-fidelity, encrypted voice and video rooms built with low latency for Nigerian network conditions.
+                </p>
+                <div className="bento-card__tags">
+                  <span className="bento-tag">🔒 Zero Phone Numbers Exchanged</span>
+                  <span className="bento-tag">🎙️ Active Pulsating Voice Waves</span>
+                  <span className="bento-tag">⚡ Immediate Teardown on Decline</span>
+                </div>
+              </div>
+              <div className="bento-card__image-container">
+                <img
+                  src={appCallScreen}
+                  alt="Crystal-clear Agora voice call room interface"
+                  className="bento-img"
+                  loading="eager"
+                />
               </div>
             </div>
 
-            <div className="stories-cards-grid">
-              <article className="story-card story-card--featured">
-                <div className="story-card__content">
-                  <span className="story-quote font-hand">
-                    "Met during 300L exam crunch at UNILAG Main Library. We started with study dates and never looked back."
-                  </span>
-                  <div className="story-meta">
-                    <strong>Chiamaka & David</strong>
-                    <span>UNILAG · Mass Comm & Engineering</span>
-                  </div>
+            {/* Bento Card 2: Anonymous Campus Confessions */}
+            <div className="bento-card bento-card--confessions" data-reveal>
+              <div className="bento-card__badge">
+                <span>🎭 Campus Secrets</span>
+              </div>
+              <div className="bento-card__copy">
+                <h3>Anonymous Campus Confessions</h3>
+                <p>
+                  Unfiltered gist, secret crushes, and campus culture. Post anonymously, react with 🔥,
+                  and join the real conversations happening across student hostels.
+                </p>
+                <div className="bento-card__tags">
+                  <span className="bento-tag">🔥 Trending Gist</span>
+                  <span className="bento-tag">💬 Threaded Comments</span>
+                  <span className="bento-tag">🛡️ AI Content Moderation</span>
                 </div>
-              </article>
+              </div>
+              <div className="bento-card__image-container">
+                <img
+                  src={appConfessions}
+                  alt="Anonymous campus confessions feed with fire reactions"
+                  className="bento-img"
+                  loading="eager"
+                />
+              </div>
+            </div>
 
-              <article className="story-card">
-                <div className="story-card__content">
-                  <span className="story-quote font-hand">
-                    "Finally a campus dating app where profiles are verified students, not random bots or fake accounts."
-                  </span>
-                  <div className="story-meta">
-                    <strong>Ifeanyi</strong>
-                    <span>OAU · Architecture 500L</span>
-                  </div>
+            {/* Bento Card 3: Safe Campus Meetups (Live GPS Sharing) */}
+            <div className="bento-card bento-card--location" data-reveal>
+              <div className="bento-card__badge">
+                <span>📍 Safe Meetup Protocol</span>
+              </div>
+              <div className="bento-card__copy">
+                <h3>Live Campus Meetup Pins</h3>
+                <p>
+                  Meeting your match at the faculty cafeteria or central library? Share an auto-expiring 15m, 30m,
+                  or 1-hour live GPS pin right inside chat so you can spot each other instantly in broad daylight.
+                </p>
+                <div className="bento-card__tags">
+                  <span className="bento-tag">⌛ Auto-Expiring Pins</span>
+                  <span className="bento-tag">🏛️ Public Campus Locations</span>
                 </div>
-              </article>
+              </div>
+              <div className="bento-card__image-container">
+                <img
+                  src={appLocationModal}
+                  alt="Safe campus meetup live location pin sharing"
+                  className="bento-img"
+                  loading="eager"
+                />
+              </div>
+            </div>
 
-              <article className="story-card">
-                <div className="story-card__content">
-                  <span className="story-quote font-hand">
-                    "Matched during Faculty Week at UI. Love how safe and intentional the vibe feels."
-                  </span>
-                  <div className="story-meta">
-                    <strong>Zainab & Fola</strong>
-                    <span>University of Ibadan · Economics</span>
-                  </div>
+            {/* Bento Card 4: Course-Mate Escrow & Virtual Gifting */}
+            <div className="bento-card bento-card--escrow" data-reveal>
+              <div className="bento-card__badge">
+                <span>🤝 Service Escrow & Gifting</span>
+              </div>
+              <div className="bento-card__copy">
+                <h3>Course-Mate Escrow & Campus Gifts</h3>
+                <p>
+                  Need project help, exam tutoring, or campus graphic design? Lock funds in student wallet
+                  escrow until the deliverable is completed. Or break the ice with playful gifts like Cold Zobo and Suya.
+                </p>
+                <div className="bento-card__tags">
+                  <span className="bento-tag">💳 Student Wallet Escrow</span>
+                  <span className="bento-tag">🎁 Cold Zobo & Suya Treats</span>
+                  <span className="bento-tag">✨ ₦500 Paid Chat Vibe</span>
                 </div>
-              </article>
+              </div>
+              <div className="bento-card__image-container">
+                <img
+                  src={appServiceEscrow}
+                  alt="Campus service deal with wallet escrow protection"
+                  className="bento-img"
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION: WHY THE COLLEGE DATE? ── */}
-      <section className="landing-section landing-why-section" id="why-college-date">
+      {/* ── SECTION: STUDENT STORIES (WITH REAL NIGERIAN STUDENT PHOTOGRAPHY) ── */}
+      <section className="landing-section landing-stories-section" id="stories" data-reveal>
         <div className="landing-section__container">
-          <div className="section-header-editorial text-center">
+          <div className="section-header-editorial text-center" data-reveal>
+            <span className="editorial-eyebrow">— STUDENT STORIES</span>
+            <h2>Real people. Real Nigerian campus love.</h2>
+            <p>From late-night study crunches at UNILAG Library to OAU studio dates, meet students who found genuine connection.</p>
+          </div>
+
+          <div className="stories-editorial-grid">
+            {STUDENT_STORIES.map((story, index) => (
+              <article className={`story-editorial-card stagger-${index + 1}`} key={story.id} data-reveal>
+                <div className="story-editorial-card__image-wrap">
+                  <img
+                    src={story.image}
+                    alt={`${story.names} from ${story.school}`}
+                    className="story-portrait-img"
+                    loading="eager"
+                  />
+                  <div className="story-card-overlay-pills">
+                    <span className="story-campus-pill">{story.shortSchool}</span>
+                    <span className="story-vibe-tag font-hand">{story.vibeTag}</span>
+                  </div>
+                </div>
+
+                <div className="story-editorial-card__body">
+                  <p className="story-editorial-quote font-hand">{story.quote}</p>
+                  <div className="story-editorial-footer">
+                    <div className="story-student-details">
+                      <div className="story-name-verified-row">
+                        <strong className="story-student-names">{story.names}</strong>
+                        <span className="card-verified-tick" title="Verified Nigerian Student">✓</span>
+                      </div>
+                      <span className="story-student-dept">{story.school} · {story.dept}</span>
+                      <small className="story-student-spot">📍 {story.campusSpot}</small>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="stories-cta-center text-center" data-reveal>
+            <Link to="/signup" className="landing-primary-button">
+              <span>Start your campus story</span>
+              <span className="btn-arrow">→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION: WHY THE COLLEGE DATE? ── */}
+      <section className="landing-section landing-why-section" id="why-college-date" data-reveal>
+        <div className="landing-section__container">
+          <div className="section-header-editorial text-center" data-reveal>
             <span className="editorial-eyebrow">— WHY THE COLLEGE DATE?</span>
             <h2>Built for campus. Made for connection.</h2>
-            <p>More than just a dating app. It is your trusted campus social community.</p>
+            <p>More than just a dating app. It is your trusted university community.</p>
           </div>
 
           <div className="why-grid">
-            {CAMPUS_FEATURES.map((feature) => (
-              <article className="why-card" key={feature.title}>
+            {CAMPUS_FEATURES.map((feature, index) => (
+              <article className={`why-card stagger-${index + 1}`} key={feature.title} data-reveal>
                 <span className="why-icon" role="img" aria-label={feature.title}>{feature.icon}</span>
                 <h3>{feature.title}</h3>
                 <p>{feature.text}</p>
@@ -277,51 +509,13 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── SECTION: PRODUCT PREVIEW POSTER ── */}
-      <section className="landing-section landing-product-section">
-        <div className="landing-section__container">
-          <div className="product-layout">
-            <div className="product-poster">
-              <img
-                src={featureGraphic}
-                alt="The College Date campus social app interface preview"
-                width="720"
-                height="352"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div className="product-copy">
-              <span className="editorial-eyebrow">— CAMPUS SOCIAL LAYER</span>
-              <h2>More than a swipe. It is a connection.</h2>
-              <p>
-                From profile setup to match moments, The College Date provides a complete campus
-                relationship layer: playful enough to feel exciting, structured enough to feel safe.
-              </p>
-              <ul className="product-list">
-                {PRODUCT_MOMENTS.map((moment) => (
-                  <li key={moment}>
-                    <span className="product-list-check">✓</span>
-                    <span>{moment}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/signup" className="landing-primary-button">
-                <span>Explore the platform</span>
-                <span className="btn-arrow">→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── SECTION: DARK EDITORIAL CTA BANNER ── */}
-      <section className="landing-cta-banner">
+      <section className="landing-cta-banner" data-reveal>
         <div className="landing-cta-banner__container">
           <div className="cta-copy">
             <span className="editorial-eyebrow editorial-eyebrow--light">— JOIN THE COMMUNITY</span>
             <h2>Ready to find your campus match?</h2>
-            <p>Join thousands of students across Nigerian universities already building connections on The College Date.</p>
+            <p>Join thousands of students across UNILAG, OAU, UI, UNIBEN, and top Nigerian universities already building connections on The College Date.</p>
           </div>
           <div className="cta-actions">
             <Link to="/signup" className="landing-primary-button landing-primary-button--light">

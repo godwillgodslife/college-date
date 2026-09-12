@@ -65,7 +65,8 @@ release/
 !public/favicon-64.png
 !public/logo-192.png
 !public/logo-512.png
-!src/assets/landing-*.webp
+!public/cofounder-sokepirim-jackreece.png
+!src/assets/*
 keystore-base64.txt
 keystore-summary.txt
 
