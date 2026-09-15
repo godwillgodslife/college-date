@@ -7,6 +7,28 @@ const hostRedirects = [
   'http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!',
 ];
 
+const consolidated301Redirects = [
+  '# Approved SEO consolidations (301 Permanent Redirects)',
+  '/the-college-date  /about  301!',
+  '/the-college-date.html  /about  301!',
+  '/what-is-the-college-date  /about  301!',
+  '/what-is-the-college-date.html  /about  301!',
+  '/college-date  /about  301!',
+  '/college-date.html  /about  301!',
+  '/cd-app  /about  301!',
+  '/cd-app.html  /about  301!',
+  '/college-dating-app  /dating-app-for-students  301!',
+  '/college-dating-app.html  /dating-app-for-students  301!',
+  '/nigeria-dating-app  /dating-app-in-nigeria  301!',
+  '/nigeria-dating-app.html  /dating-app-in-nigeria  301!',
+  '/university-dating-nigeria  /dating-app-for-university-students-nigeria  301!',
+  '/university-dating-nigeria.html  /dating-app-for-university-students-nigeria  301!',
+  '/best-dating-site-for-students-nigeria  /blog/best-dating-apps-nigeria-students  301!',
+  '/best-dating-site-for-students-nigeria.html  /blog/best-dating-apps-nigeria-students  301!',
+  '/blog/online-dating-for-nigerian-students  /dating-app-in-nigeria  301!',
+  '/blog/online-dating-for-nigerian-students.html  /dating-app-in-nigeria  301!',
+];
+
 const htmlRedirects = seoPages
   .filter((page) => page.path !== '/' && page.source.endsWith('.html'))
   .map((page) => `${page.path}.html  ${page.path}  301!`);
@@ -20,6 +42,8 @@ const appRewrites = appShellRoutes.map((route) => `${route}  /index.html  200`);
 const redirects = [
   '# Canonical host redirects',
   ...hostRedirects,
+  '',
+  ...consolidated301Redirects,
   '',
   '# Canonical extensionless public SEO URLs',
   ...htmlRedirects,

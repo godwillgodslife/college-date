@@ -57,6 +57,19 @@ export const PUBLIC_SEO_SLUGS = [
   'dating-bio-examples-students',
   'conversation-starters-dating-app',
   'first-date-ideas-students',
+  // 12 New Expansion Pages (Pan-Africa & Student Adjacent Intent)
+  'dating-apps-for-students-south-africa',
+  'how-to-make-friends-in-university',
+  'dating-apps-for-students-kenya',
+  'anonymous-ask-app-for-students',
+  'dating-apps-for-students-ghana',
+  'how-to-talk-to-your-campus-crush',
+  'dating-a-coursemate-in-university',
+  'campus-confessions-guide',
+  'how-to-date-safely-at-university',
+  'best-dating-apps-for-students-south-africa',
+  'how-to-meet-people-in-a-new-university',
+  'student-dating-apps-africa',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [
@@ -64,3 +77,15 @@ export const PUBLIC_BLOG_SLUGS = [
   'online-dating-for-nigerian-students',
   'how-to-date-safely-on-campus-nigeria',
 ];
+
+export const CONSOLIDATED_301_REDIRECTS = {
+  'the-college-date': '/about',
+  'what-is-the-college-date': '/about',
+  'college-date': '/about',
+  'cd-app': '/about',
+  'college-dating-app': '/dating-app-for-students',
+  'nigeria-dating-app': '/dating-app-in-nigeria',
+  'university-dating-nigeria': '/dating-app-for-university-students-nigeria',
+  'best-dating-site-for-students-nigeria': '/blog/best-dating-apps-nigeria-students',
+  'blog/online-dating-for-nigerian-students': '/dating-app-in-nigeria',
+};

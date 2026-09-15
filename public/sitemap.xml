@@ -2,9 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.thecollegedate.com/</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-it-works</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/child-safety-standards</loc>
@@ -14,21 +20,9 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/about</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/the-college-date</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.86</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/what-is-the-college-date</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.84</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/faq</loc>
@@ -38,21 +32,9 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/download</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.83</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/college-date</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.82</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/cd-app</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.64</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/press</loc>
@@ -62,25 +44,25 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/campus-dating</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/student-dating</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/safety</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/support</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -103,12 +85,6 @@
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/college-dating-app</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://www.thecollegedate.com/dating-app-for-students</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -116,27 +92,15 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/campus-dating-safety</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/nigeria-dating-app</loc>
-    <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://www.thecollegedate.com/dating-app-in-nigeria</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/university-dating-nigeria</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/dating-app-for-university-students-nigeria</loc>
@@ -163,12 +127,6 @@
     <priority>0.74</priority>
   </url>
   <url>
-    <loc>https://www.thecollegedate.com/best-dating-site-for-students-nigeria</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.76</priority>
-  </url>
-  <url>
     <loc>https://www.thecollegedate.com/online-dating-app-for-undergraduates</loc>
     <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -176,7 +134,7 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/how-to-meet-people-on-campus</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -212,37 +170,91 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/campus-date-ideas-students</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/relationship-boundaries-for-students</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/green-flags-student-relationships</loc>
-    <lastmod>2026-07-21</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.thecollegedate.com/red-flags-student-relationships</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/healthy-relationship-university-students</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/signs-someone-likes-you-college</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/long-distance-relationship-students</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/talking-stage-students</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/situationship-vs-relationship</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-reject-someone-politely</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/breakup-recovery-college-students</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/student-dating-etiquette</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/questions-before-dating</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.68</priority>
+  </url>
+  <url>
     <loc>https://www.thecollegedate.com/blog</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/blog/best-dating-apps-nigeria-students</loc>
     <lastmod>2026-07-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://www.thecollegedate.com/blog/online-dating-for-nigerian-students</loc>
-    <lastmod>2026-07-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
@@ -266,14 +278,86 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/conversation-starters-dating-app</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.72</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/first-date-ideas-students</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.72</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-apps-for-students-south-africa</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-make-friends-in-university</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-apps-for-students-kenya</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/anonymous-ask-app-for-students</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-apps-for-students-ghana</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-talk-to-your-campus-crush</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-a-coursemate-in-university</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/campus-confessions-guide</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-date-safely-at-university</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/best-dating-apps-for-students-south-africa</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-meet-people-in-a-new-university</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/student-dating-apps-africa</loc>
+    <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
   </url>
 </urlset>

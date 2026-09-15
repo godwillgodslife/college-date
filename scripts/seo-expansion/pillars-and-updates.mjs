@@ -1,0 +1,344 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const root = process.cwd();
+
+export function updateAboutPage() {
+  console.log('Updating public/about.html...');
+  const filePath = join(root, 'public/about.html');
+  let content = readFileSync(filePath, 'utf8');
+
+  // Shorten meta description to <= 160 chars
+  content = content.replace(
+    /<meta\s+name="description"\s+content="[^"]*"/i,
+    '<meta name="description" content="Learn about The College Date, a Pan-African campus dating and social app founded by Godswill Godlife Onah to connect university students across Africa."'
+  );
+  content = content.replace(
+    /<meta\s+name="twitter:description"\s+content="[^"]*"/i,
+    '<meta name="twitter:description" content="Learn about The College Date, a Pan-African campus dating and social app founded by Godswill Godlife Onah to connect university students across Africa."'
+  );
+
+  // Expand mission with Pan-African context
+  const missionTarget = '<p>The public website supports that mission by publishing official brand facts, safety standards, privacy information, download guidance, and educational content for Nigerian university, polytechnic, and college students aged 18 and above.</p>';
+  const missionReplacement = `<p>The public website supports that mission by publishing official brand facts, safety standards, privacy information, download guidance, and educational content for university, polytechnic, and college students across Nigeria, South Africa, Kenya, Ghana, and higher education across the African continent for adults aged 18 and above.</p>
+      <p>Whether navigating residence life at UCT in Cape Town, commuter campuses in Lagos, student hostels in Nairobi, or hall culture in Kumasi, The College Date is built to reflect the authentic energy, humor, and lifestyle of African students.</p>`;
+  if (content.includes(missionTarget)) {
+    content = content.replace(missionTarget, missionReplacement);
+  }
+
+  // Clean footer links
+  const footerTarget = '<a href="/nigeria-dating-app">Nigeria dating app</a>';
+  if (content.includes(footerTarget)) {
+    content = content.replace(
+      '<p>Explore: <a href="/press">official brand facts</a> | <a href="/nigeria-dating-app">Nigeria dating app</a> | <a href="/dating-app-for-university-students-nigeria">dating app for university students</a> | <a href="/safe-dating-app-nigeria">safe dating app in Nigeria</a>.</p>',
+      '<p>Explore: <a href="/press">official brand facts</a> | <a href="/dating-app-in-nigeria">Nigeria dating app</a> | <a href="/student-dating-apps-africa">student dating apps Africa</a> | <a href="/dating-app-for-university-students-nigeria">dating app for university students</a> | <a href="/safe-dating-app-nigeria">safe dating app in Nigeria</a>.</p>'
+    );
+  }
+
+  writeFileSync(filePath, content, 'utf8');
+  console.log('  ✓ Updated public/about.html');
+}
+
+export function updateHowItWorksPage() {
+  console.log('Updating public/how-it-works.html...');
+  const filePath = join(root, 'public/how-it-works.html');
+  let content = readFileSync(filePath, 'utf8');
+
+  // Check if BreadcrumbList is already in graph
+  if (!content.includes('"@type": "BreadcrumbList"') && !content.includes('"@type":"BreadcrumbList"')) {
+    const breadcrumbJson = `,
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.thecollegedate.com/how-it-works#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.thecollegedate.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How It Works",
+          "item": "https://www.thecollegedate.com/how-it-works"
+        }
+      ]
+    }`;
+    content = content.replace(
+      /(\s*\{\s*"@type":\s*"HowTo"[\s\S]*?\})\s*\]\s*\}/,
+      `$1${breadcrumbJson}\n  ]\n}`
+    );
+  }
+
+  writeFileSync(filePath, content, 'utf8');
+  console.log('  ✓ Updated public/how-it-works.html');
+}
+
+export function expandDatingAppInNigeria() {
+  console.log('Expanding public/dating-app-in-nigeria.html into master national pillar...');
+  const filePath = join(root, 'public/dating-app-in-nigeria.html');
+
+  const html = `<!doctype html>
+<html lang="en-NG">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dating App in Nigeria for Safer Student Connections</title>
+  <meta name="description" content="Discover the leading dating app in Nigeria for university students. Safe campus discovery, verified profiles, anonymous confessions, and romance advice for Nigerian students." />
+  <meta name="author" content="The College Date Editorial Team" />
+  <link rel="canonical" href="https://www.thecollegedate.com/dating-app-in-nigeria" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Dating App in Nigeria for Safer Student Connections" />
+  <meta property="og:description" content="Discover the leading dating app in Nigeria for university students. Safe campus discovery, verified profiles, anonymous confessions, and romance advice for Nigerian students." />
+  <meta property="og:url" content="https://www.thecollegedate.com/dating-app-in-nigeria" />
+  <meta property="og:image" content="https://www.thecollegedate.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dating App in Nigeria for Safer Student Connections" />
+  <meta name="twitter:description" content="Discover the leading dating app in Nigeria for university students. Safe campus discovery, verified profiles, anonymous confessions, and romance advice for Nigerian students." />
+  <meta name="twitter:image" content="https://www.thecollegedate.com/og-image.png" />
+  <link rel="stylesheet" href="/seo-page.css" />
+  
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.thecollegedate.com/#organization",
+      "name": "The College Date",
+      "url": "https://www.thecollegedate.com/",
+      "logo": "https://www.thecollegedate.com/og-image.png",
+      "sameAs": [
+        "https://play.google.com/store/apps/details?id=com.collegedate.app",
+        "https://www.instagram.com/thecollegedate"
+      ]
+    },
+    {
+      "@type": "ImageObject",
+      "@id": "https://www.thecollegedate.com/dating-app-in-nigeria#primaryimage",
+      "url": "https://www.thecollegedate.com/og-image.png",
+      "contentUrl": "https://www.thecollegedate.com/og-image.png",
+      "caption": "Dating App in Nigeria - The College Date"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://www.thecollegedate.com/dating-app-in-nigeria#page",
+      "name": "Dating App in Nigeria for Safer Student Connections",
+      "headline": "Dating App in Nigeria for University and Tertiary Students",
+      "url": "https://www.thecollegedate.com/dating-app-in-nigeria",
+      "description": "Discover the leading dating app in Nigeria for university students. Safe campus discovery, verified profiles, anonymous confessions, and romance advice for Nigerian students.",
+      "image": {
+        "@id": "https://www.thecollegedate.com/dating-app-in-nigeria#primaryimage"
+      },
+      "isPartOf": {
+        "@id": "https://www.thecollegedate.com/#website"
+      },
+      "publisher": {
+        "@id": "https://www.thecollegedate.com/#organization"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "The College Date Editorial Team",
+        "url": "https://www.thecollegedate.com/about"
+      },
+      "datePublished": "2026-07-20",
+      "dateModified": "2026-09-15",
+      "mainEntityOfPage": "https://www.thecollegedate.com/dating-app-in-nigeria"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.thecollegedate.com/dating-app-in-nigeria#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.thecollegedate.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Dating App in Nigeria",
+          "item": "https://www.thecollegedate.com/dating-app-in-nigeria"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.thecollegedate.com/dating-app-in-nigeria#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the best dating app in Nigeria for students?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The College Date is specifically tailored for Nigerian university, polytechnic, and college students, featuring automated Vision AI photo verification, campus filters, and anonymous confessions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is The College Date free for Nigerian university students?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Students aged 18 and older can create a profile, discover peers across Nigerian campuses, match mutually, and chat completely free."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does The College Date prevent catfishing and scamming in Nigeria?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The platform screens profile photos using automated Vision AI to confirm authentic human portraits, restricts discovery to verified student communities, and provides immediate user reporting."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I send money or transport fare to someone I met on a dating app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Never send bank transfers, urgent allowances, or transport fare to online contacts before meeting safely in a public campus space. Genuine students will never demand money."
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+</head>
+<body>
+  <main>
+    <nav aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/dating-app-for-university-students-nigeria">University Dating</a>
+      <a href="/safety">Safety</a>
+      <a href="/student-dating-apps-africa">Pan-Africa Hub</a>
+      <a href="/download">Download</a>
+    </nav>
+
+    <p class="kicker">National Campus Dating Pillar</p>
+    <h1>Dating App in Nigeria for Safer Student Connections</h1>
+    <p class="lede">Navigating dating in Nigeria requires trust, discernment, and cultural awareness. For university, polytechnic, and college students, generic dating apps often bring more stress than connection. Discover how The College Date provides a dedicated, safe campus discovery platform across Nigerian institutions.</p>
+    <p class="muted">Published by The College Date Editorial Team on <time datetime="2026-07-20">2026-07-20</time>. Updated <time datetime="2026-09-15">2026-09-15</time>.</p>
+
+    <nav class="panel toc" aria-label="Table of contents">
+      <a href="#nigerian-campus-dating-realities">The Realities of Nigerian Campus Dating</a>
+      <a href="#why-generic-apps-fail-students">Why Mainstream Apps Fail Nigerian Students</a>
+      <a href="#how-the-college-date-protects-students">How The College Date Solves Campus Romance</a>
+      <a href="#safety-and-romance-scam-prevention">Safety, Romance Scams & Financial Protection</a>
+      <a href="#nigerian-university-spotlights">Campus Spotlights Across Nigeria</a>
+      <a href="#budget-friendly-dates-nigeria">Budget-Friendly Campus Date Ideas</a>
+    </nav>
+
+    <section class="panel" id="nigerian-campus-dating-realities">
+      <h2>The Realities of Nigerian Campus Dating</h2>
+      <p>Higher education in Nigeria is a fast-paced, high-energy world. From federal giants like the University of Lagos (UNILAG), University of Benin (UNIBEN), University of Ibadan (UI), Obafemi Awolowo University (OAU), Ahmadu Bello University (ABU), and University of Nigeria Nsukka (UNN), to state institutions like LASU and top private universities like Covenant and Babcock, students balance intense coursework with vibrant campus lifestyles.</p>
+      <p>Hostel life, off-campus accommodation (in areas like Akoka, Yaba, Ekosodin, or Agbowo), power outages, academic strikes, and student allowances shape how relationships form. Students need connection platforms that understand the realities of student schedules and financial boundaries.</p>
+    </section>
+
+    <section class="panel" id="why-generic-apps-fail-students">
+      <h2>Why Mainstream Apps Fail Nigerian Students</h2>
+      <p>While generic dating apps have millions of downloads in Nigeria, students frequently run into significant problems:</p>
+      <ul>
+        <li><strong>Commercial Exploitation & Material Demands:</strong> Open public platforms in Lagos, Abuja, and Port Harcourt are heavily populated by users seeking transactional arrangements, creating toxic financial pressure on young undergraduates.</li>
+        <li><strong>Prevalence of Catfishes and Bots:</strong> Fake celebrity photos, commercial promoters, and impersonators waste valuable study time.</li>
+        <li><strong>Expensive Monthly Paywalls:</strong> Subscriptions priced in foreign currencies drain student bank accounts.</li>
+        <li><strong>Lack of Academic Context:</strong> On generic apps, you have no way to filter by university, faculty, or student year.</li>
+      </ul>
+    </section>
+
+    <section class="panel" id="how-the-college-date-protects-students">
+      <h2>How The College Date Solves Campus Romance</h2>
+      <p>The College Date provides a dedicated, student-first platform designed specifically for Nigerian tertiary education:</p>
+      <ul>
+        <li><strong>Automated Vision AI Photo Screening:</strong> Every uploaded profile photo is screened to confirm an authentic single human portrait, weeding out cartoon avatars, stock images, and fake accounts.</li>
+        <li><strong>University & Faculty Affiliation:</strong> Students select their institution, faculty, and academic level during profile setup, making peer discovery effortless.</li>
+        <li><strong>Clear Relationship Intentions:</strong> Declare whether you want serious long-term romance, casual dating, or simply want to use the "Find Friends" intention for study partners.</li>
+        <li><strong>Campus Confessions & Anonymous Ask:</strong> Post anonymous confessions to your campus feed or share your personal <code>/ask/:username</code> link to WhatsApp Status to receive candid questions from classmates.</li>
+        <li><strong>Lightweight Android & Web App:</strong> Optimized for low data consumption across MTN, Airtel, Glo, and 9mobile networks.</li>
+      </ul>
+    </section>
+
+    <section class="panel" id="safety-and-romance-scam-prevention">
+      <h2>Safety, Romance Scams & Financial Protection</h2>
+      <p>Romance scams and financial exploitation are serious concerns in online dating. Protect yourself by following these non-negotiable rules:</p>
+      <ol>
+        <li><strong>Never Send Money Before Meeting:</strong> Do not send bank transfers, "urgent 2k," or transport fare to someone you have only spoken to online. Legitimate matches will respect your financial boundaries.</li>
+        <li><strong>Always Meet in Bustling Public Places:</strong> Choose well-lit, public campus locations—such as the UNILAG New Hall, UI Sub student centre, or campus eateries—during daylight hours. Never meet in private off-campus hostels on an initial date.</li>
+        <li><strong>Inform a Trusted Friend:</strong> Always tell your roommate or course friend who you are meeting, where you are going, and when you expect to return.</li>
+        <li><strong>Keep Early Chats In-App:</strong> Chat through The College Date before handing out your private WhatsApp number or phone contacts.</li>
+      </ol>
+    </section>
+
+    <section class="panel" id="nigerian-university-spotlights">
+      <h2>Campus Spotlights Across Nigeria</h2>
+      <p>The College Date connects students across all geo-political zones in Nigeria:</p>
+      <ul>
+        <li><strong>South-West:</strong> UNILAG, UI, OAU, FUTA, LASU, Covenant, Babcock. Explore our guide for <a href="/campus-dating-app-lagos">campus dating in Lagos</a>.</li>
+        <li><strong>South-South:</strong> UNIBEN, UNIPORT, DELSU, RSU.</li>
+        <li><strong>South-East:</strong> UNN, Nnamdi Azikiwe University (UNIZIK), FUTO.</li>
+        <li><strong>North:</strong> ABU Zaria, University of Abuja (UniAbuja), BUK Kano, University of Jos (Unijos).</li>
+      </ul>
+      <p>Part of our broader Pan-African network: explore our comprehensive guide to <a href="/student-dating-apps-africa">student dating apps in Africa</a>.</p>
+    </section>
+
+    <section class="panel" id="budget-friendly-dates-nigeria">
+      <h2>Budget-Friendly Campus Date Ideas in Nigeria</h2>
+      <p>A great date does not require spending half your monthly allowance:</p>
+      <ul>
+        <li><strong>Campus Cafe & Pastry Hangout:</strong> Grab meat pies, pastries, or cold drinks at the student union building between classes.</li>
+        <li><strong>Library Study Date:</strong> Meet to review lecture notes or prepare for midterms in the main university library, followed by an evening walk around the faculty quad.</li>
+        <li><strong>Campus Sports or Fellowship Events:</strong> Attend an inter-faculty football match or evening campus concert together.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Related Guides</h2>
+      <div class="related-grid">
+        <a href="/dating-app-for-university-students-nigeria">University Student Dating App</a>
+        <a href="/student-dating-apps-africa">Student Dating Apps Africa</a>
+        <a href="/safe-dating-app-nigeria">Safe Dating in Nigeria</a>
+        <a href="/serious-relationship-app-nigeria-students">Serious Relationships for Students</a>
+        <a href="/dating-as-a-fresher-nigeria">Dating as a Fresher</a>
+        <a href="/safety">Campus Safety Center</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Frequently Asked Questions</h2>
+      <h3>What is the best dating app in Nigeria for students?</h3>
+      <p>The College Date is specifically tailored for Nigerian university, polytechnic, and college students, featuring automated Vision AI photo verification, campus filters, and anonymous confessions.</p>
+      <h3>Is The College Date free for Nigerian university students?</h3>
+      <p>Yes. Students aged 18 and older can create a profile, discover peers across Nigerian campuses, match mutually, and chat completely free.</p>
+      <h3>How does The College Date prevent catfishing and scamming in Nigeria?</h3>
+      <p>The platform screens profile photos using automated Vision AI to confirm authentic human portraits, restricts discovery to verified student communities, and provides immediate user reporting.</p>
+      <h3>Should I send money or transport fare to someone I met on a dating app?</h3>
+      <p>No. Never send bank transfers, urgent allowances, or transport fare to online contacts before meeting safely in a public campus space. Genuine students will never demand money.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Join The College Date in Nigeria</h2>
+      <p>Download the official Android app or create your profile directly on the web to connect with verified students on your campus.</p>
+      <a class="cta" href="/signup">Join The College Date Free</a>
+    </section>
+
+    <footer>
+      <p>The College Date publishes student-first dating, safety, profile, conversation, and campus relationship guides. Read <a href="/privacy">Privacy</a>, <a href="/terms">Terms</a>, or contact <a href="/support">Support</a>.</p>
+    </footer>
+  </main>
+</body>
+</html>
+`;
+
+  writeFileSync(filePath, html, 'utf8');
+  console.log('  ✓ Expanded public/dating-app-in-nigeria.html');
+}
+
+export function runPillarsAndUpdates() {
+  updateAboutPage();
+  updateHowItWorksPage();
+  expandDatingAppInNigeria();
+}
+
+if (process.argv[1]?.endsWith('pillars-and-updates.mjs')) {
+  runPillarsAndUpdates();
+}

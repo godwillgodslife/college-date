@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
 import PublicHeader from '../../components/PublicHeader';
 import PublicFooter from '../../components/PublicFooter';
+import { CONSOLIDATED_301_REDIRECTS } from '../../constants/publicSeoRoutes';
 import './StaticPageViewer.css';
 
 /**
@@ -89,6 +90,11 @@ export default function StaticPageViewer({ explicitSlug }) {
   }, [content]);
 
   useEffect(() => {
+    if (CONSOLIDATED_301_REDIRECTS[slug]) {
+      navigate(CONSOLIDATED_301_REDIRECTS[slug], { replace: true });
+      return;
+    }
+
     let isMounted = true;
     setLoading(true);
     setError(null);
