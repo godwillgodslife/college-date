@@ -70,6 +70,19 @@ export const PUBLIC_SEO_SLUGS = [
   'best-dating-apps-for-students-south-africa',
   'how-to-meet-people-in-a-new-university',
   'student-dating-apps-africa',
+  // Wave 2 Expansion Pages (Regional Expansion & Student Intent)
+  'best-dating-apps-for-students-kenya',
+  'best-dating-apps-for-students-ghana',
+  'dating-apps-for-students-uganda',
+  'dating-apps-for-students-rwanda',
+  'how-to-ask-someone-out-in-university',
+  'dating-as-an-introvert-in-university',
+  'how-to-handle-ghosting-in-university',
+  'dating-someone-at-another-university',
+  'how-to-balance-dating-and-studies-in-university',
+  'how-to-spot-a-catfish-in-university',
+  'dating-in-final-year-of-university',
+  'university-hostel-dating-etiquette',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

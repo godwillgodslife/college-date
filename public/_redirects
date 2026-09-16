@@ -83,6 +83,18 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /best-dating-apps-for-students-south-africa.html  /best-dating-apps-for-students-south-africa  301!
 /how-to-meet-people-in-a-new-university.html  /how-to-meet-people-in-a-new-university  301!
 /student-dating-apps-africa.html  /student-dating-apps-africa  301!
+/best-dating-apps-for-students-kenya.html  /best-dating-apps-for-students-kenya  301!
+/best-dating-apps-for-students-ghana.html  /best-dating-apps-for-students-ghana  301!
+/dating-apps-for-students-uganda.html  /dating-apps-for-students-uganda  301!
+/dating-apps-for-students-rwanda.html  /dating-apps-for-students-rwanda  301!
+/how-to-ask-someone-out-in-university.html  /how-to-ask-someone-out-in-university  301!
+/dating-as-an-introvert-in-university.html  /dating-as-an-introvert-in-university  301!
+/how-to-handle-ghosting-in-university.html  /how-to-handle-ghosting-in-university  301!
+/dating-someone-at-another-university.html  /dating-someone-at-another-university  301!
+/how-to-balance-dating-and-studies-in-university.html  /how-to-balance-dating-and-studies-in-university  301!
+/how-to-spot-a-catfish-in-university.html  /how-to-spot-a-catfish-in-university  301!
+/dating-in-final-year-of-university.html  /dating-in-final-year-of-university  301!
+/university-hostel-dating-etiquette.html  /university-hostel-dating-etiquette  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -144,6 +156,18 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /best-dating-apps-for-students-south-africa  /best-dating-apps-for-students-south-africa.html  200
 /how-to-meet-people-in-a-new-university  /how-to-meet-people-in-a-new-university.html  200
 /student-dating-apps-africa  /student-dating-apps-africa.html  200
+/best-dating-apps-for-students-kenya  /best-dating-apps-for-students-kenya.html  200
+/best-dating-apps-for-students-ghana  /best-dating-apps-for-students-ghana.html  200
+/dating-apps-for-students-uganda  /dating-apps-for-students-uganda.html  200
+/dating-apps-for-students-rwanda  /dating-apps-for-students-rwanda.html  200
+/how-to-ask-someone-out-in-university  /how-to-ask-someone-out-in-university.html  200
+/dating-as-an-introvert-in-university  /dating-as-an-introvert-in-university.html  200
+/how-to-handle-ghosting-in-university  /how-to-handle-ghosting-in-university.html  200
+/dating-someone-at-another-university  /dating-someone-at-another-university.html  200
+/how-to-balance-dating-and-studies-in-university  /how-to-balance-dating-and-studies-in-university.html  200
+/how-to-spot-a-catfish-in-university  /how-to-spot-a-catfish-in-university.html  200
+/dating-in-final-year-of-university  /dating-in-final-year-of-university.html  200
+/university-hostel-dating-etiquette  /university-hostel-dating-etiquette.html  200
 
 # Known React application routes
 /login  /index.html  200

@@ -62,6 +62,19 @@ export const seoPages = [
   { path: '/best-dating-apps-for-students-south-africa', source: 'public/best-dating-apps-for-students-south-africa.html', changefreq: 'monthly', priority: '0.84' },
   { path: '/how-to-meet-people-in-a-new-university', source: 'public/how-to-meet-people-in-a-new-university.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/student-dating-apps-africa', source: 'public/student-dating-apps-africa.html', changefreq: 'monthly', priority: '0.88' },
+  // 12 Wave 2 Expansion Pages (Regional Expansion & Student Intent)
+  { path: '/best-dating-apps-for-students-kenya', source: 'public/best-dating-apps-for-students-kenya.html', changefreq: 'monthly', priority: '0.84' },
+  { path: '/best-dating-apps-for-students-ghana', source: 'public/best-dating-apps-for-students-ghana.html', changefreq: 'monthly', priority: '0.84' },
+  { path: '/dating-apps-for-students-uganda', source: 'public/dating-apps-for-students-uganda.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-apps-for-students-rwanda', source: 'public/dating-apps-for-students-rwanda.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/how-to-ask-someone-out-in-university', source: 'public/how-to-ask-someone-out-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-as-an-introvert-in-university', source: 'public/dating-as-an-introvert-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-handle-ghosting-in-university', source: 'public/how-to-handle-ghosting-in-university.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-someone-at-another-university', source: 'public/dating-someone-at-another-university.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/how-to-balance-dating-and-studies-in-university', source: 'public/how-to-balance-dating-and-studies-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-spot-a-catfish-in-university', source: 'public/how-to-spot-a-catfish-in-university.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-in-final-year-of-university', source: 'public/dating-in-final-year-of-university.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/university-hostel-dating-etiquette', source: 'public/university-hostel-dating-etiquette.html', changefreq: 'monthly', priority: '0.78' },
 ];
 
 export const appShellRoutes = [
