@@ -83,6 +83,16 @@ export const PUBLIC_SEO_SLUGS = [
   'how-to-spot-a-catfish-in-university',
   'dating-in-final-year-of-university',
   'university-hostel-dating-etiquette',
+  // Wave 3 Expansion Pages (Pan-African Expansion, Campus Scenarios & Low-Data Tech)
+  'best-dating-apps-for-students-uganda',
+  'dating-apps-for-students-tanzania',
+  'dating-apps-for-students-zambia',
+  'how-to-date-on-a-student-budget',
+  'how-to-keep-your-relationship-private-on-campus',
+  'how-to-handle-seeing-your-ex-on-campus',
+  'dating-a-senior-student-in-university',
+  'dating-in-a-campus-fellowship',
+  'low-data-dating-apps-for-students-africa',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

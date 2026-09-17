@@ -75,6 +75,16 @@ export const seoPages = [
   { path: '/how-to-spot-a-catfish-in-university', source: 'public/how-to-spot-a-catfish-in-university.html', changefreq: 'monthly', priority: '0.82' },
   { path: '/dating-in-final-year-of-university', source: 'public/dating-in-final-year-of-university.html', changefreq: 'monthly', priority: '0.78' },
   { path: '/university-hostel-dating-etiquette', source: 'public/university-hostel-dating-etiquette.html', changefreq: 'monthly', priority: '0.78' },
+  // 9 Wave 3 Expansion Pages (Pan-African Expansion, Campus Scenarios & Low-Data Tech)
+  { path: '/best-dating-apps-for-students-uganda', source: 'public/best-dating-apps-for-students-uganda.html', changefreq: 'monthly', priority: '0.84' },
+  { path: '/dating-apps-for-students-tanzania', source: 'public/dating-apps-for-students-tanzania.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-apps-for-students-zambia', source: 'public/dating-apps-for-students-zambia.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/how-to-date-on-a-student-budget', source: 'public/how-to-date-on-a-student-budget.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-keep-your-relationship-private-on-campus', source: 'public/how-to-keep-your-relationship-private-on-campus.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-handle-seeing-your-ex-on-campus', source: 'public/how-to-handle-seeing-your-ex-on-campus.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-a-senior-student-in-university', source: 'public/dating-a-senior-student-in-university.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-in-a-campus-fellowship', source: 'public/dating-in-a-campus-fellowship.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/low-data-dating-apps-for-students-africa', source: 'public/low-data-dating-apps-for-students-africa.html', changefreq: 'monthly', priority: '0.82' },
 ];
 
 export const appShellRoutes = [

@@ -95,6 +95,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /how-to-spot-a-catfish-in-university.html  /how-to-spot-a-catfish-in-university  301!
 /dating-in-final-year-of-university.html  /dating-in-final-year-of-university  301!
 /university-hostel-dating-etiquette.html  /university-hostel-dating-etiquette  301!
+/best-dating-apps-for-students-uganda.html  /best-dating-apps-for-students-uganda  301!
+/dating-apps-for-students-tanzania.html  /dating-apps-for-students-tanzania  301!
+/dating-apps-for-students-zambia.html  /dating-apps-for-students-zambia  301!
+/how-to-date-on-a-student-budget.html  /how-to-date-on-a-student-budget  301!
+/how-to-keep-your-relationship-private-on-campus.html  /how-to-keep-your-relationship-private-on-campus  301!
+/how-to-handle-seeing-your-ex-on-campus.html  /how-to-handle-seeing-your-ex-on-campus  301!
+/dating-a-senior-student-in-university.html  /dating-a-senior-student-in-university  301!
+/dating-in-a-campus-fellowship.html  /dating-in-a-campus-fellowship  301!
+/low-data-dating-apps-for-students-africa.html  /low-data-dating-apps-for-students-africa  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -168,6 +177,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /how-to-spot-a-catfish-in-university  /how-to-spot-a-catfish-in-university.html  200
 /dating-in-final-year-of-university  /dating-in-final-year-of-university.html  200
 /university-hostel-dating-etiquette  /university-hostel-dating-etiquette.html  200
+/best-dating-apps-for-students-uganda  /best-dating-apps-for-students-uganda.html  200
+/dating-apps-for-students-tanzania  /dating-apps-for-students-tanzania.html  200
+/dating-apps-for-students-zambia  /dating-apps-for-students-zambia.html  200
+/how-to-date-on-a-student-budget  /how-to-date-on-a-student-budget.html  200
+/how-to-keep-your-relationship-private-on-campus  /how-to-keep-your-relationship-private-on-campus.html  200
+/how-to-handle-seeing-your-ex-on-campus  /how-to-handle-seeing-your-ex-on-campus.html  200
+/dating-a-senior-student-in-university  /dating-a-senior-student-in-university.html  200
+/dating-in-a-campus-fellowship  /dating-in-a-campus-fellowship.html  200
+/low-data-dating-apps-for-students-africa  /low-data-dating-apps-for-students-africa.html  200
 
 # Known React application routes
 /login  /index.html  200
