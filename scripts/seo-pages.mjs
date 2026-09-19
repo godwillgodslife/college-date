@@ -96,6 +96,16 @@ export const seoPages = [
   { path: '/how-to-flirt-on-campus-respectfully', source: 'public/how-to-flirt-on-campus-respectfully.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/how-to-build-confidence-dating-in-university', source: 'public/how-to-build-confidence-dating-in-university.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/signs-you-are-ready-to-date-in-university', source: 'public/signs-you-are-ready-to-date-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  // 9 Wave 5 Expansion Pages (Faculty Dynamics, Digital Romance & Mauritius - 100-URL Milestone)
+  { path: '/dating-a-medical-student-in-university', source: 'public/dating-a-medical-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-a-law-student-in-university', source: 'public/dating-a-law-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/soft-launching-your-relationship-in-university', source: 'public/soft-launching-your-relationship-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-text-your-campus-crush', source: 'public/how-to-text-your-campus-crush.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/splitting-the-bill-on-campus-dates', source: 'public/splitting-the-bill-on-campus-dates.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-your-best-friend-in-university', source: 'public/dating-your-best-friend-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-during-university-strikes-and-holidays', source: 'public/dating-during-university-strikes-and-holidays.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/student-gift-ideas-on-a-budget', source: 'public/student-gift-ideas-on-a-budget.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-apps-for-students-mauritius', source: 'public/dating-apps-for-students-mauritius.html', changefreq: 'monthly', priority: '0.82' },
 ];
 
 export const appShellRoutes = [

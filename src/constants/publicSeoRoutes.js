@@ -104,6 +104,16 @@ export const PUBLIC_SEO_SLUGS = [
   'how-to-flirt-on-campus-respectfully',
   'how-to-build-confidence-dating-in-university',
   'signs-you-are-ready-to-date-in-university',
+  // Wave 5 Expansion Pages (Faculty Dynamics, Digital Romance & Mauritius - 100-URL Milestone)
+  'dating-a-medical-student-in-university',
+  'dating-a-law-student-in-university',
+  'soft-launching-your-relationship-in-university',
+  'how-to-text-your-campus-crush',
+  'splitting-the-bill-on-campus-dates',
+  'dating-your-best-friend-in-university',
+  'dating-during-university-strikes-and-holidays',
+  'student-gift-ideas-on-a-budget',
+  'dating-apps-for-students-mauritius',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

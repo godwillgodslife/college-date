@@ -114,6 +114,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /how-to-flirt-on-campus-respectfully.html  /how-to-flirt-on-campus-respectfully  301!
 /how-to-build-confidence-dating-in-university.html  /how-to-build-confidence-dating-in-university  301!
 /signs-you-are-ready-to-date-in-university.html  /signs-you-are-ready-to-date-in-university  301!
+/dating-a-medical-student-in-university.html  /dating-a-medical-student-in-university  301!
+/dating-a-law-student-in-university.html  /dating-a-law-student-in-university  301!
+/soft-launching-your-relationship-in-university.html  /soft-launching-your-relationship-in-university  301!
+/how-to-text-your-campus-crush.html  /how-to-text-your-campus-crush  301!
+/splitting-the-bill-on-campus-dates.html  /splitting-the-bill-on-campus-dates  301!
+/dating-your-best-friend-in-university.html  /dating-your-best-friend-in-university  301!
+/dating-during-university-strikes-and-holidays.html  /dating-during-university-strikes-and-holidays  301!
+/student-gift-ideas-on-a-budget.html  /student-gift-ideas-on-a-budget  301!
+/dating-apps-for-students-mauritius.html  /dating-apps-for-students-mauritius  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -206,6 +215,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /how-to-flirt-on-campus-respectfully  /how-to-flirt-on-campus-respectfully.html  200
 /how-to-build-confidence-dating-in-university  /how-to-build-confidence-dating-in-university.html  200
 /signs-you-are-ready-to-date-in-university  /signs-you-are-ready-to-date-in-university.html  200
+/dating-a-medical-student-in-university  /dating-a-medical-student-in-university.html  200
+/dating-a-law-student-in-university  /dating-a-law-student-in-university.html  200
+/soft-launching-your-relationship-in-university  /soft-launching-your-relationship-in-university.html  200
+/how-to-text-your-campus-crush  /how-to-text-your-campus-crush.html  200
+/splitting-the-bill-on-campus-dates  /splitting-the-bill-on-campus-dates.html  200
+/dating-your-best-friend-in-university  /dating-your-best-friend-in-university.html  200
+/dating-during-university-strikes-and-holidays  /dating-during-university-strikes-and-holidays.html  200
+/student-gift-ideas-on-a-budget  /student-gift-ideas-on-a-budget.html  200
+/dating-apps-for-students-mauritius  /dating-apps-for-students-mauritius.html  200
 
 # Known React application routes
 /login  /index.html  200
