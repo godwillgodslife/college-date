@@ -93,6 +93,17 @@ export const PUBLIC_SEO_SLUGS = [
   'dating-a-senior-student-in-university',
   'dating-in-a-campus-fellowship',
   'low-data-dating-apps-for-students-africa',
+  // Wave 4 Expansion Pages (SADC Expansion, Living & Relational Dynamics, Readiness)
+  'dating-apps-for-students-zimbabwe',
+  'dating-apps-for-students-botswana',
+  'dating-apps-for-students-namibia',
+  'dating-someone-who-is-not-a-student',
+  'dating-in-off-campus-student-accommodation',
+  'how-to-date-during-university-exams',
+  'how-to-handle-jealousy-in-university-relationships',
+  'how-to-flirt-on-campus-respectfully',
+  'how-to-build-confidence-dating-in-university',
+  'signs-you-are-ready-to-date-in-university',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

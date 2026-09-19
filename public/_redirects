@@ -104,6 +104,16 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-a-senior-student-in-university.html  /dating-a-senior-student-in-university  301!
 /dating-in-a-campus-fellowship.html  /dating-in-a-campus-fellowship  301!
 /low-data-dating-apps-for-students-africa.html  /low-data-dating-apps-for-students-africa  301!
+/dating-apps-for-students-zimbabwe.html  /dating-apps-for-students-zimbabwe  301!
+/dating-apps-for-students-botswana.html  /dating-apps-for-students-botswana  301!
+/dating-apps-for-students-namibia.html  /dating-apps-for-students-namibia  301!
+/dating-someone-who-is-not-a-student.html  /dating-someone-who-is-not-a-student  301!
+/dating-in-off-campus-student-accommodation.html  /dating-in-off-campus-student-accommodation  301!
+/how-to-date-during-university-exams.html  /how-to-date-during-university-exams  301!
+/how-to-handle-jealousy-in-university-relationships.html  /how-to-handle-jealousy-in-university-relationships  301!
+/how-to-flirt-on-campus-respectfully.html  /how-to-flirt-on-campus-respectfully  301!
+/how-to-build-confidence-dating-in-university.html  /how-to-build-confidence-dating-in-university  301!
+/signs-you-are-ready-to-date-in-university.html  /signs-you-are-ready-to-date-in-university  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -186,6 +196,16 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-a-senior-student-in-university  /dating-a-senior-student-in-university.html  200
 /dating-in-a-campus-fellowship  /dating-in-a-campus-fellowship.html  200
 /low-data-dating-apps-for-students-africa  /low-data-dating-apps-for-students-africa.html  200
+/dating-apps-for-students-zimbabwe  /dating-apps-for-students-zimbabwe.html  200
+/dating-apps-for-students-botswana  /dating-apps-for-students-botswana.html  200
+/dating-apps-for-students-namibia  /dating-apps-for-students-namibia.html  200
+/dating-someone-who-is-not-a-student  /dating-someone-who-is-not-a-student.html  200
+/dating-in-off-campus-student-accommodation  /dating-in-off-campus-student-accommodation.html  200
+/how-to-date-during-university-exams  /how-to-date-during-university-exams.html  200
+/how-to-handle-jealousy-in-university-relationships  /how-to-handle-jealousy-in-university-relationships.html  200
+/how-to-flirt-on-campus-respectfully  /how-to-flirt-on-campus-respectfully.html  200
+/how-to-build-confidence-dating-in-university  /how-to-build-confidence-dating-in-university.html  200
+/signs-you-are-ready-to-date-in-university  /signs-you-are-ready-to-date-in-university.html  200
 
 # Known React application routes
 /login  /index.html  200

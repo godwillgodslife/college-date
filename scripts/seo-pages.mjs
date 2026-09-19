@@ -85,6 +85,17 @@ export const seoPages = [
   { path: '/dating-a-senior-student-in-university', source: 'public/dating-a-senior-student-in-university.html', changefreq: 'monthly', priority: '0.78' },
   { path: '/dating-in-a-campus-fellowship', source: 'public/dating-in-a-campus-fellowship.html', changefreq: 'monthly', priority: '0.78' },
   { path: '/low-data-dating-apps-for-students-africa', source: 'public/low-data-dating-apps-for-students-africa.html', changefreq: 'monthly', priority: '0.82' },
+  // 10 Wave 4 Expansion Pages (SADC Expansion, Living & Relational Dynamics, Readiness)
+  { path: '/dating-apps-for-students-zimbabwe', source: 'public/dating-apps-for-students-zimbabwe.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-apps-for-students-botswana', source: 'public/dating-apps-for-students-botswana.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-apps-for-students-namibia', source: 'public/dating-apps-for-students-namibia.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-someone-who-is-not-a-student', source: 'public/dating-someone-who-is-not-a-student.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-in-off-campus-student-accommodation', source: 'public/dating-in-off-campus-student-accommodation.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/how-to-date-during-university-exams', source: 'public/how-to-date-during-university-exams.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-handle-jealousy-in-university-relationships', source: 'public/how-to-handle-jealousy-in-university-relationships.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/how-to-flirt-on-campus-respectfully', source: 'public/how-to-flirt-on-campus-respectfully.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-build-confidence-dating-in-university', source: 'public/how-to-build-confidence-dating-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/signs-you-are-ready-to-date-in-university', source: 'public/signs-you-are-ready-to-date-in-university.html', changefreq: 'monthly', priority: '0.8' },
 ];
 
 export const appShellRoutes = [
