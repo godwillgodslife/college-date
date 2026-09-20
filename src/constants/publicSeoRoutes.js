@@ -114,6 +114,15 @@ export const PUBLIC_SEO_SLUGS = [
   'dating-during-university-strikes-and-holidays',
   'student-gift-ideas-on-a-budget',
   'dating-apps-for-students-mauritius',
+  // Wave 6 Expansion Pages (Engineering, Working Students, Culture, Safety, Peer Pressure, Valentine, Ethiopia, Cameroon)
+  'dating-an-engineering-student-in-university',
+  'how-to-date-as-a-working-student',
+  'dating-across-different-cultures-in-university',
+  'campus-party-dating-safety-for-students',
+  'how-to-handle-peer-pressure-to-date-in-university',
+  'campus-valentine-ideas-for-students',
+  'dating-apps-for-students-ethiopia',
+  'dating-apps-for-students-cameroon',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

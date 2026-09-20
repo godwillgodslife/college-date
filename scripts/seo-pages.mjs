@@ -106,6 +106,15 @@ export const seoPages = [
   { path: '/dating-during-university-strikes-and-holidays', source: 'public/dating-during-university-strikes-and-holidays.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/student-gift-ideas-on-a-budget', source: 'public/student-gift-ideas-on-a-budget.html', changefreq: 'monthly', priority: '0.78' },
   { path: '/dating-apps-for-students-mauritius', source: 'public/dating-apps-for-students-mauritius.html', changefreq: 'monthly', priority: '0.82' },
+  // 8 Wave 6 Expansion Pages (Engineering, Working Students, Culture, Safety, Peer Pressure, Valentine, Ethiopia, Cameroon - 108 URLs)
+  { path: '/dating-an-engineering-student-in-university', source: 'public/dating-an-engineering-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-date-as-a-working-student', source: 'public/how-to-date-as-a-working-student.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-across-different-cultures-in-university', source: 'public/dating-across-different-cultures-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/campus-party-dating-safety-for-students', source: 'public/campus-party-dating-safety-for-students.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-handle-peer-pressure-to-date-in-university', source: 'public/how-to-handle-peer-pressure-to-date-in-university.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/campus-valentine-ideas-for-students', source: 'public/campus-valentine-ideas-for-students.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-apps-for-students-ethiopia', source: 'public/dating-apps-for-students-ethiopia.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/dating-apps-for-students-cameroon', source: 'public/dating-apps-for-students-cameroon.html', changefreq: 'monthly', priority: '0.82' },
 ];
 
 export const appShellRoutes = [
@@ -134,6 +143,10 @@ export const appShellRoutes = [
   '/mini-profile-setup',
   '/call/*',
   '/ask/*',
+  '/official',
+  '/official/*',
+  '/guides',
+  '/guides/*',
   '/admin',
   '/auth/callback',
   '/payment/callback',

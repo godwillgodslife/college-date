@@ -123,6 +123,14 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-during-university-strikes-and-holidays.html  /dating-during-university-strikes-and-holidays  301!
 /student-gift-ideas-on-a-budget.html  /student-gift-ideas-on-a-budget  301!
 /dating-apps-for-students-mauritius.html  /dating-apps-for-students-mauritius  301!
+/dating-an-engineering-student-in-university.html  /dating-an-engineering-student-in-university  301!
+/how-to-date-as-a-working-student.html  /how-to-date-as-a-working-student  301!
+/dating-across-different-cultures-in-university.html  /dating-across-different-cultures-in-university  301!
+/campus-party-dating-safety-for-students.html  /campus-party-dating-safety-for-students  301!
+/how-to-handle-peer-pressure-to-date-in-university.html  /how-to-handle-peer-pressure-to-date-in-university  301!
+/campus-valentine-ideas-for-students.html  /campus-valentine-ideas-for-students  301!
+/dating-apps-for-students-ethiopia.html  /dating-apps-for-students-ethiopia  301!
+/dating-apps-for-students-cameroon.html  /dating-apps-for-students-cameroon  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -224,6 +232,14 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-during-university-strikes-and-holidays  /dating-during-university-strikes-and-holidays.html  200
 /student-gift-ideas-on-a-budget  /student-gift-ideas-on-a-budget.html  200
 /dating-apps-for-students-mauritius  /dating-apps-for-students-mauritius.html  200
+/dating-an-engineering-student-in-university  /dating-an-engineering-student-in-university.html  200
+/how-to-date-as-a-working-student  /how-to-date-as-a-working-student.html  200
+/dating-across-different-cultures-in-university  /dating-across-different-cultures-in-university.html  200
+/campus-party-dating-safety-for-students  /campus-party-dating-safety-for-students.html  200
+/how-to-handle-peer-pressure-to-date-in-university  /how-to-handle-peer-pressure-to-date-in-university.html  200
+/campus-valentine-ideas-for-students  /campus-valentine-ideas-for-students.html  200
+/dating-apps-for-students-ethiopia  /dating-apps-for-students-ethiopia.html  200
+/dating-apps-for-students-cameroon  /dating-apps-for-students-cameroon.html  200
 
 # Known React application routes
 /login  /index.html  200
@@ -251,6 +267,10 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /mini-profile-setup  /index.html  200
 /call/*  /index.html  200
 /ask/*  /index.html  200
+/official  /index.html  200
+/official/*  /index.html  200
+/guides  /index.html  200
+/guides/*  /index.html  200
 /admin  /index.html  200
 /auth/callback  /index.html  200
 /payment/callback  /index.html  200
