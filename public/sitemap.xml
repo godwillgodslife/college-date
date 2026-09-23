@@ -68,19 +68,19 @@
   </url>
   <url>
     <loc>https://www.thecollegedate.com/privacy</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.45</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/terms</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.thecollegedate.com/delete-account</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
@@ -645,6 +645,48 @@
   <url>
     <loc>https://www.thecollegedate.com/dating-apps-for-students-cameroon</loc>
     <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-a-computer-science-student-in-university</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-as-a-postgraduate-student-in-university</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/how-to-handle-a-roommates-relationship-in-hostel</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-when-your-partner-has-more-money-in-university</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/dating-a-student-politician-or-campus-leader</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/should-you-post-your-partner-on-social-media-in-university</loc>
+    <lastmod>2026-09-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.thecollegedate.com/staying-together-after-university-graduation</loc>
+    <lastmod>2026-09-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>

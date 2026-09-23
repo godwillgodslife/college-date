@@ -123,6 +123,14 @@ export const PUBLIC_SEO_SLUGS = [
   'campus-valentine-ideas-for-students',
   'dating-apps-for-students-ethiopia',
   'dating-apps-for-students-cameroon',
+  // Wave 7 Expansion Pages (CS Majors, Postgrads, Hostel Roommates, Wealth Disparities, Campus Leaders, Social Media & Graduation)
+  'dating-a-computer-science-student-in-university',
+  'dating-as-a-postgraduate-student-in-university',
+  'how-to-handle-a-roommates-relationship-in-hostel',
+  'dating-when-your-partner-has-more-money-in-university',
+  'dating-a-student-politician-or-campus-leader',
+  'should-you-post-your-partner-on-social-media-in-university',
+  'staying-together-after-university-graduation',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

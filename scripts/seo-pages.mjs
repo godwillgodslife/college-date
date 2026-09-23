@@ -115,6 +115,14 @@ export const seoPages = [
   { path: '/campus-valentine-ideas-for-students', source: 'public/campus-valentine-ideas-for-students.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/dating-apps-for-students-ethiopia', source: 'public/dating-apps-for-students-ethiopia.html', changefreq: 'monthly', priority: '0.82' },
   { path: '/dating-apps-for-students-cameroon', source: 'public/dating-apps-for-students-cameroon.html', changefreq: 'monthly', priority: '0.82' },
+  // 7 Wave 7 Expansion Pages (CS Majors, Postgrads, Hostel Roommates, Wealth Disparities, Campus Leaders, Social Media & Graduation - 115 URLs)
+  { path: '/dating-a-computer-science-student-in-university', source: 'public/dating-a-computer-science-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-as-a-postgraduate-student-in-university', source: 'public/dating-as-a-postgraduate-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-handle-a-roommates-relationship-in-hostel', source: 'public/how-to-handle-a-roommates-relationship-in-hostel.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/dating-when-your-partner-has-more-money-in-university', source: 'public/dating-when-your-partner-has-more-money-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-a-student-politician-or-campus-leader', source: 'public/dating-a-student-politician-or-campus-leader.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/should-you-post-your-partner-on-social-media-in-university', source: 'public/should-you-post-your-partner-on-social-media-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/staying-together-after-university-graduation', source: 'public/staying-together-after-university-graduation.html', changefreq: 'monthly', priority: '0.82' },
 ];
 
 export const appShellRoutes = [

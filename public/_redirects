@@ -131,6 +131,13 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /campus-valentine-ideas-for-students.html  /campus-valentine-ideas-for-students  301!
 /dating-apps-for-students-ethiopia.html  /dating-apps-for-students-ethiopia  301!
 /dating-apps-for-students-cameroon.html  /dating-apps-for-students-cameroon  301!
+/dating-a-computer-science-student-in-university.html  /dating-a-computer-science-student-in-university  301!
+/dating-as-a-postgraduate-student-in-university.html  /dating-as-a-postgraduate-student-in-university  301!
+/how-to-handle-a-roommates-relationship-in-hostel.html  /how-to-handle-a-roommates-relationship-in-hostel  301!
+/dating-when-your-partner-has-more-money-in-university.html  /dating-when-your-partner-has-more-money-in-university  301!
+/dating-a-student-politician-or-campus-leader.html  /dating-a-student-politician-or-campus-leader  301!
+/should-you-post-your-partner-on-social-media-in-university.html  /should-you-post-your-partner-on-social-media-in-university  301!
+/staying-together-after-university-graduation.html  /staying-together-after-university-graduation  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -240,6 +247,13 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /campus-valentine-ideas-for-students  /campus-valentine-ideas-for-students.html  200
 /dating-apps-for-students-ethiopia  /dating-apps-for-students-ethiopia.html  200
 /dating-apps-for-students-cameroon  /dating-apps-for-students-cameroon.html  200
+/dating-a-computer-science-student-in-university  /dating-a-computer-science-student-in-university.html  200
+/dating-as-a-postgraduate-student-in-university  /dating-as-a-postgraduate-student-in-university.html  200
+/how-to-handle-a-roommates-relationship-in-hostel  /how-to-handle-a-roommates-relationship-in-hostel.html  200
+/dating-when-your-partner-has-more-money-in-university  /dating-when-your-partner-has-more-money-in-university.html  200
+/dating-a-student-politician-or-campus-leader  /dating-a-student-politician-or-campus-leader.html  200
+/should-you-post-your-partner-on-social-media-in-university  /should-you-post-your-partner-on-social-media-in-university.html  200
+/staying-together-after-university-graduation  /staying-together-after-university-graduation.html  200
 
 # Known React application routes
 /login  /index.html  200
