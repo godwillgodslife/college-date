@@ -131,6 +131,16 @@ export const PUBLIC_SEO_SLUGS = [
   'dating-a-student-politician-or-campus-leader',
   'should-you-post-your-partner-on-social-media-in-university',
   'staying-together-after-university-graduation',
+  // Wave 8 Expansion Pages (Interfaith, Family Pushback, Anxiety, Study Dates, Conflict, Boredom, Athletes, Creative Arts & Malawi)
+  'interfaith-dating-in-university',
+  'how-to-date-when-your-parents-disapprove-in-university',
+  'how-to-deal-with-relationship-anxiety-in-university',
+  'study-date-ideas-for-university-students',
+  'how-to-apologize-and-resolve-fights-in-campus-relationships',
+  'what-to-do-when-your-campus-relationship-feels-boring',
+  'dating-a-student-athlete-in-university',
+  'dating-a-creative-arts-student-in-university',
+  'dating-apps-for-students-malawi',
 ];
 
 export const PUBLIC_BLOG_SLUGS = [

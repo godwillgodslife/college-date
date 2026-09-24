@@ -123,6 +123,16 @@ export const seoPages = [
   { path: '/dating-a-student-politician-or-campus-leader', source: 'public/dating-a-student-politician-or-campus-leader.html', changefreq: 'monthly', priority: '0.78' },
   { path: '/should-you-post-your-partner-on-social-media-in-university', source: 'public/should-you-post-your-partner-on-social-media-in-university.html', changefreq: 'monthly', priority: '0.8' },
   { path: '/staying-together-after-university-graduation', source: 'public/staying-together-after-university-graduation.html', changefreq: 'monthly', priority: '0.82' },
+  // 9 Wave 8 Expansion Pages (Interfaith, Family Pushback, Anxiety, Study Dates, Conflict, Boredom, Athletes, Creative Arts & Malawi - 124 URLs)
+  { path: '/interfaith-dating-in-university', source: 'public/interfaith-dating-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-date-when-your-parents-disapprove-in-university', source: 'public/how-to-date-when-your-parents-disapprove-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/how-to-deal-with-relationship-anxiety-in-university', source: 'public/how-to-deal-with-relationship-anxiety-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/study-date-ideas-for-university-students', source: 'public/study-date-ideas-for-university-students.html', changefreq: 'monthly', priority: '0.82' },
+  { path: '/how-to-apologize-and-resolve-fights-in-campus-relationships', source: 'public/how-to-apologize-and-resolve-fights-in-campus-relationships.html', changefreq: 'monthly', priority: '0.78' },
+  { path: '/what-to-do-when-your-campus-relationship-feels-boring', source: 'public/what-to-do-when-your-campus-relationship-feels-boring.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-a-student-athlete-in-university', source: 'public/dating-a-student-athlete-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-a-creative-arts-student-in-university', source: 'public/dating-a-creative-arts-student-in-university.html', changefreq: 'monthly', priority: '0.8' },
+  { path: '/dating-apps-for-students-malawi', source: 'public/dating-apps-for-students-malawi.html', changefreq: 'monthly', priority: '0.82' },
 ];
 
 export const appShellRoutes = [

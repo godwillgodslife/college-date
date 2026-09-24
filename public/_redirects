@@ -138,6 +138,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-a-student-politician-or-campus-leader.html  /dating-a-student-politician-or-campus-leader  301!
 /should-you-post-your-partner-on-social-media-in-university.html  /should-you-post-your-partner-on-social-media-in-university  301!
 /staying-together-after-university-graduation.html  /staying-together-after-university-graduation  301!
+/interfaith-dating-in-university.html  /interfaith-dating-in-university  301!
+/how-to-date-when-your-parents-disapprove-in-university.html  /how-to-date-when-your-parents-disapprove-in-university  301!
+/how-to-deal-with-relationship-anxiety-in-university.html  /how-to-deal-with-relationship-anxiety-in-university  301!
+/study-date-ideas-for-university-students.html  /study-date-ideas-for-university-students  301!
+/how-to-apologize-and-resolve-fights-in-campus-relationships.html  /how-to-apologize-and-resolve-fights-in-campus-relationships  301!
+/what-to-do-when-your-campus-relationship-feels-boring.html  /what-to-do-when-your-campus-relationship-feels-boring  301!
+/dating-a-student-athlete-in-university.html  /dating-a-student-athlete-in-university  301!
+/dating-a-creative-arts-student-in-university.html  /dating-a-creative-arts-student-in-university  301!
+/dating-apps-for-students-malawi.html  /dating-apps-for-students-malawi  301!
 
 # Static SEO page rewrites for canonical extensionless URLs
 /how-it-works  /how-it-works.html  200
@@ -254,6 +263,15 @@ http://www.thecollegedate.com/*  https://www.thecollegedate.com/:splat  301!
 /dating-a-student-politician-or-campus-leader  /dating-a-student-politician-or-campus-leader.html  200
 /should-you-post-your-partner-on-social-media-in-university  /should-you-post-your-partner-on-social-media-in-university.html  200
 /staying-together-after-university-graduation  /staying-together-after-university-graduation.html  200
+/interfaith-dating-in-university  /interfaith-dating-in-university.html  200
+/how-to-date-when-your-parents-disapprove-in-university  /how-to-date-when-your-parents-disapprove-in-university.html  200
+/how-to-deal-with-relationship-anxiety-in-university  /how-to-deal-with-relationship-anxiety-in-university.html  200
+/study-date-ideas-for-university-students  /study-date-ideas-for-university-students.html  200
+/how-to-apologize-and-resolve-fights-in-campus-relationships  /how-to-apologize-and-resolve-fights-in-campus-relationships.html  200
+/what-to-do-when-your-campus-relationship-feels-boring  /what-to-do-when-your-campus-relationship-feels-boring.html  200
+/dating-a-student-athlete-in-university  /dating-a-student-athlete-in-university.html  200
+/dating-a-creative-arts-student-in-university  /dating-a-creative-arts-student-in-university.html  200
+/dating-apps-for-students-malawi  /dating-apps-for-students-malawi.html  200
 
 # Known React application routes
 /login  /index.html  200
