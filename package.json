@@ -1,7 +1,7 @@
 {
   "name": "cd2-0",
   "private": true,
-  "version": "2.2.31",
+  "version": "2.2.63",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "payment:remediation:test": "node scripts/payment-remediation-tests.mjs",
+    "test:swipe": "node --test test/swipe-lifecycle.test.mjs",
+    "test:referral": "node --test test/referral-code.test.mjs test/referral-migration-static.test.mjs",
+    "test:official": "node --test test/official-posts.test.mjs",
+    "test:features": "node --test test/score-streak-and-chat-edit.test.mjs test/campus-finder.test.mjs test/active-program.test.mjs test/requests-discovery.test.mjs test/notification-system-2.test.mjs test/chat-input-and-keyboard.test.mjs test/app-update-management.test.mjs test/policy-acceptance.test.mjs test/admin-data-accuracy.test.mjs test/android-ux-optimizations.test.mjs test/seo-expansion-100.test.mjs",
+    "test:policy": "node --test test/policy-acceptance.test.mjs",
+    "test:all": "npm run test:swipe && npm run test:referral && npm run test:official && npm run test:features",
     "cap:dist": "npm run build && npx cap copy",
     "cap:sync": "npx cap sync",
     "android:clean-assets": "node scripts/clean-android-assets.mjs",
@@ -26,6 +32,8 @@
     "seo:generate": "node scripts/generate-sitemap.mjs && node scripts/generate-netlify-seo.mjs"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
+    "@aparajita/capacitor-secure-storage": "^8.0.0",
     "@capacitor/android": "^8.1.0",
     "@capacitor/app": "^8.1.0",
     "@capacitor/browser": "^8.0.3",
