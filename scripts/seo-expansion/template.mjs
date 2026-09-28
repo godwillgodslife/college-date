@@ -103,6 +103,29 @@ export function renderSeoPage({
         },
       },
       {
+        '@type': 'Article',
+        '@id': `${canonicalUrl}#article`,
+        isPartOf: {
+          '@id': `${canonicalUrl}#webpage`,
+        },
+        headline: h1,
+        description: description,
+        inLanguage: lang,
+        mainEntityOfPage: canonicalUrl,
+        datePublished: date,
+        dateModified: date,
+        author: {
+          '@type': 'Organization',
+          name: 'The College Date Editorial Team',
+        },
+        publisher: {
+          '@id': 'https://www.thecollegedate.com/#organization',
+        },
+        image: {
+          '@id': `${canonicalUrl}#primaryimage`,
+        },
+      },
+      {
         '@type': 'BreadcrumbList',
         '@id': `${canonicalUrl}#breadcrumb`,
         itemListElement: [

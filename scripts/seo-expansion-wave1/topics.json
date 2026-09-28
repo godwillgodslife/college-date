@@ -1,0 +1,802 @@
+[
+  {
+    "num": 101,
+    "title": "How to Date When Squatting in a University Hostel",
+    "slug": "dating-when-squatting-in-a-university-hostel",
+    "keywords": "squatting in campus hostel dating, university hostel squatters relationship",
+    "intent": "Practical",
+    "hook": "Match with verified peers who respect your living situation."
+  },
+  {
+    "num": 102,
+    "title": "The Unwritten Roommate Code for Bringing Dates to the Hostel",
+    "slug": "unwritten-roommate-code-bringing-dates-hostel",
+    "keywords": "roommate rules bringing boyfriend hostel, campus hostel guest rules",
+    "intent": "Relational",
+    "hook": "Plan respectful daytime campus dates outside crowded rooms."
+  },
+  {
+    "num": 103,
+    "title": "Handling Hostel Porter Curfews When on an Evening Date",
+    "slug": "handling-hostel-porter-curfews-evening-dates",
+    "keywords": "university hostel curfew hours, hall porter late return dating",
+    "intent": "Scenario",
+    "hook": "Discover safe daytime meeting spots with verified students."
+  },
+  {
+    "num": 104,
+    "title": "Dating Someone Living in the Rival Hall of Residence",
+    "slug": "dating-someone-in-a-rival-hall-of-residence",
+    "keywords": "rival hall dating university, inter hall rivalry campus romance",
+    "intent": "Cultural",
+    "hook": "Connect across hall rivalries based on shared passions."
+  },
+  {
+    "num": 105,
+    "title": "Managing Public Hostel PDA and Hall Balcony Gossip",
+    "slug": "managing-public-hostel-pda-and-hall-balcony-gossip",
+    "keywords": "hostel balcony gossip university, public affection campus halls",
+    "intent": "Social",
+    "hook": "Keep your dating life private and secure on The College Date."
+  },
+  {
+    "num": 106,
+    "title": "How to Handle Late-Night Walk-Backs to Female Hostels",
+    "slug": "safe-late-night-walk-backs-to-female-hostels",
+    "keywords": "walking girlfriend to hostel night, campus security night walk",
+    "intent": "Safety",
+    "hook": "Verified student network with built-in location check-ins."
+  },
+  {
+    "num": 107,
+    "title": "Hall Week Celebrations: Surviving the Temptations and Drama",
+    "slug": "surviving-hall-week-celebrations-in-a-relationship",
+    "keywords": "hall week party dating drama, campus hall carnival relationship",
+    "intent": "Relational",
+    "hook": "Meet loyal, high-character students across faculties."
+  },
+  {
+    "num": 108,
+    "title": "Surviving a Messy Roommate Who Hates Your Partner",
+    "slug": "when-your-roommate-dislikes-your-campus-partner",
+    "keywords": "roommate hates my boyfriend university, hostel roommate relationship tension",
+    "intent": "Relational",
+    "hook": "Find private off-campus study lounges and date activities."
+  },
+  {
+    "num": 109,
+    "title": "Private Off-Campus Hostels vs School Halls: Dating Pros and Cons",
+    "slug": "private-off-campus-hostels-vs-school-halls-dating",
+    "keywords": "off campus hostel dating vs hall, student accommodation romance",
+    "intent": "Lifestyle",
+    "hook": "Filter matches by hostel type and residential location."
+  },
+  {
+    "num": 110,
+    "title": "How to Cook for Two in a Hostel Room Without Causing Conflict",
+    "slug": "cooking-for-two-in-a-hostel-room-rules",
+    "keywords": "cooking for date in hostel, hot plate rules student couples",
+    "intent": "Practical",
+    "hook": "Explore affordable campus cafes and food hubs together."
+  },
+  {
+    "num": 111,
+    "title": "Managing Personal Hygiene and Grooming in Crowded Campus Hostels",
+    "slug": "grooming-and-hygiene-for-dates-in-crowded-hostels",
+    "keywords": "student hostel hygiene dating, looking good for campus date",
+    "intent": "Lifestyle",
+    "hook": "Authentic student profiles with zero filtered illusions."
+  },
+  {
+    "num": 112,
+    "title": "When Your Date Stays Over Without Prior Roommate Consent",
+    "slug": "unexpected-sleepovers-in-shared-hostel-rooms-etiquette",
+    "keywords": "boyfriend sleeping over shared room, hostel sleepover etiquette",
+    "intent": "Etiquette",
+    "hook": "Establish mature boundaries with thoughtful student peers."
+  },
+  {
+    "num": 113,
+    "title": "Laundry Day Dates: Turning Hostel Chores into Quality Time",
+    "slug": "turning-hostel-laundry-days-into-quality-dates",
+    "keywords": "laundry date college, doing chores together campus romance",
+    "intent": "Creative",
+    "hook": "Discover simple, grounded date ideas on The College Date."
+  },
+  {
+    "num": 114,
+    "title": "Surviving Generator Cut-Off Hours and Darkness with Your Date",
+    "slug": "surviving-campus-blackouts-and-generator-hours-dating",
+    "keywords": "generator off hostel dating, campus light out date ideas",
+    "intent": "Scenario",
+    "hook": "Connect through lightweight in-app voice notes and stickers."
+  },
+  {
+    "num": 115,
+    "title": "Dealing with Nosy Hostel Wardens and Security Spotlights",
+    "slug": "dealing-with-nosy-hostel-wardens-and-inspectors",
+    "keywords": "hostel warden inspection dating, campus security questioning couples",
+    "intent": "Safety",
+    "hook": "Meet verified students in accredited, safe campus locations."
+  },
+  {
+    "num": 116,
+    "title": "The Art of Subtlety: Discreet Dating in Shared Campus Lodges",
+    "slug": "discreet-dating-in-shared-student-lodges",
+    "keywords": "keeping relationship lowkey campus, private dating student lodge",
+    "intent": "Privacy",
+    "hook": "Enjoy anonymous asks and private verified messaging."
+  },
+  {
+    "num": 117,
+    "title": "When Your Partner Lives Far Away in a Remote Off-Campus Village",
+    "slug": "dating-partner-living-in-remote-off-campus-village",
+    "keywords": "remote off campus dating distance, transport to partner lodge",
+    "intent": "Logistics",
+    "hook": "Filter matches by distance radius and faculty convenience."
+  },
+  {
+    "num": 118,
+    "title": "Bathroom Etiquette and Morning Realities in Campus Lodges",
+    "slug": "bathroom-etiquette-and-morning-routines-lodge-dating",
+    "keywords": "shared bathroom lodge dating, morning etiquette campus couples",
+    "intent": "Practical",
+    "hook": "Real conversations with emotionally mature students."
+  },
+  {
+    "num": 119,
+    "title": "Navigating Quiet Hours and Noise Complaints When Hosting Dates",
+    "slug": "quiet-hours-and-noise-complaints-hosting-campus-dates",
+    "keywords": "student lodge quiet hours, noise complaint hostel date",
+    "intent": "Respect",
+    "hook": "Clear communication standards for considerate dating."
+  },
+  {
+    "num": 120,
+    "title": "How to Bow Out Gracefully When a Hostel Relationship Ends",
+    "slug": "how-to-coexist-in-the-same-hostel-after-a-breakup",
+    "keywords": "seeing ex in same hostel every day, breaking up hostel neighbor",
+    "intent": "Healing",
+    "hook": "Discover fresh social circles and verified campus connections."
+  },
+  {
+    "num": 121,
+    "title": "Dating an Engineering Student: Handling Busy Workshop Schedules",
+    "slug": "dating-an-engineering-student-handling-busy-schedules",
+    "keywords": "dating engineering student college, engineering boyfriend busy",
+    "intent": "Academic",
+    "hook": "Filter matches by faculty and sync schedules seamlessly."
+  },
+  {
+    "num": 122,
+    "title": "Dating a Medical or Nursing Student: Surviving Clinical Rotations",
+    "slug": "dating-medical-nursing-student-clinical-rotations",
+    "keywords": "dating medical student university, clinical postings relationship",
+    "intent": "Relational",
+    "hook": "Connect with healthcare peers who understand shift demands."
+  },
+  {
+    "num": 123,
+    "title": "The Law Student and Creative Arts Matchup: Order Meets Chaos",
+    "slug": "dating-between-law-students-and-creative-arts-majors",
+    "keywords": "law student dating theatre arts, opposites attract campus",
+    "intent": "Cultural",
+    "hook": "Discover complementary matches through personality prompts."
+  },
+  {
+    "num": 124,
+    "title": "Dating Within Your Own Department: Should You Date a Coursemate?",
+    "slug": "should-you-date-a-coursemate-in-the-same-department",
+    "keywords": "dating coursemate pros cons, dating in same department university",
+    "intent": "Strategic",
+    "hook": "State relationship intentions clearly before class drama."
+  },
+  {
+    "num": 125,
+    "title": "The Computer Science & Tech-Bro Partner: Balancing Code and Care",
+    "slug": "dating-a-computer-science-tech-student-in-university",
+    "keywords": "dating tech bro university, computer science boyfriend dating",
+    "intent": "Lifestyle",
+    "hook": "Find verified tech and creative students in your campus hub."
+  },
+  {
+    "num": 126,
+    "title": "When One Partner Has Exams and the Other Is Already on Break",
+    "slug": "when-one-partner-has-exams-and-the-other-is-on-break",
+    "keywords": "different exam timetables couples, holiday break relationship gap",
+    "intent": "Logistics",
+    "hook": "Keep romance alive with lightweight voice notes and gifts."
+  },
+  {
+    "num": 127,
+    "title": "Architecture Students and the Studio Life: Romance Around Deadlines",
+    "slug": "dating-an-architecture-student-studio-deadlines",
+    "keywords": "dating architecture student, architecture studio relationship",
+    "intent": "Academic",
+    "hook": "Supportive partner tools for high-workload departments."
+  },
+  {
+    "num": 128,
+    "title": "Science Faculty vs Arts Faculty: Bridging the Cultural Divide",
+    "slug": "dating-across-science-and-humanities-faculties",
+    "keywords": "science student dating arts student, faculty differences romance",
+    "intent": "Relational",
+    "hook": "Explore shared hobbies beyond lecture hall boundaries."
+  },
+  {
+    "num": 129,
+    "title": "Dating Someone in Accounting or Finance During ICAN Diets",
+    "slug": "dating-accounting-student-during-professional-exams",
+    "keywords": "dating accounting student ican, professional exam diet relationship",
+    "intent": "Career",
+    "hook": "Connect with ambitious career-driven tertiary peers."
+  },
+  {
+    "num": 130,
+    "title": "Mass Communication Majors: Managing Public Profiles and Romance",
+    "slug": "dating-a-mass-communication-student-campus-visibility",
+    "keywords": "mass comm student dating, high visibility campus partner",
+    "intent": "Social",
+    "hook": "Safe, verified profiles for students with high public visibility."
+  },
+  {
+    "num": 131,
+    "title": "When Your Partner’s Faculty Is on the Other Side of Town",
+    "slug": "dating-across-distant-satellite-faculties",
+    "keywords": "distant campus faculties dating, inter campus shuttle romance",
+    "intent": "Logistics",
+    "hook": "Use radius discovery to find matches along your shuttle route."
+  },
+  {
+    "num": 132,
+    "title": "Departmental Association Politics: Running for Office as a Couple",
+    "slug": "running-for-departmental-executive-office-as-a-couple",
+    "keywords": "couple running for SUG office, student association politics dating",
+    "intent": "Social",
+    "hook": "Build partnership grounded in mutual respect and integrity."
+  },
+  {
+    "num": 133,
+    "title": "The Pharmacy Student’s Heavy Lab Manuals: Making Time for Dates",
+    "slug": "dating-a-pharmacy-student-heavy-lab-demands",
+    "keywords": "pharmacy student dating schedule, laboratory practicals romance",
+    "intent": "Academic",
+    "hook": "Low-stress study date scheduling on The College Date."
+  },
+  {
+    "num": 134,
+    "title": "Dating an Agriculture Major: Field Work, Farm Practical’s & Love",
+    "slug": "dating-an-agriculture-student-field-practical-demands",
+    "keywords": "agriculture student dating, farm practical relationship campus",
+    "intent": "Niche",
+    "hook": "Embrace authentic student realities across all disciplines."
+  },
+  {
+    "num": 135,
+    "title": "When Coursemates Know Everything About Your Relationship",
+    "slug": "how-to-manage-coursemate-gossip-when-dating-in-class",
+    "keywords": "coursemates gossiping about relationship, class relationship rumors",
+    "intent": "Privacy",
+    "hook": "Keep private chats and verified interactions secure."
+  },
+  {
+    "num": 136,
+    "title": "Balancing Joint Study Groups Without Flirting the Whole Time",
+    "slug": "how-to-run-productive-study-groups-with-your-campus-date",
+    "keywords": "study group with crush university, productive studying with boyfriend",
+    "intent": "Academic",
+    "hook": "Pair up with academically serious students who raise your CGPA."
+  },
+  {
+    "num": 137,
+    "title": "Competing for the Same Departmental Award or Scholarship",
+    "slug": "competing-against-your-partner-for-academic-honors",
+    "keywords": "competing with boyfriend for top grade, academic rivalry couples",
+    "intent": "Psychological",
+    "hook": "Encourage mutual growth without petty academic rivalry."
+  },
+  {
+    "num": 138,
+    "title": "Dating Someone Whose Timetable Completely Clashes with Yours",
+    "slug": "how-to-date-when-your-lecture-timetables-completely-clash",
+    "keywords": "conflicting timetables university dating, opposite class schedules",
+    "intent": "Practical",
+    "hook": "Use async voice notes and status moments to stay close."
+  },
+  {
+    "num": 139,
+    "title": "What to Do When Your Departmental Advisor Discourages Dating",
+    "slug": "handling-departmental-advisors-warning-against-romance",
+    "keywords": "academic advisor relationship advice, lecturer warning about dating",
+    "intent": "Ethics",
+    "hook": "Maintain high academic standing while enjoying healthy love."
+  },
+  {
+    "num": 140,
+    "title": "The Post-Lecture Hangout: Best 15-Minute Micro-Dates Between Classes",
+    "slug": "best-15-minute-micro-dates-between-lectures-on-campus",
+    "keywords": "quick date ideas between classes, micro dates campus quad",
+    "intent": "Creative",
+    "hook": "Discover verified campus peers ready for quick quad coffee."
+  },
+  {
+    "num": 141,
+    "title": "Dating Within Campus Fellowships: The \"Sister/Brother\" Grey Zone",
+    "slug": "dating-within-campus-fellowships-navigating-faith-codes",
+    "keywords": "campus fellowship dating rules, dating in university church",
+    "intent": "Spiritual",
+    "hook": "Filter matches by personal faith values and relationship goals."
+  },
+  {
+    "num": 142,
+    "title": "Navigating Purity Culture, Celibacy & Boundaries in University",
+    "slug": "purity-culture-and-celibacy-boundaries-in-university",
+    "keywords": "celibacy in university dating, waiting until marriage campus",
+    "intent": "Values",
+    "hook": "Find verified singles who respect your physical boundaries."
+  },
+  {
+    "num": 143,
+    "title": "Interfaith Campus Dating: Christian-Muslim Relationships in College",
+    "slug": "interfaith-dating-in-african-tertiary-institutions",
+    "keywords": "christian muslim campus dating, interfaith college romance",
+    "intent": "Cultural",
+    "hook": "Connect with open-minded, respectful students across campuses."
+  },
+  {
+    "num": 144,
+    "title": "When Fellowship Leaders Interfere in Your Personal Dating Life",
+    "slug": "when-campus-fellowship-executives-interfere-in-dating",
+    "keywords": "church leader questioning relationship university, fellowship dating audit",
+    "intent": "Boundaries",
+    "hook": "Maintain personal autonomy while honoring your convictions."
+  },
+  {
+    "num": 145,
+    "title": "Managing Moral Guilt After Compromising Personal Values",
+    "slug": "navigating-moral-guilt-and-relationship-boundaries-on-campus",
+    "keywords": "feeling guilty after physical intimacy college, moral conflict dating",
+    "intent": "Healing",
+    "hook": "A supportive, non-judgmental space for wholesome connection."
+  },
+  {
+    "num": 146,
+    "title": "Dating an Executive in Campus Ministry: Scrutiny and Expectations",
+    "slug": "dating-a-campus-fellowship-executive-managing-scrutiny",
+    "keywords": "dating fellowship president, campus ministry executive romance",
+    "intent": "Social",
+    "hook": "Build sincere connection away from performative expectations."
+  },
+  {
+    "num": 147,
+    "title": "Unequally Yoked on Campus: Dating Someone Less Spiritual Than You",
+    "slug": "dating-someone-with-different-spiritual-commitment-in-college",
+    "keywords": "unequally yoked college dating, partner not spiritual university",
+    "intent": "Values",
+    "hook": "State spiritual convictions upfront in bio value tags."
+  },
+  {
+    "num": 148,
+    "title": "Attending Different Denominational Services Without Fighting",
+    "slug": "attending-different-campus-churches-as-a-student-couple",
+    "keywords": "different churches college couple, denominational differences dating",
+    "intent": "Relational",
+    "hook": "Discover mature partners who value mutual spiritual growth."
+  },
+  {
+    "num": 149,
+    "title": "Fasting and Prayer Weeks: How to Support Your Partner Spiritually",
+    "slug": "supporting-your-partner-during-campus-prayer-and-fasting-weeks",
+    "keywords": "couples fasting together college, spiritual support relationship",
+    "intent": "Spiritual",
+    "hook": "Encourage and uplift your partner through life's seasons."
+  },
+  {
+    "num": 150,
+    "title": "Breaking Up with Someone Because of Incompatible Faith Values",
+    "slug": "ending-a-campus-relationship-over-spiritual-incompatibility",
+    "keywords": "breaking up over religion university, faith incompatibility breakup",
+    "intent": "Decision",
+    "hook": "Find intentional partners aligned with your core vision."
+  },
+  {
+    "num": 151,
+    "title": "Navigating Night Vigils as Cheap Dates: The Right Intentions",
+    "slug": "attending-campus-night-vigils-together-spiritual-etiquette",
+    "keywords": "night vigil couples campus, going to church with date university",
+    "intent": "Etiquette",
+    "hook": "Experience authentic romance with sincere transparency."
+  },
+  {
+    "num": 152,
+    "title": "Secret Campus Romance: Hiding Dating from Strict Religious Circles",
+    "slug": "hiding-your-relationship-from-strict-religious-circles-campus",
+    "keywords": "secret relationship religious campus, hiding boyfriend church",
+    "intent": "Discretion",
+    "hook": "Verified profile controls and privacy settings on The College Date."
+  },
+  {
+    "num": 153,
+    "title": "Handling Unsolicited Spiritual \"Revelations\" About Your Crush",
+    "slug": "handling-unsolicited-prophecies-about-your-campus-crush",
+    "keywords": "god told me you are my wife campus, spiritual manipulation dating",
+    "intent": "Safety",
+    "hook": "Protect yourself against manipulation with grounded tools."
+  },
+  {
+    "num": 154,
+    "title": "Balancing Spiritual Service Deadlines and Romantic Quality Time",
+    "slug": "balancing-fellowship-commitments-and-dating-time-in-college",
+    "keywords": "church rehearsals vs relationship time, ministry balance dating",
+    "intent": "Practical",
+    "hook": "Schedule intentional quality time with understanding peers."
+  },
+  {
+    "num": 155,
+    "title": "When One Partner Loses Faith in University: Navigating Deconstruction",
+    "slug": "when-your-campus-partner-starts-questioning-their-faith",
+    "keywords": "partner deconstructing faith college, religious change relationship",
+    "intent": "Compassion",
+    "hook": "Foster empathetic conversations with emotionally mature partners."
+  },
+  {
+    "num": 156,
+    "title": "The Pressure to Get Engaged Right After Campus Graduation",
+    "slug": "the-pressure-to-get-engaged-after-final-year-fellowship",
+    "keywords": "fellowship marriage pressure graduation, marrying campus partner",
+    "intent": "Future",
+    "hook": "Build lasting connection grounded in verified mutual readiness."
+  },
+  {
+    "num": 157,
+    "title": "Muslim Student Society (MSSN) Dating Etiquette & Halal Courting",
+    "slug": "halal-dating-and-courting-etiquette-in-african-universities",
+    "keywords": "halal campus dating, muslim student romance etiquette",
+    "intent": "Cultural",
+    "hook": "Respectful, values-aligned courting tools on The College Date."
+  },
+  {
+    "num": 158,
+    "title": "Dealing with Parental Religious Objections to Your Campus Match",
+    "slug": "handling-parental-religious-objections-to-your-campus-partner",
+    "keywords": "parents reject boyfriend religion, religious background dating conflict",
+    "intent": "Family",
+    "hook": "Navigate complex family dynamics with emotional clarity."
+  },
+  {
+    "num": 159,
+    "title": "Romantic Gifts That Respect Religious Convictions on Campus",
+    "slug": "thoughtful-gifts-for-spiritual-partners-in-university",
+    "keywords": "gifts for christian boyfriend college, faith friendly date gifts",
+    "intent": "Creative",
+    "hook": "Send digital and verified campus gifts with confidence."
+  },
+  {
+    "num": 160,
+    "title": "Rebuilding Self-Esteem After Spiritual Shaming in Campus Romance",
+    "slug": "healing-from-spiritual-shaming-in-campus-relationships",
+    "keywords": "church shaming after breakup, spiritual abuse campus dating",
+    "intent": "Healing",
+    "hook": "A safe, respectful platform where every student is valued."
+  },
+  {
+    "num": 161,
+    "title": "How to Keep Love Alive During Indefinite Academic Strikes",
+    "slug": "how-to-keep-relationship-alive-during-asuu-strikes",
+    "keywords": "asuu strike relationship survival, long strike dating college",
+    "intent": "Resilience",
+    "hook": "Stay connected through lightweight audio messages and updates."
+  },
+  {
+    "num": 162,
+    "title": "Relocating Back to Strict Parents During Strikes: Dating Boundary Rules",
+    "slug": "relocating-to-strict-parents-during-university-strikes",
+    "keywords": "moving back home strike dating, strict parents long distance boyfriend",
+    "intent": "Boundaries",
+    "hook": "Maintain romantic intimacy while respecting family boundaries."
+  },
+  {
+    "num": 163,
+    "title": "When One Partner Starts Working While Waiting for Strikes to End",
+    "slug": "when-partner-starts-working-during-campus-strike",
+    "keywords": "boyfriend working during strike, career gap strike relationship",
+    "intent": "Empathy",
+    "hook": "Connect with ambitious students balancing work and study."
+  },
+  {
+    "num": 164,
+    "title": "Financial Strain on Student Couples Caused by Extended School Halts",
+    "slug": "financial-strain-on-student-couples-during-academic-strikes",
+    "keywords": "money issues strike university couples, broke during asuu strike",
+    "intent": "Practical",
+    "hook": "Explore low-cost communication and mutual budgeting."
+  },
+  {
+    "num": 165,
+    "title": "Virtual Date Ideas for Campus Couples Separated by School Shutdowns",
+    "slug": "virtual-date-ideas-for-campus-couples-during-strikes",
+    "keywords": "online dates during strike, long distance campus date ideas",
+    "intent": "Creative",
+    "hook": "Interactive prompt games and sticker reactions on The College Date."
+  },
+  {
+    "num": 166,
+    "title": "Managing Jealousy When Your Partner Is in a Different City on Break",
+    "slug": "managing-jealousy-during-strike-relocations",
+    "keywords": "jealousy long distance strike, partner hanging out back home",
+    "intent": "Trust",
+    "hook": "Transparent profile verification builds authentic trust."
+  },
+  {
+    "num": 167,
+    "title": "The \"Strike Breakup\" Phenomenon: Why So Many Campus Couples Split",
+    "slug": "why-campus-couples-break-up-during-academic-strikes",
+    "keywords": "why relationships end during strike, strike breakup reasons",
+    "intent": "Analysis",
+    "hook": "Identify intentional partners with strong commitment values."
+  },
+  {
+    "num": 168,
+    "title": "Traveling Across State Lines to Visit Your Campus Partner During Strikes",
+    "slug": "travel-safety-rules-visiting-partner-during-strikes",
+    "keywords": "traveling to see boyfriend strike, interstate travel dating student",
+    "intent": "Safety",
+    "hook": "Verified student travel tips and emergency location safety."
+  },
+  {
+    "num": 169,
+    "title": "What to Do When Your Partner Considers Dropping Out During Strikes",
+    "slug": "when-your-partner-wants-to-drop-out-during-strikes",
+    "keywords": "partner dropping out university strike, academic frustration dating",
+    "intent": "Support",
+    "hook": "Encourage constructive decision-making with mature peers."
+  },
+  {
+    "num": 170,
+    "title": "Resuming Classes After a 6-Month Strike: Reconnecting Emotionally",
+    "slug": "reconnecting-emotionally-after-classes-resume-post-strike",
+    "keywords": "seeing boyfriend after strike resumed, post strike awkwardness",
+    "intent": "Relational",
+    "hook": "Rediscover campus chemistry with fresh date ideas."
+  },
+  {
+    "num": 171,
+    "title": "Staying Loyal When Old High School Exes Reappear Back Home",
+    "slug": "resisting-hometown-temptations-during-campus-strikes",
+    "keywords": "ex reaching out during strike, hometown temptations relationship",
+    "intent": "Loyalty",
+    "hook": "Build unbreakable loyalty with clear relationship intent."
+  },
+  {
+    "num": 172,
+    "title": "Balancing Skill Acquisition Bootcamps and Relationship Time on Strike",
+    "slug": "balancing-tech-bootcamps-and-relationship-during-strikes",
+    "keywords": "learning tech during strike relationship, coding bootcamp dating",
+    "intent": "Productive",
+    "hook": "Match with driven student techies and creatives."
+  },
+  {
+    "num": 173,
+    "title": "Coping with Strike-Induced Mental Fatigue in Your Relationship",
+    "slug": "coping-with-strike-induced-mental-fatigue-together",
+    "keywords": "strike depression relationship university, bored frustrated campus couple",
+    "intent": "Mental Health",
+    "hook": "Supportive student community with anonymous ask outlets."
+  },
+  {
+    "num": 174,
+    "title": "When One Goes to a Private University That Never Strikes",
+    "slug": "dating-between-federal-and-private-university-students-strikes",
+    "keywords": "federal uni dating private uni strike, private university girlfriend strike",
+    "intent": "Cultural",
+    "hook": "Bridge institutional timing gaps with genuine affection."
+  },
+  {
+    "num": 175,
+    "title": "The Shared Netflix and WhatsApp Call Routine: Avoiding Monotony",
+    "slug": "avoiding-video-call-burnout-during-long-distance-strikes",
+    "keywords": "tired of phone calls long distance, virtual dating routine tips",
+    "intent": "Tactical",
+    "hook": "Engage in fun conversation sparkers on The College Date."
+  },
+  {
+    "num": 176,
+    "title": "Setting Financial Expectations for Strike Visits",
+    "slug": "budgeting-for-visitation-travel-during-university-strikes",
+    "keywords": "paying for bus ticket visit boyfriend, who pays travel visit strike",
+    "intent": "Financial",
+    "hook": "Open financial communication tools for modern students."
+  },
+  {
+    "num": 177,
+    "title": "How to Prevent Gossip When You Hang Out in Your Partner's Hometown",
+    "slug": "visiting-partners-hometown-without-family-gossip",
+    "keywords": "visiting boyfriend house hometown, meeting parents during strike",
+    "intent": "Etiquette",
+    "hook": "Graceful social boundary strategies for young couples."
+  },
+  {
+    "num": 178,
+    "title": "Keeping the Physical Spark Alive Across Months of Distance",
+    "slug": "maintaining-intimacy-safely-during-strike-distance",
+    "keywords": "keeping spark alive long distance, intimacy without physical touch",
+    "intent": "Intimacy",
+    "hook": "Thoughtful romantic expression tools that protect privacy."
+  },
+  {
+    "num": 179,
+    "title": "Making Joint Plans for When Resumption Is Finally Announced",
+    "slug": "planning-your-campus-reunion-after-strike-resumption",
+    "keywords": "strike called off reunion dating, moving back to campus couple",
+    "intent": "Excitement",
+    "hook": "Plan campus reunions and celebrate milestones together."
+  },
+  {
+    "num": 180,
+    "title": "When You Graduate Late Because of Strikes: Managing Age Anxiety",
+    "slug": "managing-graduation-delays-and-dating-age-anxiety",
+    "keywords": "aging in university strike dating, delayed graduation relationship",
+    "intent": "Mindset",
+    "hook": "Connect with mature peers who value substance over rush."
+  },
+  {
+    "num": 181,
+    "title": "The \"Camp Romance\" Reality: Do NYSC Camp Relationships Last?",
+    "slug": "do-nysc-orientation-camp-relationships-last",
+    "keywords": "nysc camp romance, corper relationship survival after camp",
+    "intent": "Reality Check",
+    "hook": "Connect with verified corpers and students with long-term intent."
+  },
+  {
+    "num": 182,
+    "title": "When Your Campus Partner Gets Posted to a Different State for NYSC",
+    "slug": "when-your-campus-partner-is-posted-to-a-different-state",
+    "keywords": "partner posted different state nysc, handling nysc distance",
+    "intent": "Relational",
+    "hook": "Filter matches across states or stay connected in-app."
+  },
+  {
+    "num": 183,
+    "title": "Managing the Financial Reality of the Corper \"Alawee\" in Dating",
+    "slug": "dating-on-the-corper-alawee-stipend-budget",
+    "keywords": "dating on nysc allowance, corper alawee budget date",
+    "intent": "Financial",
+    "hook": "Affordable date spots and budget-friendly romantic ideas."
+  },
+  {
+    "num": 184,
+    "title": "Dating as a Corper in a Rural Primary Place of Assignment (PPA)",
+    "slug": "dating-as-a-youth-corper-in-a-rural-ppa",
+    "keywords": "dating in rural village nysc, corper social life in village",
+    "intent": "Lifestyle",
+    "hook": "Expand your social network with verified regional peers."
+  },
+  {
+    "num": 185,
+    "title": "When One Partner Graduates and the Other Still Has Extra Years",
+    "slug": "when-one-partner-graduates-and-one-is-left-behind",
+    "keywords": "boyfriend graduated still in school, finalist dating underclassman",
+    "intent": "Transition",
+    "hook": "Navigate academic stage differences with clear communication."
+  },
+  {
+    "num": 186,
+    "title": "The Fear of White Shorts: Camp Cheating and Loyalty Tests",
+    "slug": "overcoming-fear-of-infidelity-during-nysc-camp",
+    "keywords": "cheating in nysc camp, partner going to nysc camp anxiety",
+    "intent": "Trust",
+    "hook": "Build authentic trust grounded in verified character."
+  },
+  {
+    "num": 187,
+    "title": "Dating a Fellow Youth Corper vs Dating a Local in Your PPA Community",
+    "slug": "dating-a-fellow-corper-vs-dating-a-local-resident",
+    "keywords": "corper dating corper vs community member, ppa relationship",
+    "intent": "Cultural",
+    "hook": "Discover verified educated peers wherever you are posted."
+  },
+  {
+    "num": 188,
+    "title": "Ghosting After Passing Out Parade (POP): How to Avoid the Cut",
+    "slug": "avoiding-post-nysc-pop-breakups-and-ghosting",
+    "keywords": "breakup after pop nysc, relationship ending after passing out",
+    "intent": "Closure",
+    "hook": "Match with partners committed to intentional futures."
+  },
+  {
+    "num": 189,
+    "title": "Handling Job-Hunting Stress as a Fresh Graduate in a Relationship",
+    "slug": "handling-job-hunt-stress-as-a-fresh-graduate-couple",
+    "keywords": "unemployed graduate relationship stress, job hunting dating",
+    "intent": "Career",
+    "hook": "Supportive peer environment for aspiring young professionals."
+  },
+  {
+    "num": 190,
+    "title": "Surviving the PPA Principal or Employer Inappropriate Advances",
+    "slug": "handling-inappropriate-advances-from-ppa-employers",
+    "keywords": "ppa boss asking corper out, workplace harassment nysc",
+    "intent": "Safety",
+    "hook": "Strict protective standards and anonymous safety advice."
+  },
+  {
+    "num": 191,
+    "title": "Managing NYSC Redeployment and Relocation for Relationship Reasons",
+    "slug": "redeployment-and-relocation-for-couples-during-nysc",
+    "keywords": "nysc relocation because of marriage, redeploying near boyfriend",
+    "intent": "Practical",
+    "hook": "Plan location coordination with flexible discovery filters."
+  },
+  {
+    "num": 192,
+    "title": "Moving to Big Cities (Lagos/Abuja) for Post-NYSC Jobs Together",
+    "slug": "moving-to-lagos-or-abuja-as-a-young-graduate-couple",
+    "keywords": "young couple moving to lagos, post nysc relocation couples",
+    "intent": "Relocation",
+    "hook": "Discover vibrant city-level student and alumni communities."
+  },
+  {
+    "num": 193,
+    "title": "When Your Partner Gets a Job First and the Dynamic Shifts",
+    "slug": "when-one-partner-gets-a-job-first-after-graduation",
+    "keywords": "girlfriend earning more after graduation, partner got job first",
+    "intent": "Psychology",
+    "hook": "Foster mutual pride and celebrate individual milestones."
+  },
+  {
+    "num": 194,
+    "title": "The CDS (Community Development Service) Day Flirtations",
+    "slug": "navigating-nysc-cds-day-social-circles-and-flirting",
+    "keywords": "cds day flirting nysc, meeting corpers at weekly cds",
+    "intent": "Social",
+    "hook": "Safe, verified peer discovery for national service corps."
+  },
+  {
+    "num": 195,
+    "title": "Breaking the News to Family: Transitioning Campus Dating to Marriage",
+    "slug": "transitioning-from-campus-dating-to-formal-courtship",
+    "keywords": "introducing campus boyfriend to parents after nysc, serious dating",
+    "intent": "Commitment",
+    "hook": "Find partners ready for serious, transparent commitment."
+  },
+  {
+    "num": 196,
+    "title": "Dating an Ex-Corper While You Are Still an Undergraduate",
+    "slug": "dating-an-ex-corper-while-still-in-university",
+    "keywords": "dating graduate while in 300 level, age and stage difference",
+    "intent": "Relational",
+    "hook": "Bridge the student-graduate gap with maturity."
+  },
+  {
+    "num": 197,
+    "title": "Long-Distance Video Call Habits During 3-Week NYSC Orientation",
+    "slug": "communication-rules-during-the-3-week-nysc-orientation",
+    "keywords": "calling partner during nysc camp, phone rules nysc camp",
+    "intent": "Communication",
+    "hook": "Quick voice messages and status moments for busy drills."
+  },
+  {
+    "num": 198,
+    "title": "Managing the Post-Graduation Friendship and Romance Vacuum",
+    "slug": "dealing-with-post-graduation-loneliness-and-isolation",
+    "keywords": "lonely after leaving university, lost friends after graduation",
+    "intent": "Emotional",
+    "hook": "Make verified friends and romantic connections on The College Date."
+  },
+  {
+    "num": 199,
+    "title": "Balancing NYSC Savings, Rent in a New City, and Romance",
+    "slug": "budgeting-for-first-apartment-and-romance-post-nysc",
+    "keywords": "rent after nysc dating, young graduate financial planning",
+    "intent": "Financial",
+    "hook": "Transparent, realistic lifestyle conversations."
+  },
+  {
+    "num": 200,
+    "title": "The 1-Year Post-NYSC Rule: How to Know If You Should Stay Together",
+    "slug": "how-to-know-if-your-campus-relationship-survived-nysc",
+    "keywords": "1 year after graduation relationship check, did we survive nysc",
+    "intent": "Evaluation",
+    "hook": "Evaluate relationship health with objective compatibility metrics."
+  }
+]
