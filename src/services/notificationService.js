@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { hasActivePremium } from '../utils/premium';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const BASE_SETTINGS_FIELDS = [
@@ -23,7 +24,11 @@ const EXTENDED_SETTINGS_FIELDS = [
     'quiet_hours_enabled',
     'quiet_hours_start',
     'quiet_hours_end',
-    'marketing_notifications'
+    'marketing_notifications',
+    'is_premium',
+    'plan_type',
+    'status',
+    'premium_expires_at'
 ];
 const LOCAL_PREFERENCE_FIELDS = new Set([
     'message_notifications',
@@ -133,6 +138,44 @@ export async function markAllNotificationsAsRead(userId) {
         return { error: null };
     } catch (error) {
         console.error('Error marking all as read:', error);
+        return { error: error.message };
+    }
+}
+
+// Delete a single notification
+export async function deleteNotification(notificationId) {
+    try {
+        const { error } = await supabase
+            .from('notifications')
+            .delete()
+            .eq('id', notificationId);
+
+        if (error) throw error;
+        return { error: null };
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        return { error: error.message };
+    }
+}
+
+// Dismiss / delete all call notifications for a user/match
+export async function deleteCallNotifications(userId, matchOrCallId = null) {
+    try {
+        let query = supabase
+            .from('notifications')
+            .delete()
+            .eq('user_id', userId)
+            .eq('type', 'call');
+
+        if (matchOrCallId) {
+            query = query.or(`match_id.eq.${matchOrCallId},entity_id.eq.${matchOrCallId}`);
+        }
+
+        const { error } = await query;
+        if (error) throw error;
+        return { error: null };
+    } catch (error) {
+        console.error('Error deleting call notifications:', error);
         return { error: error.message };
     }
 }
@@ -288,15 +331,29 @@ function shouldSendExternalNotification(settings, category, type, priority) {
     return true;
 }
 
-function getExternalNotificationCopy(settings, category, title, content) {
-    if (category !== 'messages' || settings?.message_previews_enabled !== false) {
-        return { title, content };
+function getExternalNotificationCopy(settings, category, type, title, content) {
+    if (category === 'messages') {
+        if (settings?.message_previews_enabled === false) {
+            return {
+                title: 'New message',
+                content: 'Open The College Date to view this message.'
+            };
+        }
+        if (!hasActivePremium(settings)) {
+            return {
+                title: 'New message 💬',
+                content: 'Someone sent you a message on The College Date. Tap to chat!'
+            };
+        }
+    }
+    if (category === 'requests' && !hasActivePremium(settings)) {
+        return {
+            title: 'New Connection Request 💌',
+            content: 'Someone wants to connect with you on The College Date. Tap to review!'
+        };
     }
 
-    return {
-        title: 'New message',
-        content: 'Open The College Date to view this message.'
-    };
+    return { title, content };
 }
 
 function getAbsoluteWebUrl(path) {
@@ -323,7 +380,8 @@ export async function createNotification({
     deepLink = null,
     priority,
     groupKey = null,
-    dedupeKey = null
+    dedupeKey = null,
+    suppressPush = false
 }) {
     console.log('[NotificationService] Creating notification for:', userId, 'Type:', type);
     
@@ -382,18 +440,23 @@ export async function createNotification({
             type,
             effectivePriority
         );
-        const externalCopy = getExternalNotificationCopy(settings, effectiveCategory, title, content);
+        const externalCopy = getExternalNotificationCopy(settings, effectiveCategory, type, title, content);
 
         if (!shouldSendExternally) {
             return { error: null };
         }
 
-        if (settings?.email_notifications) {
-            await sendEmailNotification(userId, externalCopy.title, externalCopy.content);
+        if (settings?.email_notifications && !suppressPush) {
+            await sendEmailNotification(userId, externalCopy.title, externalCopy.content, {
+                title: externalCopy.title,
+                actionUrl,
+                type,
+                metadata
+            });
         }
 
         // 3. Trigger Push Notification (OneSignal)
-        if (settings?.push_notifications) {
+        if (settings?.push_notifications && !suppressPush) {
             const pushTargetState = await getActivePushTargets(userId);
             const legacyTarget = settings.onesignal_id && !pushTargetState.blockedTargets.includes(settings.onesignal_id)
                 ? settings.onesignal_id
@@ -401,13 +464,24 @@ export async function createNotification({
             const pushTargets = pushTargetState.activeTargets.length > 0
                 ? pushTargetState.activeTargets
                 : [legacyTarget].filter(Boolean);
-            const externalUserIds = pushTargets.length > 0 || pushTargetState.deviceRegistryAvailable
+            
+            // Robust target resolution: If pushTargets is empty, use externalUserIds so OneSignal delivers to user's external ID
+            const externalUserIds = pushTargets.length > 0
                 ? []
                 : [userId];
 
             if (pushTargets.length === 0 && externalUserIds.length === 0) {
                 return { error: null };
             }
+
+            const isAnonymousInteraction = Boolean(
+                metadata?.is_anonymous ||
+                type === 'confession' ||
+                (type === 'snapshot_reaction' && !actorId) ||
+                !actorId
+            );
+            const safeActorAvatar = isAnonymousInteraction ? null : (metadata.actor_avatar_url || metadata.avatar_url || null);
+            const safeImageUrl = isAnonymousInteraction ? null : (metadata.image_url || safeActorAvatar || null);
 
             await sendPushNotification({
                 subscriptionIds: pushTargets,
@@ -425,8 +499,8 @@ export async function createNotification({
                     collapse_id: effectiveDedupeKey || undefined,
                     url: effectiveDeepLink || enrichedMetadata.url,
                     web_url: getAbsoluteWebUrl(effectiveDeepLink || enrichedMetadata.url),
-                    actor_avatar_url: metadata.actor_avatar_url || metadata.avatar_url,
-                    image_url: metadata.image_url || metadata.actor_avatar_url || metadata.avatar_url
+                    actor_avatar_url: safeActorAvatar,
+                    image_url: safeImageUrl
                 }
             });
         }
@@ -440,11 +514,18 @@ export async function createNotification({
 }
 
 // Helper to trigger email via Edge Function
-async function sendEmailNotification(userId, subject, body) {
+async function sendEmailNotification(userId, subject, body, options = {}) {
     try {
-        // We call a Supabase Edge Function that handles the actual SMTP/SendGrid logic
         const { error } = await supabase.functions.invoke('send-notification-email', {
-            body: { userId, subject, body }
+            body: {
+                userId,
+                subject,
+                body,
+                title: options.title || subject,
+                actionUrl: options.actionUrl,
+                type: options.type,
+                metadata: options.metadata
+            }
         });
         if (error) console.error('Edge function email trigger failed:', error);
     } catch (err) {
@@ -467,6 +548,29 @@ async function sendPushNotification({ subscriptionIds = [], externalUserIds = []
         if (error) console.error('Edge function push trigger failed:', error);
     } catch (err) {
         console.warn('Silent push failure:', err.message);
+    }
+}
+
+// Helper to trigger Termii SMS via Edge Function
+export async function sendSmsNotification({ userId, phoneNumber, message, senderId }) {
+    if (!message) return { error: 'Message content is required' };
+    try {
+        const { data, error } = await supabase.functions.invoke('send-notification-sms', {
+            body: {
+                userId,
+                phoneNumber,
+                message,
+                senderId
+            }
+        });
+        if (error) {
+            console.error('[NotificationService] SMS trigger failed:', error);
+            return { success: false, error: error.message };
+        }
+        return { success: true, data };
+    } catch (err) {
+        console.warn('[NotificationService] Silent SMS failure:', err.message);
+        return { success: false, error: err.message };
     }
 }
 

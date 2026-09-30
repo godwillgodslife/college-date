@@ -3,13 +3,35 @@ import { createNotification } from './notificationService';
 
 export const PAYSTACK_PRODUCTS = Object.freeze({
     premiumMonthly: 'premium_monthly',
+    premium3Month: 'premium_3month',
+    premiumAnnual: 'premium_annual',
+    superSwipe: 'super_swipe',
+    boost24h: '24h_boost',
     walletTopUps: Object.freeze({
-        2000: 'wallet_2000',
+        1000: 'wallet_1000',
+        2500: 'wallet_2500',
         5000: 'wallet_5000',
         10000: 'wallet_10000',
+        2000: 'wallet_2000',
         20000: 'wallet_20000'
     })
 });
+
+/**
+ * Detect if running natively (Android/iOS)
+ */
+export const isNative = () => {
+    return typeof window !== 'undefined' &&
+        window.Capacitor !== undefined &&
+        window.Capacitor.isNativePlatform();
+};
+
+export const getNativePlatform = () => {
+    if (!isNative()) return 'web';
+    return typeof window.Capacitor.getPlatform === 'function'
+        ? window.Capacitor.getPlatform()
+        : 'native';
+};
 
 /**
  * Get the current user's wallet
@@ -113,6 +135,22 @@ export async function completeTransaction(transactionId, status, reference, meta
                 content: 'Your account has been upgraded to Premium. Enjoy your new features!',
                 metadata: { reference, url: '/settings' }
             }).catch(e => console.warn('Silent payment notification fail:', e));
+        } else if (verifiedTx?.product_type === 'boost') {
+            createNotification({
+                userId: metadata.user_id,
+                type: 'payment',
+                title: '24h Boost Activated!',
+                content: 'Your profile visibility is boosted for 24 hours!',
+                metadata: { reference, url: '/premium' }
+            }).catch(e => console.warn('Silent boost notification fail:', e));
+        } else if (verifiedTx?.product_type === 'consumable' || verifiedTx?.product_id === 'super_swipe') {
+            createNotification({
+                userId: metadata.user_id,
+                type: 'payment',
+                title: 'Super Swipe Added!',
+                content: '1 Super Swipe credit has been added to your account.',
+                metadata: { reference, url: '/match' }
+            }).catch(e => console.warn('Silent super swipe notification fail:', e));
         }
 
         return { data: verifiedTx, error: null };
@@ -125,11 +163,11 @@ export async function completeTransaction(transactionId, status, reference, meta
 /**
  * Pay for a service (subscription/boost) using wallet balance
  */
-export async function payWithWallet(userId, amount, type, description) {
+export async function payWithWallet(userId, amount, type, description, productId = PAYSTACK_PRODUCTS.premiumMonthly) {
     try {
         if (type === 'subscription') {
             const { data, error } = await supabase.rpc('purchase_premium_with_wallet', {
-                p_product_id: PAYSTACK_PRODUCTS.premiumMonthly
+                p_product_id: productId
             });
 
             if (error) throw error;
@@ -212,10 +250,11 @@ export async function getSubscription(userId) {
 /**
  * Initialize Paystack Payment
  */
-export async function startPaystackPayment(productId) {
+export async function startPaystackPayment(productId, options = {}) {
     try {
+        const platform = options.platform || (isNative() ? 'android' : 'web');
         const { data, error } = await supabase.functions.invoke('initialize-paystack-payment', {
-            body: { productId }
+            body: { productId, platform }
         });
 
         if (error) throw error;
@@ -248,9 +287,32 @@ export async function verifyPaystackPayment(reference) {
     }
 }
 
-export function openHostedPaystackCheckout(payment) {
+export async function openHostedPaystackCheckout(payment, options = {}) {
     if (!payment?.authorizationUrl) {
         throw new Error('Missing Paystack authorization URL.');
+    }
+
+    if (isNative()) {
+        try {
+            const { Browser } = await import('@capacitor/browser');
+            let finishedListener = null;
+
+            if (typeof options.onClose === 'function') {
+                finishedListener = await Browser.addListener('browserFinished', () => {
+                    if (finishedListener) finishedListener.remove();
+                    options.onClose();
+                });
+            }
+
+            await Browser.open({
+                url: payment.authorizationUrl,
+                presentationStyle: 'popover',
+                toolbarColor: '#0f172a'
+            });
+            return;
+        } catch (nativeBrowserError) {
+            console.warn('[Paystack] Capacitor Browser error, falling back to location assign:', nativeBrowserError);
+        }
     }
 
     window.location.assign(payment.authorizationUrl);
@@ -390,10 +452,8 @@ export async function verifyAndRestorePremium() {
         });
 
         if (error) throw error;
-
-        // The edge function returns { restored: bool, message: string }
         return { data, error: null };
-} catch (err) {
+    } catch (err) {
         console.error('verifyAndRestorePremium error:', err);
         return { data: null, error: err.message };
     }
@@ -402,22 +462,6 @@ export async function verifyAndRestorePremium() {
 // ─────────────────────────────────────────────
 // REVENUECAT (GOOGLE PLAY BILLING FOR NATIVE)
 // ─────────────────────────────────────────────
-
-/**
- * Detect if running natively (Android/iOS)
- */
-const isNative = () => {
-    return typeof window !== 'undefined' &&
-        window.Capacitor !== undefined &&
-        window.Capacitor.isNativePlatform();
-};
-
-const getNativePlatform = () => {
-    if (!isNative()) return 'web';
-    return typeof window.Capacitor.getPlatform === 'function'
-        ? window.Capacitor.getPlatform()
-        : 'native';
-};
 
 const getRevenueCatApiKey = () => {
     const platform = getNativePlatform();

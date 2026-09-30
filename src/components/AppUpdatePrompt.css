@@ -1,0 +1,277 @@
+/* ==========================================================================
+   College Date App Update Management System Styles
+   ========================================================================== */
+
+/* ── Floating Card for Normal & Important Updates ── */
+.app-update-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99998;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  animation: appUpdateFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 600px) {
+  .app-update-prompt-backdrop {
+    align-items: center;
+  }
+}
+
+.app-update-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card, #13111c);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 75, 145, 0.15);
+  padding: 1.75rem 1.5rem 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: appUpdateSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Level 3 Required Update Styling */
+.app-update-card.required {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(239, 68, 68, 0.2);
+}
+
+.app-update-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ff4b91 0%, #ff7676 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 24px rgba(255, 75, 145, 0.35);
+}
+
+.app-update-icon-wrapper.required {
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+.app-update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.app-update-badge.important {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.app-update-badge.required {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.app-update-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main, #ffffff);
+  letter-spacing: -0.02em;
+}
+
+.app-update-description {
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text-dim, rgba(255, 255, 255, 0.7));
+  max-width: 320px;
+}
+
+.app-update-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-update-primary {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff4b91 0%, #ff7676 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 75, 145, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-update-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-update-primary.required {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-update-later {
+  background: transparent;
+  border: none;
+  color: var(--text-dim, rgba(255, 255, 255, 0.6));
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-update-later:hover,
+.btn-update-later:active {
+  color: var(--text-main, #ffffff);
+}
+
+/* ── Floating Pill Toast: Update Ready (Downloaded) ── */
+.app-update-ready-pill {
+  position: fixed;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 440px;
+  background: rgba(20, 18, 28, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 24px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+  z-index: 99997;
+  animation: appUpdateReadyPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-update-ready-content {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.app-update-ready-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.app-update-ready-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-update-ready-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #10b981;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-update-ready-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-dim, rgba(255, 255, 255, 0.7));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-restart-update {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: #10b981;
+  color: #064e3b;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.btn-restart-update:active {
+  transform: scale(0.96);
+}
+
+/* Animations */
+@keyframes appUpdateFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes appUpdateSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes appUpdateReadyPop {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Light Theme Adaptations */
+html[data-theme='light'] .app-update-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 20px rgba(255, 75, 145, 0.1);
+}
+
+html[data-theme='light'] .app-update-title {
+  color: #0f172a;
+}
+
+html[data-theme='light'] .app-update-description {
+  color: #475569;
+}
+
+html[data-theme='light'] .btn-update-later {
+  color: #64748b;
+}
+
+html[data-theme='light'] .btn-update-later:hover {
+  color: #0f172a;
+}
+
+html[data-theme='light'] .app-update-ready-pill {
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme='light'] .app-update-ready-subtitle {
+  color: #64748b;
+}

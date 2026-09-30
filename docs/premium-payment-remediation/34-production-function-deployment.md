@@ -1,34 +1,8 @@
 # Production Edge Function Deployment
 
-Date: 2026-07-21
+Date: 2026-07-25
 
-Status: Blocked
-
-## Current Production Functions
-
-`npx supabase functions list --project-ref gedoyoleoscgxgdqszzc` showed these active functions:
-
-- `send-notification-email`
-- `send-notification-push`
-- `notify-on-event`
-- `verify-paystack-status`
-- `revenuecat-webhook`
-- `ai-profile-review`
-- `ai-assistant`
-- `verify-paystack-transaction`
-- `zego-call-token`
-- `agora-call-token`
-- `admin-push-broadcast`
-
-## Required Remediation Functions
-
-Not deployed in this change window:
-
-- `initialize-paystack-payment`
-- `verify-paystack-transaction`
-- `verify-paystack-status`
-- `paystack-webhook`
-- `revenuecat-webhook`
+Status: Passed
 
 ## Required Secrets
 
@@ -36,21 +10,45 @@ Exact secret names required by function code:
 
 - `SUPABASE_URL`: configured
 - `SUPABASE_SERVICE_ROLE_KEY`: configured
-- `PAYSTACK_SECRET_KEY`: blocked
+- `PAYSTACK_SECRET_KEY`: configured
 - `REVENUECAT_WEBHOOK_AUTH`: configured
-- `PUBLIC_SITE_URL`: blocked
-- `SITE_URL`: blocked
+- `PUBLIC_SITE_URL`: configured
 
 Notes:
 
-- `PAYSTACK_SECRET_KEY` is required by `initialize-paystack-payment`, `verify-paystack-transaction`, and `paystack-webhook`.
-- `PUBLIC_SITE_URL` or `SITE_URL` should be set to `https://www.thecollegedate.com` to pin the Paystack callback origin.
-- Existing legacy secret names with spaces must not be assumed by the new code.
+- `PUBLIC_SITE_URL` is set to `https://www.thecollegedate.com`.
+- `SITE_URL` is optional fallback only and is not required while `PUBLIC_SITE_URL` is present.
+- Secret values were not printed.
+- The Supabase secret list confirms names only; provider dashboard/live-key mode still needs provider-side confirmation.
 
-## Deployment Result
+## Deployed Functions
 
-Not started.
+`npx supabase functions list --project-ref gedoyoleoscgxgdqszzc` verified:
 
-## Reason
+- `initialize-paystack-payment`: ACTIVE, JWT verification enabled
+- `verify-paystack-transaction`: ACTIVE, JWT verification enabled
+- `verify-paystack-status`: ACTIVE, JWT verification enabled
+- `paystack-webhook`: ACTIVE, JWT verification disabled
+- `revenuecat-webhook`: ACTIVE, JWT verification disabled
 
-Function deployment depends on the new database tables/RPCs and required secret names. The database migration was blocked by backup availability, and `PAYSTACK_SECRET_KEY` was not configured under the exact required name.
+## Safe Invalid Request Tests
+
+Safe probes were run without real payment charges:
+
+- `initialize-paystack-payment` missing auth: HTTP 401, `Missing authorization header`
+- `verify-paystack-transaction` missing reference: HTTP 400, `reference is required`
+- `verify-paystack-status` anonymous token: HTTP 401, `Not authenticated`
+- `paystack-webhook` invalid signature: HTTP 401, `Invalid signature`
+- `revenuecat-webhook` invalid auth: HTTP 401, `Unauthorized`
+
+After probes, these tables remained unchanged:
+
+- `payment_attempts`: 0
+- `provider_webhook_events`: 0
+- `entitlements`: 0
+- `wallet_ledger`: 0
+- `payment_audit_logs`: 0
+
+## Type Checking
+
+The user-provided local status before production rollout reported Deno Edge Function type-checking passed. Fresh local `deno check` could not be repeated in this environment because `deno` is not installed.

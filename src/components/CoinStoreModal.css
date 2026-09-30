@@ -1,0 +1,324 @@
+.coin-store-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.coin-store-modal {
+    background: #18181b;
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 22px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.coin-store-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.08) 0%, transparent 100%);
+}
+
+.coin-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.coin-brand-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fef08a;
+}
+
+.user-coin-balance-pill {
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-close-coin-store {
+    background: none;
+    border: none;
+    color: #a1a1aa;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.coin-store-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.coin-store-tabs .tab-btn {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    color: #a1a1aa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.coin-store-tabs .tab-btn.active {
+    color: #fbbf24;
+    border-bottom-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.05);
+}
+
+.coin-store-body {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+}
+
+.coin-store-tagline {
+    font-size: 0.82rem;
+    color: #a1a1aa;
+    margin: 0;
+    text-align: center;
+}
+
+.coin-packages-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.coin-package-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.coin-package-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.coin-package-card.selected {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: #fbbf24;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+.coin-package-card.popular {
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.package-ribbon {
+    position: absolute;
+    top: -8px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+}
+
+.pkg-coin-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.pkg-bonus-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.pkg-standard-tag {
+    font-size: 0.7rem;
+    color: #a1a1aa;
+}
+
+.pkg-price-badge {
+    margin-top: 4px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.coin-purchase-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.wallet-balance-indicator {
+    font-size: 0.8rem;
+    color: #a1a1aa;
+    text-align: center;
+}
+
+.wallet-balance-indicator strong {
+    color: #f4f4f5;
+}
+
+.btn-purchase-coins {
+    padding: 14px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+    transition: transform 0.15s;
+}
+
+.btn-purchase-coins:active {
+    transform: scale(0.98);
+}
+
+.btn-purchase-coins:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.coin-history-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    max-height: 380px;
+}
+
+.coin-history-loading,
+.coin-history-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #a1a1aa;
+    font-size: 0.85rem;
+}
+
+.coin-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.coin-tx-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+}
+
+.tx-icon {
+    font-size: 1.2rem;
+}
+
+.tx-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tx-type {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f4f4f5;
+}
+
+.tx-date {
+    font-size: 0.72rem;
+    color: #71717a;
+}
+
+.tx-amount {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.tx-amount.positive {
+    color: #34d399;
+}
+
+.tx-amount.negative {
+    color: #f43f5e;
+}
+
+/* ── Light Theme Refinements ── */
+[data-theme="light"] .coin-store-modal,
+.theme-light .coin-store-modal {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .coin-store-header,
+.theme-light .coin-store-header {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .coin-package-card,
+.theme-light .coin-package-card {
+    background: #f8f9fa;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .coin-pkg-coins,
+.theme-light .coin-pkg-coins {
+    color: #111827;
+}
+
+[data-theme="light"] .tx-type,
+.theme-light .tx-type {
+    color: #111827;
+}

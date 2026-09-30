@@ -16,9 +16,10 @@ export default function LeaderboardPreview() {
         const { data } = await supabase
             .from('leaderboard_most_wanted')
             .select('*')
-            .limit(3);
+            .limit(10);
 
-        setTopUsers(data || []);
+        const filtered = (data || []).filter(u => !u.is_shadow_banned && !u.is_banned).slice(0, 3);
+        setTopUsers(filtered);
         setLoading(false);
     };
 

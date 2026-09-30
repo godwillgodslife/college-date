@@ -1,0 +1,217 @@
+.deal-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.deal-modal-card {
+    background: #18181b;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 22px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+}
+
+.deal-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, transparent 100%);
+}
+
+.deal-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.deal-brand-icon {
+    font-size: 1.6rem;
+}
+
+.deal-header-brand h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #f4f4f5;
+}
+
+.deal-header-brand p {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: #93c5fd;
+}
+
+.btn-close-deal-modal {
+    background: none;
+    border: none;
+    color: #a1a1aa;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.deal-form {
+    padding: 18px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.deal-field-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #d4d4d8;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.role-pills {
+    display: flex;
+    gap: 8px;
+}
+
+.role-pill {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #d4d4d8;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.role-pill.active {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: #3b82f6;
+    color: #60a5fa;
+}
+
+.deal-input,
+.deal-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #f4f4f5;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.deal-input:focus,
+.deal-textarea:focus {
+    border-color: #3b82f6;
+}
+
+.amount-input {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #34d399;
+}
+
+.deal-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.deal-safety-box {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.safety-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #f87171;
+    text-transform: uppercase;
+}
+
+.safety-text {
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.safety-agree-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #e2e8f0;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.safety-agree-label input[type="checkbox"] {
+    accent-color: #3b82f6;
+    width: 16px;
+    height: 16px;
+}
+
+.deal-modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.btn-cancel-deal {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e4e4e7;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-submit-deal {
+    flex: 2;
+    padding: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    color: #ffffff;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+}
+
+.btn-submit-deal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

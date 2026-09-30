@@ -3,6 +3,7 @@ import { sendMessage } from '../services/chatService';
 import { markAllNotificationsAsRead, markNotificationAsRead, updateUserSettings } from '../services/notificationService';
 import { saveGenderPreference } from '../services/profileService';
 import { recordSwipe } from '../services/swipeService';
+import { recordStreakActivity } from '../services/scoreStreakService';
 import { drainOfflineQueue, getOfflineQueue } from '../lib/offlineQueue';
 
 function isOnline() {
@@ -62,7 +63,14 @@ const OFFLINE_SYNC_HANDLERS = {
   save_gender_preference: (operation) => saveGenderPreference(operation.payload?.userId, operation.payload?.gender)
     .then((result) => {
       if (result?.error) throw new Error(result.error);
-    })
+    }),
+  record_streak_activity: (operation) => recordStreakActivity(
+    operation.payload?.userId,
+    operation.payload?.activityType,
+    operation.payload?.idempotencyKey
+  ).then((result) => {
+    if (result?.error) throw new Error(result.error);
+  })
 };
 
 export function useOfflineSync(userId) {

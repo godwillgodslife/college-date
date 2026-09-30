@@ -13,9 +13,13 @@ import './AppLayout.css';
 
 const MotionDiv = motion.div;
 
-// Fetches the announcement banner from app_config
+import { getCachedData, setCachedData } from '../lib/persistentCache';
+
+// Fetches the announcement banner from app_config with caching
 function AnnouncementBanner() {
-    const [banner, setBanner] = useState('');
+    const [banner, setBanner] = useState(() => {
+        return getCachedData('app_config_banner', { ttlMs: 60 * 60 * 1000, allowStale: true }) || '';
+    });
 
     useEffect(() => {
         async function fetchBanner() {
@@ -25,9 +29,11 @@ function AnnouncementBanner() {
                     .select('key, value')
                     .in('key', ['banner_message', 'banner_active']);
                 const config = Object.fromEntries((data || []).map(item => [item.key, item.value]));
-                if (config.banner_active === true && config.banner_message && String(config.banner_message).trim()) {
-                    setBanner(String(config.banner_message));
-                }
+                const activeMessage = config.banner_active === true && config.banner_message && String(config.banner_message).trim()
+                    ? String(config.banner_message)
+                    : '';
+                setBanner(activeMessage);
+                setCachedData('app_config_banner', activeMessage);
             } catch (err) {
                 console.warn('Failed to load announcement banner:', err);
             }
@@ -53,6 +59,7 @@ export default function AppLayout() {
     useOfflineSync(currentUser?.id);
 
     const isFullScreenApp = ['/explore', '/snap'].includes(location.pathname) || (location.pathname === '/match' && isMobile);
+    const isMatchRoute = location.pathname === '/match';
     const isMiniprofileSetup = location.pathname === '/mini-profile-setup';
     const isAdmin = location.pathname.startsWith('/admin');
     const hideNav = isMiniprofileSetup || isAdmin;
@@ -83,18 +90,24 @@ export default function AppLayout() {
 
             {/* Page Content */}
             <main className={`app-main ${isFullScreenApp ? 'full-screen' : ''} ${isAdmin ? 'admin-layout' : ''}`}>
-                <AnimatePresence mode="wait">
-                    <MotionDiv
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="page-transition-wrapper"
-                    >
+                {isMatchRoute ? (
+                    <div className="page-transition-wrapper match-route-static" key={location.pathname}>
                         <Outlet />
-                    </MotionDiv>
-                </AnimatePresence>
+                    </div>
+                ) : (
+                    <AnimatePresence mode="wait">
+                        <MotionDiv
+                            key={location.pathname}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="page-transition-wrapper"
+                        >
+                            <Outlet />
+                        </MotionDiv>
+                    </AnimatePresence>
+                )}
             </main>
 
             {/* Bottom Nav (mobile) */}

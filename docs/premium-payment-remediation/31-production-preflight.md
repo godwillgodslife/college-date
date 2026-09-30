@@ -1,8 +1,8 @@
 # Production Preflight
 
-Date: 2026-07-21
+Date: 2026-07-25
 
-Status: Blocked
+Status: Passed
 
 ## Environment
 
@@ -18,15 +18,16 @@ Status: Blocked
 
 `npx supabase migration list --linked` confirmed production is linked to `gedoyoleoscgxgdqszzc`.
 
-Remote migrations present through:
+Before rollout, remote migrations were present through:
 
 - `20260716163000`
 
-Local migration pending:
+The production rollout applied:
 
 - `20260721120000_premium_payment_remediation_foundation.sql`
+- `20260725110000_premium_payment_remediation_grant_hardening.sql`
 
-## Existing Tables
+## Existing Tables Before Migration
 
 Existing payment/premium adjacent public tables:
 
@@ -37,7 +38,7 @@ Existing payment/premium adjacent public tables:
 - `wallet_transactions`
 - `wallets`
 
-New remediation tables not present before rollout:
+New remediation tables were not present before rollout:
 
 - `paid_products`
 - `payment_attempts`
@@ -84,44 +85,46 @@ New remediation RPCs were not present before rollout:
 
 ## Existing RLS Policies
 
-RLS is enabled on existing public `profiles`, `subscriptions`, `wallet_transactions`, and `wallets`.
+RLS was enabled on existing public `profiles`, `subscriptions`, `wallet_transactions`, and `wallets`.
 
-Existing wallet transaction policies still allow own-row insert/update by policy, but the pending remediation migration revokes direct insert/update/delete privileges from `anon` and `authenticated` on `wallet_transactions`.
+Existing wallet transaction policies allowed own-row operations by policy, but the remediation rollout now revokes direct insert/update/delete privileges from `anon` and `authenticated` on `wallet_transactions`.
 
 ## Production Counts
 
-- Profiles: 478
+Manual logical snapshot counts before production writes:
+
+- Profiles: 540
 - `profiles.is_premium = true`: 0
 - Active profile premium by expiration: 0
 - Profiles with any `premium_expires_at`: 1
-- Subscriptions: 414
+- Subscriptions: 476
 - Premium subscriptions: 1
 - Active premium subscriptions: 0
-- Expired active-status premium subscriptions: 1
-- Paystack subscription evidence fields populated: 0
-- Wallets: 455
+- Wallets: 517
 - Wallets with balance or activity: 412
 - Total available wallet balance: NGN 18,600.00
 - Total pending wallet balance: NGN 1,500.00
-- Wallet transactions: 170
+- Wallet transactions: 171
 - Completed wallet transactions: 128
 - Completed Paystack wallet transactions: 128
-- Completed RevenueCat wallet transactions: 0
-- Completed subscription wallet transactions: 0
-- Pending subscription wallet transactions: 13
-- Completed deposit wallet transactions: 1
-- Pending deposit wallet transactions: 27
 - Duplicate non-null wallet transaction reference groups: 0
 - `transactions` rows: 0
 
 ## Potential Conflicts
 
-- Backup gate failed: CLI shows no listed physical backups and PITR disabled.
-- Required new Paystack secret name `PAYSTACK_SECRET_KEY` is not configured in Supabase secrets.
-- Optional callback secret names `PUBLIC_SITE_URL` and `SITE_URL` are not configured; the function can fall back to origin/live default, but production should pin this.
-- `initialize-paystack-payment` and `paystack-webhook` are not currently deployed.
-- The current live `/payment/callback` route returned HTTP 404 before the frontend rollout, so the frontend must not be deployed until the database and functions are available.
+- Managed Supabase backups are unavailable on the current Free plan; user approved a manual logical backup gate instead.
+- `PUBLIC_SITE_URL` was configured as `https://www.thecollegedate.com`; `SITE_URL` remains optional fallback only.
+- The foundation migration initially left broader table privileges than desired; this was corrected with `20260725110000_premium_payment_remediation_grant_hardening.sql`.
+- The live `/payment/callback` route returned HTTP 404 before frontend rollout and now returns HTTP 200 with safe missing-reference handling.
+
+## Records Requiring Migration
+
+- Confirmed active Paystack premium: 0
+- Confirmed active RevenueCat premium: 0
+- Active legacy premium: 0
+- Expired premium evidence: 1
+- Pending subscription wallet transactions requiring manual review: 13
 
 ## Decision
 
-Production writes were not performed because the recoverable backup requirement was not met.
+Preflight passed after manual backup approval. Production migration proceeded with non-destructive SQL and post-migration verification gates.

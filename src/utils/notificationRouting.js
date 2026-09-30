@@ -25,6 +25,10 @@ const ROUTE_ALIASES = {
 
 const APP_ROUTE_PREFIXES = [
     '/auth/callback',
+    '/reset-password',
+    '/forgot-password',
+    '/login',
+    '/signup',
     '/payment/callback',
     '/dashboard',
     '/match',
@@ -49,6 +53,9 @@ const APP_ROUTE_PREFIXES = [
     '/push-lab',
     '/mini-profile-setup',
     '/call',
+    '/guides',
+    '/official',
+    '/ask',
     '/admin',
     '/wireframes'
 ];
@@ -188,6 +195,7 @@ export function getNotificationDeepLink(notification) {
     if (type === 'trending' || type === 'leaderboard') return { to: '/leaderboard' };
     if (type === 'nearby') return { to: '/explore' };
     if (ACCOUNT_TYPES.has(type)) return { to: '/wallet' };
+    if (type === 'official' || type === 'announcement' || type === 'guide') return { to: '/guides' };
     if (SYSTEM_TYPES.has(type)) return { to: '/profile' };
 
     return { to: '/profile' };

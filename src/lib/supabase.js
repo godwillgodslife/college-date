@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { isNativePlatform, secureSupabaseAuthStorage } from './secureAuthStorage';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -9,16 +10,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+const authConfig = {
+  autoRefreshToken: true,
+  persistSession: true,
+  detectSessionInUrl: true,
+  flowType: 'pkce',
+};
+
+if (isNativePlatform()) {
+  authConfig.storage = secureSupabaseAuthStorage;
+}
+
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key',
   {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce',
-    },
+    auth: authConfig,
     global: {
       headers: {
         'Accept': 'application/json',
@@ -26,6 +33,10 @@ export const supabase = createClient(
     },
   }
 );
+
+if (typeof window !== 'undefined') {
+  window.__supabase = supabase;
+}
 
 // Performance Profiling Wrapper
 import { performanceMonitor } from '../utils/performanceMonitor';

@@ -74,3 +74,10 @@ keystore-summary.txt
 chat_diff.diff
 test_db_emoji.*
 
+
+*.dump.xml
+ui*.xml
+uidump*.xml
+window_dump.xml
+tour_dump.xml
+tmp/

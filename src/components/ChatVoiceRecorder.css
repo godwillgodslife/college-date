@@ -1,68 +1,140 @@
-.chat-voice-recorder.active {
+/* ── WhatsApp-Style Full-Width Voice Recorder Takeover ── */
+.voice-recorder-takeover {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     gap: 12px;
-    background: var(--bg-secondary);
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    animation: slideInRight 0.3s ease;
+    background: #181829;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 77, 77, 0.4);
+    box-shadow: 0 4px 20px rgba(255, 77, 77, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+    animation: voiceTakeoverSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.recording-indicator {
+@keyframes voiceTakeoverSlide {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Discard Trash Button */
+.btn-voice-discard {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-voice-discard:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.15) rotate(-10deg);
+}
+
+/* Pulsing Recording Indicator & Live Timer */
+.voice-timer-container {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    font-weight: 500;
+    flex-shrink: 0;
 }
 
-.dot.pulse {
-    width: 8px;
-    height: 8px;
-    background: #ff4d4d;
+.voice-pulse-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
     border-radius: 50%;
-    box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
-    animation: pulse-red 1.5s infinite;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+    animation: pulse-red-dot 1.2s infinite;
 }
 
-.btn-stop-recording {
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-@keyframes pulse-red {
+@keyframes pulse-red-dot {
     0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
     }
-
     70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 10px rgba(255, 77, 77, 0);
+        transform: scale(1.1);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
     }
-
     100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
     }
 }
 
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
+.voice-timer-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+/* Dynamic Live Soundwave Visualizer Strip */
+.voice-soundwave-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 32px;
+    flex: 1;
+    min-width: 0;
+    padding: 0 6px;
+}
+
+.voice-soundwave-bar {
+    width: 3.5px;
+    background: linear-gradient(180deg, #ec4899 0%, #6c63ff 100%);
+    border-radius: 4px;
+    min-height: 5px;
+    max-height: 28px;
+    transition: height 0.08s ease;
+}
+
+/* Send / Stop Voice Action Button */
+.btn-voice-send {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c63ff 0%, #a855f7 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(108, 99, 255, 0.4);
+    transition: all 0.2s ease;
+}
+
+.btn-voice-send:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(108, 99, 255, 0.6);
+}
+
+/* Default mic button state */
+.btn-icon.btn-voice {
+    color: var(--text-secondary);
+}
+
+.btn-icon.btn-voice:hover {
+    color: var(--accent-primary);
+    transform: scale(1.15);
 }

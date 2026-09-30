@@ -37,3 +37,21 @@
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
 
+# Google Play In-App Update Safeguards
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
+
+# Aparajita Biometric Auth & Secure Storage Plugins
+-keep class com.aparajita.** { *; }
+-dontwarn com.aparajita.**
+
+# AndroidX EdgeToEdge & Window Insets Safeguards
+-keep class androidx.activity.EdgeToEdge** { *; }
+-keep class androidx.core.view.WindowInsets** { *; }
+
+# WebView JavascriptInterface Safeguards for R8 Optimization
+-keepattributes JavascriptInterface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+

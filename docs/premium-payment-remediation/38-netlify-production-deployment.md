@@ -1,8 +1,8 @@
 # Netlify Production Deployment
 
-Date: 2026-07-21
+Date: 2026-07-25
 
-Status: Blocked
+Status: Passed
 
 ## Site Verification
 
@@ -13,29 +13,118 @@ Confirmed linked Netlify site:
 - Admin URL: `https://app.netlify.com/projects/collegedate4`
 - Production URL: `https://www.thecollegedate.com`
 
-Live status before rollout:
+## Build
 
-- `https://www.thecollegedate.com`: HTTP 200
-- `https://www.thecollegedate.com/payment/callback`: HTTP 404 before deploying the remediation frontend
+Production build:
+
+```bash
+npm run build
+```
+
+Result: Passed
+
+Notes:
+
+- Build completed successfully.
+- Existing warning: large Agora chunk exceeds 800 kB.
+
+Lint:
+
+```bash
+npm run lint
+```
+
+Result: Passed
+
+Notes:
+
+- Lint exited with 0 errors.
+- Existing warning backlog remains.
 
 ## Deployment
 
-Not started.
+Command:
 
-Reason:
+```bash
+netlify deploy --prod --dir=dist
+```
 
-- Frontend depends on new database RPCs and Edge Functions.
-- Migration, secrets, webhooks, and RLS verification did not pass.
+Result: Passed
+
+Production deploy ID:
+
+```text
+6a64a0c1a69438a17b15e4c3
+```
+
+Deploy URL:
+
+```text
+https://6a64a0c1a69438a17b15e4c3--collegedate4.netlify.app
+```
+
+Production URL:
+
+```text
+https://www.thecollegedate.com
+```
+
+Deploy logs:
+
+```text
+https://app.netlify.com/projects/collegedate4/deploys/6a64a0c1a69438a17b15e4c3
+```
+
+## HTTP Smoke
+
+HTTP checks returned 200:
+
+- `/`
+- `/payment/callback`
+- `/premium`
+- `/wallet`
+- `/viewers`
+- `/requests`
+- `/chat`
+- Unique deploy URL root
+
+Supabase REST checks returned 200:
+
+- `paid_products`
+- `get_monetization_config`
+
+## Browser Smoke
+
+Browser smoke confirmed:
+
+- Live app renders with root markup.
+- Existing signed-in session reached dashboard.
+- Premium page renders product amount and Paystack upgrade copy.
+- Wallet page renders wallet balance and top-up options after data settles.
+- Payment callback route fails safely with missing-reference message.
+- Viewers, requests, and chat routes render without 404 or fatal visible error.
+
+Warnings observed:
+
+- OneSignal SDK timeout in browser console.
+- Auth safety timeout warnings and Supabase realtime retry warnings in browser console.
+
+## Secret Exposure Check
+
+Built asset scan found no matches for:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `PAYSTACK_SECRET_KEY`
+- `REVENUECAT_WEBHOOK_AUTH`
+- `sk_live`
+- `sk_test`
+- `service_role`
 
 ## Rollback
 
-When deployment resumes:
+Rollback path:
 
-1. Record the current production deploy ID immediately before `netlify deploy --prod`.
-2. Deploy only after all backend gates pass.
-3. If a rollback trigger fires, restore the previous deploy from the Netlify dashboard for `collegedate4`.
-4. If needed, temporarily disable payment initialization by removing/rotating the production `PAYSTACK_SECRET_KEY` from Supabase Edge Function secrets while preserving all evidence tables.
-
-## Deploy ID
-
-Not started.
+1. Open Netlify deploy history for `collegedate4`.
+2. Publish the previous production deploy if a rollback trigger fires.
+3. If payments must be stopped immediately before a frontend rollback completes, disable Paystack initialization server-side by removing/rotating `PAYSTACK_SECRET_KEY` with explicit operator approval.
+4. Preserve all payment evidence and entitlement tables for reconciliation.

@@ -8,13 +8,18 @@
 	"android": {
 		"allowMixedContent": false,
 		"captureInput": true,
-		"webContentsDebuggingEnabled": false,
+		"webContentsDebuggingEnabled": true,
 		"appendUserAgent": "TheCollegeDate-Android/2.0"
 	},
 	"ios": {
 		"appendUserAgent": "TheCollegeDate-iOS/2.0"
 	},
 	"plugins": {
+		"SystemBars": {
+			"insetsHandling": "css",
+			"style": "DEFAULT",
+			"hidden": false
+		},
 		"SplashScreen": {
 			"launchShowDuration": 2500,
 			"launchAutoHide": true,

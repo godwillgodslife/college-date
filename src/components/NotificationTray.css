@@ -136,13 +136,39 @@
     color: rgba(255, 255, 255, 0.4);
 }
 
+.notif-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    margin-top: 2px;
+}
+
 .notif-dot {
     width: 8px;
     height: 8px;
     background: #ff4b4b;
     border-radius: 50%;
-    margin-left: 8px;
-    margin-top: 6px;
+}
+
+.notif-dismiss-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notif-dismiss-btn:hover {
+    color: #ff4b4b;
+    background: rgba(255, 75, 75, 0.1);
 }
 
 /* Mobile Adjustment */

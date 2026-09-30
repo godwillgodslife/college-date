@@ -405,35 +405,49 @@
 }
 
 .payout-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
     margin-top: 1rem;
+    width: 100%;
 }
 
-/* Full-width field within the 2-column payout grid */
 .payout-full-row {
-    grid-column: span 2;
+    width: 100%;
 }
 
 .payout-form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.payout-form-group label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-left: 2px;
 }
 
 .payout-input {
+    width: 100%;
+    box-sizing: border-box;
     background: var(--bg-tertiary);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 0.9rem 1.15rem;
+    min-height: 52px;
+    font-size: 1rem;
     color: var(--text-primary);
     outline: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .payout-input:focus {
     border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
 }
 
 .payout-method-selector {
@@ -615,4 +629,75 @@
 .gift-stat .stat-lbl {
     font-size: 0.8rem;
     color: var(--text-dim);
+}
+
+@media (max-width: 768px) {
+    .wallet-page {
+        padding: 1rem 0.75rem calc(5.5rem + env(safe-area-inset-bottom));
+    }
+
+    .wallet-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .wallet-header h1 {
+        font-size: 1.85rem;
+    }
+
+    .wallet-header p {
+        font-size: 0.95rem;
+    }
+
+    .wallet-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .balance-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+
+    .balance-amount {
+        font-size: 2.2rem;
+        margin: 0.25rem 0 1rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .quick-amounts {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .instruction-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .payout-instructions-card {
+        padding: 1.25rem;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+    }
+
+    .payout-form-group {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .payout-input {
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .gift-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
 }

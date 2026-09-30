@@ -3,7 +3,7 @@ export const CACHE_TTL = {
   wallet: 2 * 60 * 1000,
   discovery: 10 * 60 * 1000,
   confessions: 15 * 60 * 1000,
-  conversations: 24 * 60 * 60 * 1000,
+  conversations: 5 * 60 * 1000,
   messages: 90 * 24 * 60 * 60 * 1000,
   notifications: 14 * 24 * 60 * 60 * 1000,
   requests: 10 * 60 * 1000,
@@ -11,6 +11,7 @@ export const CACHE_TTL = {
   dashboard: 5 * 60 * 1000,
   statuses: 5 * 60 * 1000,
   settings: 30 * 24 * 60 * 60 * 1000,
+  profile: 15 * 60 * 1000,
 };
 
 export const CACHE_LIMITS = {

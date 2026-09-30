@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { consumePendingOAuthPreferences, setRememberedEmail } from '../lib/authPreferences';
+import { enableBiometricLoginForUser } from '../services/biometricAuthService';
+import { applyStoredReferralCode } from '../services/referralService';
+import { recordPolicyAcceptance } from '../services/policyService';
 import './Auth.css';
 
 const AUTH_TIMEOUT_MS = 12000;
@@ -36,32 +40,30 @@ async function ensureOAuthProfile(session) {
 
     if (profile) return;
 
-    const referralCode = localStorage.getItem('referral_code');
-    let referredBy = null;
-
-    if (referralCode) {
-        const { data: referrerData } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('referral_code', referralCode)
-            .maybeSingle();
-
-        if (referrerData) {
-            referredBy = referrerData.id;
-        }
-    }
-
     const meta = session.user.user_metadata || {};
-    const { error } = await supabase.from('profiles').upsert({
+    await supabase.from('profiles').upsert({
         id: session.user.id,
         full_name: meta.full_name || meta.name || '',
         email: session.user.email || '',
         avatar_url: meta.avatar_url || meta.picture || '',
-        referred_by: referredBy,
     }, { onConflict: 'id' });
 
-    if (!error && referralCode) {
-        localStorage.removeItem('referral_code');
+    // Record initial policy acceptance for new OAuth user
+    recordPolicyAcceptance('terms', '2.0', { source: 'oauth_signup' }).catch(() => {});
+    recordPolicyAcceptance('privacy', '2.0', { source: 'oauth_signup' }).catch(() => {});
+}
+
+async function applyOAuthPreferences(session) {
+    if (!session?.user) return;
+
+    const preferences = await consumePendingOAuthPreferences();
+    await setRememberedEmail(session.user.email || '', preferences.rememberMe);
+
+    if (preferences.enableBiometrics) {
+        const result = await enableBiometricLoginForUser(session.user.id);
+        if (result.error) {
+            console.warn('Biometric login setup skipped:', result.error);
+        }
     }
 }
 
@@ -131,11 +133,14 @@ export default function AuthCallback() {
                 }
 
                 if (session?.user) {
+                    await applyOAuthPreferences(session);
                     navigate(getStoredRedirectTarget(), { replace: true });
                     setTimeout(() => {
-                        ensureOAuthProfile(session).catch((profileError) => {
-                            console.warn('OAuth profile repair skipped:', profileError.message);
-                        });
+                        ensureOAuthProfile(session)
+                            .then(() => applyStoredReferralCode())
+                            .catch((profileError) => {
+                                console.warn('OAuth profile/referral repair skipped:', profileError.message);
+                            });
                     }, 0);
                     return;
                 }

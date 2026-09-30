@@ -1,12 +1,12 @@
 # Production Backup Status
 
-Date: 2026-07-21
+Date: 2026-07-25
 
-Status: Blocked
+Status: Passed
 
-## Backup Check
+## Managed Backup Check
 
-Command:
+Latest command:
 
 ```bash
 npx supabase backups list --project-ref gedoyoleoscgxgdqszzc
@@ -24,38 +24,76 @@ Result:
 }
 ```
 
-## Backup Timestamp
+Managed scheduled backups and PITR are not available on the current Supabase Free plan.
 
-No recoverable backup timestamp was visible from the Supabase Management API.
+## Manual Logical Backup Approval
 
-## Snapshot Status
+The user approved proceeding on Supabase Free plan using manual logical backups instead of managed Supabase backups.
 
-Read-only aggregate snapshots were collected for:
+## Manual Snapshot
 
-- Existing table presence
-- Existing columns
+Snapshot schema:
+
+```text
+rollback_20260725_payment_remediation
+```
+
+Snapshot timestamp:
+
+```text
+2026-07-25T10:45:57.233837+00:00
+```
+
+Evidence file:
+
+```text
+docs/premium-payment-remediation/evidence/20260725-manual-logical-snapshot.sql
+```
+
+Captured table copies:
+
+- `profiles`
+- `subscriptions`
+- `wallets`
+- `wallet_transactions`
+- `transactions`
+- `boosts`
+
+Captured metadata:
+
+- Columns
+- Constraints
+- Constraint column mappings
+- RLS policies
+- Indexes
+- Public functions
 - Migration history
-- Edge Function list
-- Premium profile/subscription counts
-- Wallet and wallet transaction counts
-- Duplicate payment reference groups
+- Snapshot manifest
 
-The full `supabase db dump --linked --schema public` command timed out in this environment, so a complete schema dump file was not produced.
+## Pre-Deployment Row Counts
+
+- `profiles`: 540
+- `subscriptions`: 476
+- `wallets`: 517
+- `wallet_transactions`: 171
+- `transactions`: 0
+- `boosts`: 2
+- `profiles.is_premium = true`: 0
+- Active profile premium: 0
+- Premium subscriptions: 1
+- Active premium subscriptions: 0
 
 ## Rollback Plan
 
-If rollout resumes after backup availability is confirmed:
+1. Stop new payment starts first. Temporarily disable the frontend payment entry point with a Netlify rollback, or rotate/remove `PAYSTACK_SECRET_KEY` in Supabase only after explicitly recording the current secret state.
+2. Revert the Netlify deployment from the `collegedate4` deploy history to the previous known-good production deploy. Current remediation deploy ID: `6a64a0c1a69438a17b15e4c3`.
+3. Leave `payment_attempts`, `provider_webhook_events`, `entitlements`, `wallet_ledger`, and `payment_audit_logs` intact for reconciliation.
+4. Preserve newly processed valid Paystack and RevenueCat evidence; do not delete wallet ledger or entitlement rows created from valid payments.
+5. Preserve provider reference uniqueness so duplicate payment replay remains blocked during rollback.
+6. If an RLS change must be reverted, apply a narrow forward migration that restores only the affected grant or policy after exporting affected rows.
+7. If a newly deployed Edge Function must be disabled, prefer disabling the payment secret or redeploying a fail-closed function. Do not delete evidence tables.
+8. Reconcile any payment attempts created during the rollback window against Paystack before granting or denying user access.
 
-1. Record the visible backup timestamp immediately before migration.
-2. Keep the previous Netlify production deploy ID before deploying the frontend.
-3. Keep a copy of the previous Edge Function list and versions.
-4. If a payment issue appears, immediately disable frontend payment entry points by rolling Netlify back to the previous deploy.
-5. If backend payment initialization must be stopped without a frontend rollback, temporarily remove or rotate `PAYSTACK_SECRET_KEY` in Supabase secrets so initialization fails closed.
-6. Do not delete `payment_attempts`, `provider_webhook_events`, `entitlements`, or `wallet_ledger` during rollback.
-7. Preserve newly processed valid payments, wallet ledger entries, and entitlement records for reconciliation.
-8. If RLS changes need reversal, use a narrow migration that restores previous grants/policies only after exporting the affected rows.
-9. Prevent duplicate payment handling during rollback by keeping provider reference uniqueness intact and leaving webhook idempotency tables in place.
+## Recovery Limitation
 
-## Decision
-
-Do not apply the production migration until a recoverable backup or explicit Supabase backup confirmation is available.
+This manual logical snapshot is not equivalent to managed PITR. It is suitable for targeted restoration of affected public data and schema metadata, but it is not a full project-level physical backup.

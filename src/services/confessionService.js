@@ -2,9 +2,8 @@ import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 import { getFeedImpressionMap, recordFeedImpression } from './feedImpressionService';
 
-// Emoji set must match the UI (Confessions.jsx) AND the DB CHECK constraint
-// Migration: 20260706120000_update_confession_emoji_constraint.sql
-const REACTION_EMOJIS = ['🔥', '😂', '🙊', '🙏', '😢'];
+// Emoji set used in Confessions.jsx and DB constraint
+export const REACTION_EMOJIS = ['❤️', '🔥', '😂', '🙊', '🙏', '😢', '😡', '🙈'];
 
 function hoursSince(value) {
     if (!value) return Infinity;
@@ -81,6 +80,18 @@ export async function getConfessions(university = null, userId = null) {
 
         const confessionImpressions = await getFeedImpressionMap(userId, 'confession', 14);
 
+        // Fetch user reposts if logged in
+        let userRepostSet = new Set();
+        if (userId) {
+            const { data: repData } = await supabase
+                .from('confession_reposts')
+                .select('confession_id')
+                .eq('user_id', userId);
+            if (repData) {
+                userRepostSet = new Set(repData.map(r => r.confession_id));
+            }
+        }
+
         // Map the pre-aggregated data from the view to the expected JS format
         const enriched = (data || []).map(c => {
             const reactionCounts = {};
@@ -94,16 +105,20 @@ export async function getConfessions(university = null, userId = null) {
             });
 
             const hasClaimed = (c.claimer_ids || []).includes(userId);
+            const hasReposted = userRepostSet.has(c.id);
 
             return {
                 ...c,
                 reactionCounts,
                 userReactions: [...userReactions],
                 hasClaimed,
+                hasReposted,
                 // These are already in the view!
                 totalReactions: c.total_reactions,
                 commentCount: c.comment_count,
-                isViral: c.is_viral
+                isViral: c.is_viral,
+                repostCount: c.repost_count || 0,
+                viewCount: c.view_count || 0
             };
         });
 
@@ -114,12 +129,33 @@ export async function getConfessions(university = null, userId = null) {
     }
 }
 
-export async function postConfession(content, university, userId) {
+export async function postConfession(content, university, userId, options = {}) {
     try {
         const cleanUni = university ? university.trim() : 'Unknown University';
+        const {
+            postType = 'anonymous_confession',
+            isAnonymous = true,
+            authorName = null,
+            authorAvatar = null,
+            authorUsername = null,
+            imageUrl = null
+        } = options;
+
+        const payload = {
+            content,
+            university: cleanUni,
+            user_id: userId,
+            post_type: postType,
+            is_anonymous: isAnonymous,
+            author_name: isAnonymous ? null : authorName,
+            author_avatar: isAnonymous ? null : authorAvatar,
+            author_username: isAnonymous ? null : authorUsername,
+            image_url: imageUrl
+        };
+
         const { data, error } = await supabase
             .from('confessions')
-            .insert({ content, university: cleanUni, user_id: userId })
+            .insert(payload)
             .select()
             .single();
 
@@ -249,4 +285,410 @@ export async function claimConfession(confessionId, claimerId) {
 // Legacy — keep for compatibility
 export async function toggleLikeConfession(confessionId, userId) {
     return addEmojiReaction(confessionId, userId, '🔥');
+}
+
+/**
+ * Toggle repost on a confession
+ */
+export async function repostConfession(confessionId, userId) {
+    if (!confessionId || !userId) return { error: 'Confession ID and User ID required' };
+    try {
+        const { data: existing } = await supabase
+            .from('confession_reposts')
+            .select('id')
+            .eq('confession_id', confessionId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (existing) {
+            const { error } = await supabase
+                .from('confession_reposts')
+                .delete()
+                .eq('id', existing.id);
+            if (error) throw error;
+            return { reposted: false, error: null };
+        } else {
+            const { error } = await supabase
+                .from('confession_reposts')
+                .insert({
+                    confession_id: confessionId,
+                    user_id: userId
+                });
+            if (error) throw error;
+            return { reposted: true, error: null };
+        }
+    } catch (err) {
+        console.error('repostConfession error:', err);
+        return { error: err.message };
+    }
+}
+
+/**
+ * Get posts and reposts for a specific user (for their profile page)
+ */
+export async function getUserPostsAndReposts(userId) {
+    if (!userId) return { data: [], error: 'User ID required' };
+    try {
+        // 1. Fetch posts created by this user
+        const { data: authored, error: authError } = await supabase
+            .from('optimized_confessions')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (authError) throw authError;
+
+        // 2. Fetch reposts by this user
+        const { data: repostRecords, error: repError } = await supabase
+            .from('confession_reposts')
+            .select('confession_id, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (repError) throw repError;
+
+        let repostedPosts = [];
+        if (repostRecords && repostRecords.length > 0) {
+            const repIds = repostRecords.map(r => r.confession_id);
+            const { data: repData } = await supabase
+                .from('optimized_confessions')
+                .select('*')
+                .in('id', repIds);
+
+            if (repData) {
+                const repDateMap = new Map(repostRecords.map(r => [r.confession_id, r.created_at]));
+                repostedPosts = repData.map(p => ({
+                    ...p,
+                    isRepost: true,
+                    repostedAt: repDateMap.get(p.id)
+                }));
+            }
+        }
+
+        const combined = [
+            ...(authored || []).map(p => ({ ...p, isRepost: false })),
+            ...repostedPosts
+        ].sort((a, b) => new Date(b.repostedAt || b.created_at) - new Date(a.repostedAt || a.created_at));
+
+        return { data: combined, error: null };
+    } catch (err) {
+        console.error('getUserPostsAndReposts error:', err);
+        return { data: [], error: err.message };
+    }
+}
+
+/**
+ * Toggle like on a confession comment
+ */
+export async function toggleCommentLike(commentId, userId) {
+    if (!commentId || !userId) return { error: 'Comment ID and User ID required' };
+    try {
+        const { data: existing } = await supabase
+            .from('confession_comment_likes')
+            .select('id')
+            .eq('comment_id', commentId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (existing) {
+            const { error } = await supabase
+                .from('confession_comment_likes')
+                .delete()
+                .eq('id', existing.id);
+            if (error) throw error;
+            return { liked: false, error: null };
+        } else {
+            const { error } = await supabase
+                .from('confession_comment_likes')
+                .insert({
+                    comment_id: commentId,
+                    user_id: userId
+                });
+            if (error) throw error;
+            return { liked: true, error: null };
+        }
+    } catch (err) {
+        console.error('toggleCommentLike error:', err);
+        return { error: err.message };
+    }
+}
+
+/**
+ * Get the set of comment IDs liked by a user
+ */
+export async function getUserCommentLikes(commentIds, userId) {
+    if (!userId || !commentIds || !commentIds.length) return new Set();
+    try {
+        const { data, error } = await supabase
+            .from('confession_comment_likes')
+            .select('comment_id')
+            .in('comment_id', commentIds)
+            .eq('user_id', userId);
+
+        if (error) throw error;
+        return new Set((data || []).map(r => r.comment_id));
+    } catch (err) {
+        console.error('getUserCommentLikes error:', err);
+        return new Set();
+    }
+}
+
+/**
+ * Send an anonymous NGL-style message to a student
+ */
+export async function sendAnonymousMessage(recipientUsernameOrId, content) {
+    try {
+        if (!recipientUsernameOrId || !content?.trim()) {
+            return { error: 'Recipient and message content are required' };
+        }
+
+        let recipientId = null;
+        let recipientUsername = recipientUsernameOrId;
+
+        // 1. Resolve recipient via public ask RPC (works for unauthenticated visitors)
+        try {
+            const { data: publicProfile } = await supabase
+                .rpc('get_public_ask_profile', { p_username_or_id: String(recipientUsernameOrId).replace(/^@/, '').trim() });
+            if (publicProfile?.id) {
+                recipientId = publicProfile.id;
+                recipientUsername = publicProfile.username || recipientUsernameOrId;
+            }
+        } catch (_) {}
+
+        // Fallback resolution via profiles table if authenticated
+        if (!recipientId) {
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(recipientUsernameOrId);
+            if (isUuid) {
+                recipientId = recipientUsernameOrId;
+                const { data: prof } = await supabase
+                    .from('profiles')
+                    .select('id, username')
+                    .eq('id', recipientId)
+                    .maybeSingle();
+                if (prof?.username) recipientUsername = prof.username;
+            } else {
+                const cleanUser = recipientUsernameOrId.replace(/^@/, '').trim();
+                const { data: prof } = await supabase
+                    .from('profiles')
+                    .select('id, username')
+                    .ilike('username', cleanUser)
+                    .maybeSingle();
+                if (prof) {
+                    recipientId = prof.id;
+                    recipientUsername = prof.username;
+                }
+            }
+        }
+
+        if (!recipientId) {
+            return { error: 'Student profile not found. Please verify the link or username.' };
+        }
+
+        // 2. Submit via security definer RPC first (handles insert + notification safely)
+        try {
+            const { data: rpcRes, error: rpcErr } = await supabase
+                .rpc('submit_anonymous_ask_message', {
+                    p_recipient_id: recipientId,
+                    p_content: content.trim()
+                });
+            if (!rpcErr && rpcRes) {
+                return { data: rpcRes, error: null };
+            }
+            if (rpcErr) {
+                console.warn('[confessionService] submit_anonymous_ask_message RPC failed, attempting direct insert:', rpcErr.message);
+            }
+        } catch (rpcEx) {
+            console.warn('[confessionService] RPC call exception, attempting direct insert:', rpcEx);
+        }
+
+        // 3. Fallback to direct insert without .select().single() to avoid RLS check violation for anon
+        const { error: insertError } = await supabase
+            .from('user_anonymous_messages')
+            .insert({
+                recipient_id: recipientId,
+                recipient_username: recipientUsername,
+                content: content.trim()
+            });
+
+        if (insertError) throw insertError;
+
+        // Send notification to recipient
+        createNotification({
+            userId: recipientId,
+            actorId: null,
+            type: 'snapshot_reaction',
+            title: 'New Anonymous Message 💌',
+            content: `Someone sent you an anonymous message: "${content.trim().substring(0, 35)}..."`,
+            metadata: { url: '/confessions?tab=inbox' }
+        }).catch(() => {});
+
+        return { data: { recipient_id: recipientId, success: true }, error: null };
+    } catch (err) {
+        console.error('sendAnonymousMessage error:', err);
+        return { data: null, error: err.message };
+    }
+}
+
+/**
+ * Fetch received anonymous messages for the current user
+ */
+export async function getAnonymousMessages(recipientId) {
+    if (!recipientId) return { data: [], error: 'User ID required' };
+    try {
+        const { data, error } = await supabase
+            .from('user_anonymous_messages')
+            .select('*')
+            .eq('recipient_id', recipientId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return { data: data || [], error: null };
+    } catch (err) {
+        console.error('getAnonymousMessages error:', err);
+        return { data: [], error: err.message };
+    }
+}
+
+/**
+ * Delete an anonymous message
+ */
+export async function deleteAnonymousMessage(messageId) {
+    try {
+        const { error } = await supabase
+            .from('user_anonymous_messages')
+            .delete()
+            .eq('id', messageId);
+
+        if (error) throw error;
+        return { error: null };
+    } catch (err) {
+        console.error('deleteAnonymousMessage error:', err);
+        return { error: err.message };
+    }
+}
+
+/**
+ * Mark anonymous message as read
+ */
+export async function markAnonymousMessageRead(messageId) {
+    try {
+        const { error } = await supabase
+            .from('user_anonymous_messages')
+            .update({ is_read: true })
+            .eq('id', messageId);
+
+        if (error) throw error;
+        return { error: null };
+    } catch (err) {
+        console.error('markAnonymousMessageRead error:', err);
+        return { error: err.message };
+    }
+}
+
+/**
+ * Upload confession image to Supabase Storage confessions-media bucket
+ */
+export async function uploadConfessionMedia(file, userId) {
+    try {
+        const fileExt = file.name ? file.name.split('.').pop() : 'jpg';
+        const fileName = `${userId || 'anon'}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('confessions-media')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+            .from('confessions-media')
+            .getPublicUrl(filePath);
+
+        return { url: data.publicUrl, error: null };
+    } catch (err) {
+        console.error('uploadConfessionMedia error:', err);
+        return { url: null, error: err.message };
+    }
+}
+
+/**
+ * Fetch a single confession by ID (for deep linking)
+ */
+export async function getConfessionById(confessionId, userId = null) {
+    if (!confessionId) return { data: null, error: 'No confession ID provided' };
+    try {
+        const { data, error } = await supabase
+            .from('optimized_confessions')
+            .select('*')
+            .eq('id', confessionId)
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!data) return { data: null, error: 'Confession not found' };
+
+        const reactionCounts = {};
+        const userReactions = new Set();
+        REACTION_EMOJIS.forEach(e => { reactionCounts[e] = 0; });
+
+        (data.reaction_data || []).forEach(r => {
+            reactionCounts[r.e] = (reactionCounts[r.e] || 0) + 1;
+            if (r.u === userId) userReactions.add(r.e);
+        });
+
+        let hasReposted = false;
+        if (userId) {
+            const { data: repData } = await supabase
+                .from('confession_reposts')
+                .select('id')
+                .eq('confession_id', confessionId)
+                .eq('user_id', userId)
+                .maybeSingle();
+            hasReposted = Boolean(repData);
+        }
+
+        const enriched = {
+            ...data,
+            reactionCounts,
+            userReactions: [...userReactions],
+            hasClaimed: (data.claimer_ids || []).includes(userId),
+            hasReposted,
+            totalReactions: data.total_reactions || 0,
+            commentCount: data.comment_count || 0,
+            isViral: data.is_viral || false,
+            repostCount: data.repost_count || 0,
+            viewCount: data.view_count || 0
+        };
+
+        return { data: enriched, error: null };
+    } catch (err) {
+        console.warn('getConfessionById error:', err);
+        return { data: null, error: err.message };
+    }
+}
+
+const recordedConfessionViews = new Set();
+
+/**
+ * Record a non-inflating view count for a confession
+ */
+export async function recordConfessionView(confessionId, userId = null) {
+    if (!confessionId) return;
+    const sessionKey = `confession_view:${confessionId}`;
+    if (recordedConfessionViews.has(sessionKey)) return;
+    recordedConfessionViews.add(sessionKey);
+
+    try {
+        const { error } = await supabase.rpc('increment_confession_view', {
+            p_confession_id: confessionId
+        });
+        if (error) {
+            // Resilient fallback to feed impression
+            recordFeedImpression('confession', confessionId, 'confessions_feed').catch(() => {});
+        }
+    } catch (err) {
+        console.warn('recordConfessionView non-blocking error:', err);
+    }
 }

@@ -70,14 +70,20 @@ export async function getRecentStatuses() {
                 profiles:user_id (
                     id,
                     full_name,
-                    avatar_url
+                    avatar_url,
+                    is_shadow_banned,
+                    is_banned
                 )
             `)
             .gt('expires_at', new Date().toISOString()) // Use expires_at
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return { data, error: null };
+        const filteredData = (data || []).filter(item => {
+            const user = item.profiles;
+            return user && !user.is_shadow_banned && !user.is_banned;
+        });
+        return { data: filteredData, error: null };
     } catch (error) {
         console.error('Error fetching statuses:', error);
         return { data: [], error: error.message };

@@ -1,0 +1,394 @@
+/* ContextualTip - Inline Dismissible Banner */
+.contextual-tip-card {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(139, 92, 246, 0.16) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    margin: 0.6rem 0 1rem 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: tipSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    z-index: 5;
+}
+
+.match-contextual-tip {
+    position: absolute;
+    top: 56px;
+    left: 12px;
+    right: 12px;
+    z-index: 60;
+    pointer-events: auto;
+    background: rgba(18, 18, 30, 0.88);
+    border: 1px solid rgba(236, 72, 153, 0.45);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes tipSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.contextual-tip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+}
+
+.tip-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.tip-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.tip-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #ffffff;
+}
+
+.tip-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #94a3b8;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tip-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.contextual-tip-body {
+    margin-bottom: 0.65rem;
+}
+
+.tip-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.tip-text {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #cbd5e1;
+}
+
+.contextual-tip-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.tip-action-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tip-action-btn.secondary {
+    background: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+.tip-action-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tip-action-btn.primary {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(236, 72, 153, 0.35);
+}
+
+.tip-action-btn.primary:hover {
+    filter: brightness(1.1);
+}
+
+/* AppGuideModal - Full 7-Action Interactive Guide Modal */
+.guide-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.guide-modal-card {
+    background: #0f172a;
+    background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    max-height: calc((var(--vh, 1vh) * 100) - 40px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    color: #f8fafc;
+    animation: tipSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.guide-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.15rem 1.25rem 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guide-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.guide-header-icon {
+    font-size: 1.5rem;
+}
+
+.guide-modal-title h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f472b6, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.guide-step-counter {
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.guide-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #cbd5e1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.guide-chips-scroll {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.75rem 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.guide-chips-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.guide-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.guide-chip.active {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.4));
+    border-color: #ec4899;
+    color: #ffffff;
+}
+
+.guide-feature-view {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.feature-icon-badge {
+    position: relative;
+    margin-bottom: 0.85rem;
+}
+
+.feature-main-icon {
+    font-size: 3rem;
+    display: block;
+}
+
+.feature-badge-pill {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.feature-title {
+    margin: 0.5rem 0 0.35rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.feature-short-desc {
+    margin: 0 0 1rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: #cbd5e1;
+    max-width: 360px;
+}
+
+.feature-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-sizing: border-box;
+}
+
+.feature-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+}
+
+.detail-bullet {
+    color: #10b981;
+    font-weight: 800;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.detail-text {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: #e2e8f0;
+}
+
+.guide-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 0.5rem;
+}
+
+.btn-guide-nav {
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-guide-nav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.btn-guide-nav.primary {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
+}
+
+.btn-guide-nav.primary.done {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.guide-indicator-dots {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.indicator-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.indicator-dot.active {
+    background: #ec4899;
+    width: 14px;
+    border-radius: 999px;
+}

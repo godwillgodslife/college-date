@@ -1,6 +1,7 @@
 const OWNER_ADMIN_EMAILS = [
   'godwillgodslife@gmail.com',
   'godswillgodwillgodlife@gmail.com',
+  'jackreecesokieprim@gmail.com',
 ];
 
 export function normalizeEmail(email) {
@@ -8,7 +9,8 @@ export function normalizeEmail(email) {
 }
 
 export function hasTrustedAdminClaim(user) {
-  return user?.app_metadata?.is_admin === true || user?.app_metadata?.role === 'admin';
+  const role = user?.app_metadata?.role;
+  return user?.app_metadata?.is_admin === true || role === 'admin' || role === 'owner' || role === 'super_admin';
 }
 
 export function isOwnerAdminEmail(email) {

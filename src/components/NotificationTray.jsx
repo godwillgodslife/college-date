@@ -5,7 +5,7 @@ import { getNotificationDeepLink, getNotificationIcon } from '../utils/notificat
 import './NotificationTray.css';
 
 export default function NotificationTray({ onClose }) {
-    const { notifications, markRead, markAllRead } = useNotifications();
+    const { notifications, markRead, markAllRead, dismissNotification } = useNotifications();
     const navigate = useNavigate();
     const trayRef = useRef(null);
 
@@ -21,7 +21,11 @@ export default function NotificationTray({ onClose }) {
     }, [onClose]);
 
     const handleItemClick = (notification) => {
-        markRead(notification.id);
+        if (notification.type === 'call') {
+            dismissNotification(notification.id);
+        } else {
+            markRead(notification.id);
+        }
         onClose();
 
         const destination = getNotificationDeepLink(notification);
@@ -71,7 +75,21 @@ export default function NotificationTray({ onClose }) {
                                     {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
-                            {!notif.is_read && <span className="notif-dot" />}
+                            <div className="notif-item-actions">
+                                {!notif.is_read && <span className="notif-dot" />}
+                                <button
+                                    type="button"
+                                    className="notif-dismiss-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dismissNotification(notif.id);
+                                    }}
+                                    title="Dismiss notification"
+                                    aria-label="Dismiss notification"
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
                     ))
                 )}

@@ -30,6 +30,80 @@ if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('nati
   document.documentElement.classList.add('is-native-app');
 }
 
+function setNativeViewport() {
+  if (!isNative) return;
+
+  const content = [
+    'width=device-width',
+    'initial-scale=1',
+    'maximum-scale=1',
+    'viewport-fit=cover',
+    'interactive-widget=resizes-content',
+  ].join(', ');
+
+  let viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) {
+    viewport = document.createElement('meta');
+    viewport.setAttribute('name', 'viewport');
+    document.head.appendChild(viewport);
+  }
+
+  viewport.setAttribute('content', content);
+}
+
+function setViewportHeightVar() {
+  const height = window.visualViewport?.height || window.innerHeight;
+  document.documentElement.style.setProperty('--vh', `${height * 0.01}px`);
+}
+
+function setKeyboardOffset(offset = 0) {
+  const safeOffset = Math.max(0, Math.round(Number(offset) || 0));
+  document.documentElement.style.setProperty('--keyboard-offset', `${safeOffset}px`);
+  document.documentElement.classList.toggle('keyboard-open', safeOffset > 0);
+}
+
+async function initKeyboardOffsetTracking() {
+  const shouldTrack = isNative || document.documentElement.classList.contains('is-native-app');
+  if (!shouldTrack) return;
+
+  setViewportHeightVar();
+  window.addEventListener('resize', setViewportHeightVar, { passive: true });
+  window.addEventListener('orientationchange', () => {
+    window.setTimeout(setViewportHeightVar, 250);
+  }, { passive: true });
+
+  if (isNative) {
+    try {
+      const { Keyboard } = await import('@capacitor/keyboard');
+      Keyboard.addListener('keyboardWillShow', (info) => setKeyboardOffset(info?.keyboardHeight));
+      Keyboard.addListener('keyboardDidShow', (info) => setKeyboardOffset(info?.keyboardHeight));
+      Keyboard.addListener('keyboardWillHide', () => setKeyboardOffset(0));
+      Keyboard.addListener('keyboardDidHide', () => setKeyboardOffset(0));
+      return;
+    } catch (error) {
+      console.warn('[Capacitor] Keyboard offset tracking skipped:', error);
+    }
+  }
+
+  if (window.visualViewport) {
+    const updateFromVisualViewport = () => {
+      const offset = Math.max(
+        0,
+        window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop
+      );
+      setKeyboardOffset(offset);
+      setViewportHeightVar();
+    };
+
+    window.visualViewport.addEventListener('resize', updateFromVisualViewport, { passive: true });
+    window.visualViewport.addEventListener('scroll', updateFromVisualViewport, { passive: true });
+    updateFromVisualViewport();
+  }
+}
+
+setNativeViewport();
+initKeyboardOffsetTracking();
+
 async function clearNativeWebCaches() {
   if (!isNative) return;
 
@@ -164,8 +238,14 @@ async function initCapacitor() {
       await handleIncomingUrl(data?.url, 'appUrlOpen');
     });
 
-    // 2. Handle Android hardware back button on root route (exit app)
+    // 2. Handle Android hardware back button (dispatches cancelable event to active components first)
     CapApp.addListener('backButton', ({ canGoBack }) => {
+      const event = new CustomEvent('tcd:hardware-back', { cancelable: true });
+      const wasPrevented = !window.dispatchEvent(event);
+      if (wasPrevented) {
+        return; // Handled by active view/screen (e.g. closing chat conversation or modal)
+      }
+
       if (!canGoBack) {
         CapApp.exitApp();
       } else {

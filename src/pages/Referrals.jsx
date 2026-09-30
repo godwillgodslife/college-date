@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useCachedAsync } from '../hooks/useCachedAsync';
+import { applyReferralCode, getReferralMessage } from '../services/referralService';
 import './Referrals.css';
 
 const PUBLIC_APP_URL = (import.meta.env.VITE_PUBLIC_APP_URL || 'https://www.thecollegedate.com').replace(/\/$/, '');
@@ -39,6 +40,36 @@ export default function Referrals() {
     const [copying, setCopying] = useState(false);
     const [checkingRewards, setCheckingRewards] = useState(false);
     const [referralCode, setReferralCode] = useState(userProfile?.referral_code || '');
+    const [inputCode, setInputCode] = useState('');
+    const [redeeming, setRedeeming] = useState(false);
+
+    const handleRedeemCode = async (e) => {
+        e?.preventDefault();
+        const codeToApply = inputCode.trim();
+        if (!codeToApply) return;
+        setRedeeming(true);
+        try {
+            const result = await applyReferralCode(codeToApply);
+            if (result.error) {
+                addToast(result.error.message || 'Failed to apply referral code.', 'error');
+            } else if (result.data?.success) {
+                const msg = getReferralMessage(result.data) || 'Referral code applied successfully! 🎉';
+                addToast(msg, 'success');
+                setInputCode('');
+                fetchProfile?.(currentUser.id);
+                refreshWallet();
+                refreshReferrals();
+            } else {
+                const msg = getReferralMessage(result.data) || 'Could not apply that referral code.';
+                addToast(msg, 'error');
+            }
+        } catch (err) {
+            console.error('Error redeeming referral code:', err);
+            addToast('An error occurred while redeeming the code.', 'error');
+        } finally {
+            setRedeeming(false);
+        }
+    };
 
     useEffect(() => {
         if (currentUser) {
@@ -230,15 +261,50 @@ export default function Referrals() {
                         <span className="stat-name">Invites</span>
                     </div>
                     <div className="ref-stat">
-                        <span className="stat-val">₦{wallet?.pending_balance || 0}</span>
+                        <span className="stat-val">
+                            <span className="currency-symbol">₦</span> {Number(wallet?.pending_balance || 0).toLocaleString()}
+                        </span>
                         <span className="stat-name">Pending</span>
                     </div>
                     <div className="ref-stat clickable" onClick={handleCheckRewards}>
                         <span className="stat-val">
-                            {checkingRewards ? '...' : `₦${wallet?.available_balance || 0}`}
+                            {checkingRewards ? '...' : (
+                                <>
+                                    <span className="currency-symbol">₦</span> {Number(wallet?.available_balance || 0).toLocaleString()}
+                                </>
+                            )}
                         </span>
                         <span className="stat-name">Available</span>
                     </div>
+                </div>
+
+                {/* Redeem Referral Code Card */}
+                <div className="redeem-code-card">
+                    <div className="redeem-header">
+                        <span className="redeem-icon">🎁</span>
+                        <div>
+                            <h4>Have a Friend's Invite Code?</h4>
+                            <p>Enter their code to link accounts and get bonus free swipes!</p>
+                        </div>
+                    </div>
+                    <form className="redeem-form" onSubmit={handleRedeemCode}>
+                        <input
+                            type="text"
+                            className="redeem-input"
+                            placeholder="e.g. CD-ABC12"
+                            value={inputCode}
+                            onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                            maxLength={20}
+                            disabled={redeeming}
+                        />
+                        <button
+                            type="submit"
+                            className="btn btn-primary redeem-btn"
+                            disabled={redeeming || !inputCode.trim()}
+                        >
+                            {redeeming ? 'Applying...' : 'Apply Code'}
+                        </button>
+                    </form>
                 </div>
             </div>
 

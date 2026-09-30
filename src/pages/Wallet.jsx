@@ -13,13 +13,17 @@ import {
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { supabase } from '../lib/supabase';
+import { getCachedData, setCachedData } from '../lib/persistentCache';
+import { CACHE_TTL } from '../lib/cachePolicy';
+import { useActiveProgram } from '../hooks/useActiveProgram';
+import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import './Wallet.css';
 
 const FUNDING_OPTIONS = [
-    { amount: 2000, productId: PAYSTACK_PRODUCTS.walletTopUps[2000] },
+    { amount: 1000, productId: PAYSTACK_PRODUCTS.walletTopUps[1000] },
+    { amount: 2500, productId: PAYSTACK_PRODUCTS.walletTopUps[2500] },
     { amount: 5000, productId: PAYSTACK_PRODUCTS.walletTopUps[5000] },
-    { amount: 10000, productId: PAYSTACK_PRODUCTS.walletTopUps[10000] },
-    { amount: 20000, productId: PAYSTACK_PRODUCTS.walletTopUps[20000] }
+    { amount: 10000, productId: PAYSTACK_PRODUCTS.walletTopUps[10000] }
 ];
 
 const isNativeAndroid = () => {
@@ -31,12 +35,28 @@ export default function Wallet() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
 
-    const [wallet, setWallet] = useState(null);
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [fundingAmount, setFundingAmount] = useState('2000');
+    const [wallet, setWallet] = useState(() => {
+        if (!currentUser?.id) return null;
+        return getCachedData(['wallet', currentUser.id], { ttlMs: CACHE_TTL.wallet, allowStale: true })
+            || getCachedData(['auth-wallet', currentUser.id], { ttlMs: CACHE_TTL.wallet, allowStale: true })
+            || null;
+    });
+    const [transactions, setTransactions] = useState(() => {
+        if (!currentUser?.id) return [];
+        return getCachedData(['wallet-transactions', currentUser.id], { ttlMs: CACHE_TTL.wallet, allowStale: true }) || [];
+    });
+    const [loading, setLoading] = useState(() => !wallet);
+    const [fundingAmount, setFundingAmount] = useState('1000');
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [escrowBalance, setEscrowBalance] = useState(0);
+    const [activeModalOpen, setActiveModalOpen] = useState(false);
+    const {
+        enrolled: activeEnrolled,
+        accruedEarnings: activeEarnings,
+        qualifyingDaysCount,
+        todayQualified
+    } = useActiveProgram(currentUser?.id);
 
     const [payoutDetails, setPayoutDetails] = useState({
         bank_name: '',
@@ -75,7 +95,8 @@ export default function Wallet() {
     useEffect(() => {
         if (!currentUser) return;
 
-        loadWalletData();
+        const hasCached = Boolean(wallet);
+        loadWalletData(!hasCached);
         sweepPendingFunds();
 
         // Subscribe to real-time wallet updates
@@ -92,8 +113,9 @@ export default function Wallet() {
                 (payload) => {
                     console.log('💰 Wallet updated via Realtime:', payload.new);
                     setWallet(payload.new);
-                    // Also reload transactions to show the new entry
-                    loadWalletData();
+                    setCachedData(['wallet', currentUser.id], payload.new);
+                    // Also reload transactions to show the new entry silently
+                    loadWalletData(false);
                 }
             )
             .subscribe();
@@ -112,18 +134,20 @@ export default function Wallet() {
         }
     }
 
-    async function loadWalletData() {
-        setLoading(true);
+    async function loadWalletData(showLoading = true) {
+        if (showLoading && !wallet) setLoading(true);
         try {
             const { data: walletData, error: walletError } = await getWallet(currentUser.id);
             if (walletError) throw walletError;
             setWallet(walletData);
+            setCachedData(['wallet', currentUser.id], walletData);
 
             // Only load transactions if wallet has a real DB id
             if (walletData && walletData.id) {
                 const { data: txData, error: txError } = await getTransactions(walletData.id);
                 if (txError) throw txError;
                 setTransactions(txData || []);
+                setCachedData(['wallet-transactions', currentUser.id], txData || []);
             }
 
             // Load Payout Details
@@ -135,6 +159,19 @@ export default function Wallet() {
             } catch (payoutErr) {
                 // Payout details are optional, don't crash
                 console.warn('Could not load payout details:', payoutErr);
+            }
+
+            // Load Escrow balance from active service deals
+            try {
+                const { data: dealsData } = await supabase
+                    .from('service_deals')
+                    .select('amount, status')
+                    .eq('client_id', currentUser.id)
+                    .in('status', ['funded', 'completed']);
+                const totalEscrow = (dealsData || []).reduce((sum, d) => sum + Number(d.amount || 0), 0);
+                setEscrowBalance(totalEscrow);
+            } catch (escrowErr) {
+                console.warn('Could not load escrow deals:', escrowErr);
             }
         } catch (err) {
             console.error('Error loading wallet data:', err);
@@ -156,13 +193,8 @@ export default function Wallet() {
         const amount = parseFloat(fundingAmount);
         const selectedFundingProduct = FUNDING_OPTIONS.find(option => option.amount === amount);
 
-        if (isNativeAndroid()) {
-            addToast('Wallet funding is available on the web. Android digital purchases use Google Play Billing.', 'info');
-            return;
-        }
-
-        if (isNaN(amount) || amount < 2000) {
-            addToast('Minimum deposit is ₦2,000', 'warning');
+        if (isNaN(amount) || amount < 1000) {
+            addToast('Minimum deposit is ₦1,000', 'warning');
             return;
         }
 
@@ -182,7 +214,12 @@ export default function Wallet() {
         try {
             const { data: payment, error } = await startPaystackPayment(selectedFundingProduct.productId);
             if (error) throw new Error(error);
-            openHostedPaystackCheckout(payment);
+            await openHostedPaystackCheckout(payment, {
+                onClose: () => {
+                    loadWalletData();
+                    setIsProcessing(false);
+                }
+            });
         } catch (err) {
             console.error('Funding error:', err);
             addToast(err.message, 'error');
@@ -248,7 +285,8 @@ export default function Wallet() {
 
     if (loading) return <LoadingSpinner fullScreen />;
 
-    const isLady = userProfile?.role === 'Female';
+    const isFemale = (userProfile?.role || userProfile?.gender || '').toLowerCase() === 'female';
+    const isLady = isFemale;
 
     return (
         <div className="wallet-page animated fadeIn">
@@ -273,6 +311,46 @@ export default function Wallet() {
                 </div>
                 <div className="banner-badge">Weekly Every Friday</div>
             </div>
+
+            {/* College Date Active Card (Strictly Female Ambassador Cohort) */}
+            {isFemale && (
+                <div 
+                    className="wallet-active-program-card glass animate-fade-in"
+                    onClick={() => setActiveModalOpen(true)}
+                    style={{
+                        margin: '1rem 0',
+                        padding: '1rem 1.25rem',
+                        background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.14), rgba(16, 185, 129, 0.1))',
+                        border: '1px solid rgba(255, 215, 0, 0.35)',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                        <span style={{ fontSize: '2rem' }}>⚡</span>
+                        <div>
+                            <div style={{ fontWeight: '800', fontSize: '1rem', color: '#ffd700' }}>
+                                College Date Active: ₦{activeEarnings?.toLocaleString()}
+                            </div>
+                            <div style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.8)' }}>
+                                {activeEnrolled 
+                                    ? (todayQualified ? `✓ Today's +₦${dailyReward || 625} Qualified — Settles on 28th` : `${qualifyingDaysCount}/${minQualifyingDays || 24} qualifying days completed`)
+                                    : 'Earn up to ₦15,000/mo through genuine campus participation.'}
+                            </div>
+                        </div>
+                    </div>
+                    <button 
+                        type="button" 
+                        className="btn btn-primary"
+                        style={{ padding: '6px 14px', fontSize: '0.82rem', borderRadius: '999px', background: '#ffd700', color: '#000', fontWeight: '700' }}
+                    >
+                        {activeEnrolled ? 'View →' : 'Join'}
+                    </button>
+                </div>
+            )}
 
             <div className="wallet-overview-grid">
                 <div className="balance-card">
@@ -314,7 +392,7 @@ export default function Wallet() {
                                 <label className="form-label">Choose a wallet top-up</label>
                                 {isNativeAndroid() && (
                                     <p style={{ margin: '0 0 0.75rem', color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.45 }}>
-                                        Wallet top-ups for digital features are available on the web. Android purchases use Google Play Billing.
+                                        Instant Paystack wallet funding via card, bank transfer, or USSD.
                                     </p>
                                 )}
                                 <div className="input-group">
@@ -322,7 +400,7 @@ export default function Wallet() {
                                         value={fundingAmount}
                                         onChange={(e) => setFundingAmount(e.target.value)}
                                         className="funding-input"
-                                        disabled={isProcessing || isNativeAndroid()}
+                                        disabled={isProcessing}
                                     >
                                         {FUNDING_OPTIONS.map(option => (
                                             <option key={option.productId} value={option.amount}>
@@ -333,7 +411,7 @@ export default function Wallet() {
                                     <button
                                         type="submit"
                                         className="btn btn-primary btn-fund"
-                                        disabled={isProcessing || isNativeAndroid()}
+                                        disabled={isProcessing}
                                     >
                                         {isProcessing ? '...' : 'Add Funds'}
                                     </button>
@@ -374,6 +452,10 @@ export default function Wallet() {
                     <div className="mini-stat-card">
                         <span className="mini-label">Total Earned</span>
                         <span className="mini-value">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="mini-stat-card escrow-card">
+                        <span className="mini-label">🤝 In Escrow</span>
+                        <span className="mini-value">₦{parseFloat(escrowBalance || 0).toLocaleString()}</span>
                     </div>
                 </div>
 
@@ -531,6 +613,12 @@ export default function Wallet() {
                     </div>
                 )}
             </section>
+
+            <CollegeDateActiveModal
+                isOpen={activeModalOpen}
+                onClose={() => setActiveModalOpen(false)}
+                userId={currentUser?.id}
+            />
         </div >
     );
 }

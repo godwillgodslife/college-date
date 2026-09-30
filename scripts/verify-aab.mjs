@@ -6,8 +6,6 @@ import { basename, join, resolve } from 'node:path';
 const root = process.cwd();
 const aabPath = resolve(root, process.argv[2] || 'android/app/build/outputs/bundle/release/app-release.aab');
 const expectedPackage = 'com.collegedate.app';
-const expectedVersionCode = '28';
-const expectedVersionName = '2.2.31';
 
 function getJarPath() {
   if (process.env.JAVA_HOME) {
@@ -48,14 +46,31 @@ const blockedEntries = [
   /\.apk$/i,
   /private-downloads/i,
   /TheCollegeDate-native-prototype-debug/i,
+  /assets\/public\/evidence/i,
 ];
 
 for (const pattern of blockedEntries) {
   if (pattern.test(listing)) fail(`Bundle contains blocked entry matching ${pattern}`);
 }
-ok('No private APK/private-download assets are bundled.');
+ok('No private APK/private-download or test evidence assets are bundled.');
+
+const { statSync } = await import('node:fs');
+const bundleStats = statSync(aabPath);
+if (bundleStats.size > 30 * 1024 * 1024) {
+  fail(`Bundle size (${(bundleStats.size / 1024 / 1024).toFixed(1)} MB) exceeds 30 MB threshold.`);
+}
+ok(`Bundle size is ${(bundleStats.size / 1024 / 1024).toFixed(1)} MB (under 30 MB threshold).`);
 
 const buildGradle = readFileSync(join(root, 'android', 'app', 'build.gradle'), 'utf8');
+const versionCodeMatch = buildGradle.match(/\bversionCode\s+(\d+)/);
+const versionNameMatch = buildGradle.match(/\bversionName\s+"([^"]+)"/);
+
+if (!versionCodeMatch) fail('versionCode not found in android/app/build.gradle.');
+if (!versionNameMatch) fail('versionName not found in android/app/build.gradle.');
+
+const expectedVersionCode = versionCodeMatch[1];
+const expectedVersionName = versionNameMatch[1];
+
 if (!buildGradle.includes(`applicationId "${expectedPackage}"`)) fail(`Expected package ${expectedPackage} not found.`);
 if (!buildGradle.includes(`versionCode ${expectedVersionCode}`)) fail(`Expected versionCode ${expectedVersionCode} not found.`);
 if (!buildGradle.includes(`versionName "${expectedVersionName}"`)) fail(`Expected versionName ${expectedVersionName} not found.`);
@@ -76,6 +91,23 @@ const manifest = readFileSync(join(root, 'android', 'app', 'src', 'main', 'Andro
 if (!manifest.includes('android:allowBackup="false"')) fail('Android backup must be disabled for release.');
 if (!manifest.includes('android:usesCleartextTraffic="false"')) fail('Cleartext traffic must remain disabled.');
 ok('Android manifest security flags are set.');
+
+const forbiddenMediaPerms = [
+  'android.permission.READ_MEDIA_IMAGES',
+  'android.permission.READ_MEDIA_VIDEO',
+  'android.permission.READ_EXTERNAL_STORAGE',
+  'android.permission.WRITE_EXTERNAL_STORAGE'
+];
+for (const perm of forbiddenMediaPerms) {
+  const regex = new RegExp(`<uses-permission[^>]*${perm}[^>]*>`, 'g');
+  const matches = manifest.match(regex) || [];
+  for (const match of matches) {
+    if (!match.includes('tools:node="remove"')) {
+      fail(`Google Play Photo & Video Policy Violation: ${perm} must not be requested.`);
+    }
+  }
+}
+ok('Google Play Photo & Video policy compliance: broad media & storage permissions excluded.');
 
 if (!revenueCatAndroidKey) {
   fail('VITE_REVENUECAT_ANDROID_KEY is missing from .env.');

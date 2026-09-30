@@ -55,6 +55,7 @@
 }
 
 .drawer-photo-wrapper {
+    position: relative;
     flex: 0 0 calc(100% - 40px);
     scroll-snap-align: center;
     aspect-ratio: 3/4;
@@ -62,6 +63,29 @@
     border-radius: 20px;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-premium-golden-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: 2.5px solid rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(255, 170, 0, 0.7);
+    z-index: 10;
+    animation: badgePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.drawer-premium-golden-badge span {
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .drawer-photo-wrapper.has-status {
@@ -175,6 +199,13 @@
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.drawer-actions-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
 .btn-vibe-pay {
     width: 100%;
     padding: 16px;
@@ -206,9 +237,105 @@
     cursor: not-allowed;
 }
 
+.btn-drawer-chat-vibe {
+    width: 100%;
+    padding: 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.25));
+    color: #e9d5ff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.btn-drawer-chat-vibe:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.4));
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+
+.btn-drawer-chat-vibe:active {
+    transform: scale(0.98);
+}
+
 .wallet-balance-note {
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.8rem;
     margin: 10px 0 0;
 }
+
+/* ── Light Theme Profile Drawer Overrides ── */
+html[data-theme="light"] .profile-drawer,
+.theme-light .profile-drawer {
+    background: #ffffff;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .drawer-handle,
+.theme-light .drawer-handle {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="light"] .drawer-name,
+.theme-light .drawer-name {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .drawer-intent-box,
+.theme-light .drawer-intent-box {
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .drawer-intent-box p,
+.theme-light .drawer-intent-box p {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .drawer-intent-box strong,
+.theme-light .drawer-intent-box strong {
+    color: #64748b;
+}
+
+html[data-theme="light"] .drawer-bio h3,
+html[data-theme="light"] .drawer-vibes h3,
+.theme-light .drawer-bio h3,
+.theme-light .drawer-vibes h3 {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .drawer-bio p,
+.theme-light .drawer-bio p {
+    color: #334155;
+}
+
+html[data-theme="light"] .vibe-tag,
+.theme-light .vibe-tag {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .drawer-footer,
+.theme-light .drawer-footer {
+    background: linear-gradient(to top, #ffffff 80%, transparent);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .btn-drawer-chat-vibe,
+.theme-light .btn-drawer-chat-vibe {
+    background: linear-gradient(135deg, rgba(99, 91, 255, 0.1), rgba(236, 72, 153, 0.1));
+    border: 1px solid rgba(99, 91, 255, 0.35);
+    color: #4f46e5;
+    box-shadow: 0 4px 15px rgba(99, 91, 255, 0.12);
+}
+

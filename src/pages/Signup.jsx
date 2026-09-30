@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
+import { 
+    validateReferralCode, 
+    rememberReferralCode, 
+    applyStoredReferralCode, 
+    getStoredReferralCode 
+} from '../services/referralService';
+import { CURRENT_POLICY_VERSIONS } from '../services/policyService';
 import './Auth.css';
 
 export default function Signup() {
@@ -12,20 +19,38 @@ export default function Signup() {
     const [role, setRole] = useState(''); // 'Male' or 'Female'
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [referrerInfo, setReferrerInfo] = useState(null);
 
-    const { signup, loginWithGoogle, error, clearError } = useAuth();
+    const { currentUser, loading: authLoading, signup, loginWithGoogle, error, clearError } = useAuth();
     const { success, error: showError } = useToast();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!authLoading && currentUser) {
+            navigate('/', { replace: true });
+        }
+    }, [authLoading, currentUser, navigate]);
 
     // Extract referral code from URL and persist in localStorage
     const [referralCode, setReferralCode] = useState(() => {
         const params = new URLSearchParams(window.location.search);
-        const code = params.get('ref') || localStorage.getItem('referral_code') || '';
+        const code = params.get('ref') || getStoredReferralCode() || '';
         if (params.get('ref')) {
-            localStorage.setItem('referral_code', params.get('ref'));
+            rememberReferralCode(params.get('ref'));
         }
         return code;
     });
+
+    // Check referral validity on mount if ref parameter exists
+    useEffect(() => {
+        if (referralCode) {
+            validateReferralCode(referralCode).then(({ data }) => {
+                if (data?.valid) {
+                    setReferrerInfo(data);
+                }
+            }).catch(() => {});
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -50,26 +75,29 @@ export default function Signup() {
 
         let referrerId = null;
         if (referralCode) {
-            const { data: referrerData, error: refError } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('referral_code', referralCode)
-                .single();
-
-            if (!refError && referrerData) {
-                referrerId = referrerData.id;
+            const { data: refData } = await validateReferralCode(referralCode);
+            if (refData?.valid && refData?.referrer_id) {
+                referrerId = refData.referrer_id;
+                rememberReferralCode(refData.code);
+            } else if (refData && !refData.valid) {
+                showError('The referral code entered is invalid or inactive.');
+                setIsLoading(false);
+                return;
             }
         }
 
         const { data, error: signupErr } = await signup(email, password, {
             referred_by: referrerId,
-            role: role
+            role: role,
+            terms_accepted: true,
+            terms_version: CURRENT_POLICY_VERSIONS.terms,
+            privacy_accepted: true,
+            privacy_version: CURRENT_POLICY_VERSIONS.privacy,
+            terms_accepted_at: new Date().toISOString()
         });
 
         if (!signupErr && data?.user) {
-            // Referral attribution is now handled by the backend trigger `on_referred_profile_created`
-            // and `sync_referral_from_profile` which fires when a profile is created with referred_by
-            localStorage.removeItem('referral_code');
+            await applyStoredReferralCode().catch(() => {});
         }
 
         setIsLoading(false);
@@ -194,6 +222,45 @@ export default function Signup() {
                                     autoComplete="new-password"
                                 />
                             </div>
+                        </div>
+
+                        <div className="form-group referral-field">
+                            <label htmlFor="referralCode" className="form-label">Referral code (optional)</label>
+                            <div className="input-wrapper">
+                                <span className="input-icon">🎁</span>
+                                <input
+                                    id="referralCode"
+                                    type="text"
+                                    className="form-input referral-input"
+                                    placeholder="CD-ABCDE"
+                                    value={referralCode}
+                                    onChange={(e) => {
+                                        const val = e.target.value.toUpperCase();
+                                        setReferralCode(val);
+                                        rememberReferralCode(val);
+                                    }}
+                                    disabled={isLoading}
+                                    autoComplete="off"
+                                    autoCapitalize="characters"
+                                    spellCheck="false"
+                                />
+                            </div>
+                            {referrerInfo?.referrer_name && (
+                                <div className="referral-hint" style={{ fontSize: '0.82rem', color: '#10b981', marginTop: '5px' }}>
+                                    🎁 Invited by {referrerInfo.referrer_name}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="auth-legal-notice">
+                            By tapping Create Account, you confirm you are 18+ and agree to our{' '}
+                            <Link to="/terms" target="_blank" rel="noopener noreferrer" className="auth-legal-link">
+                                Terms of Service
+                            </Link>{' '}
+                            and{' '}
+                            <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="auth-legal-link">
+                                Privacy Policy
+                            </Link>.
                         </div>
 
                         <button type="submit" className="btn btn-primary btn-block" disabled={isLoading}>

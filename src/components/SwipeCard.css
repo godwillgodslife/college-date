@@ -2,31 +2,39 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: #08070d !important;
+    background-color: var(--card-bg, #14141e) !important;
     border-radius: 30px;
     box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.62),
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 24px 60px rgba(0, 0, 0, 0.38),
+        0 0 0 1px var(--border-subtle, rgba(255, 255, 255, 0.05)),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     cursor: grab;
     overflow: hidden;
     touch-action: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
     z-index: 10;
-    isolation: isolate;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
 }
 
-.swipe-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 4;
+.swipe-card.top-card:active {
+    cursor: grabbing;
+}
+
+.swipe-card.stack-card {
+    cursor: default;
+}
+
+.swipe-card.stack-card .carousel-nav,
+.swipe-card.stack-card .swipe-card-actions-row,
+.swipe-card.stack-card button {
     pointer-events: none;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 18%),
-        linear-gradient(90deg, rgba(255, 77, 184, 0.16), transparent 30%, transparent 70%, rgba(139, 92, 246, 0.16));
-    mix-blend-mode: screen;
-    opacity: 0.5;
+}
+
+/* Neutral photography focus: No decorative color blend over user photos */
+.swipe-card::before {
+    display: none;
 }
 
 .swipe-card-inner {
@@ -48,11 +56,9 @@
     height: 100%;
     object-fit: cover;
     pointer-events: none;
-    transition: filter 260ms ease;
-}
-
-.swipe-card:active .swipe-card-image {
-    filter: saturate(1.08) contrast(1.05);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
 }
 
 .swipe-card-placeholder {
@@ -727,3 +733,51 @@
     border-radius: 10px;
     border: 1px solid #000;
 }
+
+/* Golden Round Logo Badge on Swipe Card */
+.card-premium-golden-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: 2.5px solid rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(255, 170, 0, 0.7);
+    z-index: 10;
+    animation: badgePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-premium-golden-badge .premium-crown-icon {
+    font-size: 19px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.verified-tag-glow {
+    background: rgba(34, 197, 94, 0.25) !important;
+    border: 1px solid rgba(34, 197, 94, 0.6) !important;
+    color: #4ade80 !important;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+
+.card-verified-tick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #22c55e;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    border-radius: 50%;
+    margin-left: 6px;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.5);
+    vertical-align: middle;
+}
+

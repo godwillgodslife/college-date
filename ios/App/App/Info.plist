@@ -43,6 +43,8 @@
 	<string>The College Date uses your approximate location to improve campus discovery and safety features.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The College Date uses your microphone for voice messages, voice calls, and video calls.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>The College Date uses Face ID to unlock your saved sign-in on this device.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>The College Date may save media you choose to download.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

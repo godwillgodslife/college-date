@@ -10,13 +10,13 @@ export async function getLeaderboards() {
 
         if (error) throw error;
 
-        // Filter out individuals with 0, restrict by gender (case-insensitive), and sort
-        const sortedBySwipes = data
-            .filter(u => u.premium_swipes_received > 0 && u.gender?.toLowerCase() === 'female')
+        // Filter out individuals with 0, shadow-banned or banned, restrict by gender (case-insensitive), and sort
+        const sortedBySwipes = (data || [])
+            .filter(u => !u.is_shadow_banned && !u.is_banned && u.premium_swipes_received > 0 && u.gender?.toLowerCase() === 'female')
             .sort((a, b) => (b.premium_swipes_received || 0) - (a.premium_swipes_received || 0));
 
-        const sortedBySpent = data
-            .filter(u => u.total_spent > 0 && u.gender?.toLowerCase() === 'male')
+        const sortedBySpent = (data || [])
+            .filter(u => !u.is_shadow_banned && !u.is_banned && u.total_spent > 0 && u.gender?.toLowerCase() === 'male')
             .sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0));
 
         return {

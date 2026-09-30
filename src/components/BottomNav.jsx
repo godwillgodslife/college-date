@@ -72,6 +72,9 @@ export default function BottomNav() {
                         onClick={() => triggerLightHaptic()}
                         onMouseEnter={() => prefetch(item.path)}
                         onTouchStart={() => prefetch(item.path)}
+                        aria-label={item.label}
+                        role="tab"
+                        aria-selected={isActive}
                     >
                         <span className="bottom-nav-icon">
                             {item.icon}

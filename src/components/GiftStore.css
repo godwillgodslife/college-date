@@ -6,15 +6,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    /* Absolute priority */
+    z-index: 10001;
+    /* Absolute priority above navigation bar */
     padding: 20px;
 }
 
 .gift-store-modal {
     width: 100%;
     max-width: 400px;
-    max-height: 90vh;
+    max-height: min(90vh, 620px);
     /* Ensure it fits on screen */
     background: var(--bg-secondary);
     border-radius: 24px;
@@ -46,13 +46,47 @@
     border-bottom: 1px solid var(--glass-border);
 }
 
-.wallet-pill {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-    padding: 0.25rem 0.75rem;
+.gift-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gift-header-title h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.gift-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.coin-balance-pill {
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+    padding: 0.35rem 0.75rem;
     border-radius: 100px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.coin-balance-pill:hover {
+    background: rgba(251, 191, 36, 0.25);
+}
+
+.coin-balance-pill.low-coins {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
 }
 
 .btn-close {
@@ -126,6 +160,7 @@
     bottom: 0;
     z-index: 5;
     box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
 }
 
 .gift-hint {
@@ -236,5 +271,39 @@
 
     to {
         transform: translateY(-10px) scale(1.1);
+    }
+}
+
+@media (max-width: 768px) {
+    .gift-store-overlay {
+        align-items: flex-end;
+        padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) 0.75rem;
+    }
+
+    .gift-store-modal {
+        width: 100%;
+        max-width: 420px;
+        max-height: calc(100dvh - 24px);
+        border-radius: 24px 24px 18px 18px;
+    }
+
+    .gift-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        padding: 0.85rem;
+        max-height: 250px;
+    }
+
+    .gift-card {
+        padding: 0.85rem 0.65rem;
+    }
+
+    .gift-footer {
+        padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+        flex-shrink: 0;
+    }
+
+    .btn-buy {
+        min-height: 48px;
     }
 }

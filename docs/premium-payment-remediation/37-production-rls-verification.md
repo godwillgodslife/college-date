@@ -1,38 +1,51 @@
 # Production RLS Verification
 
-Date: 2026-07-21
+Date: 2026-07-25
 
-Status: Blocked
+Status: Passed
 
-## Current State
+## Method
 
-RLS is enabled on existing production `profiles`, `subscriptions`, `wallet_transactions`, and `wallets`.
+Direct production database/RPC checks were run with transaction-scoped authenticated-role simulation. Temporary premium entitlement checks were executed inside a rollback-only transaction so no persistent test entitlement remained.
 
-The new remediation tables and RPCs do not exist yet, so production RLS verification for the new payment system could not be executed.
+## Viewer and Admirer Identity Protection
 
-## Required Tests After Migration
+Free-user checks:
 
-Use controlled production accounts:
+- `get_profile_viewers_secure`: returned locked items only.
+- `get_admirers_secure`: returned locked items only.
+- Free user response hid user IDs, profile IDs, names, photos, schools, bios, and exact identity timestamps.
 
-- Free user
-- Premium test user
-- Unrelated user
+Temporary premium checks:
 
-Verify direct API/RPC behavior, not only frontend screens:
+- A rollback-only premium entitlement allowed unlocked viewer/admirer identity data.
+- Rollback verification confirmed no test entitlement persisted.
 
-- Free user calling `get_profile_viewers_secure` receives locked items only.
-- Free user calling `get_admirers_secure` receives locked items only.
-- Free user receives no viewer/admirer IDs, profile IDs, names, photos, schools, bios, or exact identity timestamps.
-- Premium user receives unlocked viewer/admirer identity data.
-- Unrelated user cannot read another user's payment attempts.
-- Authenticated user cannot insert or update `entitlements`.
-- Authenticated user cannot create successful `payment_attempts`.
-- Authenticated user cannot insert or update `wallet_ledger`.
-- Authenticated user cannot update product catalogue pricing.
-- Authenticated user cannot read `provider_webhook_events`.
-- Authenticated user cannot read `payment_audit_logs`.
-- Authenticated user cannot read another user's transactions.
+## Privilege Checks
 
-## Current Blocker
+Post-hardening privilege checks confirmed:
 
-The database migration did not run because no recoverable production backup was visible.
+- Authenticated users cannot insert entitlements.
+- Authenticated users cannot modify entitlement expiration directly.
+- Authenticated users cannot create successful payment attempts directly.
+- Authenticated users cannot insert wallet ledger rows.
+- Authenticated users cannot update wallet ledger records.
+- Authenticated users cannot update product catalogue prices.
+- Authenticated users cannot read webhook events.
+- Authenticated users cannot read audit logs.
+
+## Table RLS
+
+RLS is enabled on:
+
+- `paid_products`
+- `payment_attempts`
+- `provider_webhook_events`
+- `entitlements`
+- `wallet_ledger`
+- `payment_audit_logs`
+- `monetization_config`
+
+## Limitations
+
+Browser-authenticated JWT storage was not accessible from the automation context, so authenticated HTTP probes for another user's payment records were not repeated with a live browser token. The direct database/RPC simulation and privilege checks passed.

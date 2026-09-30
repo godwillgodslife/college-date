@@ -9,11 +9,35 @@ import AndroidInstallButton from '../components/AndroidInstallButton';
 import { hasActivePremium } from '../utils/premium';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
+import { useScoreStreak } from '../hooks/useScoreStreak';
+import ScoreStreakModal from '../components/ScoreStreakModal';
+import { useActiveProgram } from '../hooks/useActiveProgram';
+import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
+import { formatDisplayName } from '../utils/profileData';
 import './Dashboard.css';
 
 export default function Dashboard() {
     const { currentUser, userProfile } = useAuth();
     const navigate = useNavigate();
+    const [streakModalOpen, setStreakModalOpen] = useState(false);
+    const [activeModalOpen, setActiveModalOpen] = useState(false);
+    const {
+        streak: scoreStreak,
+        longestStreak,
+        activeToday: streakActiveToday,
+        nextMilestone: streakNextMilestone,
+        progressToMilestone: streakProgress
+    } = useScoreStreak(currentUser?.id);
+    const {
+        enrolled: activeEnrolled,
+        accruedEarnings: activeEarnings,
+        qualifyingDaysCount,
+        minQualifyingDays,
+        dailyReward,
+        todayQualified
+    } = useActiveProgram(currentUser?.id);
+    const isNative = (typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) ||
+                     (typeof document !== 'undefined' && document.documentElement.classList.contains('is-native-app'));
 
     const [stats, setStats] = useState({
         matches: 0,
@@ -35,14 +59,15 @@ export default function Dashboard() {
             ttlMs: CACHE_TTL.dashboard,
             allowStale: true
         });
-        if (cachedStats) {
+        const hasCache = Boolean(cachedStats);
+        if (hasCache) {
             setStats(cachedStats);
             setIsLoadingStats(false);
         }
 
-        fetchStats();
+        fetchStats(!hasCache);
 
-        // Subscribe to real-time updates for dashboard stats
+        // Subscribe to real-time updates for dashboard stats (strictly user-scoped)
         const dashboardChannel = supabase
             .channel(`dashboard_updates:${currentUser.id}`)
             // 1. Listen for wallet updates (Balance/Earnings)
@@ -60,18 +85,7 @@ export default function Dashboard() {
                     totalEarned: payload.new.total_earned || 0
                 }));
             })
-            // 2. Listen for new matches
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'matches'
-            }, (payload) => {
-                if (payload.new.user1_id === currentUser.id || payload.new.user2_id === currentUser.id) {
-                    console.log('💖 Dashboard: New match detected');
-                    setStats(prev => ({ ...prev, matches: prev.matches + 1 }));
-                }
-            })
-            // 3. Listen for new gifts/transactions
+            // 2. Listen for new gifts/transactions
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
@@ -82,7 +96,7 @@ export default function Dashboard() {
                     console.log('🎁 Dashboard: New gift received');
                     setStats(prev => ({ ...prev, giftsReceived: prev.giftsReceived + 1 }));
                 }
-                // Also trigger a partial re-fetch to ensure sync
+                // Also trigger a silent re-fetch to ensure sync
                 fetchStats(false);
             })
             .subscribe();
@@ -132,16 +146,6 @@ export default function Dashboard() {
                     .gt('created_at', twentyFourHoursAgo)
             ]);
 
-            const firstError = [
-                matchResult.error,
-                messageResult.error,
-                walletResult.error,
-                giftResult.error,
-                viewResult.error
-            ].find(Boolean);
-
-            if (firstError) throw firstError;
-
             const wallet = walletResult.data;
 
             const nextStats = {
@@ -150,7 +154,7 @@ export default function Dashboard() {
                 balance: wallet?.available_balance || 0,
                 pendingBalance: wallet?.pending_balance || 0,
                 totalEarned: wallet?.total_earned || 0,
-                freeSwipes: userProfile?.free_swipes || 0,
+                freeSwipes: userProfile?.free_swipes ?? 20,
                 giftsReceived: giftResult.count || 0,
                 viewerCount: viewResult.count || 0
             };
@@ -159,6 +163,10 @@ export default function Dashboard() {
                 userId: currentUser.id,
                 type: 'dashboard'
             });
+
+            if (matchResult.error && messageResult.error && walletResult.error) {
+                setStatsError('Some dashboard numbers could not refresh. Your main app is still available.');
+            }
         } catch (err) {
             console.error('Error fetching dashboard stats:', err);
             setStatsError('Some dashboard numbers could not refresh. Your main app is still available.');
@@ -167,10 +175,11 @@ export default function Dashboard() {
         }
     }
 
-    const displayName = userProfile?.full_name
-        || userProfile?.username
-        || currentUser?.email?.split('@')[0]
-        || 'there';
+    const displayName = formatDisplayName(
+        userProfile?.full_name,
+        userProfile?.username || currentUser?.email?.split('@')[0],
+        'there'
+    );
 
     const greeting = getGreeting();
     const isPremium = hasActivePremium(userProfile);
@@ -252,6 +261,78 @@ export default function Dashboard() {
                 {/* Who Viewed You Teaser (Social Proof/Curiosity) */}
                 <ViewerTeaser count={stats.viewerCount} />
 
+                {/* Score Streak Card */}
+                <div 
+                    className="dashboard-streak-card" 
+                    onClick={() => setStreakModalOpen(true)}
+                    style={{
+                        margin: '0.75rem 0',
+                        padding: '0.85rem 1rem',
+                        background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.16), rgba(255, 165, 2, 0.09))',
+                        border: '1px solid rgba(255, 107, 107, 0.32)',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer'
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Score Streak: ${scoreStreak} days`}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+                        <span style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>🔥</span>
+                        <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                Score Streak: {scoreStreak} {scoreStreak === 1 ? 'Day' : 'Days'}
+                            </div>
+                            <div style={{ fontSize: '0.8rem', color: streakActiveToday ? '#4ade80' : '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {streakActiveToday ? '✓ Streak active today' : '⏳ Action needed today to keep alive'}
+                            </div>
+                        </div>
+                    </div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: '600', color: '#ff9f43', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                        View →
+                    </span>
+                </div>
+
+                {/* College Date Active Program Card (Strictly Female Ambassador Cohort) */}
+                {isFemale && (
+                    <div 
+                        className="dashboard-active-program-card" 
+                        onClick={() => setActiveModalOpen(true)}
+                        style={{
+                            margin: '0.75rem 0',
+                            padding: '0.85rem 1rem',
+                            background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.14), rgba(16, 185, 129, 0.1))',
+                            border: '1px solid rgba(255, 215, 0, 0.35)',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            cursor: 'pointer'
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="College Date Active Program"
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>⚡</span>
+                            <div style={{ minWidth: 0 }}>
+                                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#ffd700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    College Date Active: ₦{activeEarnings?.toLocaleString()}
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: todayQualified ? '#4ade80' : 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {todayQualified ? `✓ Today's +₦${dailyReward || 625} Qualified` : `${qualifyingDaysCount || 0}/${minQualifyingDays || 24} qualifying days`}
+                                </div>
+                            </div>
+                        </div>
+                        <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#ffd700', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                            View →
+                        </span>
+                    </div>
+                )}
+
                 {statsError && (
                     <button className="dashboard-alert" type="button" onClick={() => fetchStats(true)}>
                         {statsError} Tap to retry.
@@ -283,14 +364,16 @@ export default function Dashboard() {
                 <AnalyticsDashboard userId={currentUser.id} />
             )}
 
-            <section className="dashboard-install-panel">
-                <div>
-                    <span className="dashboard-panel-kicker">Mobile first</span>
-                    <h2>Use The College Date like a real campus app</h2>
-                    <p>Install it on Android for faster access, cleaner navigation, native payments, and a more app-like experience.</p>
-                </div>
-                <AndroidInstallButton />
-            </section>
+            {!isNative && (
+                <section className="dashboard-install-panel">
+                    <div>
+                        <span className="dashboard-panel-kicker">Mobile first</span>
+                        <h2>Use The College Date like a real campus app</h2>
+                        <p>Install it on Android for faster access, cleaner navigation, native payments, and a more app-like experience.</p>
+                    </div>
+                    <AndroidInstallButton />
+                </section>
+            )}
 
             {/* Features Grid */}
             <section className="dashboard-features">
@@ -313,6 +396,26 @@ export default function Dashboard() {
                     ))}
                 </div>
             </section>
+
+            <ScoreStreakModal
+                isOpen={streakModalOpen}
+                onClose={() => setStreakModalOpen(false)}
+                streak={scoreStreak}
+                longestStreak={longestStreak}
+                activeToday={streakActiveToday}
+                nextMilestone={streakNextMilestone}
+                progressToMilestone={streakProgress}
+                onStartActivity={() => {
+                    setStreakModalOpen(false);
+                    navigate('/match');
+                }}
+            />
+
+            <CollegeDateActiveModal
+                isOpen={activeModalOpen}
+                onClose={() => setActiveModalOpen(false)}
+                userId={currentUser?.id}
+            />
         </div>
     );
 }

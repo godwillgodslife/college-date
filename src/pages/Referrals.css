@@ -319,3 +319,202 @@
         transform: scale(1.02);
     }
 }
+
+.referrals-page,
+.referrals-page * {
+    min-width: 0;
+}
+
+.referrals-page {
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: clip;
+}
+
+.code-display,
+.ref-name,
+.ref-date,
+.stat-val {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    html.is-native-app .referrals-page {
+        max-width: 100%;
+        padding: 1.25rem var(--native-page-padding-right) var(--native-page-bottom-padding) var(--native-page-padding-left);
+        margin: 0;
+    }
+
+    html.is-native-app .referral-header {
+        margin-bottom: 1.4rem;
+    }
+
+    html.is-native-app .referral-header h1 {
+        font-size: clamp(1.85rem, 9vw, 2.35rem);
+        line-height: 1.05;
+    }
+
+    html.is-native-app .referral-incentives {
+        gap: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    html.is-native-app .incentive-card {
+        border-radius: 24px;
+        padding: 1.35rem 1rem;
+    }
+
+    html.is-native-app .incentive-card.highlight {
+        transform: none;
+    }
+
+    html.is-native-app .referral-card-container {
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    html.is-native-app .referral-main-card {
+        padding: 1.25rem;
+        border-radius: 24px;
+        gap: 1.25rem;
+    }
+
+    html.is-native-app .code-display {
+        max-width: 100%;
+        font-size: clamp(1.55rem, 9vw, 2.15rem);
+        letter-spacing: 0.12em;
+        padding: 0.7rem 1rem;
+    }
+
+    html.is-native-app .referral-stats-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    html.is-native-app .ref-stat {
+        padding: 1rem 0.55rem;
+        border-radius: 18px;
+    }
+
+    html.is-native-app .stat-val {
+        font-size: clamp(1.25rem, 6vw, 1.75rem);
+    }
+
+    html.is-native-app .referral-history {
+        border-radius: 24px;
+        padding: 1rem;
+    }
+
+    html.is-native-app .referral-item {
+        gap: 0.75rem;
+        padding: 0.85rem;
+    }
+}
+
+@media (max-width: 360px) {
+    html.is-native-app .referral-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    html.is-native-app .referral-item {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    html.is-native-app .ref-avatar {
+        width: 42px;
+        height: 42px;
+    }
+
+    html.is-native-app .ref-status {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+/* Currency Symbol High Contrast */
+.currency-symbol {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--accent-primary, #ff4b4b);
+    font-size: 0.85em;
+    margin-right: 2px;
+}
+
+/* Redeem Code Card */
+.redeem-code-card {
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+    border-radius: 24px;
+    padding: 1.25rem 1.5rem;
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.redeem-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.redeem-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.redeem-header h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+}
+
+.redeem-header p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.redeem-form {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.redeem-input {
+    flex: 1;
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.15));
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary, #ffffff);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.redeem-input:focus {
+    border-color: var(--accent-primary, #ff4b4b);
+}
+
+.redeem-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .redeem-form {
+        flex-direction: column;
+    }
+
+    .redeem-btn {
+        width: 100%;
+    }
+}
+

@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
+import { getRememberedEmail, getRememberMePreference } from '../lib/authPreferences';
 import './Auth.css';
 
 function getSafeRedirectTarget(location) {
-    const stateTarget = location.state?.from?.pathname || location.state?.from;
+    const from = location.state?.from;
+    let stateTarget = null;
+    if (typeof from === 'object' && from?.pathname) {
+        stateTarget = `${from.pathname}${from.search || ''}${from.hash || ''}`;
+    } else if (typeof from === 'string') {
+        stateTarget = from;
+    }
     const queryTarget = new URLSearchParams(location.search).get('redirect');
     const target = stateTarget || queryTarget || '/';
 
@@ -19,12 +26,57 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(true);
+    const [enableBiometrics, setEnableBiometrics] = useState(false);
 
-    const { login, loginWithGoogle, error, clearError } = useAuth();
+    const {
+        login,
+        loginWithGoogle,
+        error,
+        clearError,
+        biometricLocked,
+        biometricAvailable,
+        biometricEnabled,
+        currentUser,
+        loading: authLoading,
+        biometricLabel,
+        unlockWithBiometrics
+    } = useAuth();
     const { error: showError } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
     const redirectTarget = getSafeRedirectTarget(location);
+
+    useEffect(() => {
+        if (!authLoading && currentUser && !biometricLocked) {
+            navigate(redirectTarget, { replace: true });
+        }
+    }, [authLoading, currentUser, biometricLocked, navigate, redirectTarget]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        Promise.all([
+            getRememberMePreference(),
+            getRememberedEmail()
+        ]).then(([savedRememberMe, savedEmail]) => {
+            if (!mounted) return;
+            setRememberMe(savedRememberMe);
+            if (savedRememberMe && savedEmail) {
+                setEmail(savedEmail);
+            }
+        }).catch(() => {});
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (biometricAvailable && biometricEnabled) {
+            setEnableBiometrics(true);
+        }
+    }, [biometricAvailable, biometricEnabled]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,12 +88,18 @@ export default function Login() {
         setIsLoading(true);
         clearError();
 
-        const { error: loginErr } = await login(email, password);
+        const { error: loginErr, biometricError } = await login(email, password, {
+            rememberMe,
+            enableBiometrics: biometricAvailable && enableBiometrics
+        });
         setIsLoading(false);
 
         if (loginErr) {
             showError(loginErr);
         } else {
+            if (biometricError) {
+                showError(`Signed in, but ${biometricLabel} was not enabled: ${biometricError}`);
+            }
             sessionStorage.removeItem('post_auth_redirect');
             navigate(redirectTarget, { replace: true });
         }
@@ -54,7 +112,10 @@ export default function Login() {
         } else {
             sessionStorage.removeItem('post_auth_redirect');
         }
-        const { error: err } = await loginWithGoogle();
+        const { error: err } = await loginWithGoogle({
+            rememberMe,
+            enableBiometrics: biometricAvailable && enableBiometrics
+        });
         if (err) {
             showError(err);
             setIsLoading(false);
@@ -62,6 +123,20 @@ export default function Login() {
         // OAuth redirects — no need to setIsLoading(false) on success
     };
 
+    const handleBiometricUnlock = async () => {
+        setIsLoading(true);
+        clearError();
+        const { error: unlockError } = await unlockWithBiometrics();
+        setIsLoading(false);
+
+        if (unlockError) {
+            showError(unlockError);
+            return;
+        }
+
+        sessionStorage.removeItem('post_auth_redirect');
+        navigate(redirectTarget, { replace: true });
+    };
 
     return (
         <div className="auth-page">
@@ -84,6 +159,38 @@ export default function Login() {
                             <span>⚠️</span> {error}
                         </div>
                     )}
+
+                    {biometricLocked ? (
+                        <div className="biometric-unlock-card">
+                            <div>
+                                <strong>Welcome back</strong>
+                                <span>Unlock your saved session to continue.</span>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-block"
+                                onClick={handleBiometricUnlock}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Checking...' : `Unlock with ${biometricLabel}`}
+                            </button>
+                        </div>
+                    ) : (biometricAvailable && biometricEnabled) ? (
+                        <div className="biometric-unlock-card quick-signin">
+                            <div>
+                                <strong>1-Tap Sign In Active</strong>
+                                <span>Fast login with your enrolled {biometricLabel.toLowerCase()}.</span>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-block"
+                                onClick={handleBiometricUnlock}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Checking...' : `Sign in with ${biometricLabel}`}
+                            </button>
+                        </div>
+                    ) : null}
 
                     <form onSubmit={handleSubmit} className="auth-form">
                         <div className="form-group">
@@ -128,6 +235,38 @@ export default function Login() {
                             </div>
                         </div>
 
+                        <div className="auth-options-row">
+                            <label className="remember-control">
+                                <input
+                                    type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(event) => setRememberMe(event.target.checked)}
+                                    disabled={isLoading}
+                                />
+                                <span>Remember me</span>
+                            </label>
+                            <Link to="/forgot-password" className="forgot-password-link">
+                                Forgot Password?
+                            </Link>
+                        </div>
+
+                        {window.Capacitor?.isNativePlatform?.() && (
+                            <div className="biometric-pref-row">
+                                <label className="remember-control biometric-control">
+                                    <input
+                                        type="checkbox"
+                                        checked={enableBiometrics}
+                                        onChange={(event) => setEnableBiometrics(event.target.checked)}
+                                        disabled={isLoading || !biometricAvailable}
+                                    />
+                                    <span>Use {biometricLabel} next time</span>
+                                </label>
+                                {!biometricAvailable && (
+                                    <span className="biometric-note" title="Configure fingerprint or face unlock in phone Settings">(Not enrolled in Settings)</span>
+                                )}
+                            </div>
+                        )}
+
                         <button type="submit" className="btn btn-primary btn-block" disabled={isLoading}>
                             {isLoading ? (
                                 <span className="btn-loading">
@@ -155,6 +294,25 @@ export default function Login() {
                             Google
                         </button>
 
+                        {window.Capacitor?.isNativePlatform?.() && (
+                            <button
+                                type="button"
+                                className="btn btn-social btn-biometric"
+                                onClick={() => {
+                                    if (biometricAvailable && biometricEnabled) {
+                                        handleBiometricUnlock();
+                                    } else if (biometricAvailable) {
+                                        showError(`To enable ${biometricLabel} login, sign in once with your email & password and check "Use ${biometricLabel} next time".`);
+                                    } else {
+                                        showError(`${biometricLabel} is not enrolled on this phone. Please set up fingerprint or face unlock in your phone's Android Settings.`);
+                                    }
+                                }}
+                                disabled={isLoading}
+                            >
+                                <span style={{ fontSize: '1.2rem', marginRight: '6px' }}>🔐</span>
+                                {biometricLabel}
+                            </button>
+                        )}
                     </div>
 
                     <p className="auth-footer">

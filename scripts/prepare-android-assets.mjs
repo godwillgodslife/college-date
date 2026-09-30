@@ -6,6 +6,14 @@ const androidPublic = join(root, 'android', 'app', 'src', 'main', 'assets', 'pub
 
 const nativeOnlyRemovals = [
   join(androidPublic, 'private-downloads'),
+  join(androidPublic, 'evidence'),
+  join(androidPublic, 'evidence_baseline'),
+  join(androidPublic, 'evidence_hardening'),
+  join(androidPublic, 'evidence_sprint'),
+  join(androidPublic, 'pitch-deck-printable.html'),
+  join(androidPublic, 'pitch-deck.html'),
+  join(androidPublic, 'TheCollegeDate-Investor-Pitch-Deck.pdf'),
+  join(androidPublic, 'pitch-deck-assets'),
 ];
 
 // Perform removals first

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { getUserSettings, updateUserSettings } from '../services/notificationService';
 import { verifyAndRestorePremium } from '../services/paymentService';
 import { useToast } from '../components/Toast';
@@ -10,6 +11,13 @@ import { partnerWhatsAppUrl, supportWhatsAppUrl, founderLinkedInUrl } from '../c
 import { useCachedAsync } from '../hooks/useCachedAsync';
 import { setCachedData } from '../lib/persistentCache';
 import { enqueueOfflineOperation, removeOfflineOperation } from '../lib/offlineQueue';
+import { isNativePlatform } from '../lib/secureAuthStorage';
+import { supabase } from '../lib/supabase';
+import { getBlockedUsers, unblockUser } from '../services/blockService';
+import { updateFinderOptIn } from '../services/campusFinderService';
+import { AppGuideModal, resetAllGuides } from '../components/ContextualGuide';
+import OfficialAccountBadge from '../components/OfficialAccountBadge';
+import OfficialHubModal from '../components/OfficialHubModal';
 import './Settings.css';
 
 const DEFAULT_SETTINGS = {
@@ -34,11 +42,72 @@ const DEFAULT_SETTINGS = {
 };
 
 export default function Settings() {
-    const { currentUser, userProfile, logout, fetchProfile } = useAuth();
+    const {
+        currentUser,
+        userProfile,
+        logout,
+        fetchProfile,
+        biometricAvailable,
+        biometricEnabled,
+        biometricLabel,
+        setBiometricLoginEnabled
+    } = useAuth();
+    const { themePreference, setThemePreference, effectiveTheme } = useTheme();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const [saving, setSaving] = useState(false);
+    const [securitySaving, setSecuritySaving] = useState(false);
     const [restoring, setRestoring] = useState(false);
+    const [deactivating, setDeactivating] = useState(false);
+    const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordSaving, setPasswordSaving] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showBlockedModal, setShowBlockedModal] = useState(false);
+    const [blockedUsers, setBlockedUsers] = useState([]);
+    const [loadingBlocked, setLoadingBlocked] = useState(false);
+    const [showGuideModal, setShowGuideModal] = useState(false);
+    const [showOfficialHub, setShowOfficialHub] = useState(false);
+
+    const handleResetGuides = () => {
+        resetAllGuides();
+        addToast('All onboarding tips and guides have been reset.', 'success');
+    };
+
+    const loadBlockedUsers = async () => {
+        setLoadingBlocked(true);
+        try {
+            const { blocked, error } = await getBlockedUsers();
+            if (error) throw error;
+            setBlockedUsers(blocked || []);
+        } catch (err) {
+            console.error('Failed to load blocked users:', err);
+            addToast('Could not load blocked users', 'error');
+        } finally {
+            setLoadingBlocked(false);
+        }
+    };
+
+    const handleOpenBlockedModal = () => {
+        setShowBlockedModal(true);
+        loadBlockedUsers();
+    };
+
+    const handleUnblockUserAccount = async (blockedUserId, name) => {
+        try {
+            const { success, error } = await unblockUser(blockedUserId);
+            if (!success) throw new Error(error);
+            setBlockedUsers(prev => prev.filter(item => item.blocked_id !== blockedUserId && item.blocked_user?.id !== blockedUserId));
+            addToast(`Unblocked ${name || 'user'}.`, 'success');
+        } catch (err) {
+            addToast(err.message || 'Failed to unblock', 'error');
+        }
+    };
+
     const showNotificationPreviewTools = import.meta.env.DEV
         || window.Capacitor?.isNativePlatform?.()
         || window.location.hostname === 'localhost'
@@ -102,6 +171,19 @@ export default function Settings() {
             addToast('Saved locally. We will retry syncing this setting.', 'info');
         } else {
             removeOfflineOperation(currentUser.id, operationId);
+            if (changes.incognito_mode !== undefined || changes.show_online_status !== undefined) {
+                try {
+                    const profileUpdates = {};
+                    if (changes.incognito_mode !== undefined) profileUpdates.incognito_mode = changes.incognito_mode;
+                    if (changes.show_online_status !== undefined && !changes.show_online_status) {
+                        profileUpdates.is_online = false;
+                    }
+                    await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
+                    if (fetchProfile) fetchProfile(currentUser.id);
+                } catch (e) {
+                    console.warn('Profile privacy sync error:', e);
+                }
+            }
         }
         setSaving(false);
     };
@@ -128,9 +210,112 @@ export default function Settings() {
         });
     };
 
+    const handleBiometricToggle = async () => {
+        if (!biometricAvailable) {
+            addToast('Biometric login is not available on this device.', 'info');
+            return;
+        }
+
+        setSecuritySaving(true);
+        const nextEnabled = !biometricEnabled;
+        const { error } = await setBiometricLoginEnabled(nextEnabled);
+        setSecuritySaving(false);
+
+        if (error) {
+            addToast(error, 'error');
+            return;
+        }
+
+        addToast(
+            nextEnabled
+                ? `${biometricLabel} enabled for future app launches.`
+                : `${biometricLabel} disabled.`,
+            'success'
+        );
+    };
+
+    const handleCameraDiscoveryToggle = async () => {
+        if (!currentUser) return;
+        const nextVal = !userProfile?.allow_camera_discovery;
+        try {
+            const { error } = await updateFinderOptIn(currentUser.id, nextVal);
+            if (error) throw new Error(error);
+            if (fetchProfile) await fetchProfile(currentUser.id);
+            addToast(
+                nextVal
+                    ? 'Campus Camera Discovery enabled. Students nearby can identify you via optical camera match.'
+                    : 'Campus Camera Discovery disabled. Your profile will not appear in camera scans.',
+                'success'
+            );
+        } catch (err) {
+            console.error('Failed to update camera discovery setting:', err);
+            addToast(err.message || 'Failed to update camera discovery setting.', 'error');
+        }
+    };
+
     const handleLogout = async () => {
         await logout();
         navigate('/login', { replace: true });
+    };
+
+    const handleDeactivateAccount = async () => {
+        setDeactivating(true);
+        try {
+            const { error } = await supabase.rpc('deactivate_user_account');
+            if (error) throw error;
+            addToast('Your account has been deactivated. You can sign back in anytime to reactivate.', 'success');
+            await logout();
+            navigate('/login', { replace: true });
+        } catch (err) {
+            console.error('Failed to deactivate account:', err);
+            addToast(err?.message || 'Failed to deactivate account. Please try again.', 'error');
+        } finally {
+            setDeactivating(false);
+            setShowDeactivateModal(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setDeleting(true);
+        try {
+            const { error } = await supabase.rpc('delete_user_account');
+            if (error) throw error;
+            addToast('Your account and personal data have been deleted.', 'info');
+            await logout();
+            navigate('/login', { replace: true });
+        } catch (err) {
+            console.error('Failed to delete account:', err);
+            addToast(err?.message || 'Failed to delete account. Please try again.', 'error');
+        } finally {
+            setDeleting(false);
+            setShowDeleteModal(false);
+        }
+    };
+
+    const handleUpdatePassword = async (e) => {
+        e?.preventDefault();
+        if (!newPassword || newPassword.length < 6) {
+            addToast('Password must be at least 6 characters.', 'error');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            addToast('Passwords do not match.', 'error');
+            return;
+        }
+        setPasswordSaving(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            addToast('Password updated successfully! ✅', 'success');
+            setNewPassword('');
+            setConfirmPassword('');
+            setShowPasswordModal(false);
+        } catch (err) {
+            console.error('Failed to update password:', err);
+            addToast(err?.message || 'Failed to update password.', 'error');
+        } finally {
+            setPasswordSaving(false);
+        }
     };
 
     if (loading && !settings) return <LoadingSpinner fullScreen text="Loading preferences..." />;
@@ -176,6 +361,97 @@ export default function Settings() {
                         <span className="chevron">›</span>
                     </div>
                     <AndroidInstallButton />
+                </div>
+            </div>
+
+            <div className="settings-section">
+                <h2 className="section-title">Login & Security</h2>
+                <div className="settings-list">
+                    <div className="settings-item feature-link" onClick={() => setShowPasswordModal(true)}>
+                        <div className="item-info">
+                            <h3>🔑 Change Password</h3>
+                            <p>Update your account password for enhanced security.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+
+                    {(biometricAvailable || isNativePlatform()) && (
+                        <div className="settings-item">
+                            <div className="item-info">
+                                <h3>{biometricLabel}</h3>
+                                <p>
+                                    {biometricAvailable
+                                        ? 'Use your fingerprint or device biometric to sign in faster.'
+                                        : 'Biometrics not enrolled or supported on this device.'}
+                                </p>
+                            </div>
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    aria-label={`${biometricLabel} login`}
+                                    checked={biometricEnabled}
+                                    onChange={handleBiometricToggle}
+                                    disabled={!biometricAvailable || securitySaving}
+                                />
+                                <span className="slider round"></span>
+                            </label>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="settings-section">
+                <h2 className="section-title">Appearance</h2>
+                <div className="settings-list">
+                    <div className="settings-item theme-header-item">
+                        <div className="item-info">
+                            <h3>Theme</h3>
+                            <p>Select interface appearance or sync with your device theme.</p>
+                        </div>
+                    </div>
+                    <div className="theme-selector-container">
+                        <button
+                            type="button"
+                            className={`theme-selector-btn ${themePreference === 'system' ? 'active' : ''}`}
+                            onClick={() => {
+                                setThemePreference('system');
+                                addToast('Theme set to System Default', 'info', 2000);
+                            }}
+                            aria-label="System default theme"
+                        >
+                            <span className="theme-btn-icon">📱</span>
+                            <span className="theme-btn-label">System</span>
+                            <span className="theme-btn-badge">{themePreference === 'system' ? `Auto (${effectiveTheme})` : 'OS match'}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className={`theme-selector-btn ${themePreference === 'light' ? 'active' : ''}`}
+                            onClick={() => {
+                                setThemePreference('light');
+                                addToast('Light Theme activated ☀️', 'info', 2000);
+                            }}
+                            aria-label="Light theme"
+                        >
+                            <span className="theme-btn-icon">☀️</span>
+                            <span className="theme-btn-label">Light</span>
+                            <span className="theme-btn-badge">Clean</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className={`theme-selector-btn ${themePreference === 'dark' ? 'active' : ''}`}
+                            onClick={() => {
+                                setThemePreference('dark');
+                                addToast('Dark Theme activated 🌙', 'info', 2000);
+                            }}
+                            aria-label="Dark theme"
+                        >
+                            <span className="theme-btn-icon">🌙</span>
+                            <span className="theme-btn-label">Dark</span>
+                            <span className="theme-btn-badge">Low light</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -485,6 +761,30 @@ export default function Settings() {
                             <span className="slider round"></span>
                         </label>
                     </div>
+
+                    <div className="settings-item">
+                        <div className="item-info">
+                            <h3>📸 Campus Camera Discovery</h3>
+                            <p>Allow students on your campus to identify your profile via optical camera match (NDPA protected).</p>
+                        </div>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                aria-label="Campus Camera Discovery"
+                                checked={Boolean(userProfile?.allow_camera_discovery)}
+                                onChange={handleCameraDiscoveryToggle}
+                            />
+                            <span className="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item feature-link" onClick={handleOpenBlockedModal} style={{ cursor: 'pointer' }}>
+                        <div className="item-info">
+                            <h3>🚫 Blocked Accounts</h3>
+                            <p>Manage users you have blocked from messaging and discovery.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
                 </div>
             </div>
 
@@ -530,6 +830,36 @@ export default function Settings() {
             </div>
 
             <div className="settings-section">
+                <h2 className="section-title">App Guidance & Help</h2>
+                <div className="settings-list">
+                    <div className="settings-item feature-link official-hub-item" onClick={() => setShowOfficialHub(true)}>
+                        <div className="item-info">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <h3 style={{ margin: 0 }}>Official The College Date</h3>
+                                <OfficialAccountBadge size="small" />
+                            </div>
+                            <p>Video tutorials & official product guides on matching, swiping, chat & earnings.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                    <div className="settings-item feature-link" onClick={() => setShowGuideModal(true)}>
+                        <div className="item-info">
+                            <h3>📖 How College Date Works (App Guide)</h3>
+                            <p>Interactive guide explaining Swiping, Admirers, Chat, Calls & Premium.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                    <div className="settings-item feature-link" onClick={handleResetGuides}>
+                        <div className="item-info">
+                            <h3>🔄 Reset Guidance Tips</h3>
+                            <p>Show all first-time feature guidance and onboarding tips again.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="settings-section">
                 <h2 className="section-title">Support</h2>
                 <div className="settings-list">
                     <a
@@ -568,26 +898,275 @@ export default function Settings() {
                         </div>
                         <span className="partner-chip">LinkedIn</span>
                     </a>
-                    <div className="settings-item">
+                    <a
+                        href="mailto:info@thecollegedate.com"
+                        className="settings-item feature-link support-link"
+                    >
                         <div className="item-info">
                             <h3>📧 Email Us</h3>
                             <p>info@thecollegedate.com</p>
                         </div>
+                        <span className="partner-chip">Email</span>
+                    </a>
+                    <div className="settings-item feature-link" onClick={() => navigate('/safety')}>
+                        <div className="item-info">
+                            <h3>🛡️ Safety & Guidelines</h3>
+                            <p>Campus dating tips and student harassment prevention.</p>
+                        </div>
+                        <span className="chevron">›</span>
                     </div>
                 </div>
             </div>
 
             <div className="settings-section">
-                <h2 className="section-title">Account</h2>
+                <h2 className="section-title">Legal & Policies</h2>
+                <div className="settings-list">
+                    <div className="settings-item status-item">
+                        <div className="item-info">
+                            <h3>Terms & Privacy Agreement</h3>
+                            <p>Authoritative campus user agreement & compliance</p>
+                        </div>
+                        <span className="status-badge optimised">
+                            v2.0 • Up to date
+                        </span>
+                    </div>
+
+                    <div className="settings-item feature-link" onClick={() => navigate('/terms')}>
+                        <div className="item-info">
+                            <h3>📜 Terms of Service</h3>
+                            <p>Eligibility, student conduct, virtual coins & escrow terms.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+
+                    <div className="settings-item feature-link" onClick={() => navigate('/privacy')}>
+                        <div className="item-info">
+                            <h3>🔒 Privacy Policy</h3>
+                            <p>NDPA 2023 rights, location, biometric safeguards & data retention.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+
+                    <div className="settings-item feature-link" onClick={() => navigate('/child-safety-standards')}>
+                        <div className="item-info">
+                            <h3>🛡️ Child Safety Standards</h3>
+                            <p>CSAE/CSAM prevention and safety enforcement practices.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+
+                    <div className="settings-item feature-link" onClick={() => navigate('/campus-confessions-guide')}>
+                        <div className="item-info">
+                            <h3>💡 Campus Confessions Guide</h3>
+                            <p>Anonymous posting ethics, meme etiquette & anti-defamation rules.</p>
+                        </div>
+                        <span className="chevron">›</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="settings-section">
+                <h2 className="section-title">Account Actions</h2>
                 <div className="settings-list">
                     <button className="settings-action-btn logout" onClick={handleLogout}>
                         Log Out
                     </button>
-                    <button className="settings-action-btn delete">
+                    <button className="settings-action-btn deactivate" onClick={() => setShowDeactivateModal(true)}>
                         Deactivate Account
+                    </button>
+                    <button className="settings-action-btn delete" onClick={() => setShowDeleteModal(true)}>
+                        Delete Account Permanently
                     </button>
                 </div>
             </div>
+
+            {/* Deactivate Account Modal */}
+            {showDeactivateModal && (
+                <div className="settings-modal-overlay" onClick={() => !deactivating && setShowDeactivateModal(false)}>
+                    <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="settings-modal-icon">⏸️</div>
+                        <h3>Deactivate Account?</h3>
+                        <p>Your profile will be hidden from discovery and you will be logged out. You can reactivate anytime simply by logging back in.</p>
+                        <div className="settings-modal-actions">
+                            <button
+                                type="button"
+                                className="modal-btn cancel"
+                                disabled={deactivating}
+                                onClick={() => setShowDeactivateModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="modal-btn confirm-deactivate"
+                                disabled={deactivating}
+                                onClick={handleDeactivateAccount}
+                            >
+                                {deactivating ? 'Deactivating...' : 'Yes, Deactivate'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="settings-modal-overlay" onClick={() => !deleting && setShowDeleteModal(false)}>
+                    <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="settings-modal-icon warning">⚠️</div>
+                        <h3>Delete Account Permanently?</h3>
+                        <p>This action is permanent and cannot be undone. All your profile data, photos, and match requests will be erased.</p>
+                        <div className="settings-modal-actions">
+                            <button
+                                type="button"
+                                className="modal-btn cancel"
+                                disabled={deleting}
+                                onClick={() => setShowDeleteModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="modal-btn confirm-delete"
+                                disabled={deleting}
+                                onClick={handleDeleteAccount}
+                            >
+                                {deleting ? 'Deleting...' : 'Delete Forever'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Change Password Modal */}
+            {showPasswordModal && (
+                <div className="settings-modal-overlay" onClick={() => !passwordSaving && setShowPasswordModal(false)}>
+                    <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="settings-modal-icon">🔑</div>
+                        <h3>Change Password</h3>
+                        <p>Enter your new password below (at least 6 characters).</p>
+                        <form onSubmit={handleUpdatePassword} className="settings-password-form">
+                            <div className="password-input-group">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="New Password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                    className="settings-modal-input"
+                                />
+                                <button
+                                    type="button"
+                                    className="toggle-pw-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? '👁️' : '🙈'}
+                                </button>
+                            </div>
+                            <div className="password-input-group">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Confirm New Password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                    className="settings-modal-input"
+                                />
+                            </div>
+                            <div className="settings-modal-actions">
+                                <button
+                                    type="button"
+                                    className="modal-btn cancel"
+                                    disabled={passwordSaving}
+                                    onClick={() => setShowPasswordModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="modal-btn confirm-save"
+                                    disabled={passwordSaving}
+                                >
+                                    {passwordSaving ? 'Updating...' : 'Save New Password'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {showBlockedModal && (
+                <div className="settings-modal-overlay animate-fade-in" onClick={() => setShowBlockedModal(false)}>
+                    <div className="settings-modal-card blocked-accounts-modal glass" onClick={e => e.stopPropagation()}>
+                        <div className="settings-modal-header">
+                            <div className="modal-title-row">
+                                <span className="modal-icon-badge">🚫</span>
+                                <div>
+                                    <h3>Blocked Accounts</h3>
+                                    <p className="modal-subtext">These users cannot message you or view your profile</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="settings-modal-close"
+                                onClick={() => setShowBlockedModal(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <div className="blocked-list-container">
+                            {loadingBlocked ? (
+                                <div className="blocked-loading">Loading blocked accounts...</div>
+                            ) : blockedUsers.length === 0 ? (
+                                <div className="blocked-empty">
+                                    <span className="empty-icon">🛡️</span>
+                                    <p>No blocked accounts</p>
+                                    <span>Anyone you block in chat will appear here.</span>
+                                </div>
+                            ) : (
+                                <div className="blocked-items-list">
+                                    {blockedUsers.map(item => {
+                                        const user = item.blocked_user || {};
+                                        return (
+                                            <div key={item.id} className="blocked-user-row">
+                                                <img
+                                                    src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.blocked_id}`}
+                                                    alt=""
+                                                    className="blocked-user-avatar"
+                                                />
+                                                <div className="blocked-user-info">
+                                                    <strong>{user.full_name || 'User'}</strong>
+                                                    <span>Blocked on {new Date(item.created_at).toLocaleDateString()}</span>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="btn-unblock-settings"
+                                                    onClick={() => handleUnblockUserAccount(item.blocked_id, user.full_name)}
+                                                >
+                                                    Unblock
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <AppGuideModal
+                isOpen={showGuideModal}
+                onClose={() => setShowGuideModal(false)}
+            />
+
+            <OfficialHubModal
+                isOpen={showOfficialHub}
+                onClose={() => setShowOfficialHub(false)}
+            />
 
             {saving && <div className="saving-indicator">Saving...</div>}
         </div>

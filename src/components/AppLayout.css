@@ -105,7 +105,7 @@
 /* ── Mobile ────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .app-main {
-        padding-top: var(--navbar-height-mobile, 0px);
+        padding-top: calc(var(--navbar-height-mobile, 44px) + env(safe-area-inset-top, 0px));
         /* Account for bottom nav + safe area on notch phones */
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     }
@@ -126,7 +126,21 @@
         display: none !important;
     }
 
+    body.mobile-chat-active .bottom-nav {
+        display: none !important;
+    }
+
     body.mobile-chat-active .app-main {
-        padding-top: env(safe-area-inset-top, 0px) !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+    }
+
+    body.mobile-chat-active .page-transition-wrapper {
+        height: 100% !important;
+        overflow: hidden !important;
     }
 }

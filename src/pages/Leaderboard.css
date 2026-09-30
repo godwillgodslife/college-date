@@ -4,9 +4,9 @@
 
 .leaderboard-page {
     min-height: 100vh;
-    background: #060608;
+    background: var(--bg-primary);
     padding-bottom: 7rem;
-    color: white;
+    color: var(--text-primary);
     position: relative;
     overflow-x: hidden;
 }
@@ -16,6 +16,11 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
+}
+
+[data-theme="light"] .leaderboard-ambient,
+.theme-light .leaderboard-ambient {
+    display: none;
 }
 
 .leaderboard-blob-1 {
@@ -314,33 +319,34 @@
 
 .leaderboard-row {
     position: relative;
-    background: rgba(18, 18, 22, 0.8);
+    background: var(--card-bg);
     backdrop-filter: blur(12px);
     padding: 1rem;
     display: flex;
     align-items: center;
     border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
     transition: all 0.3s ease;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .leaderboard-row:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--border-strong);
     transform: translateY(-2px);
-    background: rgba(18, 18, 22, 0.95);
+    background: var(--bg-hover);
 }
 
 .rank-number {
     width: 40px;
     font-size: 15px;
     font-weight: 900;
-    color: #5e5e72;
+    color: var(--text-muted);
     transition: color 0.3s ease;
 }
 
 .leaderboard-row:hover .rank-number {
-    color: white;
+    color: var(--text-primary);
 }
 
 .row-user-info {
@@ -352,7 +358,7 @@
 .row-name {
     font-size: 15px;
     font-weight: 700;
-    color: #e5e7eb;
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
 }
 
@@ -372,7 +378,7 @@
 .row-subtext {
     font-size: 10px;
     font-weight: 800;
-    color: #5e5e72;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -385,13 +391,13 @@
 .row-score {
     font-size: 16px;
     font-weight: 950;
-    color: white;
+    color: var(--text-primary);
 }
 
 .row-score-label {
     font-size: 9px;
     font-weight: 700;
-    color: #5e5e72;
+    color: var(--text-muted);
     text-transform: uppercase;
     margin-top: 0.125rem;
 }
@@ -674,3 +680,372 @@
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.5);
 }
+
+.leaderboard-page,
+.leaderboard-container,
+.leaderboard-row,
+.my-standing-highlight-card,
+.podium-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.row-name,
+.row-subtext,
+.my-standing-name,
+.my-standing-league,
+.podium-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row-meta,
+.my-standing-info {
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    html.is-native-app .leaderboard-page {
+        min-height: calc(var(--vh, 1vh) * 100);
+        padding-bottom: var(--native-page-bottom-padding);
+        overflow-x: clip;
+    }
+
+    html.is-native-app .leaderboard-container {
+        padding: 1.35rem var(--native-page-padding-right) 0 var(--native-page-padding-left);
+    }
+
+    html.is-native-app .leaderboard-header {
+        margin-bottom: 1.4rem;
+    }
+
+    html.is-native-app .leaderboard-title {
+        font-size: clamp(2.25rem, 13vw, 3.15rem);
+        line-height: 0.95;
+        letter-spacing: -0.035em;
+        margin-bottom: 0.75rem;
+    }
+
+    html.is-native-app .elite-badge span {
+        letter-spacing: 0.18em;
+    }
+
+    html.is-native-app .weekly-countdown {
+        max-width: 100%;
+        padding: 0.55rem 1rem;
+    }
+
+    html.is-native-app .countdown-value {
+        font-size: clamp(0.95rem, 4vw, 1.08rem);
+    }
+
+    html.is-native-app .league-key {
+        justify-content: flex-start;
+        gap: 0.45rem;
+        margin-bottom: 1.35rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scrollbar-width: none;
+    }
+
+    html.is-native-app .league-key::-webkit-scrollbar {
+        display: none;
+    }
+
+    html.is-native-app .league-key-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    html.is-native-app .tab-toggle-container {
+        margin-bottom: 2rem;
+    }
+
+    html.is-native-app .tab-toggle-track {
+        max-width: 100%;
+    }
+
+    html.is-native-app .podium-container {
+        height: 270px;
+        margin-bottom: 2.25rem;
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    html.is-native-app .podium-item {
+        min-width: 0;
+    }
+
+    html.is-native-app .podium-base {
+        border-radius: 1rem 1rem 0 0;
+        padding: 0.75rem 0.35rem;
+    }
+
+    html.is-native-app .podium-1st .podium-base {
+        height: 145px;
+    }
+
+    html.is-native-app .podium-2nd .podium-base {
+        height: 108px;
+    }
+
+    html.is-native-app .podium-3rd .podium-base {
+        height: 92px;
+    }
+
+    html.is-native-app .avatar-frame {
+        padding: 4px;
+    }
+
+    html.is-native-app .podium-container .podium-1st img {
+        width: clamp(72px, 22vw, 88px) !important;
+        height: clamp(72px, 22vw, 88px) !important;
+    }
+
+    html.is-native-app .podium-container .podium-2nd img,
+    html.is-native-app .podium-container .podium-3rd img {
+        width: clamp(58px, 18vw, 72px) !important;
+        height: clamp(58px, 18vw, 72px) !important;
+    }
+
+    html.is-native-app .podium-name {
+        max-width: 100%;
+        font-size: 0.68rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+    }
+
+    html.is-native-app .podium-score {
+        font-size: clamp(1.05rem, 5vw, 1.35rem);
+    }
+
+    html.is-native-app .list-section-header span {
+        letter-spacing: 0.22em;
+    }
+
+    html.is-native-app .leaderboard-list {
+        gap: 0.75rem;
+    }
+
+    html.is-native-app .leaderboard-row {
+        display: grid;
+        grid-template-columns: 2rem 44px minmax(0, 1fr) auto;
+        gap: 0.65rem;
+        align-items: center;
+        padding: 0.85rem;
+        border-radius: 18px;
+    }
+
+    html.is-native-app .leaderboard-row .avatar-wrapper-lb img {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    html.is-native-app .rank-number {
+        width: auto;
+        font-size: 0.82rem;
+    }
+
+    html.is-native-app .row-user-info {
+        margin-left: 0;
+    }
+
+    html.is-native-app .row-name {
+        font-size: 0.92rem;
+        max-width: 100%;
+    }
+
+    html.is-native-app .row-subtext {
+        display: block;
+        max-width: 100%;
+        letter-spacing: 0.05em;
+    }
+
+    html.is-native-app .league-badge {
+        display: none;
+    }
+
+    html.is-native-app .row-score-container {
+        padding-left: 0;
+        min-width: 3.4rem;
+    }
+
+    html.is-native-app .row-score {
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+
+    html.is-native-app .bg-rank {
+        right: -0.6rem;
+        top: -1rem;
+        font-size: 72px;
+    }
+
+    html.is-native-app .my-standing-highlight-card {
+        gap: 0.75rem;
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    html.is-native-app .my-standing-rank {
+        width: auto;
+        min-width: 2.4rem;
+        font-size: 1.65rem;
+    }
+
+    html.is-native-app .my-standing-avatar {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+    }
+
+    html.is-native-app .my-standing-score {
+        min-width: 3.25rem;
+    }
+
+    html.is-native-app .my-score-val {
+        font-size: 1.05rem;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 360px) {
+    html.is-native-app .leaderboard-container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    html.is-native-app .leaderboard-row {
+        grid-template-columns: 1.65rem 40px minmax(0, 1fr);
+        grid-template-areas:
+            "rank avatar info"
+            "rank avatar score";
+    }
+
+    html.is-native-app .rank-number {
+        grid-area: rank;
+    }
+
+    html.is-native-app .leaderboard-row .avatar-wrapper-lb {
+        grid-area: avatar;
+    }
+
+    html.is-native-app .row-user-info {
+        grid-area: info;
+    }
+
+    html.is-native-app .row-score-container {
+        grid-area: score;
+        text-align: left;
+        display: flex;
+        align-items: baseline;
+        gap: 0.35rem;
+    }
+
+    html.is-native-app .my-standing-highlight-card {
+        flex-wrap: wrap;
+    }
+
+    html.is-native-app .my-standing-score {
+        width: 100%;
+        text-align: left;
+        margin-left: calc(2.4rem + 48px + 1.5rem);
+    }
+}
+
+/* ── Light Theme Leaderboard Overrides ── */
+html[data-theme="light"] .leaderboard-title,
+.theme-light .leaderboard-title {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .tab-toggle-track,
+.theme-light .tab-toggle-track {
+    background: #f1f5f9;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme="light"] .tab-toggle-slider,
+.theme-light .tab-toggle-slider {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .toggle-btn.active,
+.theme-light .toggle-btn.active {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .toggle-btn:not(.active),
+.theme-light .toggle-btn:not(.active) {
+    color: #64748b;
+}
+
+html[data-theme="light"] .toggle-btn:not(.active):hover,
+.theme-light .toggle-btn:not(.active):hover {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .my-standing-highlight-card,
+.theme-light .my-standing-highlight-card {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(99, 91, 255, 0.25) !important;
+    box-shadow: 0 4px 16px rgba(99, 91, 255, 0.08) !important;
+}
+
+html[data-theme="light"] .my-standing-rank,
+.theme-light .my-standing-rank {
+    background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .my-standing-name,
+.theme-light .my-standing-name {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .my-standing-label,
+.theme-light .my-standing-label {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .my-standing-league,
+.theme-light .my-standing-league {
+    color: #7c3aed !important;
+}
+
+html[data-theme="light"] .my-score-val,
+.theme-light .my-score-val {
+    color: #635bff !important;
+}
+
+html[data-theme="light"] .my-score-lbl,
+.theme-light .my-score-lbl {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .avatar-inner,
+.theme-light .avatar-inner {
+    background: #ffffff;
+}
+
+html[data-theme="light"] .list-section-header span,
+.theme-light .list-section-header span {
+    background: var(--bg-primary, #f8f9fa);
+    color: #64748b;
+}
+
+html[data-theme="light"] .list-section-header::after,
+.theme-light .list-section-header::after {
+    background: rgba(0, 0, 0, 0.08);
+}
+

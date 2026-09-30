@@ -63,13 +63,35 @@ serve(async (req) => {
       return json({ success: false, message: 'Invalid call room' }, 400);
     }
 
-    const { data: match, error: matchError } = await adminClient
+    let resolvedMatchId = roomID;
+    let match = null;
+
+    const { data: directMatch, error: directMatchError } = await adminClient
       .from('matches')
       .select('id, user1_id, user2_id')
       .eq('id', roomID)
       .maybeSingle();
 
-    if (matchError) throw matchError;
+    if (directMatch) {
+      match = directMatch;
+    } else {
+      const { data: sessionData } = await adminClient
+        .from('call_sessions')
+        .select('id, match_id, caller_id, receiver_id')
+        .eq('id', roomID)
+        .maybeSingle();
+
+      if (sessionData && sessionData.match_id) {
+        resolvedMatchId = sessionData.match_id;
+        const { data: sessionMatch } = await adminClient
+          .from('matches')
+          .select('id, user1_id, user2_id')
+          .eq('id', sessionData.match_id)
+          .maybeSingle();
+        match = sessionMatch;
+      }
+    }
+
     if (!match || (match.user1_id !== userID && match.user2_id !== userID)) {
       return json({ success: false, message: 'You are not allowed to join this call' }, 403);
     }
@@ -77,7 +99,7 @@ serve(async (req) => {
     const expiresIn = 60 * 60;
     const now = Math.floor(Date.now() / 1000);
     const expireAt = now + expiresIn;
-    const channelName = roomID;
+    const channelName = resolvedMatchId;
     const token = RtcTokenBuilder.buildTokenWithUserAccount(
       appID,
       appCertificate,

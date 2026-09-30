@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { audioCoordinator } from '../utils/audioCoordinator';
 import './AudioMessageStyles.css';
 
 export default function AudioMessage({ src, isSent }) {
@@ -13,45 +14,93 @@ export default function AudioMessage({ src, isSent }) {
         if (!audio) return;
 
         const setAudioData = () => {
-            setDuration(audio.duration);
+            if (audio.duration && Number.isFinite(audio.duration) && audio.duration > 0) {
+                setDuration(audio.duration);
+            }
         };
 
         const setAudioTime = () => {
             setCurrentTime(audio.currentTime);
-            setProgress((audio.currentTime / audio.duration) * 100);
-            if (audio.currentTime === audio.duration) {
-                setIsPlaying(false);
+            const activeDuration = (audio.duration && Number.isFinite(audio.duration) && audio.duration > 0)
+                ? audio.duration
+                : duration;
+            if (Number.isFinite(activeDuration) && activeDuration > 0) {
+                if (duration !== activeDuration) setDuration(activeDuration);
+                setProgress((audio.currentTime / activeDuration) * 100);
+                if (audio.currentTime >= activeDuration) {
+                    setIsPlaying(false);
+                }
             }
         };
 
+        const handlePlay = () => {
+            setIsPlaying(true);
+        };
+
+        const handlePause = () => {
+            setIsPlaying(false);
+        };
+
+        const handleEnded = () => {
+            setIsPlaying(false);
+            setProgress(0);
+            audioCoordinator.stop(audio);
+        };
+
+        audio.addEventListener('loadedmetadata', setAudioData);
         audio.addEventListener('loadeddata', setAudioData);
+        audio.addEventListener('durationchange', setAudioData);
         audio.addEventListener('timeupdate', setAudioTime);
-        audio.addEventListener('ended', () => { setIsPlaying(false); setProgress(0); });
+        audio.addEventListener('play', handlePlay);
+        audio.addEventListener('pause', handlePause);
+        audio.addEventListener('ended', handleEnded);
         
         return () => {
+            audio.removeEventListener('loadedmetadata', setAudioData);
             audio.removeEventListener('loadeddata', setAudioData);
+            audio.removeEventListener('durationchange', setAudioData);
             audio.removeEventListener('timeupdate', setAudioTime);
+            audio.removeEventListener('play', handlePlay);
+            audio.removeEventListener('pause', handlePause);
+            audio.removeEventListener('ended', handleEnded);
+            audioCoordinator.stop(audio);
         };
-    }, []);
+    }, [duration]);
 
     const togglePlay = () => {
-        if (!audioRef.current) return;
+        const audio = audioRef.current;
+        if (!audio) return;
+
         if (isPlaying) {
-            audioRef.current.pause();
+            audio.pause();
+            setIsPlaying(false);
+            audioCoordinator.stop(audio);
         } else {
-            audioRef.current.play();
+            // Coordinate: pause any other audio stream playing in the app
+            audioCoordinator.play(audio, () => {
+                setIsPlaying(false);
+            });
+            audio.play().catch(err => {
+                console.warn('[AudioMessage] play error:', err);
+                setIsPlaying(false);
+            });
+            setIsPlaying(true);
         }
-        setIsPlaying(!isPlaying);
     };
 
     const handleSeek = (e) => {
-        const seekPosition = (e.nativeEvent.offsetX / e.target.clientWidth) * duration;
-        audioRef.current.currentTime = seekPosition;
-        setProgress((seekPosition / duration) * 100);
+        if (!duration || !Number.isFinite(duration) || duration <= 0) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const seekPosition = Math.max(0, Math.min(duration, (offsetX / rect.width) * duration));
+        if (Number.isFinite(seekPosition)) {
+            audioRef.current.currentTime = seekPosition;
+            setProgress((seekPosition / duration) * 100);
+        }
     };
 
     const formatTime = (time) => {
-        if (!time || isNaN(time)) return '0:00';
+        if (!time || !Number.isFinite(time) || isNaN(time) || time < 0) return '0:00';
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;

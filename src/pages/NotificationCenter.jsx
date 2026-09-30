@@ -39,7 +39,7 @@ function formatNotificationTime(value) {
 
 export default function NotificationCenter() {
     const navigate = useNavigate();
-    const { notifications, markRead, markAllRead } = useNotifications();
+    const { notifications, markRead, markAllRead, dismissNotification } = useNotifications();
     const [activeFilter, setActiveFilter] = useState('all');
 
     const unreadCounts = useMemo(() => countUnreadByCategory(notifications), [notifications]);
@@ -50,7 +50,11 @@ export default function NotificationCenter() {
     }, [activeFilter, notifications]);
 
     const handleOpenNotification = (notification) => {
-        markRead(notification.id);
+        if (notification.type === 'call') {
+            dismissNotification(notification.id);
+        } else {
+            markRead(notification.id);
+        }
         const destination = getNotificationDeepLink(notification);
         navigate(destination.to, destination.state ? { state: destination.state } : undefined);
     };
@@ -104,11 +108,18 @@ export default function NotificationCenter() {
                     </div>
                 ) : (
                     filteredNotifications.map((notification) => (
-                        <button
+                        <div
                             key={notification.id}
-                            type="button"
+                            role="button"
+                            tabIndex={0}
                             className={`notification-center-item ${notification.is_read ? '' : 'unread'}`}
                             onClick={() => handleOpenNotification(notification)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleOpenNotification(notification);
+                                }
+                            }}
                         >
                             <span className="notification-center-icon">
                                 {getNotificationIcon(notification.type)}
@@ -123,8 +134,22 @@ export default function NotificationCenter() {
                                 </span>
                                 <small>{getNotificationCategory(notification).replace(/_/g, ' ')}</small>
                             </span>
-                            {!notification.is_read && <span className="notification-center-dot" />}
-                        </button>
+                            <div className="notification-center-actions">
+                                {!notification.is_read && <span className="notification-center-dot" />}
+                                <button
+                                    type="button"
+                                    className="notification-center-dismiss-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dismissNotification(notification.id);
+                                    }}
+                                    title="Dismiss notification"
+                                    aria-label="Dismiss notification"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
                     ))
                 )}
             </section>

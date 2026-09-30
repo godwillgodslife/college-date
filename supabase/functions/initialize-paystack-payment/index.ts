@@ -27,7 +27,8 @@ serve(async (req) => {
     }
 
     try {
-        const { productId } = await req.json();
+        const body = await req.json().catch(() => ({}));
+        const { productId, platform } = body;
         if (!productId || typeof productId !== 'string') {
             return json({ success: false, message: 'productId is required' }, 400);
         }
@@ -53,13 +54,14 @@ serve(async (req) => {
             return json({ success: false, message: 'A verified email address is required for Paystack checkout' }, 400);
         }
 
+        const requestedPlatform = platform === 'android' ? 'android' : 'web';
         const { data: product, error: productError } = await supabase
             .from('paid_products')
             .select('product_id, display_name, product_type, provider, amount, currency, platforms, metadata')
             .eq('product_id', productId)
             .eq('is_active', true)
             .eq('provider', 'paystack')
-            .contains('platforms', ['web'])
+            .contains('platforms', [requestedPlatform])
             .maybeSingle<PaidProduct>();
 
         if (productError) throw productError;
@@ -82,6 +84,7 @@ serve(async (req) => {
                 currency,
                 status: 'pending',
                 metadata: {
+                    platform: requestedPlatform,
                     user_agent: req.headers.get('user-agent') ?? null,
                     origin: req.headers.get('origin') ?? null,
                 },
@@ -92,7 +95,9 @@ serve(async (req) => {
         if (attemptError) throw attemptError;
 
         const siteUrl = getSiteUrl(req);
-        const callbackUrl = `${siteUrl}/payment/callback?reference=${encodeURIComponent(reference)}`;
+        const callbackUrl = requestedPlatform === 'android'
+            ? `com.collegedate.app://payment/callback?reference=${encodeURIComponent(reference)}`
+            : `${siteUrl}/payment/callback?reference=${encodeURIComponent(reference)}`;
 
         const paystackRes = await fetch('https://api.paystack.co/transaction/initialize', {
             method: 'POST',
@@ -111,6 +116,7 @@ serve(async (req) => {
                     product_id: product.product_id,
                     product_type: product.product_type,
                     user_id: user.id,
+                    platform: requestedPlatform,
                 },
             }),
         });

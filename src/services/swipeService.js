@@ -22,23 +22,37 @@ function stableJitter(seed) {
     return (Math.abs(hash) % 1000) / 1000;
 }
 
-async function fetchMatchedProfileIds(userId) {
+export async function fetchExcludedConnectionIds(userId) {
     if (!userId) return [];
     try {
-        const { data, error } = await supabase
-            .from('matches')
-            .select('user1_id,user2_id')
-            .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+        const [matchesRes, pendingSwipesRes] = await Promise.all([
+            supabase
+                .from('matches')
+                .select('user1_id,user2_id')
+                .or(`user1_id.eq.${userId},user2_id.eq.${userId}`),
+            supabase
+                .from('swipes')
+                .select('swiper_id,swiped_id')
+                .or(`swiper_id.eq.${userId},swiped_id.eq.${userId}`)
+                .eq('status', 'pending')
+        ]);
 
-        if (error) throw error;
+        const matchedIds = (matchesRes.data || [])
+            .flatMap(m => [m.user1_id, m.user2_id]);
 
-        return (data || [])
-            .flatMap(match => [match.user1_id, match.user2_id])
+        const pendingIds = (pendingSwipesRes.data || [])
+            .flatMap(s => [s.swiper_id, s.swiped_id]);
+
+        return [...new Set([...matchedIds, ...pendingIds])]
             .filter(id => id && id !== userId);
     } catch (err) {
-        console.warn('fetchMatchedProfileIds skipped:', err.message);
+        console.warn('fetchExcludedConnectionIds skipped:', err.message);
         return [];
     }
+}
+
+async function fetchMatchedProfileIds(userId) {
+    return fetchExcludedConnectionIds(userId);
 }
 
 async function fetchFeedImpressionMap(userId, entityType) {
@@ -140,7 +154,11 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             fetchFeedImpressionMap(userId, 'profile')
         ]);
 
-        const excludeIds = swipedData.map(swipe => swipe.swiped_id).filter(Boolean);
+        const excludeIds = filters.includeSwiped
+            ? []
+            : (swipedData || []).map(swipe => swipe.swiped_id).filter(Boolean);
+
+        // ALWAYS exclude matched connections and pending requests from both Match and Explore
         matchedProfileIds.forEach(id => excludeIds.push(id));
         if (userId) excludeIds.push(userId);
         const uniqueExcludeIds = [...new Set(excludeIds)];
@@ -158,15 +176,17 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             query = query.not('id', 'in', `(${uniqueExcludeIds.join(',')})`);
         }
 
-        // Apply Gender Filter (or default 90/10 ratio bias)
+        // Apply Gender Filter (Strict Opposite Gender by default)
         if (filters.gender && filters.gender !== 'All') {
-            // User manually set a filter — respect it exactly
-            query = query.eq('gender', filters.gender.toLowerCase());
+            const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
+            query = query.eq('gender', targetGender);
         } else if (currentUserGender) {
-            // Default: show opposite gender 90% by ordering opposite gender first
-            const normalizedGender = currentUserGender.toLowerCase();
-            query = query.order('gender', { ascending: normalizedGender === 'male' });
-            // We pull more results then sort client-side for true 90/10 mix
+            // Authoritative server-side opposite gender discovery: Male sees female, female sees male
+            const norm = currentUserGender.toLowerCase();
+            const oppositeGender = norm === 'male' ? 'female' : norm === 'female' ? 'male' : null;
+            if (oppositeGender) {
+                query = query.eq('gender', oppositeGender);
+            }
         }
 
         // Apply University Filter
@@ -200,48 +220,40 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         // Live Mode (preserved as a capability)
         if (filters.category === 'Live' || filters.liveOnly) {
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-            query = query.gt('last_seen_at', fiveMinutesAgo);
-            query = query.order('last_seen_at', { ascending: false });
+            query = query
+                .or(`is_online.eq.true,is_live.eq.true,last_seen.gte.${fiveMinutesAgo}`);
         }
 
         query = query
             .order('completion_score', { ascending: false });
 
-        query = query.limit(60); // Fetch more so ratio mixing works
+        query = query.limit(60);
 
         const { data: profiles, error: profilesError } = await query;
 
         if (profilesError) throw profilesError;
 
-        let results = (profiles || []).map(profile => {
-            const normalizedProfile = normalizeProfile(profile);
-            return {
-                ...normalizedProfile,
-                profile_photos: getProfilePhotos(normalizedProfile)
-            };
-        });
+        let results = (profiles || [])
+            .filter(profile => !profile.is_shadow_banned && !profile.is_banned)
+            .map(profile => {
+                const normalizedProfile = normalizeProfile(profile);
+                return {
+                    ...normalizedProfile,
+                    profile_photos: getProfilePhotos(normalizedProfile)
+                };
+            })
+            .filter(profile => profile.profile_photos && profile.profile_photos.length > 0);
 
-        // ── GENDER BALANCING: 90/10 Ratio with Strict Top ──────────────────
-        // When no manual filter set, we mix but heavily prioritize opposite gender at the top.
-        if ((!filters.gender || filters.gender === 'All') && currentUserGender) {
-            const oppositeGender = (currentUserGender || '').toLowerCase() === 'male' ? 'female' : 'male';
-            const preferred = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
-            const others = results.filter(p => (p.gender || '').toLowerCase() !== oppositeGender);
-
-            const mixed = [];
-            let pi = 0, oi = 0;
-
-            // 1. HARD GATE: First 8-10 profiles must be opposite gender (if available)
-            while (mixed.length < 8 && pi < preferred.length) {
-                mixed.push(preferred[pi++]);
+        // ── GENDER GATEKEEPING: Authoritative opposite-gender matching ──────────
+        if (currentUserGender) {
+            const norm = (currentUserGender || '').toLowerCase();
+            const oppositeGender = norm === 'male' ? 'female' : 'male';
+            if (!filters.gender || filters.gender === 'All') {
+                results = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
+            } else {
+                const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
+                results = results.filter(p => (p.gender || '').toLowerCase() === targetGender);
             }
-
-            // 2. MIXED FLOW: 9 preferred + 1 other per 10 results
-            while (pi < preferred.length || oi < others.length) {
-                for (let i = 0; i < 9 && pi < preferred.length; i++) mixed.push(preferred[pi++]);
-                if (oi < others.length) mixed.push(others[oi++]);
-            }
-            results = mixed;
         }
 
         // ── Geo Proximity: Live Near Me ───────────────────────────────────
@@ -475,7 +487,7 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 }),
                 createNotification({
                     userId: swiperId,
-                    actorId: null,
+                    actorId: swipedId,
                     type: 'match',
                     title: '🔥 It\'s a Match!',
                     content: 'You have a new connection! Say hello.',
@@ -698,3 +710,112 @@ export async function resetDiscovery(userId) {
         return { success: false, error: err.message };
     }
 }
+
+/**
+ * Search profiles by name, username, university, faculty, or department across the entire campus.
+ * Automatically excludes the current user and blocked accounts.
+ */
+export async function searchProfilesByName(searchQuery, currentUserId = null, userProfile = null) {
+    if (!searchQuery || !searchQuery.trim()) return [];
+    const term = searchQuery.trim();
+    try {
+        let blockedIds = [];
+        let matchedIds = [];
+        if (currentUserId) {
+            try {
+                const [blocksRes, matchesRes] = await Promise.allSettled([
+                    supabase
+                        .from('user_blocks')
+                        .select('blocked_id, blocker_id')
+                        .or(`blocker_id.eq.${currentUserId},blocked_id.eq.${currentUserId}`),
+                    fetchMatchedProfileIds(currentUserId)
+                ]);
+                if (blocksRes.status === 'fulfilled' && blocksRes.value.data) {
+                    blockedIds = blocksRes.value.data.map(b => b.blocker_id === currentUserId ? b.blocked_id : b.blocker_id);
+                }
+                if (matchesRes.status === 'fulfilled' && Array.isArray(matchesRes.value)) {
+                    matchedIds = matchesRes.value;
+                }
+            } catch (blockErr) {
+                console.warn('[SwipeService] Error fetching blocks/matches for search:', blockErr);
+            }
+        }
+        const excludeList = [currentUserId, ...blockedIds, ...matchedIds].filter(Boolean);
+
+        let query = supabase
+            .from('profiles')
+            .select('*')
+            .eq('is_shadow_banned', false)
+            .eq('is_banned', false)
+            .or(`full_name.ilike.%${term}%,username.ilike.%${term}%,university.ilike.%${term}%,faculty.ilike.%${term}%,department.ilike.%${term}%`)
+            .limit(50);
+
+        if (excludeList.length > 0) {
+            query = query.not('id', 'in', `(${excludeList.join(',')})`);
+        }
+
+        const currentUserGender = userProfile?.gender;
+        if (currentUserGender) {
+            const opposite = currentUserGender.toLowerCase() === 'male' ? 'female' : 'male';
+            query = query.eq('gender', opposite);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return (data || [])
+            .filter(row => !row.is_shadow_banned && !row.is_banned)
+            .map(row => {
+                const normalized = normalizeProfile(row);
+                return {
+                    ...normalized,
+                    profile_photos: getProfilePhotos(normalized)
+                };
+            })
+            .filter(row => row.profile_photos && row.profile_photos.length > 0)
+            .sort((a, b) => (hasActivePremium(b) ? 1 : 0) - (hasActivePremium(a) ? 1 : 0));
+    } catch (err) {
+        console.error('[SwipeService] searchProfilesByName error:', err);
+        return [];
+    }
+}
+
+/**
+ * Send a Paid Chat Vibe (₦500) to another student
+ * Deducts exactly ₦500 from sender wallet, activates conversation, and records transaction.
+ */
+export async function sendChatVibe(recipientId) {
+    try {
+        const { data, error } = await supabase.rpc('send_chat_vibe', {
+            p_recipient_id: recipientId
+        });
+        if (error) throw error;
+        if (!data?.success) {
+            throw new Error(data?.error || 'Failed to send Chat Vibe');
+        }
+        return { data, error: null };
+    } catch (err) {
+        console.error('[SwipeService] sendChatVibe error:', err);
+        return { data: null, error: err.message || 'Failed to send Chat Vibe' };
+    }
+}
+
+/**
+ * Check if an active match already exists between two users
+ */
+export async function getExistingMatchWithUser(currentUserId, otherUserId) {
+    if (!currentUserId || !otherUserId) return null;
+    try {
+        const { data, error } = await supabase
+            .from('matches')
+            .select('id')
+            .or(`and(user1_id.eq.${currentUserId},user2_id.eq.${otherUserId}),and(user1_id.eq.${otherUserId},user2_id.eq.${currentUserId})`)
+
+            .maybeSingle();
+        if (error || !data) return null;
+        return data;
+    } catch (err) {
+        console.warn('[SwipeService] getExistingMatchWithUser error:', err);
+        return null;
+    }
+}
+

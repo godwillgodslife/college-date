@@ -227,12 +227,17 @@
 
 @media (max-width: 480px) {
     .toast-container {
-        top: max(0.75rem, env(safe-area-inset-top));
+        top: max(calc(env(safe-area-inset-top, 24px) + 58px), 72px);
         bottom: auto;
-        right: 0.75rem;
-        left: 0.75rem;
+        right: 0.85rem;
+        left: 0.85rem;
         max-width: none;
         width: auto;
+        pointer-events: none;
+    }
+
+    .toast {
+        pointer-events: auto;
     }
 
     .toast-notification {

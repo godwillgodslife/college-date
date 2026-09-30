@@ -1,0 +1,965 @@
+/* ══════════════════════════════════════════════════════════════
+   COLLEGE DATE — ANDROID UX FORENSIC REVIEW LAB (PHASE 4.3)
+   ══════════════════════════════════════════════════════════════ */
+
+.ux-review-app {
+  min-height: 100vh;
+  background: #06060a;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top App Bar ────────────────────────────────────────────── */
+.ux-review-navbar {
+  background: rgba(10, 10, 18, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ux-review-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ux-brand-emoji {
+  font-size: 1.8rem;
+  background: rgba(112, 104, 255, 0.15);
+  padding: 0.35rem 0.55rem;
+  border-radius: 12px;
+  border: 1px solid rgba(112, 104, 255, 0.3);
+}
+
+.ux-nav-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ux-nav-subtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.ux-mode-switcher {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 2px;
+}
+
+.ux-mode-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ux-mode-btn:hover {
+  color: #fff;
+}
+
+.ux-mode-btn.active {
+  background: linear-gradient(135deg, #7068ff, #ff6b9d);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(112, 104, 255, 0.35);
+}
+
+.ux-nav-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ux-z-btn, .ux-z-reset {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+}
+
+.ux-z-btn:hover, .ux-z-reset:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ux-z-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a5b4fc;
+  min-width: 42px;
+  text-align: center;
+}
+
+/* ── Forensic Status Banner ──────────────────────────────────── */
+.ux-forensic-banner {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(112, 104, 255, 0.08));
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.ux-qa-badge.pass {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.ux-banner-meta {
+  margin-left: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.ux-approval-status {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.ux-approval-status strong {
+  color: #fde68a;
+  text-decoration: underline;
+}
+
+/* ── Main Review Layout ──────────────────────────────────────── */
+.ux-review-body {
+  display: flex;
+  flex: 1;
+  min-height: calc(100vh - 120px);
+}
+
+/* Sidebar Navigator */
+.ux-screen-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #090912;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  position: sticky;
+  top: 120px;
+}
+
+.ux-cat-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ux-cat-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ux-cat-pill.active {
+  background: #7068ff;
+  color: #fff;
+  border-color: #7068ff;
+}
+
+.ux-screen-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ux-screen-nav-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ux-screen-nav-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ux-screen-nav-card.active {
+  background: rgba(112, 104, 255, 0.18);
+  border-color: rgba(112, 104, 255, 0.4);
+}
+
+.ux-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ux-card-cat {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #7068ff;
+  text-transform: uppercase;
+}
+
+.ux-card-score {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
+.ux-card-title {
+  font-size: 0.82rem;
+  color: #f1f5f9;
+  line-height: 1.25;
+}
+
+/* QA Table */
+.ux-qa-summary-box {
+  background: rgba(14, 14, 24, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-top: auto;
+}
+
+.ux-qa-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.ux-qa-table {
+  width: 100%;
+  font-size: 0.7rem;
+  border-collapse: collapse;
+}
+
+.ux-qa-table td {
+  padding: 0.25rem 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.score-cell {
+  font-weight: 700;
+  color: #34d399;
+  text-align: right;
+}
+
+.status-cell {
+  font-weight: 800;
+  color: #10b981;
+  text-align: right;
+}
+
+/* ── Review Stage Area ───────────────────────────────────────── */
+.ux-review-stage {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  background: radial-gradient(circle at 50% 10%, rgba(112, 104, 255, 0.05), transparent 50%), #06060a;
+  overflow-y: auto;
+}
+
+.ux-active-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(14, 14, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ux-tag-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #a5b4fc;
+  text-transform: uppercase;
+  background: rgba(112, 104, 255, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.ux-stage-screen-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0.25rem 0;
+  color: #fff;
+}
+
+.ux-nature-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.ux-overlay-slider-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.4rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ux-slider-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.ux-slider-input {
+  accent-color: #7068ff;
+  cursor: pointer;
+}
+
+/* ── Device Frames Stage ─────────────────────────────────────── */
+.ux-stage-devices-container {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 2rem;
+  transition: transform 0.2s ease;
+}
+
+/* 3-Column Triple View Grid */
+.ux-triple-view-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.ux-side-by-side-grid {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.ux-device-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ux-frame-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+}
+
+.ux-frame-tag.actual {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.ux-frame-tag.reconstructed {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.ux-frame-tag.overlay {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.ux-frame-tag.current {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ux-frame-tag.proposed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* ── Realistic Pixel 4a Frame ────────────────────────────────── */
+.pixel-4a-frame {
+  width: 380px;
+  height: 820px;
+  background: #000;
+  border-radius: 44px;
+  padding: 9px;
+  box-shadow:
+    0 25px 65px rgba(0, 0, 0, 0.85),
+    0 0 0 3px #232330,
+    0 0 0 5px #0e0e16;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pixel-4a-frame.glow {
+  box-shadow:
+    0 25px 65px rgba(0, 0, 0, 0.85),
+    0 0 0 2px rgba(112, 104, 255, 0.6),
+    0 0 0 5px #0e0e16,
+    0 0 40px rgba(112, 104, 255, 0.25);
+}
+
+.pixel-screen-inner {
+  width: 100%;
+  height: 100%;
+  background: #0a0a12;
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pixel-full-screenshot {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* Overlay Stack */
+.overlay-stack {
+  position: relative;
+}
+
+.overlay-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-layer.top {
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+
+/* ── Traceable Rationale Cards ───────────────────────────────── */
+.ux-rationale-section {
+  max-width: 1200px;
+  margin: 1.5rem auto 0;
+  background: rgba(12, 12, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 1.5rem;
+}
+
+.ux-rationale-title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.ux-rationale-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 1.25rem;
+}
+
+.ux-rationale-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ux-card-marker {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.ux-card-marker.red { color: #f87171; }
+.ux-card-marker.blue { color: #60a5fa; }
+.ux-card-marker.green { color: #34d399; }
+
+.ux-rationale-text {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ── DOM Mock Renderers ──────────────────────────────────────── */
+.mock-render-splash {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.mock-splash-circle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.mock-splash-squircle {
+  width: 80px;
+  height: 80px;
+  background: #111422;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.mock-splash-squircle.glow {
+  box-shadow: 0 0 35px rgba(112, 104, 255, 0.4);
+}
+
+.mock-splash-brand-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-top: 1.25rem;
+  color: #fff;
+}
+
+.mock-campus-pulse-indicator {
+  font-size: 0.72rem;
+  color: #34d399;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pulse-beacon {
+  width: 8px;
+  height: 8px;
+  background: #34d399;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #34d399;
+}
+
+/* Welcome Renderer */
+.mock-render-welcome {
+  height: 100%;
+  padding: 2.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.25), transparent 60%), #0a0a14;
+}
+
+.mock-welcome-heading {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+
+.mock-welcome-heading.gradient {
+  background: linear-gradient(135deg, #ffffff 30%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mock-welcome-sub {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  margin-bottom: 1.25rem;
+  line-height: 1.35;
+}
+
+.mock-trust-chip {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+.mock-badge-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mock-badge-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.mock-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.mock-btn-primary {
+  min-height: 50px;
+  background: #ffffff;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 16px;
+  border: none;
+}
+
+.mock-btn-outline {
+  min-height: 48px;
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mock-btn-neon-primary {
+  min-height: 52px;
+  background: linear-gradient(135deg, #7068ff, #ff6b9d);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 25px rgba(112, 104, 255, 0.4);
+}
+
+.mock-btn-neon-secondary {
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mock-nigerian-tag {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 0.4rem;
+}
+
+.mock-campuses-scroller {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.campus-badge-tag {
+  background: rgba(112, 104, 255, 0.2);
+  color: #c7d2fe;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(112, 104, 255, 0.35);
+}
+
+/* Match Screen Renderer */
+.mock-render-match {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.75rem;
+  position: relative;
+}
+
+.mock-match-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.pill.red-dot { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.pill.green-dot { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.pill.purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.pill.neon { background: rgba(112, 104, 255, 0.25); color: #c7d2fe; }
+.pill.gold { color: #fbbf24; }
+.pill.gold-vip { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+.mock-swipe-card-box {
+  flex: 1;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #141422;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mock-card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2a2238 0%, #151522 100%);
+  position: relative;
+}
+
+/* Multi-photo Story Bars */
+.mock-story-bars {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.story-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+}
+
+.story-bar.active {
+  background: #fff;
+}
+
+.mock-card-overlay-details {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+}
+
+.mock-card-tags {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.school-tag {
+  background: rgba(112, 104, 255, 0.25);
+  color: #c7d2fe;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.status-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.mock-card-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem;
+  color: #fff;
+}
+
+.mock-card-dept {
+  font-size: 0.75rem;
+  color: #c7d2fe;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.mock-tag-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.mini-tag-pill {
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  color: #cbd5e1;
+}
+
+.mock-card-subtext {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.mock-match-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.circle-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #181828;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-btn.super {
+  transform: scale(1.1);
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.circle-btn.neon {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.mock-bottom-nav {
+  height: 56px;
+  background: rgba(14, 14, 24, 0.95);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.nav-lbl {
+  font-size: 0.55rem;
+  font-weight: 700;
+}
+
+.nav-dot {
+  width: 12px;
+  height: 3px;
+  background: #7068ff;
+  border-radius: 999px;
+}
+
+.nav-unread-dot {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: #ff5376;
+  border-radius: 50%;
+}
+
+/* ── Responsiveness ────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .ux-triple-view-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  .ux-review-body {
+    flex-direction: column;
+  }
+  .ux-screen-sidebar {
+    width: 100%;
+    min-width: 100%;
+    position: static;
+    max-height: 220px;
+  }
+  .ux-rationale-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

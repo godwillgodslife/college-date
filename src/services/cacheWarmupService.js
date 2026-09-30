@@ -1,8 +1,7 @@
 import { getConversations } from './chatService';
 import { getLeaderboards } from './leaderboardService';
-import { getUserSettings } from './notificationService';
-import { getWallet } from './paymentService';
 import { getDiscoverProfiles, checkSwipeLimit } from './swipeService';
+import { getDiscoveryCacheKey } from '../hooks/useSWRData';
 import { setCachedData } from '../lib/persistentCache';
 
 function deferIdle(task) {
@@ -18,11 +17,23 @@ export function warmupAppDataCache(userId, userProfile) {
     if (!userId || typeof window === 'undefined') return;
 
     deferIdle(async () => {
-        const discoveryFilters = {
-            gender: userProfile?.preferred_gender || 'All',
-            university: userProfile?.university || 'All',
-            ageRange: [18, 50]
+        let initialGender = 'All';
+        if (userProfile) {
+            if (userProfile.interest_gender && userProfile.interest_gender !== 'All') {
+                initialGender = userProfile.interest_gender;
+            } else if (userProfile.gender) {
+                initialGender = userProfile.gender.toLowerCase() === 'male' ? 'Female' : 'Male';
+            }
+        }
+
+        const matchDiscoveryFilters = {
+            gender: initialGender,
+            university: 'All',
+            ageRange: [18, 50],
+            liveOnly: false
         };
+
+        const discoveryCacheKey = getDiscoveryCacheKey(userId, matchDiscoveryFilters, userProfile);
 
         const tasks = [
             getConversations(userId).then(({ data }) => setCachedData(['conversations', userId], data || [])),
@@ -30,11 +41,11 @@ export function warmupAppDataCache(userId, userProfile) {
                 mostWanted: data.mostWanted || [],
                 bigSpenders: data.bigSpenders || []
             })),
-            getUserSettings(userId).then(({ data }) => setCachedData(['settings', userId], data)),
-            getWallet(userId).then(({ data }) => setCachedData(['wallet', userId], data)),
             checkSwipeLimit(userId).then((data) => setCachedData(['limits', userId], data)),
-            getDiscoverProfiles(userId, discoveryFilters, userProfile).then(({ data }) => {
-                setCachedData(['discovery', userId, JSON.stringify(discoveryFilters)], data || []);
+            getDiscoverProfiles(userId, matchDiscoveryFilters, userProfile).then(({ data }) => {
+                if (discoveryCacheKey && data) {
+                    setCachedData(discoveryCacheKey, data);
+                }
             })
         ];
 

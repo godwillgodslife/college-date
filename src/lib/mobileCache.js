@@ -29,6 +29,15 @@ function openCacheDb() {
   });
 }
 
+export function getMemoryCacheRecord(key, { ttlMs = 5 * 60 * 1000, allowStale = false } = {}) {
+  const serializedKey = serializeKey(key);
+  const memoryRecord = MEMORY_CACHE.get(serializedKey);
+  if (!memoryRecord) return undefined;
+  const stale = Date.now() - memoryRecord.createdAt > ttlMs;
+  if (stale && !allowStale) return undefined;
+  return { ...memoryRecord, stale };
+}
+
 export async function getMobileCache(key, { ttlMs = 5 * 60 * 1000 } = {}) {
   const serializedKey = serializeKey(key);
   const memoryRecord = MEMORY_CACHE.get(serializedKey);

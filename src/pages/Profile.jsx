@@ -6,6 +6,7 @@ import { getProfile } from '../services/profileService';
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import ProfileCompletion from '../components/ProfileCompletion';
 import LoadingSpinner from '../components/LoadingSpinner';
+import OptimizedImage from '../components/OptimizedImage';
 import './Profile.css';
 import './Profile_Earnings.css';
 import StatusInput from '../components/StatusInput';
@@ -16,11 +17,150 @@ import { formatLastSeen } from '../utils/formatTimestamp';
 import { requestProfileAiReview } from '../services/aiTrustService';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { partnerWhatsAppUrl } from '../config/contactLinks';
+import FaceVerificationModal from '../components/FaceVerificationModal';
 
 import useSWR from 'swr';
-import OptimizedImage from '../components/OptimizedImage';
 import { AnimatePresence } from 'framer-motion';
 import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
+import { recordSwipe, checkSwipeLimit } from '../services/swipeService';
+import { hasActivePremium } from '../utils/premium';
+import { supabase } from '../lib/supabase';
+import { getUserPostsAndReposts } from '../services/confessionService';
+import { persistentSWR } from '../lib/persistentCache';
+import { CACHE_TTL } from '../lib/cachePolicy';
+
+function ProfileVideoShowcase({ videoUrl, isOwnProfile, onEditVideo }) {
+    const videoRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
+
+    const togglePlay = (e) => {
+        e.stopPropagation();
+        if (!videoRef.current) return;
+        if (isPlaying) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    const toggleMute = (e) => {
+        e.stopPropagation();
+        if (!videoRef.current) return;
+        videoRef.current.muted = !isMuted;
+        setIsMuted(!isMuted);
+    };
+
+    return (
+        <div className="profile-video-showcase-card">
+            <div className="profile-video-card-header">
+                <div className="header-left">
+                    <span className="showcase-icon">🎬</span>
+                    <strong>10s Video Profile</strong>
+                </div>
+                <span className="premium-pill">👑 Verified Moment</span>
+            </div>
+            <div className="profile-video-viewport" onClick={togglePlay}>
+                <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    playsInline
+                    loop
+                    muted={isMuted}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    className="profile-showcase-media"
+                />
+                <div className="profile-video-overlay-bar">
+                    <button 
+                        type="button" 
+                        className="p-vid-ctrl-btn" 
+                        onClick={togglePlay}
+                        aria-label={isPlaying ? 'Pause video' : 'Play video'}
+                    >
+                        {isPlaying ? '⏸' : '▶'}
+                    </button>
+                    <button 
+                        type="button" 
+                        className="p-vid-ctrl-btn" 
+                        onClick={toggleMute}
+                        aria-label={isMuted ? 'Unmute' : 'Mute'}
+                    >
+                        {isMuted ? '🔇' : '🔊'}
+                    </button>
+                    {isOwnProfile && (
+                        <button
+                            type="button"
+                            className="p-vid-ctrl-btn edit-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEditVideo?.();
+                            }}
+                            title="Edit Video"
+                        >
+                            ✏️
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ProfilePostsSection({ posts, loading, navigate }) {
+    if (loading) {
+        return (
+            <div className="profile-posts-loading">
+                <LoadingSpinner text="Loading campus posts..." />
+            </div>
+        );
+    }
+
+    if (!posts || posts.length === 0) {
+        return (
+            <div className="profile-posts-empty">
+                <span className="empty-icon">📝</span>
+                <p>No campus posts or reposts yet.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="profile-posts-feed">
+            {posts.map((post) => (
+                <div 
+                    key={post.id} 
+                    className="profile-post-card"
+                    onClick={() => navigate(`/confessions`)}
+                >
+                    {post.isRepost && (
+                        <div className="repost-header-tag">
+                            <span>🔁 Reposted from Campus Feed</span>
+                        </div>
+                    )}
+                    {post.image_url && (
+                        <div className="profile-post-image-wrap">
+                            <OptimizedImage src={post.image_url} alt="Post attachment" className="profile-post-image" width={600} />
+                        </div>
+                    )}
+                    <p className="profile-post-content">{post.content}</p>
+                    <div className="profile-post-footer">
+                        <span className="profile-post-type">
+                            {post.post_type === 'secret' ? '🎭 Secret' : '👤 Campus Post'}
+                        </span>
+                        <div className="profile-post-stats">
+                            <span>❤️ {post.totalReactions || post.likes || 0}</span>
+                            <span>💬 {post.commentCount || post.comments || 0}</span>
+                            <span>🔁 {post.repost_count || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
 
 function VoicePlayer({ src }) {
     const [playing, setPlaying] = useState(false);
@@ -66,7 +206,7 @@ function VoicePlayer({ src }) {
     );
 }
 
-function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer }) {
+function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer, isPremium }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const photosList = getProfilePhotos({ profile_photos: photos, avatar_url: avatarUrl });
 
@@ -88,6 +228,11 @@ function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuse
                 <div className="profile-avatar profile-avatar-placeholder">
                     {displayName.charAt(0).toUpperCase()}
                 </div>
+                {isPremium && (
+                    <div className="avatar-premium-badge carousel-premium-badge" title="👑 Premium Member">
+                        <span className="avatar-premium-icon">👑</span>
+                    </div>
+                )}
                 {isOnline && <span className="profile-online-dot" />}
             </div>
         );
@@ -104,10 +249,11 @@ function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuse
             )}
 
             <div className="profile-carousel-img-container">
-                <img
+                <OptimizedImage
                     src={photosList[currentIndex]}
                     alt={`${displayName} photo`}
                     className="profile-carousel-img"
+                    width={800}
                     onClick={(e) => {
                         if (userStatuses.length > 0) {
                             e.stopPropagation();
@@ -115,6 +261,11 @@ function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuse
                         }
                     }}
                 />
+                {isPremium && (
+                    <div className="avatar-premium-badge carousel-premium-badge" title="👑 Premium Member">
+                        <span className="avatar-premium-icon">👑</span>
+                    </div>
+                )}
             </div>
 
             {photosList.length > 1 && (
@@ -134,7 +285,7 @@ function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuse
 
 export default function Profile() {
     const { userId } = useParams();
-    const { currentUser, userProfile: myProfile, onlineUserIds, logout } = useAuth();
+    const { currentUser, userProfile: myProfile, walletBalance, onlineUserIds, logout, fetchProfile } = useAuth();
     const navigate = useNavigate();
     const { addToast } = useToast();
 
@@ -144,36 +295,48 @@ export default function Profile() {
     const [showStatusViewer, setShowStatusViewer] = useState(false);
     const [aiCoach, setAiCoach] = useState(null);
     const [aiCoachLoading, setAiCoachLoading] = useState(false);
+    const [showFaceVerification, setShowFaceVerification] = useState(false);
+    const [vibeLoading, setVibeLoading] = useState(false);
+    const [vibeSent, setVibeSent] = useState(false);
 
     const isOwnProfile = !userId || userId === currentUser?.id;
     const profileId = userId || currentUser?.id;
 
     // 1. Resolve Profile data
+    const profileKey = (!isOwnProfile && profileId) ? ['profile', profileId] : null;
     const { data: profileResult, isLoading: SWRProfileLoading } = useSWR(
-        (!isOwnProfile && profileId) ? ['profile', profileId] : null,
+        profileKey,
         () => getProfile(profileId),
-        { revalidateOnFocus: false }
+        persistentSWR(profileKey, { revalidateOnFocus: false, ttlMs: CACHE_TTL.profile })
     );
 
     const viewingProfile = normalizeProfile(isOwnProfile ? myProfile : profileResult?.data);
     const profileLoading = isOwnProfile ? false : SWRProfileLoading;
 
-
-
+    const walletKey = isOwnProfile && currentUser ? ['wallet', currentUser.id] : null;
     const { data: walletResult, isLoading: walletLoading } = useSWR(
-        isOwnProfile && currentUser ? ['wallet', currentUser.id] : null,
+        walletKey,
         () => getWallet(currentUser.id),
-        { revalidateOnFocus: false }
+        persistentSWR(walletKey, { revalidateOnFocus: false, ttlMs: CACHE_TTL.wallet })
     );
 
+    const statusKey = profileId ? ['statuses', profileId] : null;
     const { data: statusResult, isLoading: statusLoading } = useSWR(
-        profileId ? ['statuses', profileId] : null,
+        statusKey,
         () => getUserStatuses(profileId),
-        { revalidateOnFocus: false }
+        persistentSWR(statusKey, { revalidateOnFocus: false, ttlMs: CACHE_TTL.statuses })
+    );
+
+    const postsKey = profileId ? ['user_posts_reposts', profileId] : null;
+    const { data: postsResult, isLoading: postsLoading } = useSWR(
+        postsKey,
+        () => getUserPostsAndReposts(profileId),
+        persistentSWR(postsKey, { revalidateOnFocus: false, ttlMs: CACHE_TTL.confessions })
     );
 
     const wallet = walletResult?.data;
     const userStatuses = statusResult?.data || [];
+    const userPosts = postsResult?.data || [];
 
     const loading = (profileLoading && !viewingProfile) || (isOwnProfile && walletLoading && !wallet);
 
@@ -231,7 +394,7 @@ export default function Profile() {
         || currentUser?.email?.split('@')[0]
         || 'User';
 
-    const avatarUrl = userProfile?.avatar_url || null;
+    const avatarUrl = userProfile?.profile_photos?.[0] || userProfile?.avatar_url || null;
     const email = currentUser?.email || '';
     const university = userProfile?.university || 'Not set';
     const bio = userProfile?.bio || 'No bio yet';
@@ -246,6 +409,68 @@ export default function Profile() {
         verified: 'AI trust check passed.',
         needs_review: 'AI flagged something for manual review.',
         rejected: 'This profile needs changes before verification.'
+    };
+
+    const handleVibe = async () => {
+        if (!currentUser?.id) {
+            addToast('Please sign in to connect.', 'info');
+            return;
+        }
+        if (vibeSent) {
+            addToast('Vibe request already sent!', 'info');
+            return;
+        }
+
+        const isUserPremium = hasActivePremium(myProfile);
+        let canProceed = isUserPremium;
+        if (!canProceed) {
+            const limits = await checkSwipeLimit(currentUser.id);
+            const hasDailyLimitRemaining = limits.canSwipe;
+            const hasBonusSwipes = (myProfile?.free_swipes ?? 0) > 0;
+            const balance = wallet?.balance ?? walletBalance ?? 0;
+            canProceed = hasDailyLimitRemaining || hasBonusSwipes || balance >= 500;
+        }
+
+        if (!canProceed) {
+            addToast('Out of free swipes! Top up your wallet or upgrade to Premium.', 'warning');
+            setTimeout(() => navigate('/wallet'), 1500);
+            return;
+        }
+
+        setVibeLoading(true);
+        try {
+            const result = await recordSwipe(
+                currentUser.id,
+                userProfile.id,
+                'right',
+                'standard',
+                'Started a vibe from Profile',
+                { isPremium: isUserPremium }
+            );
+
+            if (result.error) {
+                addToast(result.error, 'error');
+            } else {
+                setVibeSent(true);
+                const { data: matchData } = await supabase
+                    .from('matches')
+                    .select('id')
+                    .contains('user_ids', [currentUser.id, userProfile.id])
+                    .maybeSingle();
+
+                if (matchData?.id) {
+                    addToast(`It's a Match! Connected with ${displayName}! 🔥`, 'success');
+                    navigate(`/chat?chatId=${matchData.id}`);
+                } else {
+                    addToast(`✨ Vibe request sent to ${displayName}! They'll see you in Requests.`, 'success');
+                }
+            }
+        } catch (err) {
+            console.error('handleVibe error:', err);
+            addToast('Failed to start vibe. Please try again.', 'error');
+        } finally {
+            setVibeLoading(false);
+        }
     };
 
     const handleProfileCoach = async () => {
@@ -296,25 +521,42 @@ export default function Profile() {
                         </div>
                     )}
 
-                    {/* VERIFICATION BANNER: Encourage users to verify they are real */}
-                    {!userProfile?.is_verified && (safeArray(userProfile?.profile_photos).length > 0 || userProfile?.avatar_url) && (
-                        <div className="verification-alert">
-                            <div className="verification-text-block">
-                                <span className="verify-shield">🛡️</span>
-                                <div className="verify-text">
-                                    <strong>Verify Your Profile</strong> {aiVerificationCopy[aiVerificationStatus] || aiVerificationCopy.not_started}
-                                </div>
+                    {/* PERMANENT STUDENT IDENTITY & PHOTO VERIFICATION CARD */}
+                    <div className="verification-card-permanent">
+                        <div className="verification-card-header">
+                            <div className="verification-status-icon">
+                                {(userProfile?.photo_verified || userProfile?.is_verified) ? '🛡️' : '📸'}
                             </div>
-                            <button
-                                className="btn btn-primary verify-btn-sm"
-                                onClick={() => {
-                                    requestProfileAiReview('manual_profile_verify');
-                                }}
-                            >
-                                {aiVerificationStatus === 'reviewing' || aiVerificationStatus === 'pending' ? 'Checking...' : 'AI Check'}
-                            </button>
+                            <div className="verification-status-info">
+                                <div className="verification-title-row">
+                                    <strong className="verification-title">Face & Photo Verification</strong>
+                                    {(userProfile?.photo_verified || userProfile?.is_verified) ? (
+                                        <span className="verified-badge-pill active" title="Your photos are verified with live selfie scan">
+                                            ✓ Verified
+                                        </span>
+                                    ) : (
+                                        <span className="unverified-badge-pill" title="Not verified yet">
+                                            Unverified
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="verification-subtitle">
+                                    {(userProfile?.photo_verified || userProfile?.is_verified)
+                                        ? 'Your live selfie matches your profile photos. Verified profiles get 3x more campus match requests.'
+                                        : 'Confirm you look like your photos with a 5-second camera selfie scan to earn your green ✓ Verified badge.'}
+                                </p>
+                            </div>
                         </div>
-                    )}
+                        <button
+                            type="button"
+                            className={`btn ${(userProfile?.photo_verified || userProfile?.is_verified) ? 'btn-secondary verify-btn-reverify' : 'btn-primary verify-btn-cta'}`}
+                            onClick={() => setShowFaceVerification(true)}
+                        >
+                            {(userProfile?.photo_verified || userProfile?.is_verified)
+                                ? '🔄 Re-verify Face'
+                                : '🛡️ Verify Face with Camera'}
+                        </button>
+                    </div>
 
                     <ProfileCompletion
                         score={userProfile?.completion_score || 0}
@@ -341,10 +583,30 @@ export default function Profile() {
                                     {displayName.charAt(0).toUpperCase()}
                                 </div>
                             )}
+                            {hasActivePremium(isOwnProfile ? userProfile : viewingProfile) && (
+                                <div className="avatar-premium-badge" title="Premium Member">
+                                    <span className="avatar-premium-icon">👑</span>
+                                </div>
+                            )}
                             {isOnline && <span className="profile-online-dot" />}
                         </div>
                         <h1 className="profile-name">
                             {displayName}
+                            {hasActivePremium(isOwnProfile ? userProfile : viewingProfile) && (
+                                <span className="premium-badge-pill" title="Premium Member">
+                                    👑 Premium
+                                </span>
+                            )}
+                            {(viewingProfile?.is_verified || viewingProfile?.photo_verified || userProfile?.photo_verified) && (
+                                <span 
+                                    className="verified-badge-pill" 
+                                    title={isOwnProfile ? "Click to view photo verification" : "Photo Verified"}
+                                    onClick={() => isOwnProfile && setShowFaceVerification(true)}
+                                    style={isOwnProfile ? { cursor: 'pointer' } : undefined}
+                                >
+                                    ✓ Verified
+                                </span>
+                            )}
                             {isOnline && <span className="live-badge">LIVE</span>}
                         </h1>
                         <p className="profile-uni-text">🎓 {university}</p>
@@ -396,6 +658,14 @@ export default function Profile() {
                             </div>
                         )}
                     </div>
+
+                    {userProfile?.video_url && (
+                        <ProfileVideoShowcase
+                            videoUrl={userProfile.video_url}
+                            isOwnProfile={true}
+                            onEditVideo={() => navigate('/profile/edit')}
+                        />
+                    )}
 
                     <div className="profile-dashboard-grid">
                         <button
@@ -530,6 +800,16 @@ export default function Profile() {
                         </button>
                     </div>
 
+                    <div className="profile-section profile-posts-container">
+                        <div className="profile-section-header-flex">
+                            <h3 className="profile-section-title">Campus Posts & Reposts</h3>
+                            <button className="btn-text" onClick={() => navigate('/confessions')}>
+                                View Feed →
+                            </button>
+                        </div>
+                        <ProfilePostsSection posts={userPosts} loading={postsLoading} navigate={navigate} />
+                    </div>
+
                     {canUseWebPush && <div className="push-status-container" style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
                         {!checkingPush && (
                             isSubscribed ? (
@@ -557,12 +837,25 @@ export default function Profile() {
                         isOnline={isOnline}
                         userStatuses={userStatuses}
                         setShowStatusViewer={setShowStatusViewer}
+                        isPremium={hasActivePremium(userProfile)}
                     />
 
                     <div className="public-profile-details">
                         <div className="profile-title-row-premium">
-                            <h2>{displayName}, {userProfile?.age || '—'}</h2>
-                            {isOnline && <span className="profile-live-badge-glow">LIVE</span>}
+                            <h2>
+                                {displayName}, {userProfile?.age || '—'}
+                                {hasActivePremium(userProfile) && <span className="premium-crown" title="Premium Member">👑</span>}
+                                {(userProfile?.photo_verified || userProfile?.is_verified) && (
+                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                )}
+                            </h2>
+                            <div className="profile-badges-cluster">
+                                {hasActivePremium(userProfile) && <span className="premium-badge-glow">👑 Premium</span>}
+                                {(userProfile?.photo_verified || userProfile?.is_verified) && (
+                                    <span className="verified-badge-pill" title="Photo Verified Student">✓ Verified</span>
+                                )}
+                                {isOnline && <span className="profile-live-badge-glow">LIVE</span>}
+                            </div>
                         </div>
                         <p className="profile-uni-subtitle">🎓 {university} • {userProfile?.location_status || 'Campus'}</p>
 
@@ -625,6 +918,14 @@ export default function Profile() {
                             </div>
                         )}
 
+                        {/* 10s Video Profile Showcase */}
+                        {userProfile?.video_url && (
+                            <ProfileVideoShowcase
+                                videoUrl={userProfile.video_url}
+                                isOwnProfile={false}
+                            />
+                        )}
+
                         {/* Q&A Prompt Card */}
                         {userProfile?.intro_prompt && (
                             <div className="profile-prompt-card-premium">
@@ -632,21 +933,34 @@ export default function Profile() {
                                 <p className="prompt-answer">"{userProfile.intro_prompt}"</p>
                             </div>
                         )}
+
+                        {/* Campus Posts & Reposts Section */}
+                        <div className="profile-section-premium-block profile-posts-wrapper">
+                            <h4>Campus Posts & Reposts</h4>
+                            <ProfilePostsSection posts={userPosts} loading={postsLoading} navigate={navigate} />
+                        </div>
                     </div>
 
                     {/* Floating Action Bar */}
                     <div className="profile-floating-actions-bar">
                         <button
-                            className="float-action-btn call-btn-glow"
-                            onClick={() => navigate(`/call/${userProfile.id}?type=voice`)}
+                            className={`float-action-btn vibe-btn-glow ${vibeSent ? 'sent' : ''}`}
+                            onClick={handleVibe}
+                            disabled={vibeLoading || vibeSent}
                         >
-                            📞 Call
+                            {vibeLoading ? '⏳ Vibing...' : vibeSent ? '✓ Vibe Sent' : '✨ Vibe'}
                         </button>
                         <button
                             className="float-action-btn chat-btn-glow primary"
                             onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id } })}
                         >
                             💬 Message
+                        </button>
+                        <button
+                            className="float-action-btn call-btn-glow"
+                            onClick={() => navigate(`/call/${userProfile.id}?type=voice`)}
+                        >
+                            📞 Call
                         </button>
                         <button
                             className="float-action-btn gift-btn-glow"
@@ -685,6 +999,15 @@ export default function Profile() {
                     />
                 )}
             </AnimatePresence>
+
+            <FaceVerificationModal
+                isOpen={showFaceVerification}
+                onClose={() => setShowFaceVerification(false)}
+                onVerified={() => {
+                    fetchProfile?.(currentUser?.id);
+                    setShowFaceVerification(false);
+                }}
+            />
         </div>
     );
 }

@@ -1,6 +1,8 @@
 .voice-call-room {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100dvh; /* Dynamic viewport for mobile */
+    height: calc(var(--vh, 1vh) * 100);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -16,6 +18,7 @@
     width: 100%;
     height: 100%;
     min-height: 100dvh;
+    min-height: calc(var(--vh, 1vh) * 100);
     position: relative;
 }
 
@@ -162,7 +165,7 @@
         justify-content: center;
     }
     .agora-call-bar {
-        width: calc(100vw - 24px);
+        width: calc(100% - 24px);
         gap: 8px;
         padding: 10px;
     }
@@ -177,6 +180,24 @@
         top: 12px;
         width: 118px;
         border-radius: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    html.is-native-app .voice-call-room,
+    html.is-native-app .calling-overlay,
+    html.is-native-app .limit-reached-overlay {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: clip;
+    }
+
+    html.is-native-app .agora-call-bar {
+        bottom: max(18px, env(safe-area-inset-bottom, 0px));
+    }
+
+    html.is-native-app .limit-reached-overlay {
+        padding: max(16px, env(safe-area-inset-top, 0px)) var(--native-page-padding-right) max(16px, env(safe-area-inset-bottom, 0px)) var(--native-page-padding-left);
     }
 }
 
@@ -370,3 +391,220 @@
     background: rgba(255, 255, 255, 0.05);
     color: white;
 }
+
+/* ── Dedicated Voice Audio Stage ────────────────────────── */
+.voice-audio-stage {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px;
+    text-align: center;
+}
+
+.voice-avatar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-stage-avatar {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 2;
+}
+
+.voice-stage-avatar-placeholder {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 10px 40px rgba(108, 99, 255, 0.45);
+    position: relative;
+    z-index: 2;
+}
+
+.audio-pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(108, 99, 255, 0.4);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.audio-pulse-ring.active {
+    animation: audioWave 2.4s infinite ease-out;
+}
+
+.audio-pulse-ring.two.active {
+    animation-delay: 1.2s;
+}
+
+@keyframes audioWave {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { transform: scale(1.8); opacity: 0; }
+}
+
+.voice-stage-name {
+    color: white;
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+.voice-stage-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge-connected {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.badge-ringing {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ── Video Stage Grid ─────────────────────────────────── */
+.video-stage-grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.remote-video-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.remote-video-stream {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remote-video-stream.is-hidden {
+    display: none;
+}
+
+/* ── Camera Off Avatar Fallback ───────────────────────── */
+.remote-camera-off-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: white;
+    text-align: center;
+    padding: 24px;
+    z-index: 1;
+}
+
+.remote-camera-off-avatar-wrap {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+}
+
+.remote-camera-off-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remote-camera-off-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+}
+
+.remote-camera-off-card h3 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.remote-camera-off-card p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.avatar-img-fit {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.local-off-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+

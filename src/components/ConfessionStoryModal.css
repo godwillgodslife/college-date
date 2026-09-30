@@ -1,0 +1,156 @@
+.confession-story-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: storyModalFadeIn 0.2s ease-out;
+}
+
+@keyframes storyModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.confession-story-modal-container {
+    width: 100%;
+    max-width: 440px;
+    background: #0f111a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    max-height: 94vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.story-modal-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.story-modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-story-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-story-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.story-card-preview-area {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    max-height: 52vh;
+    background: #08070e;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.story-card-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.story-card-loading {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.story-modal-actions-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 8px;
+}
+
+.btn-story-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 8px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: transform 0.12s, opacity 0.15s;
+}
+
+.btn-story-action:active {
+    transform: scale(0.96);
+}
+
+.btn-story-action.primary-wa {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+}
+
+.btn-story-action.secondary-dl {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-story-action.secondary-share {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25);
+}
+
+.btn-story-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.story-card-tip-text {
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 12px;
+    border-radius: 10px;
+    word-break: break-all;
+}
+
+.story-card-tip-text strong {
+    color: #f472b6;
+}

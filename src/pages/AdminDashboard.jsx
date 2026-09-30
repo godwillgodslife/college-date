@@ -2,6 +2,8 @@ import { Fragment, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
+import AdminOfficialHubManager from '../components/admin/AdminOfficialHubManager';
+import AdminActiveProgramManager from '../components/admin/AdminActiveProgramManager';
 import './AdminDashboard.css';
 
 // Helpers
@@ -847,6 +849,25 @@ function ActiveFilterChips({ filters }) {
     );
 }
 
+const formatUserPresence = (user) => {
+    const rawTs = user?.last_seen_at || user?.last_active || user?.last_seen;
+    if (!rawTs) return { label: 'Inactive', tone: 'dormant', isOnline: false };
+    const ts = new Date(rawTs).getTime();
+    if (Number.isNaN(ts) || ts <= 0) return { label: 'Inactive', tone: 'dormant', isOnline: false };
+    const diff = Date.now() - ts;
+    if (diff <= 5 * 60 * 1000) return { label: 'Online now', tone: 'online', isOnline: true };
+    if (diff <= 24 * 60 * 60 * 1000) return { label: 'Active today', tone: 'recent', isOnline: false };
+    if (diff <= 7 * 24 * 60 * 60 * 1000) {
+        const days = Math.max(1, Math.floor(diff / (24 * 60 * 60 * 1000)));
+        return { label: `Active ${days}d ago`, tone: 'moderate', isOnline: false };
+    }
+    if (diff <= 30 * 24 * 60 * 60 * 1000) {
+        const weeks = Math.max(1, Math.floor(diff / (7 * 24 * 60 * 60 * 1000)));
+        return { label: `Active ${weeks}w ago`, tone: 'moderate', isOnline: false };
+    }
+    return { label: 'Inactive', tone: 'dormant', isOnline: false };
+};
+
 export default function AdminDashboard() {
     const { currentUser } = useAuth();
     const { addToast } = useToast();
@@ -878,8 +899,11 @@ export default function AdminDashboard() {
     const [viewUser, setViewUser] = useState(null);
     const [userTotal, setUserTotal] = useState(0);
     const [userPage, setUserPage] = useState(0);
+    const [userSummaryData, setUserSummaryData] = useState(null);
+    const [loadingUserSummary, setLoadingUserSummary] = useState(false);
     const [userFilters, setUserFilters] = useState({
         status: '',
+        activity: '',
         gender: '',
         university: '',
         verified: '',
@@ -1002,9 +1026,15 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         loadAdminAccess();
-        if (activeTab === 'overview') loadStats();
+        if (activeTab === 'overview') {
+            loadStats();
+            loadUserSummary();
+        }
         else if (activeTab === 'analytics') loadAnalytics();
-        else if (activeTab === 'users') searchUsers(0);
+        else if (activeTab === 'users') {
+            searchUsers(0);
+            loadUserSummary();
+        }
         else if (activeTab === 'content') loadConfessions();
         else if (activeTab === 'finance') loadFinance();
         else if (activeTab === 'controls') loadConfig();
@@ -1051,6 +1081,81 @@ export default function AdminDashboard() {
         } finally { setLoadingStats(false); }
     };
 
+    const loadUserSummary = async () => {
+        setLoadingUserSummary(true);
+        try {
+            // 1. Try dedicated database-wide RPC
+            const { data, error } = await supabase.rpc('admin_get_user_summary');
+            if (!error && data && typeof data === 'object') {
+                setUserSummaryData(data);
+                return;
+            }
+
+            // 2. Resilient direct query fallback across public.profiles
+            const { data: allProfiles, error: pErr } = await supabase
+                .from('profiles')
+                .select('id, last_seen_at, last_active, last_seen, is_banned, is_shadow_banned, is_verified, is_premium');
+
+            if (pErr) throw pErr;
+
+            if (allProfiles) {
+                const now = Date.now();
+                let onlineNow = 0;
+                let active24h = 0;
+                let active7d = 0;
+                let active30d = 0;
+                let inactive = 0;
+                let goodStanding = 0;
+                let banned = 0;
+                let shadow = 0;
+                let verified = 0;
+                let premium = 0;
+
+                allProfiles.forEach(p => {
+                    const isB = p.is_banned === true;
+                    const isS = p.is_shadow_banned === true;
+                    if (isB) banned += 1;
+                    else if (isS) shadow += 1;
+                    else goodStanding += 1;
+
+                    if (p.is_verified) verified += 1;
+                    if (p.is_premium) premium += 1;
+
+                    const ts = new Date(p.last_seen_at || p.last_active || p.last_seen || 0).getTime();
+                    if (ts > 0) {
+                        const diff = now - ts;
+                        if (diff <= 5 * 60 * 1000) onlineNow += 1;
+                        if (diff <= 24 * 60 * 60 * 1000) active24h += 1;
+                        if (diff <= 7 * 24 * 60 * 60 * 1000) active7d += 1;
+                        if (diff <= 30 * 24 * 60 * 60 * 1000) active30d += 1;
+                        else inactive += 1;
+                    } else {
+                        inactive += 1;
+                    }
+                });
+
+                setUserSummaryData({
+                    total: allProfiles.length,
+                    onlineNow,
+                    active24h,
+                    active7d,
+                    active30d,
+                    inactive,
+                    goodStanding,
+                    shadow,
+                    banned,
+                    verified,
+                    premium,
+                    needsReview: banned + shadow,
+                });
+            }
+        } catch (err) {
+            console.warn('Could not load user summary data:', err);
+        } finally {
+            setLoadingUserSummary(false);
+        }
+    };
+
     const loadOpsSnapshot = async () => {
         try {
             const { data, error } = await supabase.rpc('admin_get_ops_snapshot');
@@ -1085,7 +1190,8 @@ export default function AdminDashboard() {
         }
         setLoadingUsers(true);
         try {
-            const { data, error } = await supabase.rpc('admin_search_users', {
+            // First attempt with p_activity filter
+            let res = await supabase.rpc('admin_search_users', {
                 p_limit: USER_PAGE_SIZE,
                 p_offset: page * USER_PAGE_SIZE,
                 p_query: q.trim() || null,
@@ -1094,10 +1200,26 @@ export default function AdminDashboard() {
                 p_university: filters.university.trim() || null,
                 p_verified: filters.verified === '' ? null : filters.verified === 'true',
                 p_premium: filters.premium === '' ? null : filters.premium === 'true',
+                p_activity: filters.activity || null,
             });
-            if (error) throw error;
-            setUsersList(data || []);
-            setUserTotal(Number(data?.[0]?.total_count || 0));
+
+            // Backward compatibility if remote database has older admin_search_users signature
+            if (res.error && res.error.message && res.error.message.includes('p_activity')) {
+                res = await supabase.rpc('admin_search_users', {
+                    p_limit: USER_PAGE_SIZE,
+                    p_offset: page * USER_PAGE_SIZE,
+                    p_query: q.trim() || null,
+                    p_status: filters.status || null,
+                    p_gender: filters.gender || null,
+                    p_university: filters.university.trim() || null,
+                    p_verified: filters.verified === '' ? null : filters.verified === 'true',
+                    p_premium: filters.premium === '' ? null : filters.premium === 'true',
+                });
+            }
+
+            if (res.error) throw res.error;
+            setUsersList(res.data || []);
+            setUserTotal(Number(res.data?.[0]?.total_count || 0));
             setUserPage(page);
             setSelectedUsers(new Set());
             setWorkspaceLoadedAt(prev => ({ ...prev, users: new Date().toISOString() }));
@@ -2362,6 +2484,22 @@ export default function AdminDashboard() {
         if (attention.score >= 3) acc.needsReview += 1;
         return acc;
     }, { total: 0, active: 0, banned: 0, shadow: 0, verified: 0, premium: 0, needsReview: 0 });
+
+    const effectiveSummary = userSummaryData || {
+        total: userTotal || userSummary.total,
+        onlineNow: 0,
+        active24h: stats?.dau || stats?.active24h || 0,
+        active7d: stats?.wau || stats?.active7d || 0,
+        active30d: stats?.mau || stats?.active30d || 0,
+        inactive: 0,
+        goodStanding: userSummary.active,
+        shadow: userSummary.shadow,
+        banned: userSummary.banned,
+        verified: userSummary.verified,
+        premium: userSummary.premium,
+        needsReview: userSummary.needsReview,
+    };
+
     const selectedUsersList = usersList.filter(user => selectedUsers.has(user.id));
     const selectedUserSummary = selectedUsersList.reduce((acc, user) => {
         const attention = userAttentionProfile(user);
@@ -2386,6 +2524,7 @@ export default function AdminDashboard() {
     const resetUserFilters = () => {
         const clearedFilters = {
             status: '',
+            activity: '',
             gender: '',
             university: '',
             verified: '',
@@ -2398,15 +2537,17 @@ export default function AdminDashboard() {
 
     const exportFilteredUsers = () => {
         if (usersList.length === 0) return addToast('No users to export', 'error');
-        const headers = ['Name', 'Email', 'Gender', 'University', 'Status', 'Attention', 'Attention Reasons', 'Verified', 'Premium', 'Joined', 'Last Seen'];
+        const headers = ['Name', 'Email', 'Presence', 'Gender', 'University', 'Standing', 'Attention', 'Attention Reasons', 'Verified', 'Premium', 'Joined', 'Last Seen'];
         const rows = usersList.map(user => {
             const attention = userAttentionProfile(user);
+            const presence = formatUserPresence(user);
             return [
                 user.full_name || '',
                 user.email || '',
+                presence.label,
                 user.gender || '',
                 user.university || '',
-                user.is_banned ? 'banned' : user.is_shadow_banned ? 'shadow' : 'active',
+                user.is_banned ? 'banned' : user.is_shadow_banned ? 'shadow' : 'good_standing',
                 attention.label,
                 attention.reasons.join(' / '),
                 user.is_verified ? 'yes' : 'no',
@@ -2432,13 +2573,15 @@ export default function AdminDashboard() {
 
     const getSelectedUserRows = () => selectedUsersList.map(user => {
         const attention = userAttentionProfile(user);
+        const presence = formatUserPresence(user);
         return {
             id: user.id || '',
             name: user.full_name || '',
             email: user.email || '',
+            presence: presence.label,
             gender: user.gender || '',
             university: user.university || '',
-            status: user.is_banned ? 'banned' : user.is_shadow_banned ? 'shadow' : 'active',
+            status: user.is_banned ? 'banned' : user.is_shadow_banned ? 'shadow' : 'good_standing',
             attention: attention.label,
             attentionReasons: attention.reasons.join(' / '),
             verified: user.is_verified ? 'yes' : 'no',
@@ -2461,11 +2604,12 @@ export default function AdminDashboard() {
 
     const exportSelectedUsers = () => {
         if (selectedUsersList.length === 0) return addToast('No selected users to export', 'error');
-        const headers = ['User ID', 'Name', 'Email', 'Gender', 'University', 'Status', 'Attention', 'Attention Reasons', 'Verified', 'Premium', 'Joined', 'Last Seen'];
+        const headers = ['User ID', 'Name', 'Email', 'Presence', 'Gender', 'University', 'Standing', 'Attention', 'Attention Reasons', 'Verified', 'Premium', 'Joined', 'Last Seen'];
         const rows = getSelectedUserRows().map(user => [
             user.id,
             user.name,
             user.email,
+            user.presence,
             user.gender,
             user.university,
             user.status,
@@ -2808,7 +2952,13 @@ export default function AdminDashboard() {
         ?? pendingWithdrawals.reduce((sum, w) => sum + Number(w.amount || 0), 0)
         ?? 0
     );
-    const pendingPaymentAmount = Number(opsSnapshot?.pendingPayments ?? stats?.pendingPayments ?? 0);
+    const pendingPaymentAmount = Number(
+        opsSnapshot?.pendingPayments
+        ?? opsSnapshot?.pending_payments
+        ?? stats?.pendingPayments
+        ?? stats?.pending_payments
+        ?? 0
+    );
     const auditCount = Number(opsSnapshot?.auditRecords ?? auditTotal ?? auditLogs.length ?? 0);
     const visibleAuditSummary = auditLogs.reduce((acc, log) => {
         acc.visible += 1;
@@ -2879,9 +3029,15 @@ export default function AdminDashboard() {
     const restrictedAdminCount = adminAccessList.filter(admin => admin.permission_mode === 'explicit_permissions').length;
 
     const refreshCurrentWorkspace = () => {
-        if (activeTab === 'overview') loadStats();
+        if (activeTab === 'overview') {
+            loadStats();
+            loadUserSummary();
+        }
         else if (activeTab === 'analytics') loadAnalytics();
-        else if (activeTab === 'users') searchUsers(userPage);
+        else if (activeTab === 'users') {
+            searchUsers(userPage);
+            loadUserSummary();
+        }
         else if (activeTab === 'content') loadConfessions();
         else if (activeTab === 'finance') loadFinance();
         else if (activeTab === 'controls') loadConfig();
@@ -2935,7 +3091,9 @@ export default function AdminDashboard() {
             key: 'payments',
             label: 'Pending payments',
             value: fmtCurrency(pendingPaymentAmount),
-            detail: 'Unverified payment rows to investigate before counting as cash',
+            detail: pendingPaymentAmount > 0
+                ? 'Active unverified checkouts within last 24h'
+                : '0 unverified checkout attempts in last 24h',
             tab: 'analytics',
             tone: pendingPaymentAmount > 0 ? 'warning' : 'ok',
         },
@@ -3043,7 +3201,8 @@ export default function AdminDashboard() {
 
     const userFilterChips = [
         { label: 'Search', value: searchQuery, onClear: () => setSearchQuery('') },
-        { label: 'Status', value: userFilters.status, displayValue: userFilters.status && userFilters.status.replace(/_/g, ' '), onClear: () => setUserFilters(prev => ({ ...prev, status: '' })) },
+        { label: 'Status', value: userFilters.status, displayValue: userFilters.status === 'active' ? 'good standing' : userFilters.status && userFilters.status.replace(/_/g, ' '), onClear: () => setUserFilters(prev => ({ ...prev, status: '' })) },
+        { label: 'Activity', value: userFilters.activity, displayValue: userFilters.activity && userFilters.activity.replace(/_/g, ' '), onClear: () => setUserFilters(prev => ({ ...prev, activity: '' })) },
         { label: 'Gender', value: userFilters.gender, onClear: () => setUserFilters(prev => ({ ...prev, gender: '' })) },
         { label: 'University', value: userFilters.university, onClear: () => setUserFilters(prev => ({ ...prev, university: '' })) },
         { label: 'Verified', value: userFilters.verified, displayValue: userFilters.verified === 'true' ? 'verified' : userFilters.verified === 'false' ? 'unverified' : '', onClear: () => setUserFilters(prev => ({ ...prev, verified: '' })) },
@@ -3523,56 +3682,78 @@ export default function AdminDashboard() {
                                     <div className="metric-cards-grid">
                                         <div className="metric-card verified-metric">
                                             <h3>Verified Cash</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.verifiedCashRevenue ?? stats?.totalRevenue)}</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.verifiedCashRevenue ?? stats?.verified_cash_revenue ?? stats?.totalRevenue ?? 0)}</div>
                                             <div className="metric-subtext">Completed external payments</div>
                                         </div>
                                         <div className="metric-card">
                                             <h3>Today Verified</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.todayVerifiedCashRevenue ?? stats?.todayRevenue)}</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.todayVerifiedCashRevenue ?? stats?.today_verified_cash_revenue ?? stats?.todayRevenue ?? 0)}</div>
                                             <div className="metric-subtext">Completed today</div>
                                         </div>
                                         <div className="metric-card">
                                             <h3>App Spend</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.appSpendRevenue)}</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.appSpendRevenue ?? stats?.app_spend_revenue ?? 0)}</div>
                                             <div className="metric-subtext">Swipes, gifts, boosts</div>
                                         </div>
                                         <div className="metric-card caution-metric">
                                             <h3>Wallet Spend Counter</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.walletSpendCounter)}</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.walletSpendCounter ?? stats?.wallet_spend_counter ?? 0)}</div>
                                             <div className="metric-subtext">Leaderboard counter, not cash</div>
                                         </div>
                                         <div className="metric-card">
                                             <h3>Pending Payments</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.pendingPayments)}</div>
-                                            <div className="metric-subtext">Unverified Paystack/checkout rows</div>
+                                            <div className="metric-value">{fmtCurrency(pendingPaymentAmount)}</div>
+                                            <div className="metric-subtext">{pendingPaymentAmount > 0 ? 'Active unverified (< 24h)' : '0 unverified in last 24h'}</div>
                                         </div>
                                         <div className="metric-card">
                                             <h3>Google Play Gross</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.googlePlayGross)}</div>
-                                            <div className="metric-subtext">{fmtCurrency(stats?.googlePlayUnclassifiedGross)} lacks environment tag</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.googlePlayGross ?? stats?.google_play_gross ?? 0)}</div>
+                                            <div className="metric-subtext">{fmtCurrency(stats?.googlePlayUnclassifiedGross ?? stats?.google_play_unclassified_gross ?? 0)} lacks environment tag</div>
                                         </div>
                                         <div className="metric-card highlight-metric">
                                             <h3>Payout Liability</h3>
-                                            <div className="metric-value">{fmtCurrency(stats?.payoutLiability ?? stats?.pendingPayouts)}</div>
+                                            <div className="metric-value">{fmtCurrency(stats?.payoutLiability ?? stats?.payout_liability ?? stats?.pendingPayouts ?? 0)}</div>
                                             <div className="metric-subtext">Female available + pending balances</div>
                                         </div>
-                                        <div className="metric-card"><h3>DAU</h3><div className="metric-value">{fmt(stats?.dau)}</div><div className="metric-subtext">Active last 24h</div></div>
+                                        <div className="metric-card">
+                                            <h3>Online Now</h3>
+                                            <div className="metric-value">
+                                                <span className="online-beacon-dot"></span>
+                                                {fmt(stats?.onlineNow ?? stats?.online_now ?? effectiveSummary?.onlineNow ?? 0)}
+                                            </div>
+                                            <div className="metric-subtext">Active right now (&lt; 5m)</div>
+                                        </div>
+                                        <div className="metric-card">
+                                            <h3>DAU</h3>
+                                            <div className="metric-value">{fmt(stats?.dau ?? effectiveSummary?.active24h ?? 0)}</div>
+                                            <div className="metric-subtext">Active last 24h</div>
+                                        </div>
+                                        <div className="metric-card">
+                                            <h3>WAU</h3>
+                                            <div className="metric-value">{fmt(stats?.wau ?? effectiveSummary?.active7d ?? 0)}</div>
+                                            <div className="metric-subtext">Active last 7 days</div>
+                                        </div>
+                                        <div className="metric-card">
+                                            <h3>Total Students</h3>
+                                            <div className="metric-value">{fmt(stats?.totalUsers ?? stats?.total_users ?? userTotal ?? effectiveSummary?.total ?? 0)}</div>
+                                            <div className="metric-subtext">Registered campus profiles</div>
+                                        </div>
                                     </div>
                                     <div className="admin-charts-section">
                                         <div className="leaderboard-card">
                                             <h3>Campus Leaderboard</h3>
                                             <div className="campus-list">
-                                                {(stats?.universityStats || []).length === 0 ? (
+                                                {((stats?.universityStats || stats?.university_stats) || []).length === 0 ? (
                                                     <AdminEmptyState
                                                         title="No campus data yet"
                                                         body="Campus counts will appear after the overview metrics load."
                                                         actionLabel="Refresh overview"
                                                         onAction={loadStats}
                                                     />
-                                                ) : stats.universityStats.map((u, i) => (
+                                                ) : (stats.universityStats || stats.university_stats).map((u, i) => (
                                                     <div key={i} className="campus-row">
                                                         <span className="campus-name">{u.university}</span>
-                                                        <span className="campus-count">{u.count} users</span>
+                                                        <span className="campus-count">{u.count ?? u.student_count ?? u.user_count ?? 0} users</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -3771,35 +3952,71 @@ export default function AdminDashboard() {
                                 </div>
                                 <button className="btn-refresh" onClick={() => searchUsers(userPage)}>Refresh</button>
                             </div>
-                            <div className="user-summary-grid">
-                                <button type="button" onClick={() => applyUserSummaryFilter({ status: '', verified: '', premium: '' })}>
-                                    <span>Total matching</span>
-                                    <strong>{fmt(userTotal || userSummary.total)}</strong>
-                                </button>
-                                <button type="button" onClick={() => applyUserSummaryFilter({ status: 'active' })}>
-                                    <span>Active</span>
-                                    <strong className="credit">{fmt(userSummary.active)}</strong>
-                                </button>
-                                <button type="button" onClick={() => applyUserSummaryFilter({ status: 'banned' })}>
-                                    <span>Banned</span>
-                                    <strong className="debit">{fmt(userSummary.banned)}</strong>
-                                </button>
-                                <button type="button" onClick={() => applyUserSummaryFilter({ status: 'shadow' })}>
-                                    <span>Shadow</span>
-                                    <strong>{fmt(userSummary.shadow)}</strong>
-                                </button>
-                                <button type="button" onClick={() => addToast('Use the Status filters or open dossiers to review attention reasons.', 'success')}>
-                                    <span>Needs review</span>
-                                    <strong className="debit">{fmt(userSummary.needsReview)}</strong>
-                                </button>
-                                <button type="button" onClick={() => applyUserSummaryFilter({ verified: 'true' })}>
-                                    <span>Verified</span>
-                                    <strong>{fmt(userSummary.verified)}</strong>
-                                </button>
-                                <button type="button" onClick={() => applyUserSummaryFilter({ premium: 'true' })}>
-                                    <span>Premium</span>
-                                    <strong>{fmt(userSummary.premium)}</strong>
-                                </button>
+                            <div className="user-metrics-container">
+                                <div className="user-metrics-group">
+                                    <div className="user-metrics-group-title">
+                                        <span>Live Campus Activity</span>
+                                        {loadingUserSummary && <span className="syncing-badge">Updating...</span>}
+                                    </div>
+                                    <div className="user-summary-grid activity-grid">
+                                        <button type="button" className="user-stat-card live-card" onClick={() => setUserFilters(p => ({ ...p, activity: 'online' }))}>
+                                            <span><span className="online-beacon-dot"></span> Online Now</span>
+                                            <strong className="beacon-text">{fmt(effectiveSummary.onlineNow)}</strong>
+                                            <small>&lt; 5m live</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => setUserFilters(p => ({ ...p, activity: 'active_24h' }))}>
+                                            <span>Active Today</span>
+                                            <strong className="credit">{fmt(effectiveSummary.active24h)}</strong>
+                                            <small>DAU (24h)</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => setUserFilters(p => ({ ...p, activity: 'active_7d' }))}>
+                                            <span>Active This Week</span>
+                                            <strong>{fmt(effectiveSummary.active7d)}</strong>
+                                            <small>WAU (7d)</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ status: '', activity: '', verified: '', premium: '' })}>
+                                            <span>Total Registered</span>
+                                            <strong>{fmt(effectiveSummary.total)}</strong>
+                                            <small>All students</small>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="user-metrics-group">
+                                    <div className="user-metrics-group-title">Account Moderation &amp; Standing</div>
+                                    <div className="user-summary-grid moderation-grid">
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ status: 'active' })}>
+                                            <span>Good Standing</span>
+                                            <strong className="credit">{fmt(effectiveSummary.goodStanding)}</strong>
+                                            <small>Unrestricted</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ status: 'banned' })}>
+                                            <span>Banned</span>
+                                            <strong className="debit">{fmt(effectiveSummary.banned)}</strong>
+                                            <small>Hard ban</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ status: 'shadow' })}>
+                                            <span>Shadow</span>
+                                            <strong>{fmt(effectiveSummary.shadow)}</strong>
+                                            <small>Filtered</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => addToast('Review banned or shadow-banned users under Moderation', 'info')}>
+                                            <span>Needs Review</span>
+                                            <strong className="debit">{fmt(effectiveSummary.needsReview)}</strong>
+                                            <small>Flags/Shadow</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ verified: 'true' })}>
+                                            <span>Verified</span>
+                                            <strong>{fmt(effectiveSummary.verified)}</strong>
+                                            <small>Selfie/ID</small>
+                                        </button>
+                                        <button type="button" className="user-stat-card" onClick={() => applyUserSummaryFilter({ premium: 'true' })}>
+                                            <span>Premium</span>
+                                            <strong>{fmt(effectiveSummary.premium)}</strong>
+                                            <small>Subscribed</small>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div className="user-filter-panel">
                                 <div className="user-search-bar">
@@ -3811,9 +4028,20 @@ export default function AdminDashboard() {
                                         <span>Status</span>
                                         <select className="admin-input" value={userFilters.status} onChange={e => setUserFilters(p => ({ ...p, status: e.target.value }))}>
                                             <option value="">All statuses</option>
-                                            <option value="active">Active</option>
+                                            <option value="active">Good standing</option>
                                             <option value="banned">Banned</option>
                                             <option value="shadow">Shadow</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <span>Activity</span>
+                                        <select className="admin-input" value={userFilters.activity} onChange={e => setUserFilters(p => ({ ...p, activity: e.target.value }))}>
+                                            <option value="">All activity</option>
+                                            <option value="online">Online now (&lt; 5m)</option>
+                                            <option value="active_24h">Active today (&lt; 24h)</option>
+                                            <option value="active_7d">Active this week (&lt; 7d)</option>
+                                            <option value="active_30d">Active this month (&lt; 30d)</option>
+                                            <option value="inactive">Inactive (&gt; 30d)</option>
                                         </select>
                                     </label>
                                     <label>
@@ -3862,7 +4090,7 @@ export default function AdminDashboard() {
                                 <div className="bulk-action-bar">
                                     <div className="bulk-selection-summary">
                                         <strong>{selectedUsers.size} selected</strong>
-                                        <span>{fmt(selectedUserSummary.active)} active / {fmt(selectedUserSummary.banned)} banned / {fmt(selectedUserSummary.shadow)} shadow / {fmt(selectedUserSummary.needsReview)} review</span>
+                                        <span>{fmt(selectedUserSummary.active)} good standing / {fmt(selectedUserSummary.banned)} banned / {fmt(selectedUserSummary.shadow)} shadow / {fmt(selectedUserSummary.needsReview)} review</span>
                                     </div>
                                     <div className="bulk-action-tools">
                                         <button className="btn-action" onClick={copySelectedUsersSummary}>Copy JSON</button>
@@ -3886,13 +4114,13 @@ export default function AdminDashboard() {
                                         <thead>
                                             <tr>
                                                 <th><input type="checkbox" checked={usersList.length > 0 && selectedUsers.size === usersList.length} onChange={e => e.target.checked ? selectAll() : clearSelection()} /></th>
-                                                <th>User</th><th>Gender</th><th>University</th><th>Status</th><th>Attention</th><th>Actions</th>
+                                                <th>User</th><th>Presence</th><th>Gender</th><th>University</th><th>Status</th><th>Attention</th><th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {usersList.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="7">
+                                                    <td colSpan="8">
                                                         <AdminEmptyState
                                                             title="No users match this view"
                                                             body="Clear filters, search by email or user ID, or refresh after changing account criteria."
@@ -3904,6 +4132,7 @@ export default function AdminDashboard() {
                                             ) : (
                                                 usersList.map(user => {
                                                     const attention = userAttentionProfile(user);
+                                                    const presence = formatUserPresence(user);
                                                     return (
                                                         <tr key={user.id} className={user.is_banned ? 'row-banned' : ''}>
                                                             <td><input type="checkbox" checked={selectedUsers.has(user.id)} onChange={() => toggleSelectUser(user.id)} /></td>
@@ -3926,12 +4155,25 @@ export default function AdminDashboard() {
                                                                     </div>
                                                                 </div>
                                                             </td>
+                                                            <td>
+                                                                <div className="presence-cell">
+                                                                    <span className={`presence-pill ${presence.tone}`}>
+                                                                        {presence.isOnline && <span className="online-beacon-dot"></span>}
+                                                                        {presence.label}
+                                                                    </span>
+                                                                    {user.last_seen_at && (
+                                                                        <span className="last-seen-subtext">
+                                                                            {new Date(user.last_seen_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
                                                             <td className="capitalize">{user.gender}</td>
                                                             <td>{user.university}</td>
                                                             <td>
                                                                 {user.is_banned && <span className="status-badge banned">Banned</span>}
                                                                 {user.is_shadow_banned && <span className="status-badge shadow">Shadow</span>}
-                                                                {!user.is_banned && !user.is_shadow_banned && <span className="status-badge active">Active</span>}
+                                                                {!user.is_banned && !user.is_shadow_banned && <span className="status-badge good-standing">Good standing</span>}
                                                                 {user.is_premium && <span className="status-badge premium">Premium</span>}
                                                             </td>
                                                             <td>
@@ -3978,9 +4220,10 @@ export default function AdminDashboard() {
                                     Reports ({fmt(reportTotal || reports.length)}) {pendingReportTotal > 0 && <span className="badge-red">{fmt(pendingReportTotal)} pending</span>}
                                 </button>
                                 <button className={`sub-tab-btn ${contentSubTab === 'keywords' ? 'active' : ''}`} onClick={() => setContentSubTab('keywords')}>Keyword Filters</button>
+                                <button className={`sub-tab-btn ${contentSubTab === 'tutorials' ? 'active' : ''}`} onClick={() => setContentSubTab('tutorials')}>🎓 Official Tutorials</button>
                             </div>
 
-                            {contentSubTab !== 'keywords' && (
+                            {contentSubTab !== 'keywords' && contentSubTab !== 'tutorials' && (
                                 <div className="content-filter-panel">
                                     <div className="content-filter-grid">
                                         <label>
@@ -4043,7 +4286,7 @@ export default function AdminDashboard() {
 
                             {loadingConfessions ? <div className="admin-loading">Loading...</div> : (
                                 <>
-                                    {contentSubTab !== 'keywords' && (
+                                    {contentSubTab !== 'keywords' && contentSubTab !== 'tutorials' && (
                                         <div className="content-summary-grid">
                                             <div>
                                                 <span>Visible</span>
@@ -4241,6 +4484,9 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                     )}
+                                    {contentSubTab === 'tutorials' && (
+                                        <AdminOfficialHubManager addToast={addToast} />
+                                    )}
                                 </>
                             )}
                         </div>
@@ -4257,6 +4503,7 @@ export default function AdminDashboard() {
                                 {adminPermissionFlags.readFinance && <button className={`sub-tab-btn ${activeFinanceSubTab === 'payouts' ? 'active' : ''}`} onClick={() => setFinanceSubTab('payouts')}>Payout Manager</button>}
                                 {adminPermissionFlags.readFinance && <button className={`sub-tab-btn ${activeFinanceSubTab === 'ledger' ? 'active' : ''}`} onClick={() => setFinanceSubTab('ledger')}>Transaction Ledger</button>}
                                 {adminPermissionFlags.writePromo && <button className={`sub-tab-btn ${activeFinanceSubTab === 'promo' ? 'active' : ''}`} onClick={() => setFinanceSubTab('promo')}>Promo Codes</button>}
+                                {adminPermissionFlags.readFinance && <button className={`sub-tab-btn ${activeFinanceSubTab === 'active_program' ? 'active' : ''}`} onClick={() => setFinanceSubTab('active_program')}>Active Program</button>}
                             </div>
 
                             {loadingFinance ? <div className="admin-loading">Loading finance data...</div> : (
@@ -4656,6 +4903,9 @@ export default function AdminDashboard() {
                                                 </div>
                                             </div>
                                         </div>
+                                    )}
+                                    {activeFinanceSubTab === 'active_program' && adminPermissionFlags.readFinance && (
+                                        <AdminActiveProgramManager addToast={addToast} />
                                     )}
                                 </>
                             )}

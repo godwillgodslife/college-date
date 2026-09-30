@@ -6,7 +6,9 @@ import {
     getNotifications,
     getUserSettings,
     markNotificationAsRead,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead,
+    deleteNotification,
+    deleteCallNotifications
 } from '../services/notificationService';
 import { useToast } from '../components/Toast';
 import {
@@ -28,8 +30,16 @@ import { triggerLightHaptic } from '../utils/haptics';
 import { CACHE_LIMITS, CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { enqueueOfflineOperation, removeOfflineOperation } from '../lib/offlineQueue';
+import IncomingCallModal from '../components/IncomingCallModal';
+import { respondCallSignal } from '../services/chatService';
+import {
+    initLocalNotifications,
+    showIncomingCallNotification,
+    cancelIncomingCallNotification
+} from '../services/localNotificationService';
 
 const NotificationContext = createContext();
+
 
 export function useNotifications() {
     return useContext(NotificationContext);
@@ -140,6 +150,27 @@ function getForegroundNotificationIcon(notification) {
     return 'CD';
 }
 
+function deduplicateNotifications(items) {
+    if (!Array.isArray(items)) return [];
+    const result = [];
+    const seenRecent = new Set();
+
+    for (const item of items) {
+        const isView = item.type === 'profile_view' || item.type === 'view';
+        if (isView) {
+            const senderKey = item.metadata?.viewer_id || item.metadata?.sender_id || item.message;
+            const hourBucket = Math.floor(new Date(item.created_at).getTime() / (3600 * 1000));
+            const dedupKey = `view:${senderKey}:${hourBucket}`;
+            if (seenRecent.has(dedupKey)) {
+                continue;
+            }
+            seenRecent.add(dedupKey);
+        }
+        result.push(item);
+    }
+    return result;
+}
+
 export function NotificationProvider({ children }) {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
@@ -147,6 +178,7 @@ export function NotificationProvider({ children }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [unreadByCategory, setUnreadByCategory] = useState({ total: 0 });
+    const [incomingCall, setIncomingCall] = useState(null);
 
     // Use a ref for userProfile to keep the realtime callback 'fresh' without re-subscribing
     const profileRef = useRef(userProfile);
@@ -204,7 +236,7 @@ export function NotificationProvider({ children }) {
                     console.error('Failed to load notifications:', error);
                     return;
                 }
-                const validData = Array.isArray(data) ? data : [];
+                const validData = deduplicateNotifications(Array.isArray(data) ? data : []);
                 setNotifications(validData);
                 setCachedData(['notifications', currentUser.id], validData.slice(0, CACHE_LIMITS.notifications), {
                     userId: currentUser.id,
@@ -252,7 +284,7 @@ export function NotificationProvider({ children }) {
                             : newNotification;
 
                         setNotifications(prev => {
-                            const nextNotifications = [nextNotification, ...prev].slice(0, CACHE_LIMITS.notifications);
+                            const nextNotifications = deduplicateNotifications([nextNotification, ...prev]).slice(0, CACHE_LIMITS.notifications);
                             setCachedData(['notifications', currentUser.id], nextNotifications, {
                                 userId: currentUser.id,
                                 type: 'notifications'
@@ -318,6 +350,171 @@ export function NotificationProvider({ children }) {
             if (retryTimeout) clearTimeout(retryTimeout);
         };
     }, [currentUser, addToast]); // Only re-subscribe if user or toast system changes
+ 
+    // Global listener for incoming call signals on matches & call_sessions
+    useEffect(() => {
+        if (!currentUser?.id) {
+            setIncomingCall(null);
+            return;
+        }
+
+        const handleMatchUpdate = async (payload) => {
+            const match = payload.new;
+            if (!match) return;
+
+            // Incoming call ring event
+            if (match.call_state === 'ringing' && match.caller_id && match.caller_id !== currentUser.id) {
+                const callAgeMs = Date.now() - new Date(match.call_updated_at || match.created_at).getTime();
+                if (callAgeMs < 45000) {
+                    try {
+                        const [{ data: callerProfile }, { data: activeSession }] = await Promise.all([
+                            supabase
+                                .from('profiles')
+                                .select('id, full_name, avatar_url')
+                                .eq('id', match.caller_id)
+                                .maybeSingle(),
+                            supabase
+                                .from('call_sessions')
+                                .select('id, call_type')
+                                .eq('match_id', match.id)
+                                .order('created_at', { ascending: false })
+                                .limit(1)
+                                .maybeSingle()
+                        ]);
+
+                        setIncomingCall({
+                            callId: activeSession?.id || match.id,
+                            matchId: match.id,
+                            callerId: match.caller_id,
+                            callerName: callerProfile?.full_name || 'Campus Match',
+                            callerAvatar: callerProfile?.avatar_url || null,
+                            callType: activeSession?.call_type || match.call_type || 'voice'
+                        });
+                    } catch (err) {
+                        console.warn('[NotificationContext] Fetch caller error:', err);
+                    }
+                }
+            } else if (['ended', 'rejected', 'cancelled', 'timeout', 'busy', 'idle'].includes(match.call_state)) {
+                setIncomingCall(prev => (prev && prev.matchId === match.id ? null : prev));
+            }
+        };
+
+        const callChannel = supabase
+            .channel(`match:calls:${currentUser.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'matches',
+                    filter: `user1_id=eq.${currentUser.id}`
+                },
+                handleMatchUpdate
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'matches',
+                    filter: `user2_id=eq.${currentUser.id}`
+                },
+                handleMatchUpdate
+            )
+            .subscribe();
+
+        const sessionChannel = supabase
+            .channel(`call_session:receiver:${currentUser.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'call_sessions',
+                    filter: `receiver_id=eq.${currentUser.id}`
+                },
+                async (payload) => {
+                    const session = payload.new;
+                    if (!session) return;
+                    if (session.call_state === 'calling' || session.call_state === 'ringing') {
+                        const { data: callerProfile } = await supabase
+                            .from('profiles')
+                            .select('id, full_name, avatar_url')
+                            .eq('id', session.caller_id)
+                            .maybeSingle();
+
+                        const callObj = {
+                            callId: session.id,
+                            matchId: session.match_id,
+                            callerId: session.caller_id,
+                            callerName: callerProfile?.full_name || 'Campus Match',
+                            callerAvatar: callerProfile?.avatar_url || null,
+                            callType: session.call_type || 'voice'
+                        };
+                        setIncomingCall(callObj);
+                        showIncomingCallNotification(callObj);
+                    } else if (['ended', 'rejected', 'cancelled', 'timeout', 'busy'].includes(session.call_state)) {
+                        setIncomingCall(prev => (prev && (prev.callId === session.id || prev.matchId === session.match_id) ? null : prev));
+                        cancelIncomingCallNotification();
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(callChannel);
+            supabase.removeChannel(sessionChannel);
+        };
+    }, [currentUser?.id]);
+
+    const clearCallNotificationForMatch = async (matchOrCallId) => {
+        if (!matchOrCallId || !currentUser?.id) return;
+        setNotifications(prev => prev.filter(n => {
+            const isCall = n.type === 'call';
+            const matchesId = n.match_id === matchOrCallId || n.entity_id === matchOrCallId || n.metadata?.match_id === matchOrCallId || n.metadata?.call_id === matchOrCallId;
+            return !(isCall && matchesId);
+        }));
+        deleteCallNotifications(currentUser.id, matchOrCallId).catch(() => {});
+    };
+
+    const handleAcceptCall = async (call) => {
+        const target = call || incomingCall;
+        if (!target) return;
+        const targetId = target.callId || target.matchId;
+        setIncomingCall(null);
+        cancelIncomingCallNotification();
+        clearCallNotificationForMatch(targetId);
+        await respondCallSignal(targetId, 'accepted');
+        navigate(`/call/${targetId}?matchId=${target.matchId}&type=${target.callType}&name=${encodeURIComponent(target.callerName)}&avatar=${encodeURIComponent(target.callerAvatar || '')}`);
+    };
+
+    const handleDeclineCall = async (call) => {
+        const target = call || incomingCall;
+        if (!target) return;
+        const targetId = target.callId || target.matchId;
+        setIncomingCall(null);
+        cancelIncomingCallNotification();
+        clearCallNotificationForMatch(targetId);
+        await respondCallSignal(targetId, 'rejected');
+    };
+
+    // Initialize Android notification channels and action listeners
+    useEffect(() => {
+        initLocalNotifications((actionEvent) => {
+            const { actionId, extra } = actionEvent;
+            console.log('[NotificationContext] Native action triggered:', actionId, extra);
+            if (actionId === 'accept') {
+                handleAcceptCall(extra);
+            } else if (actionId === 'decline') {
+                handleDeclineCall(extra);
+            } else {
+                if (extra?.callId || extra?.matchId) {
+                    handleAcceptCall(extra);
+                }
+            }
+        });
+    }, []);
+
 
     useEffect(() => {
         const counts = countUnreadByCategory(notifications);
@@ -394,17 +591,38 @@ export function NotificationProvider({ children }) {
         }
     };
 
+    const dismissNotification = async (id) => {
+        if (!id) return;
+        // Optimistic state update
+        setNotifications(prev => prev.filter(n => n.id !== id));
+        if (currentUser?.id) {
+            setCachedData(['notifications', currentUser.id], notifications.filter(n => n.id !== id), {
+                userId: currentUser.id,
+                type: 'notifications'
+            });
+        }
+        await deleteNotification(id).catch(err => console.warn('[NotificationContext] Delete error:', err));
+    };
+
     const value = useMemo(() => ({
         notifications,
         unreadCount,
         unreadByCategory,
         markRead,
-        markAllRead
+        markAllRead,
+        dismissNotification
     }), [notifications, unreadCount, unreadByCategory]);
 
     return (
         <NotificationContext.Provider value={value}>
             {children}
+            {incomingCall && (
+                <IncomingCallModal
+                    call={incomingCall}
+                    onAccept={() => handleAcceptCall(incomingCall)}
+                    onDecline={() => handleDeclineCall(incomingCall)}
+                />
+            )}
         </NotificationContext.Provider>
     );
 }

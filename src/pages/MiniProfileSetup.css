@@ -448,6 +448,82 @@
     }
 }
 
+@media (max-width: 768px) {
+    html.is-native-app .quiz-onboarding-page {
+        min-height: calc(var(--vh, 1vh) * 100);
+        overflow-y: auto;
+        overflow-x: clip;
+        scroll-padding-bottom: calc(120px + var(--keyboard-offset, 0px));
+    }
+
+    html.is-native-app .quiz-container {
+        width: 100%;
+        min-height: calc((var(--vh, 1vh) * 100) - 6px);
+        padding: max(2.5rem, env(safe-area-inset-top, 0px) + 1.5rem) var(--native-page-padding-right) 0 var(--native-page-padding-left);
+        box-sizing: border-box;
+    }
+
+    html.is-native-app .quiz-screen {
+        max-width: 450px;
+        min-width: 0;
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+    }
+
+    html.is-native-app.keyboard-open .quiz-screen {
+        padding-bottom: calc(132px + var(--keyboard-offset, 0px));
+    }
+
+    html.is-native-app .quiz-footer {
+        bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+        padding-left: var(--native-page-padding-left);
+        padding-right: var(--native-page-padding-right);
+    }
+
+    html.is-native-app.keyboard-open .quiz-footer {
+        bottom: calc(var(--keyboard-offset, 0px) + 0.5rem);
+    }
+
+    html.is-native-app .big-input,
+    html.is-native-app .level-btn,
+    html.is-native-app .mood-bubble,
+    html.is-native-app .quiz-back-btn,
+    html.is-native-app .quiz-next-btn {
+        min-height: 44px;
+    }
+
+    html.is-native-app .big-input {
+        font-size: clamp(1.15rem, 6vw, 1.5rem);
+    }
+}
+
+/* Onboarding Segmented Step Dots */
+.quiz-steps-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0 2rem;
+    margin-top: 1.2rem;
+    width: 100%;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 90;
+    flex-shrink: 0;
+}
+
+.step-dot-pill {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-dot-pill.done {
+    background: linear-gradient(90deg, #6C63FF, #FF6B9D);
+}
+
+
 /* Onboarding Segmented Step Dots */
 .quiz-steps-dots {
     display: flex;
@@ -486,3 +562,190 @@
         margin-top: 1rem;
     }
 }
+
+/* Onboarding Face Verification Card */
+.onboarding-verify-box {
+    margin-top: 1.25rem;
+    padding: 1rem 1.15rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.22) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    animation: fadeIn 0.4s ease;
+}
+
+.onboarding-verify-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+}
+
+.onboarding-verify-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.onboarding-verify-info h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.onboarding-verify-info p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.35;
+}
+
+.onboarding-verify-btn {
+    width: 100%;
+    padding: 0.7rem 1rem !important;
+    border-radius: 10px !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    border: none !important;
+    color: white !important;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    transition: transform 0.15s ease;
+}
+
+.onboarding-verify-btn:active {
+    transform: scale(0.98);
+}
+
+.onboarding-verified-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1rem;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid #10b981;
+    border-radius: 999px;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+}
+
+/* African Universities Expansion Styles */
+.african-countries-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.country-filter-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.african-countries-pills {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.african-countries-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.country-pill {
+    padding: 0.4rem 0.85rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.country-pill.active {
+    background: linear-gradient(135deg, #ee2b69 0%, #ff6b6b 100%);
+    border-color: #ee2b69;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(238, 43, 105, 0.3);
+}
+
+.custom-uni-option {
+    border-top: 1px dashed rgba(255, 255, 255, 0.2);
+    color: #ffd700 !important;
+    font-weight: 700 !important;
+    background: rgba(255, 215, 0, 0.06);
+}
+
+.custom-uni-option:hover {
+    background: rgba(255, 215, 0, 0.15) !important;
+}
+
+.selected-uni-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: rgba(108, 99, 255, 0.15);
+    border: 1px solid rgba(108, 99, 255, 0.4);
+    border-radius: 12px;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.selected-uni-badge button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 0.3rem;
+}
+
+.campus-code-pledge-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    margin: 1.25rem 0;
+    text-align: center;
+}
+
+.campus-code-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.campus-code-pledge-card p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.45;
+    margin: 0;
+}
+

@@ -12,23 +12,61 @@ import {
     markConversationRead,
     uploadVoiceNote,
     uploadChatImage,
+    uploadChatVideo,
+    uploadChatDocument,
+    openViewOnceMedia,
     getSignedChatMediaUrl,
     updateDisappearingMessages,
     addReaction,
     editMessage,
+    deleteMessage,
+    deleteMessageForEveryone,
+    deleteMessageForMe,
+    getMessageInfo,
+    initiateCallSignal,
+    respondCallSignal,
 } from '../services/chatService';
 import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
+import { getAvatarUrl } from '../utils/profileData';
 import { getWallet } from '../services/paymentService';
 import { sendGift } from '../services/giftService';
 import { requestAiAssistant } from '../services/aiAssistantService';
+import { blockUser, unblockUser, getBlockedUsers } from '../services/blockService';
+import { submitUserReport } from '../services/reportService';
+import { getCoinBalance, sendCoinGift } from '../services/coinService';
+import { updateLiveLocation, startWatchingPosition, stopLiveLocation } from '../services/locationService';
+import { canSendLiveLocation } from '../services/entitlementService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
+import { recordPolicyAcceptance } from '../services/policyService';
 import VoiceRecorder from '../components/ChatVoiceRecorder';
 import StickerDrawer from '../components/StickerDrawer';
 import GiftStore from '../components/GiftStore';
-import MessageReactionBar from '../components/MessageReactionBar';
+import MessageActionMenu from '../components/MessageActionMenu';
+import MessageDeleteModal from '../components/MessageDeleteModal';
+import MessageInfoModal from '../components/MessageInfoModal';
 import AudioMessage from '../components/AudioMessage';
+import ViewOnceViewerModal from '../components/ViewOnceViewerModal';
+import ReportModal from '../components/ReportModal';
+import RequestsDiscoveryHighlight from '../components/RequestsDiscoveryHighlight';
+import {
+    isEligibleForRequestsDiscovery,
+    getRequestsDiscoveryCopy,
+    markRequestsDiscovered,
+    markDiscoveryShownInSession,
+    wasShownInSession
+} from '../utils/requestsDiscovery';
+import { recordFeedImpression } from '../services/feedImpressionService';
+import CoinStoreModal from '../components/CoinStoreModal';
+import CreateServiceDealModal from '../components/CreateServiceDealModal';
+import ServiceDealCard from '../components/ServiceDealCard';
+import LiveLocationCard from '../components/LiveLocationCard';
+import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { recordStreakActivity } from '../services/scoreStreakService';
+import { evaluateDailyQualification } from '../services/activeProgramService';
+import OfficialChannelCard from '../components/OfficialChannelCard';
+import OfficialHubModal from '../components/OfficialHubModal';
 import './Chat.css';
 
 const ICEBREAKERS = [
@@ -38,6 +76,15 @@ const ICEBREAKERS = [
     "Early bird or night owl in the library? 🦉",
     "What's your go-to campus snack? 🍕"
 ];
+
+const CAMPUS_AI_FALLBACKS = [
+    "Hey! How's your semester going so far? 📚",
+    "Hey! What's your favourite chill spot on campus? ☕",
+    "Saw your profile and had to say hi! What are you studying? ✨",
+    "Library crunch or hostel chilling today? 😂",
+    "Hope lectures aren't stressing you too much! 🎓"
+];
+
 
 const DISAPPEARING_OPTIONS = [
     { label: 'Off', seconds: 0 },
@@ -76,6 +123,7 @@ import { playSendSwoosh, playNotificationDing } from '../lib/audioContext';
 import { CACHE_LIMITS, CACHE_TTL, trimCacheList } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { cacheMediaSource, getCachedMediaObjectUrl } from '../lib/mediaCache';
+import { hasActivePremium } from '../utils/premium';
 import {
     drainOfflineQueue,
     enqueueOfflineOperation,
@@ -172,6 +220,20 @@ function ChatMedia({ msg, type, isSent }) {
         return <AudioMessage src={mediaUrl} isSent={isSent} />;
     }
 
+    if (type === 'video') {
+        return (
+            <div className="video-message">
+                <video
+                    src={mediaUrl}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="chat-video-player"
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="image-message">
             <OptimizedImage
@@ -194,11 +256,16 @@ export default function Chat() {
     const [selectedConv, setSelectedConv] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [guideModalOpen, setGuideModalOpen] = useState(false);
+    const [officialHubOpen, setOfficialHubOpen] = useState(false);
     const [sending, setSending] = useState(false);
     const [presence, setPresence] = useState({});
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
-    const [loadingMore] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const loadingMoreRef = useRef(false);
+    const activeConvIdRef = useRef(null);
+    const [isVoiceRecording, setIsVoiceRecording] = useState(false);
 
     // SWR for Conversations Sidebar via custom hook
     const { data: conversations = [], isLoading: convsLoading, mutate: revalidateConvs } = useConversations(currentUser?.id);
@@ -207,6 +274,22 @@ export default function Chat() {
     const typingTimeoutRef = useRef(null);
     const presenceChannelRef = useRef(null);
     const isTypingRef = useRef(false);
+    const chatInputRef = useRef(null);
+    const isComposingRef = useRef(false);
+    const sidebarRef = useRef(null);
+    const sidebarScrollPos = useRef(0);
+
+    const adjustInputHeight = useCallback(() => {
+        if (!chatInputRef.current) return;
+        chatInputRef.current.style.height = 'auto';
+        const newHeight = Math.min(Math.max(chatInputRef.current.scrollHeight, 38), 120);
+        chatInputRef.current.style.height = `${newHeight}px`;
+    }, []);
+
+    useEffect(() => {
+        adjustInputHeight();
+    }, [newMessage, adjustInputHeight]);
+
 
     const [showStickers, setShowStickers] = useState(false);
 
@@ -221,19 +304,224 @@ export default function Chat() {
     // Filter and search states
     const [searchQuery, setSearchQuery] = useState('');
     const [filterTab, setFilterTab] = useState('All');
-    const [likesCount, setLikesCount] = useState(0);
-    const [viewsCount, setViewsCount] = useState(0);
-    const [pendingRequestsList, setPendingRequestsList] = useState([]);
+    // Hydrate initial activity counts from persistent cache for instant offline rendering
+    const cachedRequests = currentUser?.id
+        ? getCachedData(['requests', currentUser.id], { ttlMs: CACHE_TTL.requests, allowStale: true })
+        : null;
+    const cachedViewers = currentUser?.id
+        ? getCachedData(['viewers', currentUser.id], { ttlMs: CACHE_TTL.viewers, allowStale: true })
+        : null;
 
-    // Reaction bar state
-    const [reactionBar, setReactionBar] = useState(null);
+    const [likesCount, setLikesCount] = useState(() => cachedRequests?.summary?.total_count || cachedRequests?.total_count || 0);
+    const [viewsCount, setViewsCount] = useState(() => cachedViewers?.summary?.total_count || cachedViewers?.total_count || 0);
+    const [pendingRequestsList, setPendingRequestsList] = useState(() => {
+        if (userProfile?.is_premium && cachedRequests?.items) {
+            return cachedRequests.items;
+        }
+        return [];
+    });
+
+    // Educational Connection-Request Discovery state for new students
+    const wasShownPriorInSessionRef = useRef(null);
+    if (wasShownPriorInSessionRef.current === null && currentUser?.id) {
+        wasShownPriorInSessionRef.current = wasShownInSession(currentUser.id);
+    }
+
+    const isRequestsDiscoveryEligible = isEligibleForRequestsDiscovery({
+        userProfile,
+        conversationsCount: conversations.length,
+        userId: currentUser?.id,
+        hasRequests: likesCount > 0,
+        alreadyShownInSession: wasShownPriorInSessionRef.current === true
+    });
+
+    const discoveryCopy = getRequestsDiscoveryCopy(likesCount);
+
+    // Record educational impression without self-suppression during the active visit
+    useEffect(() => {
+        if (isRequestsDiscoveryEligible && currentUser?.id) {
+            recordFeedImpression('discovery_highlight', 'chat_requests_entry', 'chat', {
+                engaged: false
+            }).catch(() => {});
+            return () => {
+                markDiscoveryShownInSession(currentUser.id);
+            };
+        }
+    }, [isRequestsDiscoveryEligible, currentUser?.id]);
+
+    const handleRequestsEntryClick = () => {
+        if (currentUser?.id) {
+            markRequestsDiscovered(currentUser.id);
+            recordFeedImpression('discovery_highlight', 'chat_requests_entry', 'chat', {
+                engaged: true
+            }).catch(() => {});
+        }
+        navigate('/requests');
+    };
+
+    // Message Action & Gesture states
+    const [activeActionMessage, setActiveActionMessage] = useState(null);
+    const [actionMenuPosition, setActionMenuPosition] = useState(null);
+    const [deleteTargetMessage, setDeleteTargetMessage] = useState(null);
+    const [infoTargetMessage, setInfoTargetMessage] = useState(null);
+    const [highlightedMessageId, setHighlightedMessageId] = useState(null);
+
+    // Swipe left to reply states
+    const [swipingMsgId, setSwipingMsgId] = useState(null);
+    const [swipeOffset, setSwipeOffset] = useState(0);
+    const hasVibratedRef = useRef(false);
+    const virtuosoRef = useRef(null);
     const longPressTimer = useRef(null);
+    const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
 
     const [pendingSelection, setPendingSelection] = useState(null);
 
     const [replyToMessage, setReplyToMessage] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
     const [showMoreActions, setShowMoreActions] = useState(false);
+
+    // Sprint Features States
+    const [coinBalance, setCoinBalance] = useState(0);
+    const [showCoinStore, setShowCoinStore] = useState(false);
+    const [isBlockedByMe, setIsBlockedByMe] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [showDealModal, setShowDealModal] = useState(false);
+    const [viewOnceViewerData, setViewOnceViewerData] = useState(null);
+    const [pendingMediaUpload, setPendingMediaUpload] = useState(null);
+    const [showLocationPicker, setShowLocationPicker] = useState(false);
+    const locationWatchCleanupRef = useRef(null);
+
+    // Fetch Coin Balance
+    const loadCoinBalance = useCallback(async () => {
+        if (!currentUser) return;
+        try {
+            const { coins } = await getCoinBalance(currentUser.id);
+            setCoinBalance(coins || 0);
+        } catch (err) {
+            console.error('Error fetching coins:', err);
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
+        loadCoinBalance();
+    }, [loadCoinBalance]);
+
+    // Fetch Activity Counts (Admirers/Requests and Profile Views)
+    const loadActivityCounts = useCallback(async () => {
+        if (!currentUser?.id) return;
+        try {
+            const [admirersResult, viewersResult] = await Promise.all([
+                supabase.rpc('get_admirers_secure', { p_limit: 10 }),
+                supabase.rpc('get_profile_viewers_secure', { p_limit: 1 })
+            ]);
+
+            if (admirersResult.data?.success) {
+                const total = admirersResult.data.total_count || 0;
+                setLikesCount(total);
+                if (userProfile?.is_premium) {
+                    setPendingRequestsList(admirersResult.data.items || []);
+                }
+                setCachedData(['requests', currentUser.id], {
+                    summary: {
+                        total_count: total,
+                        premium: admirersResult.data.premium === true,
+                        free_accepts_remaining: admirersResult.data.free_accepts_remaining ?? 3
+                    },
+                    items: admirersResult.data.items || []
+                }, {
+                    userId: currentUser.id,
+                    type: 'requests',
+                    ttlMs: CACHE_TTL.requests
+                });
+            }
+
+            if (viewersResult.data?.success) {
+                const totalViews = viewersResult.data.total_count || 0;
+                setViewsCount(totalViews);
+                setCachedData(['viewers', currentUser.id], {
+                    summary: {
+                        total_count: totalViews
+                    },
+                    items: viewersResult.data.items || []
+                }, {
+                    userId: currentUser.id,
+                    type: 'viewers',
+                    ttlMs: CACHE_TTL.viewers
+                });
+            }
+        } catch (err) {
+            console.warn('[Chat] Could not load activity counts:', err?.message || err);
+        }
+    }, [currentUser?.id, userProfile?.is_premium]);
+
+    useEffect(() => {
+        loadActivityCounts();
+    }, [loadActivityCounts]);
+
+    // Realtime listener for incoming swipes to update likesCount dynamically
+    useEffect(() => {
+        if (!currentUser?.id) return;
+        const channel = supabase
+            .channel(`incoming_likes:${currentUser.id}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'swipes',
+                filter: `swiped_id=eq.${currentUser.id}`
+            }, () => {
+                loadActivityCounts();
+            })
+            .subscribe();
+
+        return () => {
+            channel.unsubscribe();
+        };
+    }, [currentUser?.id, loadActivityCounts]);
+
+    // Check if other user is blocked
+    useEffect(() => {
+        if (!currentUser || !selectedConv?.other_user?.id) {
+            setIsBlockedByMe(false);
+            return;
+        }
+        let cancelled = false;
+        const checkBlock = async () => {
+            try {
+                const { blocked } = await getBlockedUsers();
+                if (cancelled) return;
+                const isBlocked = (blocked || []).some(
+                    b => b.blocked_id === selectedConv.other_user.id || b.blocked_user?.id === selectedConv.other_user.id
+                );
+                setIsBlockedByMe(isBlocked);
+            } catch (err) {
+                console.error('Error checking block status:', err);
+            }
+        };
+        checkBlock();
+        return () => { cancelled = true; };
+    }, [currentUser, selectedConv?.other_user?.id]);
+
+    // Clean up location watch on unmount or conv change
+    useEffect(() => {
+        return () => {
+            if (locationWatchCleanupRef.current) {
+                locationWatchCleanupRef.current();
+                locationWatchCleanupRef.current = null;
+            }
+        };
+    }, [selectedConv?.id]);
+
+    // Periodic sweep for expired disappearing messages
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const nowIso = new Date().toISOString();
+            setMessages(prev => {
+                const filtered = prev.filter(m => !m.expires_at || m.expires_at > nowIso);
+                return filtered.length !== prev.length ? filtered : prev;
+            });
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Fetch Likes (Pending incoming swipes) and views count
     useEffect(() => {
@@ -249,9 +537,33 @@ export default function Chat() {
                 if (admirersResult.error) throw admirersResult.error;
                 if (viewersResult.error) throw viewersResult.error;
 
-                setLikesCount(admirersResult.data?.total_count || 0);
-                setPendingRequestsList(admirersResult.data?.premium ? (admirersResult.data?.items || []) : []);
-                setViewsCount(viewersResult.data?.total_count || 0);
+                const newLikes = admirersResult.data?.total_count || 0;
+                const newItems = admirersResult.data?.premium ? (admirersResult.data?.items || []) : [];
+                const newViews = viewersResult.data?.total_count || 0;
+
+                setLikesCount(newLikes);
+                setPendingRequestsList(newItems);
+                setViewsCount(newViews);
+
+                if (currentUser?.id && admirersResult.data) {
+                    setCachedData(['requests', currentUser.id], {
+                        items: admirersResult.data.items || [],
+                        summary: {
+                            total_count: newLikes,
+                            premium: admirersResult.data.premium === true,
+                            free_accepts_remaining: admirersResult.data.free_accepts_remaining
+                        }
+                    }, { userId: currentUser.id, type: 'requests' });
+                }
+                if (currentUser?.id && viewersResult.data) {
+                    setCachedData(['viewers', currentUser.id], {
+                        items: viewersResult.data.items || [],
+                        summary: {
+                            total_count: newViews,
+                            premium: viewersResult.data.premium === true
+                        }
+                    }, { userId: currentUser.id, type: 'viewers' });
+                }
             } catch (err) {
                 console.error('Error fetching activity counts:', err);
             }
@@ -270,7 +582,20 @@ export default function Chat() {
         ));
 
         if (existingIndex >= 0) {
-            return prev.map((msg, index) => index === existingIndex ? { ...incoming, _pending: false } : msg);
+            return prev.map((msg, index) => {
+                if (index !== existingIndex) return msg;
+                const existingIsTemp = !msg.id || String(msg.id).startsWith('temp-');
+                const incomingIsTemp = !incoming.id || String(incoming.id).startsWith('temp-');
+                // Ensure a confirmed server UUID is NEVER clobbered by an incoming temporary ID
+                const resolvedId = (!existingIsTemp && incomingIsTemp) ? msg.id : incoming.id;
+                const isPending = String(resolvedId).startsWith('temp-') ? Boolean(incoming._pending) : false;
+                return {
+                    ...msg,
+                    ...incoming,
+                    id: resolvedId,
+                    _pending: isPending
+                };
+            });
         }
 
         const next = [...prev, incoming];
@@ -424,26 +749,90 @@ export default function Chat() {
         };
     }, [selectedConv]);
 
-    useEffect(() => {
-        if (!selectedConv || !selectedConv.id || selectedConv.id === 'null' || !currentUser || !userProfile) return;
-        setPage(0);
-        const cachedMessages = getCachedData(messageCacheKey(currentUser.id, selectedConv.id), {
-            ttlMs: CACHE_TTL.messages,
-            allowStale: true
-        }) || [];
-        const queuedMessages = getQueuedOperations(currentUser.id, 'send_message')
-            .filter(operation => operation.payload?.matchId === selectedConv.id)
-            .map(queuedMessageToBubble)
-            .filter(Boolean);
-        const initialMessages = [...cachedMessages, ...queuedMessages].reduce(mergeMessageList, []);
-        setMessages(initialMessages);
-        loadMessages(selectedConv.id, 0, true);
-        markConversationRead(selectedConv.id, currentUser.id);
+    // ── Dedicated Back Navigation (Android hardware back & in-app back arrow) ──
+    const handleCloseConversation = useCallback(() => {
+        setSelectedConv(null);
+        setPendingSelection(null);
+        setCallChoiceOpen(false);
+        setReactionBar(null);
+        setShowMoreActions(false);
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+        document.body.classList.remove('mobile-chat-active');
+        // Clear any query parameter e.g. ?chatId=... so it doesn't immediately reselect
+        if (location.search || location.state?.chatId || location.state?.openChatWith) {
+            navigate('/chat', { replace: true, state: {} });
+        }
+    }, [location.search, location.state, navigate]);
 
+    useEffect(() => {
+        if (!selectedConv) return;
+
+        const handleHardwareBack = (e) => {
+            e.preventDefault();
+            handleCloseConversation();
+        };
+
+        window.addEventListener('tcd:hardware-back', handleHardwareBack);
+        return () => {
+            window.removeEventListener('tcd:hardware-back', handleHardwareBack);
+        };
+    }, [selectedConv, handleCloseConversation]);
+
+    // Restore sidebar scroll position when returning from active chat to inbox
+    useEffect(() => {
+        if (!selectedConv && sidebarRef.current && sidebarScrollPos.current > 0) {
+            const pos = sidebarScrollPos.current;
+            requestAnimationFrame(() => {
+                if (sidebarRef.current) {
+                    sidebarRef.current.scrollTop = pos;
+                }
+            });
+        }
+    }, [selectedConv]);
+
+    const handleSelectConversation = useCallback((conv) => {
+        if (sidebarRef.current) {
+            sidebarScrollPos.current = sidebarRef.current.scrollTop;
+        }
+        setSelectedConv(conv);
+        setPendingSelection(null);
+    }, []);
+
+    useEffect(() => {
+        const convId = selectedConv?.id;
+        if (!convId || convId === 'null' || !currentUser?.id || !userProfile?.id) {
+            activeConvIdRef.current = null;
+            return;
+        }
+
+        const isNewConv = activeConvIdRef.current !== convId;
+        activeConvIdRef.current = convId;
+
+        if (isNewConv) {
+            setPage(0);
+            const cachedMessages = getCachedData(messageCacheKey(currentUser.id, convId), {
+                ttlMs: CACHE_TTL.messages,
+                allowStale: true
+            }) || [];
+            const queuedMessages = getQueuedOperations(currentUser.id, 'send_message')
+                .filter(operation => operation.payload?.matchId === convId)
+                .map(queuedMessageToBubble)
+                .filter(Boolean);
+            const initialMessages = [...cachedMessages, ...queuedMessages].reduce(mergeMessageList, []);
+            setMessages(initialMessages);
+            loadMessages(convId, 0, true);
+        }
+
+        markConversationRead(convId, currentUser.id);
 
         const msgSub = subscribeToMessages(
-            selectedConv.id,
+            convId,
             (payload) => {
+                const nowIso = new Date().toISOString();
+                if (payload.expires_at && payload.expires_at <= nowIso) return;
                 setMessages(prev => mergeMessageList(prev, payload));
                 if (payload.sender_id !== currentUser.id) {
                     markMessageAsRead(payload.id);
@@ -451,12 +840,31 @@ export default function Chat() {
                 }
             },
             (payload) => {
+                const nowIso = new Date().toISOString();
+                if (payload.expires_at && payload.expires_at <= nowIso) {
+                    setMessages(prev => prev.filter(m => m.id !== payload.id));
+                    return;
+                }
                 setMessages(prev => prev.map(m => m.id === payload.id ? payload : m));
+            },
+            (payload) => {
+                setMessages(prev => prev.filter(m => m.id !== payload.id));
+            },
+            (updatedMatch) => {
+                if (updatedMatch) {
+                    setSelectedConv(prev => prev ? {
+                        ...prev,
+                        disappearing_messages_seconds: updatedMatch.disappearing_messages_seconds ?? prev.disappearing_messages_seconds,
+                        call_state: updatedMatch.call_state ?? prev.call_state,
+                        call_type: updatedMatch.call_type ?? prev.call_type,
+                        caller_id: updatedMatch.caller_id ?? prev.caller_id
+                    } : prev);
+                }
             }
         );
 
         presenceChannelRef.current = setupPresence(
-            selectedConv.id,
+            convId,
             currentUser.id,
             userProfile,
             (state) => setPresence(state)
@@ -466,29 +874,49 @@ export default function Chat() {
             msgSub.unsubscribe();
             presenceChannelRef.current?.unsubscribe();
             isTypingRef.current = false;
+            setReactionBar(null);
+            if (longPressTimer.current) {
+                clearTimeout(longPressTimer.current);
+                longPressTimer.current = null;
+            }
         };
-    }, [selectedConv, currentUser, userProfile, mergeMessageList]);
+    }, [selectedConv?.id, currentUser?.id, userProfile?.id, mergeMessageList]);
 
     // ── Load messages (paginated) ──────────────────────────────────────
     async function loadMessages(matchId, pageNum = 0, reset = false) {
-        const { data, total, error } = await getMessages(matchId, pageNum);
+        try {
+            const { data = [], total = 0, error } = await getMessages(matchId, pageNum);
 
-        if (error && reset) {
-            return;
-        }
+            if (error) {
+                console.warn('[Chat] Failed to load messages:', error);
+                return;
+            }
 
-        if (reset) {
-            setMessages(prev => {
-                const pending = prev.filter(msg => msg._pending || msg._queued);
-                return [...data, ...pending].reduce(mergeMessageList, []);
-            });
-            setHasMore(total > data.length);
-        } else {
-            setMessages(prev => {
-                const combined = [...data, ...prev];
-                return combined.length > 200 ? combined.slice(-200) : combined;
-            });
-            setHasMore(total > (pageNum + 1) * 20 + messages.length);
+            const nowIso = new Date().toISOString();
+            const unexpiredData = (data || []).filter(m => !m.expires_at || m.expires_at > nowIso);
+
+            if (reset) {
+                setMessages(prev => {
+                    const pending = prev.filter(msg => {
+                        if (!msg._pending && !msg._queued) return false;
+                        const nonce = msg.metadata?.client_nonce;
+                        const alreadyConfirmed = unexpiredData.some(dbMsg => 
+                            dbMsg.id === msg.id || (nonce && dbMsg.metadata?.client_nonce === nonce)
+                        );
+                        return !alreadyConfirmed;
+                    });
+                    return [...unexpiredData, ...pending].reduce(mergeMessageList, []);
+                });
+                setHasMore(total > unexpiredData.length);
+            } else {
+                setMessages(prev => {
+                    const combined = [...unexpiredData, ...prev];
+                    return combined.length > 200 ? combined.slice(-200) : combined;
+                });
+                setHasMore(total > (pageNum + 1) * 20);
+            }
+        } catch (err) {
+            console.error('[Chat] loadMessages error:', err);
         }
     }
 
@@ -518,12 +946,30 @@ export default function Chat() {
         const content = newMessage.trim();
 
         if (editingMessage) {
+            let targetId = editingMessage.id;
+            const isTemp = !targetId || String(targetId).startsWith('temp-');
+            if (isTemp) {
+                const nonce = editingMessage.metadata?.client_nonce;
+                const confirmed = messages.find(m => (
+                    m && !String(m.id).startsWith('temp-') && (
+                        (nonce && m.metadata?.client_nonce === nonce) ||
+                        (m.sender_id === currentUser?.id && m.content === editingMessage.content)
+                    )
+                ));
+                if (confirmed) {
+                    targetId = confirmed.id;
+                } else {
+                    addToast('⏳ Message is still syncing with the server. Please wait a moment.', 'info');
+                    return;
+                }
+            }
+
             setSending(true);
-            const { data, error } = await editMessage(editingMessage.id, content);
+            const { data, error } = await editMessage(targetId, content);
             if (error) {
                 addToast(`Edit failed: ${error}`, 'error');
             } else if (data) {
-                setMessages(prev => prev.map(m => m.id === editingMessage.id ? data : m));
+                setMessages(prev => prev.map(m => (m.id === targetId || m.id === editingMessage.id) ? { ...m, ...data, content, is_edited: true, edited_at: new Date().toISOString() } : m));
                 addToast('Message edited!', 'success');
                 setEditingMessage(null);
                 setNewMessage('');
@@ -591,6 +1037,10 @@ export default function Chat() {
             removeOfflineOperation(currentUser.id, `send_message:${clientNonce}`);
             setMessages(prev => mergeMessageList(prev, data));
             playSendSwoosh(); // Audible "sent" confirmation
+            if (currentUser?.id) {
+                recordStreakActivity(currentUser.id, 'chat_message').catch(() => {});
+                evaluateDailyQualification(currentUser.id).catch(() => {});
+            }
         }
         setSending(false);
     };
@@ -598,14 +1048,42 @@ export default function Chat() {
     const handleSmartReplies = async () => {
         if (!selectedConv || aiReplyLoading) return;
         setAiReplyLoading(true);
-        const { data, error } = await requestAiAssistant('smart_reply', {
-            targetProfile: selectedConv.other_user,
-            recentMessages: messages.slice(-8),
-            draft: newMessage
-        });
-        if (!error) setAiReplies(data?.replies || []);
-        setAiReplyLoading(false);
+        addToast('✨ Asking AI wingmate for smart suggestions...', 'info');
+        try {
+            const hasRecentMsgs = messages.length > 0;
+            const task = hasRecentMsgs ? 'smart_reply' : 'conversation_opener';
+            const { data, error } = await requestAiAssistant(task, {
+                targetProfile: selectedConv.other_user,
+                recentMessages: messages.slice(-8),
+                draft: newMessage
+            });
+            const replies = (data?.replies || data?.openers || []).filter(Boolean);
+            if (replies.length > 0) {
+                setAiReplies(replies);
+                addToast('✨ Smart suggestions ready!', 'success');
+            } else {
+                setAiReplies(CAMPUS_AI_FALLBACKS);
+                addToast('✨ Campus icebreakers ready!', 'success');
+            }
+        } catch (err) {
+            console.warn('[Chat] Smart replies fallback:', err);
+            setAiReplies(CAMPUS_AI_FALLBACKS);
+        } finally {
+            setAiReplyLoading(false);
+        }
     };
+
+    const handleSelectAiReply = (replyText) => {
+        if (!replyText) return;
+        setNewMessage(replyText);
+        setAiReplies([]); // Auto-minimize / close strip
+        // Focus chat input field
+        setTimeout(() => {
+            const inputEl = document.querySelector('.chat-input');
+            if (inputEl) inputEl.focus();
+        }, 50);
+    };
+
 
     const flushPendingMessages = useCallback(async () => {
         if (!currentUser?.id) return;
@@ -672,79 +1150,396 @@ export default function Chat() {
     // ── Call Signaling ──────────────────────────────────────────────
     const initiateCall = async (type) => {
         setCallChoiceOpen(false);
-        const name = encodeURIComponent(selectedConv.other_user?.full_name || 'User');
+        const otherUser = selectedConv.other_user || {};
+        const name = encodeURIComponent(otherUser.full_name || 'User');
+        const avatar = encodeURIComponent(otherUser.avatar_url || '');
         const roomId = selectedConv.id;
         
         try {
-            // 1. Send Signaling Message (The "Ring")
+            // 1. Signal match & session call state in DB for real-time ring
+            const { data: callData, error: signalError } = await initiateCallSignal(roomId, type);
+            if (signalError) {
+                addToast(signalError, 'error');
+                return;
+            }
+
+            const callId = callData?.call_id || roomId;
+
+            // 2. Send Signaling Message (The "Ring")
             const callTypeLabel = type === 'video' ? 'Video Call' : 'Voice Call';
-            const { error } = await sendMessage(roomId, currentUser.id, `Started a ${callTypeLabel}`, 'call_log', {
+            await sendMessage(roomId, currentUser.id, `Started a ${callTypeLabel}`, 'call_log', {
                 callType: type,
+                callId: callId,
                 roomId: roomId,
                 startTime: new Date().toISOString()
             });
 
-            if (error) {
-                console.error('Call signaling error:', error);
-                addToast('Failed to start call log: ' + error, 'error');
-                // We still proceed to navigate because the call itself might still work, 
-                // but this explains why logs are missing.
-            }
-
-            // 2. Navigate to Room
-            navigate(`/call/${roomId}?type=${type}&name=${name}`);
+            // 3. Navigate to Call Room with callId and other user's info
+            navigate(`/call/${callId}?matchId=${roomId}&type=${type}&name=${name}&avatar=${avatar}`);
         } catch (err) {
             console.error('initiateCall exception:', err);
-            addToast('Connection error starting call', 'error');
-            navigate(`/call/${roomId}?type=${type}&name=${name}`);
+            navigate(`/call/${roomId}?type=${type}&name=${name}&avatar=${avatar}`);
         }
     };
 
     const handleVoiceStop = async (blob) => {
+        if (!selectedConv?.id || !blob) return;
         setSending(true);
+        const optimisticId = `temp-voice-${Date.now()}`;
         const clientNonce = createClientNonce();
-        const { path, url, error } = await uploadVoiceNote(selectedConv.id, currentUser.id, blob);
-        if (error) { addToast('Upload failed', 'error'); setSending(false); return; }
-        await sendMessage(selectedConv.id, currentUser.id, path, 'voice', {
-            client_nonce: clientNonce,
-            storage_path: path,
-            preview_url: url
-        });
-        setSending(false);
-    };
+        const localAudioUrl = URL.createObjectURL(blob);
 
-    const handleImageSelect = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !selectedConv) return;
-        setSending(true);
-        const optimisticId = `temp-${Date.now()}`;
+        // Optimistic voice note bubble immediately!
+        setMessages(prev => mergeMessageList(prev, {
+            id: optimisticId,
+            match_id: selectedConv.id,
+            sender_id: currentUser.id,
+            content: localAudioUrl,
+            type: 'voice',
+            metadata: { client_nonce: clientNonce, is_optimistic: true },
+            created_at: new Date().toISOString(),
+            is_read: false,
+            _pending: true
+        }));
+
         try {
-            const placeholder = await generateBlurPlaceholder(file);
-            const clientNonce = createClientNonce();
-            const localPreviewUrl = URL.createObjectURL(file);
-            setMessages(prev => mergeMessageList(prev, {
-                id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-                content: localPreviewUrl, type: 'image', metadata: { placeholder, client_nonce: clientNonce },
-                created_at: new Date().toISOString(), is_read: false, _pending: true
-            }));
-
-            const compressed = await compressImage(file, { targetSizeKB: 100 });
-            const { path, url, error } = await uploadChatImage(selectedConv.id, currentUser.id, compressed);
+            const { path, url, error } = await uploadVoiceNote(selectedConv.id, currentUser.id, blob);
             if (error) throw new Error(error);
-
-            const { data } = await sendMessage(selectedConv.id, currentUser.id, path, 'image', {
-                placeholder,
+            const { data, error: sendError } = await sendMessage(selectedConv.id, currentUser.id, path, 'voice', {
                 client_nonce: clientNonce,
                 storage_path: path,
                 preview_url: url
             });
-            if (data) setMessages(prev => mergeMessageList(prev, data));
+            if (sendError) throw new Error(sendError);
+            if (data) {
+                setMessages(prev => mergeMessageList(prev, data));
+            }
         } catch (err) {
+            console.error('[Chat] Voice note send error:', err);
             setMessages(prev => prev.filter(m => m.id !== optimisticId));
-            addToast('Failed to send image: ' + err.message, 'error');
+            addToast('Failed to send voice note', 'error');
+        } finally {
+            setSending(false);
+        }
+    };
+
+    const handleMediaSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !selectedConv) return;
+        const isVideo = file.type.startsWith('video/');
+
+        if (isVideo) {
+            // 1. Premium check
+            if (!hasActivePremium(userProfile)) {
+                addToast('👑 10s Chat Video is an exclusive Premium benefit. Upgrade to unlock!', 'info');
+                navigate('/premium');
+                e.target.value = '';
+                return;
+            }
+
+            // 2. Daily limit check (1 video per calendar day)
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dailyVideoKey = `tcd_daily_chat_video_${currentUser?.id}_${todayStr}`;
+            if (localStorage.getItem(dailyVideoKey)) {
+                addToast('You have used your 1 daily video for today! Resets at midnight.', 'info');
+                e.target.value = '';
+                return;
+            }
+
+            if (file.size > 30 * 1024 * 1024) {
+                addToast('Video exceeds 30MB limit', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            // 3. Duration check <= 10.5s
+            const tempObjUrl = URL.createObjectURL(file);
+            const videoEl = document.createElement('video');
+            videoEl.preload = 'metadata';
+            videoEl.onloadedmetadata = () => {
+                URL.revokeObjectURL(tempObjUrl);
+                if (videoEl.duration > 10.5) {
+                    addToast(`Video is ${Math.round(videoEl.duration)}s. Maximum duration is 10 seconds.`, 'error');
+                    return;
+                }
+                const previewUrl = URL.createObjectURL(file);
+                setPendingMediaUpload({
+                    file,
+                    previewUrl,
+                    mediaType: 'video',
+                    isViewOnce: false
+                });
+            };
+            videoEl.onerror = () => {
+                URL.revokeObjectURL(tempObjUrl);
+                addToast('Could not verify video duration.', 'error');
+            };
+            videoEl.src = tempObjUrl;
+            e.target.value = '';
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            addToast('Photo exceeds 10MB limit', 'error');
+            e.target.value = '';
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        setPendingMediaUpload({
+            file,
+            previewUrl,
+            mediaType: 'image',
+            isViewOnce: false
+        });
+        e.target.value = '';
+    };
+
+    const handleConfirmMediaSend = async () => {
+        if (!pendingMediaUpload || !selectedConv) return;
+        const { file, mediaType, isViewOnce, previewUrl } = pendingMediaUpload;
+        setSending(true);
+        const optimisticId = `temp-${Date.now()}`;
+        const clientNonce = createClientNonce();
+
+        try {
+            if (isViewOnce) {
+                // View Once Flow
+                let uploadResult;
+                if (mediaType === 'image') {
+                    const compressed = await compressImage(file, { targetSizeKB: 120 });
+                    uploadResult = await uploadChatImage(selectedConv.id, currentUser.id, compressed);
+                } else {
+                    uploadResult = await uploadChatVideo(selectedConv.id, currentUser.id, file);
+                }
+                if (uploadResult.error) throw new Error(uploadResult.error);
+
+                const viewOnceTitle = mediaType === 'video' ? 'View Once Video' : 'View Once Photo';
+                const { data, error } = await sendMessage(
+                    selectedConv.id,
+                    currentUser.id,
+                    viewOnceTitle,
+                    'view_once',
+                    {
+                        storage_path: uploadResult.path,
+                        media_type: mediaType,
+                        is_viewed: false,
+                        client_nonce: clientNonce
+                    }
+                );
+                if (error) throw new Error(error);
+                if (data) setMessages(prev => mergeMessageList(prev, data));
+                addToast('Sent View-Once media ①', 'success');
+            } else {
+                // Standard Media Flow
+                if (mediaType === 'image') {
+                    const placeholder = await generateBlurPlaceholder(file);
+                    setMessages(prev => mergeMessageList(prev, {
+                        id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+                        content: previewUrl, type: 'image', metadata: { placeholder, client_nonce: clientNonce },
+                        created_at: new Date().toISOString(), is_read: false, _pending: true
+                    }));
+
+                    const compressed = await compressImage(file, { targetSizeKB: 100 });
+                    const { path, url, error } = await uploadChatImage(selectedConv.id, currentUser.id, compressed);
+                    if (error) throw new Error(error);
+
+                    const { data } = await sendMessage(selectedConv.id, currentUser.id, path, 'image', {
+                        placeholder,
+                        client_nonce: clientNonce,
+                        storage_path: path,
+                        preview_url: url
+                    });
+                    if (data) setMessages(prev => mergeMessageList(prev, data));
+                } else {
+                    // Video
+                    setMessages(prev => mergeMessageList(prev, {
+                        id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+                        content: previewUrl, type: 'video', metadata: { client_nonce: clientNonce },
+                        created_at: new Date().toISOString(), is_read: false, _pending: true
+                    }));
+
+                    const { path, url, error } = await uploadChatVideo(selectedConv.id, currentUser.id, file);
+                    if (error) throw new Error(error);
+
+                    const { data } = await sendMessage(selectedConv.id, currentUser.id, path, 'video', {
+                        client_nonce: clientNonce,
+                        storage_path: path,
+                        preview_url: url
+                    });
+                    if (data) {
+                        setMessages(prev => mergeMessageList(prev, data));
+                        const todayStr = new Date().toISOString().split('T')[0];
+                        localStorage.setItem(`tcd_daily_chat_video_${currentUser?.id}_${todayStr}`, '1');
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[Chat] Media send error:', err);
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+            addToast('Failed to send media: ' + err.message, 'error');
+        } finally {
+            setSending(false);
+            if (pendingMediaUpload?.previewUrl) {
+                URL.revokeObjectURL(pendingMediaUpload.previewUrl);
+            }
+            setPendingMediaUpload(null);
+        }
+    };
+
+    const handleDocumentSelect = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !selectedConv) return;
+        const MAX_DOC_SIZE = 25 * 1024 * 1024; // 25MB
+        if (file.size > MAX_DOC_SIZE) {
+            addToast(`Document (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds 25MB limit.`, 'error');
+            e.target.value = '';
+            return;
+        }
+
+        setSending(true);
+        const optimisticId = `temp-${Date.now()}`;
+        const clientNonce = createClientNonce();
+        try {
+            setMessages(prev => mergeMessageList(prev, {
+                id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+                content: file.name, type: 'document',
+                metadata: { filename: file.name, file_size: file.size, mime_type: file.type, client_nonce: clientNonce },
+                created_at: new Date().toISOString(), is_read: false, _pending: true
+            }));
+
+            const { path, error } = await uploadChatDocument(selectedConv.id, currentUser.id, file);
+            if (error) throw new Error(error);
+
+            const { data, error: sendError } = await sendMessage(selectedConv.id, currentUser.id, file.name, 'document', {
+                storage_path: path,
+                filename: file.name,
+                file_size: file.size,
+                mime_type: file.type,
+                client_nonce: clientNonce
+            });
+            if (sendError) throw new Error(sendError);
+            if (data) setMessages(prev => mergeMessageList(prev, data));
+            addToast('Document sent 📄', 'success');
+        } catch (err) {
+            console.error('[Chat] Document send error:', err);
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+            addToast('Failed to send document: ' + err.message, 'error');
         } finally {
             setSending(false);
             e.target.value = '';
+        }
+    };
+
+    const handleStartLiveLocation = async (durationMinutes) => {
+        setShowLocationPicker(false);
+        if (!canSendLiveLocation(userProfile)) {
+            addToast('Live location sharing is an Elite feature. Upgrade to College Date Elite to share your live location.', 'info');
+            navigate('/premium');
+            return;
+        }
+
+        if (!navigator.geolocation) {
+            addToast('Geolocation is not supported by your device.', 'error');
+            return;
+        }
+
+        addToast('Acquiring GPS location...', 'info');
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
+                try {
+                    const res = await updateLiveLocation({
+                        matchId: selectedConv.id,
+                        latitude,
+                        longitude,
+                        accuracy,
+                        durationMinutes
+                    });
+
+                    if (!res.success) throw new Error(res.error);
+
+                    const content = `📍 Live Location shared (${durationMinutes} mins)`;
+                    const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'location', {
+                        live_location_id: res.sessionId,
+                        duration_minutes: durationMinutes,
+                        latitude,
+                        longitude
+                    });
+
+                    if (error) throw new Error(error);
+                    if (data) setMessages(prev => mergeMessageList(prev, data));
+
+                    // Start high-efficiency periodic GPS watch
+                    if (locationWatchCleanupRef.current) locationWatchCleanupRef.current();
+                    locationWatchCleanupRef.current = startWatchingPosition(selectedConv.id);
+
+                    // JIT Safety reminder and consent logging
+                    recordPolicyAcceptance('safety', '1.0', { feature: 'live_location', match_id: selectedConv.id }).catch(() => {});
+                    addToast('Live location shared! 📍 Remember: only share with coursemates you trust.', 'success', 4500);
+                } catch (err) {
+                    console.error('[Chat] Live location error:', err);
+                    addToast(err.message || 'Failed to start live location', 'error');
+                }
+            },
+            (err) => {
+                console.error('[Chat] Geolocation error:', err);
+                addToast('Could not access GPS. Please ensure location permissions are enabled.', 'error');
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+    };
+
+    const handleOpenViewOnce = async (msg) => {
+        try {
+            const res = await openViewOnceMedia(msg.id);
+            if (res.error) throw new Error(res.error);
+
+            setViewOnceViewerData({
+                mediaUrl: res.url,
+                mediaType: res.mediaType
+            });
+
+            // Optimistic viewed update in local state
+            setMessages(prev => prev.map(m => m.id === msg.id ? {
+                ...m,
+                metadata: { ...m.metadata, is_viewed: true, viewed_at: new Date().toISOString() }
+            } : m));
+        } catch (err) {
+            console.error('[Chat] Open view once error:', err);
+            addToast(err.message || 'Could not open media', 'error');
+        }
+    };
+
+    const handleBlockOtherUser = async () => {
+        if (!selectedConv?.other_user?.id) return;
+        const name = selectedConv.other_user.full_name || 'this user';
+        if (!window.confirm(`Are you sure you want to block ${name}? They will no longer be able to message you or see your profile.`)) {
+            return;
+        }
+
+        try {
+            const { success, error } = await blockUser(selectedConv.other_user.id);
+            if (!success) throw new Error(error);
+            setIsBlockedByMe(true);
+            setChatMenuOpen(false);
+            addToast(`Blocked ${name}.`, 'success');
+        } catch (err) {
+            addToast(err.message || 'Failed to block user', 'error');
+        }
+    };
+
+    const handleUnblockOtherUser = async () => {
+        if (!selectedConv?.other_user?.id) return;
+        const name = selectedConv.other_user.full_name || 'user';
+        try {
+            const { success, error } = await unblockUser(selectedConv.other_user.id);
+            if (!success) throw new Error(error);
+            setIsBlockedByMe(false);
+            setChatMenuOpen(false);
+            addToast(`Unblocked ${name}.`, 'success');
+        } catch (err) {
+            addToast(err.message || 'Failed to unblock user', 'error');
         }
     };
 
@@ -772,32 +1567,14 @@ export default function Chat() {
         if (!selectedConv?.other_user?.id) { addToast('Recipient ID missing', 'error'); return false; }
         setSending(true);
         try {
-            const { data: txData, error: txError } = await sendGift(currentUser.id, selectedConv.other_user.id, gift.id);
-            if (txError) { addToast(txError, 'error'); return false; }
-            if (txData?.new_balance !== undefined) setWalletBalance(txData.new_balance);
-
-            const optimisticId = `temp-${Date.now()}`;
-            const clientNonce = createClientNonce();
-            const giftMsg = {
-                id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
-                content: gift.emoji, type: 'gift',
-                metadata: { name: gift.name, price: gift.price, client_nonce: clientNonce },
-                created_at: new Date().toISOString(), is_read: false, _pending: true
-            };
-            setMessages(prev => mergeMessageList(prev, giftMsg));
-
-            const { data, error: msgError } = await sendMessage(
-                selectedConv.id, currentUser.id, gift.emoji, 'gift', { name: gift.name, price: gift.price, client_nonce: clientNonce }
-            );
-            if (msgError) {
-                setMessages(prev => prev.filter(m => m.id !== optimisticId));
-                addToast('Gift paid, but chat notification failed.', 'warning');
-                return true;
-            } else if (data) {
-                setMessages(prev => mergeMessageList(prev, data));
-                addToast(`Sent ${gift.name}! 🎁`, 'success');
-                return true;
+            const res = await sendCoinGift(selectedConv.other_user.id, gift.id, selectedConv.id);
+            if (!res.success) {
+                addToast(res.error || 'Failed to send gift', 'error');
+                return false;
             }
+            if (res.newCoinBalance !== undefined) setCoinBalance(res.newCoinBalance);
+            addToast(`Sent ${gift.name}! 🎁`, 'success');
+            return true;
         } catch (err) {
             console.warn('Gift send error:', err);
             addToast('Error sending gift.', 'error');
@@ -817,49 +1594,337 @@ export default function Chat() {
             setSelectedConv(prev => prev ? { ...prev, disappearing_messages_seconds: previous } : prev);
             addToast('Could not update disappearing messages.', 'error');
         } else {
-            addToast(seconds ? 'Disappearing messages updated.' : 'Disappearing messages turned off.', 'success');
+            const durationObj = DISAPPEARING_OPTIONS.find(option => option.seconds === seconds);
+            const durationLabel = durationObj ? durationObj.label : (seconds ? `${seconds}s` : 'Off');
+            // Broadcast system message in conversation
+            const systemText = `Disappearing messages set to ${durationLabel}`;
+            await sendMessage(selectedConv.id, currentUser.id, systemText, 'system');
+
+            addToast(seconds ? `Disappearing messages set to ${durationLabel}.` : 'Disappearing messages turned off.', 'success');
             setChatMenuOpen(false);
             revalidateConvs();
         }
         setDisappearingSaving(false);
     };
 
-    // Reactions
-    const handleLongPressStart = (e, msgId) => {
-        const touch = e.touches ? e.touches[0] : e;
-        longPressTimer.current = setTimeout(() => {
-            setReactionBar({ msgId, x: Math.min(touch.clientX - 80, window.innerWidth - 200), y: touch.clientY - 80 });
-        }, 500);
-    };
-    const handleLongPressEnd = () => {
-        if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    // Message Action & Gesture Handlers
+    const openMessageActions = (msg, clientX, clientY) => {
+        if (!msg || msg.type === 'deleted' || msg.type === 'system') return;
+        const el = document.getElementById(`msg-${msg.id}`);
+        const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 380;
+        const barWidth = 320;
+        const rect = el ? el.getBoundingClientRect() : { top: clientY || 150, left: clientX || 20, width: 200, bottom: (clientY || 150) + 40 };
+
+        const safeX = Math.max(12, Math.min(rect.left + rect.width / 2 - barWidth / 2, screenWidth - barWidth - 12));
+        const safeY = rect.top > 120 ? rect.top - 62 : rect.bottom + 12;
+
+        setActiveActionMessage(msg);
+        setActionMenuPosition({ x: safeX, y: safeY });
     };
 
-    const handleReact = async (emoji) => {
-        if (!reactionBar) return;
-        await addReaction(reactionBar.msgId, emoji, currentUser.id);
+    const handleMessageTouchStart = (e, msg) => {
+        if (msg._pending || msg.type === 'deleted' || msg.type === 'system') return;
+        const touch = e.touches ? e.touches[0] : e;
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now(), msgId: msg.id };
+        hasVibratedRef.current = false;
+
+        if (longPressTimer.current) clearTimeout(longPressTimer.current);
+        longPressTimer.current = setTimeout(() => {
+            openMessageActions(msg, touch.clientX, touch.clientY);
+        }, 420);
+    };
+
+    const handleMessageTouchMove = (e, msgId) => {
+        if (!touchStartRef.current || touchStartRef.current.msgId !== msgId || !e.touches?.[0]) return;
+        const dx = e.touches[0].clientX - touchStartRef.current.x;
+        const dy = e.touches[0].clientY - touchStartRef.current.y;
+
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+            if (longPressTimer.current) {
+                clearTimeout(longPressTimer.current);
+                longPressTimer.current = null;
+            }
+        }
+
+        // Swipe left gesture
+        if (dx < -8 && Math.abs(dx) > Math.abs(dy)) {
+            setSwipingMsgId(msgId);
+            const clamped = Math.max(-65, dx * 0.55);
+            setSwipeOffset(clamped);
+            if (clamped <= -42 && !hasVibratedRef.current) {
+                hasVibratedRef.current = true;
+                if (navigator.vibrate) navigator.vibrate(12);
+            }
+        }
+    };
+
+    const handleMessageTouchEnd = (msg) => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+        if (swipingMsgId === msg.id) {
+            if (swipeOffset <= -40) {
+                handleActivateReply(msg);
+            }
+            setSwipingMsgId(null);
+            setSwipeOffset(0);
+            hasVibratedRef.current = false;
+        }
+    };
+
+    const handleMessageMouseDown = (e, msg) => {
+        if (e.button !== 0 || msg._pending || msg.type === 'deleted' || msg.type === 'system') return;
+        touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now(), msgId: msg.id };
+        if (longPressTimer.current) clearTimeout(longPressTimer.current);
+        longPressTimer.current = setTimeout(() => {
+            openMessageActions(msg, e.clientX, e.clientY);
+        }, 450);
+    };
+
+    const handleMessageMouseUp = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
+    const handleActivateReply = (msg) => {
+        if (!msg || msg.type === 'deleted' || msg.type === 'system') return;
+        let snippet = msg.content;
+        if (msg.type === 'image') snippet = '📷 Photo';
+        else if (msg.type === 'video') snippet = '🎥 Video';
+        else if (msg.type === 'voice') snippet = '🎤 Voice note';
+        else if (msg.type === 'document') snippet = `📄 ${msg.metadata?.filename || msg.content || 'Document'}`;
+        else if (msg.type === 'location') snippet = '📍 Live location';
+        else if (msg.type === 'gift') snippet = '🎁 Gift';
+        else if (msg.type === 'sticker') snippet = '✨ Sticker';
+
+        const senderName = msg.sender_id === currentUser?.id ? 'You' : (selectedConv.other_user?.full_name || 'User');
+        setReplyToMessage({
+            id: msg.id,
+            sender: senderName,
+            content: snippet,
+            type: msg.type || 'text'
+        });
+        setEditingMessage(null);
+        setTimeout(() => {
+            chatInputRef.current?.focus();
+        }, 60);
+    };
+
+    const handleScrollToQuotedMessage = (replyToId) => {
+        if (!replyToId) return;
+        const targetEl = document.getElementById(`msg-${replyToId}`);
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setHighlightedMessageId(replyToId);
+            setTimeout(() => setHighlightedMessageId(null), 1500);
+            return;
+        }
+        const idx = messages.findIndex(m => m.id === replyToId);
+        if (idx >= 0 && virtuosoRef.current) {
+            virtuosoRef.current.scrollToIndex({ index: idx, align: 'center', behavior: 'smooth' });
+            setHighlightedMessageId(replyToId);
+            setTimeout(() => setHighlightedMessageId(null), 1500);
+        }
+    };
+
+    const handleReact = async (emoji, targetMsgId = null) => {
+        const msgId = targetMsgId || activeActionMessage?.id;
+        if (!msgId) return;
+
         // Optimistic local update
         setMessages(prev => prev.map(m => {
-            if (m.id !== reactionBar.msgId) return m;
+            if (m.id !== msgId) return m;
             const reactions = { ...(m.metadata?.reactions || {}) };
             const existing = reactions[emoji] || [];
             if (existing.includes(currentUser.id)) {
                 reactions[emoji] = existing.filter(id => id !== currentUser.id);
                 if (!reactions[emoji].length) delete reactions[emoji];
             } else {
-                reactions[emoji] = [...existing, currentUser.id];
+                Object.keys(reactions).forEach(k => {
+                    reactions[k] = reactions[k].filter(id => id !== currentUser.id);
+                    if (!reactions[k].length) delete reactions[k];
+                });
+                reactions[emoji] = [...(reactions[emoji] || []), currentUser.id];
             }
             return { ...m, metadata: { ...m.metadata, reactions } };
         }));
-        setReactionBar(null);
+
+        if (activeActionMessage) {
+            setActiveActionMessage(null);
+            setActionMenuPosition(null);
+        }
+        await addReaction(msgId, emoji, currentUser.id);
+    };
+
+    const handleStartEdit = (msg) => {
+        if (!msg) return;
+        setEditingMessage(msg);
+        setNewMessage(msg.content);
+        setReplyToMessage(null);
+        setActiveActionMessage(null);
+        setActionMenuPosition(null);
+        setTimeout(() => {
+            chatInputRef.current?.focus();
+        }, 60);
+    };
+
+    const handleDeleteForMe = async (msg) => {
+        if (!msg?.id) return;
+        setMessages(prev => prev.filter(m => m.id !== msg.id));
+        if (String(msg.id).startsWith('temp-')) {
+            const nonce = msg.metadata?.client_nonce;
+            if (nonce && currentUser?.id) {
+                removeOfflineOperation(currentUser.id, `send_message:${nonce}`);
+            }
+            addToast('Message removed', 'info');
+            return;
+        }
+        const { error } = await deleteMessageForMe(msg.id);
+        if (error) {
+            addToast(`Could not delete message: ${error}`, 'error');
+        } else {
+            addToast('Message deleted for you', 'info');
+        }
+    };
+
+    const handleDeleteForEveryone = async (msg) => {
+        if (!msg?.id) return;
+        if (String(msg.id).startsWith('temp-')) {
+            setMessages(prev => prev.filter(m => m.id !== msg.id));
+            const nonce = msg.metadata?.client_nonce;
+            if (nonce && currentUser?.id) {
+                removeOfflineOperation(currentUser.id, `send_message:${nonce}`);
+            }
+            addToast('Pending message cancelled', 'info');
+            return;
+        }
+
+        // Optimistic update
+        setMessages(prev => prev.map(m => m.id === msg.id ? {
+            ...m,
+            type: 'deleted',
+            content: 'This message was deleted',
+            metadata: { ...m.metadata, is_deleted: true, deleted_at: new Date().toISOString() }
+        } : m));
+
+        const { error } = await deleteMessageForEveryone(msg.id);
+        if (error) {
+            addToast(`Could not delete for everyone: ${error}`, 'error');
+            if (selectedConv?.id) loadMessages(selectedConv.id, 0, false);
+        } else {
+            addToast('Message deleted for everyone', 'info');
+        }
+    };
+
+    // Backward-compatible alias
+    const handleDelete = async (msg) => {
+        handleDeleteForEveryone(msg);
     };
 
     const renderMessageContent = (msg) => {
         switch (msg.type) {
+            case 'deleted':
+                return <div className="message-content-text message-content-deleted"><em>This message was deleted</em></div>;
+            case 'system':
+                return <div className="message-system-pill">ℹ️ {msg.content}</div>;
             case 'voice': return <ChatMedia msg={msg} type="voice" isSent={msg.sender_id === currentUser.id} />;
             case 'image': return <ChatMedia msg={msg} type="image" isSent={msg.sender_id === currentUser.id} />;
+            case 'video': return <ChatMedia msg={msg} type="video" isSent={msg.sender_id === currentUser.id} />;
+            case 'document': {
+                const filename = msg.metadata?.filename || msg.content || 'Document';
+                const fileSize = msg.metadata?.file_size ? `${(msg.metadata.file_size / (1024 * 1024)).toFixed(1)} MB` : '';
+                const ext = (filename.split('.').pop() || 'FILE').toUpperCase();
+                return (
+                    <div className="document-bubble-item">
+                        <div className="doc-icon-badge">📄</div>
+                        <div className="doc-info-col">
+                            <span className="doc-name" title={filename}>{filename}</span>
+                            <span className="doc-meta-sub">{ext} • {fileSize}</span>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn-download-doc"
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                const path = msg.metadata?.storage_path || msg.content;
+                                const { url } = await getSignedChatMediaUrl(path, 3600);
+                                if (url) window.open(url, '_blank');
+                                else addToast('Could not open document', 'error');
+                            }}
+                            title="Download document"
+                        >
+                            ⬇️
+                        </button>
+                    </div>
+                );
+            }
+            case 'view_once': {
+                const isViewed = Boolean(msg.metadata?.is_viewed);
+                const isMe = msg.sender_id === currentUser.id;
+                const mediaTypeLabel = msg.metadata?.media_type === 'video' ? 'Video' : 'Photo';
+
+                if (isViewed) {
+                    return (
+                        <div className="view-once-bubble-viewed">
+                            <span className="view-once-badge-circle viewed">①</span>
+                            <span className="view-once-text-opened">{mediaTypeLabel} • Opened</span>
+                        </div>
+                    );
+                }
+
+                if (isMe) {
+                    return (
+                        <div className="view-once-bubble-sent">
+                            <span className="view-once-badge-circle">①</span>
+                            <span className="view-once-text-sent">{mediaTypeLabel} (View Once)</span>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="view-once-bubble-unopened" onClick={() => handleOpenViewOnce(msg)}>
+                        <span className="view-once-badge-circle interactive pulse">①</span>
+                        <div className="view-once-action-col">
+                            <span className="view-once-title-unopened">{mediaTypeLabel}</span>
+                            <span className="view-once-hint">Tap to view once ⏱️</span>
+                        </div>
+                    </div>
+                );
+            }
+            case 'location':
+                return (
+                    <LiveLocationCard
+                        matchId={selectedConv?.id}
+                        message={msg}
+                        currentUserId={currentUser.id}
+                        isSender={msg.sender_id === currentUser.id}
+                    />
+                );
+            case 'service_deal':
+                return (
+                    <ServiceDealCard
+                        dealId={msg.metadata?.deal_id}
+                        currentUserId={currentUser.id}
+                        onDealUpdated={() => {
+                            revalidateConvs();
+                        }}
+                    />
+                );
             case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
-            case 'gift': return <div className="gift-message"><div className="gift-animation">🎁</div><span className="gift-emoji-large">{msg.content}</span><span className="gift-label">SENT A {msg.metadata?.name}</span></div>;
+            case 'gift': {
+                const giftName = msg.metadata?.name || msg.metadata?.gift_name || 'GIFT';
+                const emoji = msg.metadata?.gift_emoji || (msg.content?.includes(' ') ? '🎁' : msg.content);
+                return (
+                    <div className="gift-message">
+                        <div className="gift-animation">🎁</div>
+                        <span className="gift-emoji-large">{emoji}</span>
+                        <span className="gift-label">SENT {giftName.toUpperCase()}</span>
+                    </div>
+                );
+            }
             case 'emoji': return <span className="emoji-message-large">{msg.content}</span>;
             case 'call_log': {
                 const isRecent = (Date.now() - new Date(msg.created_at).getTime()) < (10 * 60 * 1000); // 10 mins
@@ -901,7 +1966,10 @@ export default function Chat() {
                     <span
                         key={emoji}
                         className={`reaction-pill ${users.includes(currentUser.id) ? 'mine' : ''}`}
-                        onClick={() => handleReact(emoji)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleReact(emoji, msg.id);
+                        }}
                     >
                         {emoji} <span>{users.length}</span>
                     </span>
@@ -933,17 +2001,128 @@ export default function Chat() {
         return matchesSearch;
     });
 
-    if (convsLoading && conversations.length === 0) return <LoadingSpinner fullScreen text="Opening messages..." />;
-
     return (
         <div className="chat-page">
-            {reactionBar && <MessageReactionBar position={{ x: reactionBar.x, y: reactionBar.y }} onReact={handleReact} onClose={() => setReactionBar(null)} />}
-            {showGifts && <GiftStore onClose={() => setShowGifts(false)} onSend={handleGiftSend} balance={walletBalance} />}
+            {showGifts && (
+                <GiftStore
+                    onClose={() => setShowGifts(false)}
+                    onSend={handleGiftSend}
+                    coinBalance={coinBalance}
+                    onOpenCoinStore={() => setShowCoinStore(true)}
+                />
+            )}
+            {showCoinStore && (
+                <CoinStoreModal
+                    userCoins={coinBalance}
+                    walletBalance={walletBalance}
+                    onClose={() => setShowCoinStore(false)}
+                    onCoinsUpdated={(newBal) => setCoinBalance(newBal)}
+                />
+            )}
+            {showReportModal && (
+                <ReportModal
+                    targetUser={selectedConv?.other_user}
+                    contextType="chat"
+                    contextId={selectedConv?.id}
+                    onClose={() => setShowReportModal(false)}
+                    onReportSuccess={({ alsoBlocked }) => {
+                        if (alsoBlocked) setIsBlockedByMe(true);
+                    }}
+                />
+            )}
+            {showDealModal && (
+                <CreateServiceDealModal
+                    matchId={selectedConv?.id}
+                    otherUser={selectedConv?.other_user}
+                    currentUserId={currentUser?.id}
+                    onClose={() => setShowDealModal(false)}
+                    onDealCreated={() => {
+                        revalidateConvs();
+                    }}
+                />
+            )}
+            {viewOnceViewerData && (
+                <ViewOnceViewerModal
+                    mediaUrl={viewOnceViewerData.mediaUrl}
+                    mediaType={viewOnceViewerData.mediaType}
+                    onClose={() => setViewOnceViewerData(null)}
+                />
+            )}
+            {pendingMediaUpload && (
+                <div className="media-preview-modal-overlay animate-fade-in" onClick={() => setPendingMediaUpload(null)}>
+                    <div className="media-preview-modal-card glass" onClick={e => e.stopPropagation()}>
+                        <div className="media-preview-header">
+                            <span className="preview-title">Preview {pendingMediaUpload.mediaType === 'video' ? 'Video' : 'Photo'}</span>
+                            <button type="button" className="btn-close-preview" onClick={() => setPendingMediaUpload(null)}>&times;</button>
+                        </div>
+                        <div className="media-preview-display">
+                            {pendingMediaUpload.mediaType === 'video' ? (
+                                <video src={pendingMediaUpload.previewUrl} controls autoPlay playsInline className="preview-media-player" />
+                            ) : (
+                                <img src={pendingMediaUpload.previewUrl} alt="Preview" className="preview-media-image" />
+                            )}
+                        </div>
+                        <div className="media-preview-footer">
+                            <button
+                                type="button"
+                                className={`btn-view-once-toggle ${pendingMediaUpload.isViewOnce ? 'active' : ''}`}
+                                onClick={() => setPendingMediaUpload(prev => ({ ...prev, isViewOnce: !prev.isViewOnce }))}
+                                title={pendingMediaUpload.isViewOnce ? "View Once activated: Recipient can view only once" : "Tap to send as View Once"}
+                            >
+                                <span className="view-once-circle-icon">①</span>
+                                <span className="view-once-pill-text">{pendingMediaUpload.isViewOnce ? 'View Once ON' : 'View Once OFF'}</span>
+                            </button>
+                            <div className="preview-actions-row">
+                                <button type="button" className="btn-cancel-media" onClick={() => setPendingMediaUpload(null)}>
+                                    Cancel
+                                </button>
+                                <button type="button" className="btn-send-media" onClick={handleConfirmMediaSend} disabled={sending}>
+                                    {sending ? 'Sending...' : 'Send ➔'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showLocationPicker && (
+                <div className="location-picker-overlay animate-fade-in" onClick={() => setShowLocationPicker(false)}>
+                    <div className="location-picker-card glass" onClick={e => e.stopPropagation()}>
+                        <div className="location-picker-header">
+                            <div className="loc-icon-badge">📍</div>
+                            <div className="loc-header-text">
+                                <h3>Share Live Location</h3>
+                                <p>Participants in this chat will see your live GPS updates on a map</p>
+                            </div>
+                            <button type="button" className="btn-close-loc" onClick={() => setShowLocationPicker(false)}>&times;</button>
+                        </div>
+                        <div className="location-duration-options">
+                            <button type="button" className="duration-btn" onClick={() => handleStartLiveLocation(15)}>
+                                ⏱️ 15 Minutes
+                            </button>
+                            <button type="button" className="duration-btn recommended" onClick={() => handleStartLiveLocation(30)}>
+                                ⏱️ 30 Minutes (Recommended)
+                            </button>
+                            <button type="button" className="duration-btn" onClick={() => handleStartLiveLocation(60)}>
+                                ⏱️ 1 Hour
+                            </button>
+                        </div>
+                        <p className="location-disclaimer">
+                            🔒 Battery-conscious throttled GPS updates • Stop sharing anytime directly from the chat card.
+                        </p>
+                    </div>
+                </div>
+            )}
 
-            <div className={`chat-sidebar ${selectedConv ? 'hide' : 'show'}`}>
+            <div ref={sidebarRef} className={`chat-sidebar ${selectedConv ? 'hide' : 'show'}`}>
                 <div className="chat-sidebar-header">
                     <h1>Messages</h1>
                 </div>
+
+                <ContextualTip
+                    featureId="messages_chat"
+                    className="chat-contextual-tip"
+                    onLearnMore={() => setGuideModalOpen(true)}
+                />
 
                 {/* Sidebar Search Row */}
                 <div className="chat-sidebar-search-row">
@@ -977,13 +2156,21 @@ export default function Chat() {
 
                 {/* Sidebar Activity & Requests scroll row */}
                 <div className="chat-activity-requests-row">
-                    <div className="activity-circle likes-circle" onClick={() => navigate('/requests')}>
+                    <RequestsDiscoveryHighlight
+                        isActive={isRequestsDiscoveryEligible}
+                        hasRequests={discoveryCopy.hasRequests}
+                        cue={discoveryCopy.cue}
+                        onClick={handleRequestsEntryClick}
+                        className="activity-circle likes-circle"
+                    >
                         <div className={`activity-avatar-frame ${!userProfile?.is_premium ? 'blurred' : ''}`}>
                             <span className="activity-emoji">❤️</span>
                             {likesCount > 0 && <span className="activity-badge">{likesCount}</span>}
                         </div>
-                        <span className="activity-label">Likes</span>
-                    </div>
+                        <span className="activity-label">
+                            {isRequestsDiscoveryEligible && discoveryCopy.hasRequests ? 'Accept' : 'Likes'}
+                        </span>
+                    </RequestsDiscoveryHighlight>
 
                     <div className="activity-circle views-circle" onClick={() => navigate('/viewers')}>
                         <div className={`activity-avatar-frame ${!userProfile?.is_premium ? 'blurred' : ''}`}>
@@ -1009,7 +2196,12 @@ export default function Chat() {
                 </div>
 
                 <div className="conversation-list">
-                    {filteredConvs.length === 0 ? (
+                    {/* Official The College Date Verified Educational Hub Card */}
+                    <OfficialChannelCard onClick={() => setOfficialHubOpen(true)} />
+
+                    {convsLoading && conversations.length === 0 ? (
+                        <LoadingSpinner text="Opening messages..." />
+                    ) : filteredConvs.length === 0 ? (
                         <div className="chat-empty-state"><p>No messages found.</p></div>
                     ) : (
                         filteredConvs.map((conv) => {
@@ -1019,14 +2211,23 @@ export default function Chat() {
                             const hasUnread = conv.has_unread && selectedConv?.id !== conv.id;
                             const typePrefix = conv.last_message_type === 'voice' ? '🎙️ ' : conv.last_message_type === 'gift' ? '🎁 ' : conv.last_message_type === 'sticker' ? '😊 ' : '';
                             return (
-                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => { setSelectedConv(conv); setPendingSelection(null); }}>
+                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => handleSelectConversation(conv)}>
                                     <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
-                                        <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
+                                        <img src={getAvatarUrl(conv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
                                         {isOnline && <span className="online-dot" />}
+                                        {hasActivePremium(conv.other_user) && (
+                                            <span className="chat-avatar-premium-badge" title="Premium Member">👑</span>
+                                        )}
                                     </div>
                                     <div className="conv-info">
                                         <div className="conv-name-row">
-                                            <span className={`conv-name ${hasUnread ? 'bold' : ''}`}>{conv.other_user?.full_name || 'User'}</span>
+                                            <span className={`conv-name ${hasUnread ? 'bold' : ''}`}>
+                                                {conv.other_user?.full_name || 'User'}
+                                                {hasActivePremium(conv.other_user) && <span className="premium-crown" title="Premium Member">👑</span>}
+                                                {(conv.other_user?.is_verified || conv.other_user?.photo_verified) && (
+                                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                                )}
+                                            </span>
                                             <span className="conv-time">{formatSidebarTimestamp(conv.last_message_at)}</span>
                                         </div>
                                         <div className="conv-last-msg">
@@ -1044,23 +2245,86 @@ export default function Chat() {
             <div className={`chat-window ${!selectedConv ? 'hide-mobile' : 'show'}`}>
                 {selectedConv ? (
                     <>
+                        {activeActionMessage && (
+                            <MessageActionMenu
+                                message={activeActionMessage}
+                                isSentByMe={activeActionMessage.sender_id === currentUser?.id}
+                                position={actionMenuPosition}
+                                onReact={(emoji) => handleReact(emoji, activeActionMessage.id)}
+                                onEdit={() => handleStartEdit(activeActionMessage)}
+                                onInfo={() => setInfoTargetMessage(activeActionMessage)}
+                                onDelete={() => setDeleteTargetMessage(activeActionMessage)}
+                                onClose={() => {
+                                    setActiveActionMessage(null);
+                                    setActionMenuPosition(null);
+                                }}
+                            />
+                        )}
+
+                        {deleteTargetMessage && (
+                            <MessageDeleteModal
+                                message={deleteTargetMessage}
+                                isSentByMe={deleteTargetMessage.sender_id === currentUser?.id}
+                                onDeleteForMe={(msg) => handleDeleteForMe(msg)}
+                                onDeleteForEveryone={(msg) => handleDeleteForEveryone(msg)}
+                                onClose={() => setDeleteTargetMessage(null)}
+                            />
+                        )}
+
+                        {infoTargetMessage && (
+                            <MessageInfoModal
+                                message={infoTargetMessage}
+                                onClose={() => setInfoTargetMessage(null)}
+                            />
+                        )}
                         <div className="chat-header">
-                            <button className="back-btn" onClick={() => setSelectedConv(null)}>←</button>
+                            <button className="back-btn" onClick={handleCloseConversation} aria-label="Back to messages">←</button>
                             <div className="header-info" onClick={() => navigate(`/profile/${selectedConv.other_user?.id}`)}>
                                 <div className="header-avatar-container">
-                                    <img src={selectedConv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv.id}`} alt="" className="header-avatar" />
+                                    <img src={getAvatarUrl(selectedConv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv.id}`} alt="" className="header-avatar" />
                                     {isOtherOnline && <span className="online-dot-large" />}
+                                    {hasActivePremium(selectedConv.other_user) && (
+                                        <span className="chat-header-premium-badge" title="Premium Member">👑</span>
+                                    )}
                                 </div>
                                 <div className="header-text">
-                                    <span className="header-name">{selectedConv.other_user?.full_name}</span>
+                                    <span className="header-name">
+                                        {selectedConv.other_user?.full_name}
+                                        {hasActivePremium(selectedConv.other_user) && <span className="premium-badge-pill-chat" title="Premium Member">👑 Premium</span>}
+                                        {(selectedConv.other_user?.is_verified || selectedConv.other_user?.photo_verified) && (
+                                            <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                        )}
+                                    </span>
                                     <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>{isOtherTyping ? 'typing...' : isOtherOnline ? 'Online' : (selectedConv.other_user?.last_seen_at ? formatChatTimestamp(selectedConv.other_user.last_seen_at) : 'Offline')}</span>
                                 </div>
                             </div>
                             <div className="chat-header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+                                {(callChoiceOpen || chatMenuOpen) && (
+                                    <div 
+                                        className="chat-popover-backdrop" 
+                                        onClick={() => {
+                                            setCallChoiceOpen(false);
+                                            setChatMenuOpen(false);
+                                        }} 
+                                    />
+                                )}
+                                <button
+                                    type="button"
+                                    className="chat-header-coin-pill"
+                                    onClick={() => setShowCoinStore(true)}
+                                    title="CD Coins - Tap to view store"
+                                >
+                                    🪙 <span>{coinBalance.toLocaleString()}</span>
+                                </button>
                                 <button 
+                                    type="button"
                                     className={`btn-call ${callChoiceOpen ? 'active' : ''}`} 
-                                    onClick={() => setCallChoiceOpen(!callChoiceOpen)} 
+                                    onClick={() => {
+                                        setChatMenuOpen(false);
+                                        setCallChoiceOpen(open => !open);
+                                    }} 
                                     title="Call Options"
+                                    aria-label="Call Options"
                                 >
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -1069,14 +2333,14 @@ export default function Chat() {
 
                                 {callChoiceOpen && (
                                     <div className="call-selection-popover">
-                                        <button className="call-option" onClick={() => initiateCall('voice')}>
+                                        <button className="call-option" type="button" onClick={() => initiateCall('voice')}>
                                             <span className="option-icon">📞</span>
                                             <div className="option-text">
                                                 <strong>Voice Call</strong>
                                                 <span>Audio only connection</span>
                                             </div>
                                         </button>
-                                        <button className="call-option video" onClick={() => initiateCall('video')}>
+                                        <button className="call-option video" type="button" onClick={() => initiateCall('video')}>
                                             <span className="option-icon">📹</span>
                                             <div className="option-text">
                                                 <strong>Video Call</strong>
@@ -1089,8 +2353,12 @@ export default function Chat() {
                                 <button
                                     className={`btn-chat-menu ${chatMenuOpen ? 'active' : ''}`}
                                     type="button"
-                                    onClick={() => setChatMenuOpen(open => !open)}
-                                    title="Chat settings"
+                                    onClick={() => {
+                                        setCallChoiceOpen(false);
+                                        setChatMenuOpen(open => !open);
+                                    }}
+                                    title="Disappearing Messages & Settings"
+                                    aria-label="Disappearing Messages & Settings"
                                 >
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                                         <circle cx="12" cy="12" r="1" />
@@ -1101,7 +2369,10 @@ export default function Chat() {
 
                                 {chatMenuOpen && (
                                     <div className="chat-settings-popover">
-                                        <div className="chat-settings-title">Disappearing messages</div>
+                                        <div className="chat-settings-header">
+                                            <div className="chat-settings-title">⏳ Disappearing Messages</div>
+                                            <p className="chat-settings-sub">Set timer for new messages to self-destruct</p>
+                                        </div>
                                         <div className="disappearing-options">
                                             {DISAPPEARING_OPTIONS.map(option => (
                                                 <button
@@ -1111,9 +2382,32 @@ export default function Chat() {
                                                     onClick={() => handleDisappearingChange(option.seconds)}
                                                     disabled={disappearingSaving}
                                                 >
-                                                    {option.label}
+                                                    <span>{option.label}</span>
+                                                    {activeDisappearingSeconds === option.seconds && (
+                                                        <span className="selected-check">✓</span>
+                                                    )}
                                                 </button>
                                             ))}
+                                        </div>
+                                        <div className="chat-settings-divider" />
+                                        <div className="chat-safety-actions">
+                                            <button
+                                                type="button"
+                                                className="chat-safety-menu-item report"
+                                                onClick={() => {
+                                                    setChatMenuOpen(false);
+                                                    setShowReportModal(true);
+                                                }}
+                                            >
+                                                <span>🚩</span> Report {selectedConv.other_user?.full_name?.split(' ')[0] || 'User'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="chat-safety-menu-item block"
+                                                onClick={isBlockedByMe ? handleUnblockOtherUser : handleBlockOtherUser}
+                                            >
+                                                <span>🚫</span> {isBlockedByMe ? 'Unblock User' : `Block ${selectedConv.other_user?.full_name?.split(' ')[0] || 'User'}`}
+                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -1127,75 +2421,87 @@ export default function Chat() {
                                 </div>
                             )}
                             <Virtuoso
+                                ref={virtuosoRef}
                                 style={{ height: '100%' }}
                                 data={messages}
                                 initialTopMostItemIndex={messages.length - 1}
                                 followOutput="smooth"
                                 startReached={() => {
-                                    if (hasMore && !loadingMore) {
+                                    if (hasMore && !loadingMoreRef.current && selectedConv?.id) {
+                                        loadingMoreRef.current = true;
+                                        setLoadingMore(true);
                                         const nextPage = page + 1;
                                         setPage(nextPage);
-                                        loadMessages(selectedConv.id, nextPage, false);
+                                        loadMessages(selectedConv.id, nextPage, false).finally(() => {
+                                            loadingMoreRef.current = false;
+                                            setLoadingMore(false);
+                                        });
                                     }
                                 }}
-                                itemContent={(index, msg) => (
-                                    <div
-                                        key={msg.id}
-                                        className={`message-bubble ${msg.sender_id === currentUser.id ? 'message-sent' : 'message-received'} type-${msg.type || 'text'} ${msg._pending ? 'pending' : ''}`}
-                                        onMouseDown={e => handleLongPressStart(e, msg.id)}
-                                        onTouchStart={e => handleLongPressStart(e, msg.id)}
-                                        onMouseUp={handleLongPressEnd}
-                                        onTouchEnd={handleLongPressEnd}
-                                        onDoubleClick={() => setReplyToMessage({ id: msg.id, sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), content: msg.type === 'text' ? msg.content : `[${msg.type}]` })}
-                                    >
-                                        {msg.metadata?.reply_to && (
-                                            <div className="message-reply-preview-bubble">
-                                                <span className="reply-sender-name">{msg.metadata.reply_to.sender}</span>
-                                                <span className="reply-content-text">{msg.metadata.reply_to.content}</span>
-                                            </div>
-                                        )}
-                                        {renderMessageContent(msg)}
-                                        <div className="message-info">
-                                            {(msg.metadata?.edited_at || msg.metadata?.is_edited) && <span className="message-edited-tag" title="edited">(edited) </span>}
-                                            <span className="message-time">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                            <ReadReceipt msg={msg} isSender={msg.sender_id === currentUser.id} />
-                                        </div>
-                                        {renderReactions(msg)}
-                                        {!msg._pending && (
-                                            <div className="message-action-buttons">
-                                                <button 
-                                                    type="button"
-                                                    className="btn-quick-reply-bubble" 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setReplyToMessage({ 
-                                                            id: msg.id, 
-                                                            sender: msg.sender_id === currentUser.id ? 'You' : (selectedConv.other_user?.full_name || 'User'), 
-                                                            content: msg.type === 'text' ? msg.content : `[${msg.type}]` 
-                                                        });
-                                                    }}
-                                                    title="Reply"
-                                                >
-                                                    ↩️
-                                                </button>
-                                                {msg.sender_id === currentUser.id && msg.type === 'text' && (Date.now() - new Date(msg.created_at).getTime()) < 15 * 60 * 1000 && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn-quick-edit-bubble"
+                                itemContent={(index, msg) => {
+                                    const isSent = msg.sender_id === currentUser.id;
+                                    const isSelected = activeActionMessage?.id === msg.id;
+                                    const isHighlighted = highlightedMessageId === msg.id;
+                                    const isSwiping = swipingMsgId === msg.id;
+
+                                    return (
+                                        <div
+                                            key={msg.id}
+                                            id={`msg-${msg.id}`}
+                                            className={`message-row-wrapper ${isSent ? 'sent' : 'received'}`}
+                                            onTouchStart={(e) => handleMessageTouchStart(e, msg)}
+                                            onTouchMove={(e) => handleMessageTouchMove(e, msg.id)}
+                                            onTouchEnd={() => handleMessageTouchEnd(msg)}
+                                            onTouchCancel={() => handleMessageTouchEnd(msg)}
+                                            onMouseDown={(e) => handleMessageMouseDown(e, msg)}
+                                            onMouseUp={handleMessageMouseUp}
+                                            onDoubleClick={() => handleActivateReply(msg)}
+                                        >
+                                            <div
+                                                className={`message-bubble ${isSent ? 'message-sent' : 'message-received'} type-${msg.type || 'text'} ${msg._pending ? 'pending' : ''} ${isSelected ? 'message-selected-active' : ''} ${isHighlighted ? 'message-highlight-pulse' : ''}`}
+                                                style={isSwiping && swipeOffset < 0 ? { transform: `translateX(${swipeOffset}px)` } : undefined}
+                                            >
+                                                {msg.metadata?.reply_to && (
+                                                    <div
+                                                        className="message-reply-preview-bubble clickable"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setEditingMessage(msg);
-                                                            setNewMessage(msg.content);
+                                                            handleScrollToQuotedMessage(msg.metadata.reply_to.id);
                                                         }}
-                                                        title="Edit Message"
+                                                        title="Tap to jump to quoted message"
                                                     >
-                                                        ✏️
-                                                    </button>
+                                                        <span className="reply-sender-name">{msg.metadata.reply_to.sender}</span>
+                                                        <span className="reply-content-text">{msg.metadata.reply_to.content}</span>
+                                                    </div>
                                                 )}
+                                                {renderMessageContent(msg)}
+                                                <div className="message-info">
+                                                    {(msg.metadata?.edited_at || msg.metadata?.is_edited) && (
+                                                        <span className="message-edited-tag" title="edited">Edited </span>
+                                                    )}
+                                                    <span className="message-time">
+                                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    <ReadReceipt msg={msg} isSender={isSent} />
+                                                </div>
+                                                {renderReactions(msg)}
                                             </div>
-                                        )}
-                                    </div>
-                                )}
+
+                                            {/* Dynamic Swipe-Left Reply Indicator */}
+                                            {isSwiping && swipeOffset < -10 && (
+                                                <div
+                                                    className="message-swipe-reply-indicator"
+                                                    style={{
+                                                        opacity: Math.min(1, Math.abs(swipeOffset) / 40),
+                                                        transform: `translateY(-50%) scale(${Math.min(1, 0.6 + (Math.abs(swipeOffset) / 40) * 0.4)})`
+                                                    }}
+                                                >
+                                                    <span className="swipe-reply-icon">↩</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                }}
                             />
                         </div>
 
@@ -1235,86 +2541,213 @@ export default function Chat() {
                                     </button>
                                 </div>
                             )}
-                            <input type="file" id="chat-image-input" accept="image/*" hidden onChange={handleImageSelect} />
-                            {(aiReplies.length > 0 || aiReplyLoading) && (
-                                <div className="ai-reply-strip">
-                                    {aiReplyLoading ? (
-                                        <span className="ai-reply-loading">AI is thinking...</span>
-                                    ) : aiReplies.slice(0, 3).map((reply) => (
-                                        <button key={reply} type="button" onClick={() => setNewMessage(reply)}>
-                                            {reply}
-                                        </button>
-                                    ))}
+                            <input type="file" id="chat-media-input" accept="image/*,video/*" hidden onChange={handleMediaSelect} />
+                            <input type="file" id="chat-document-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" hidden onChange={handleDocumentSelect} />
+
+                            {isBlockedByMe ? (
+                                <div className="chat-blocked-notice-bar">
+                                    <span className="blocked-notice-text">🚫 You blocked {selectedConv.other_user?.full_name || 'this user'}. Unblock to send messages.</span>
+                                    <button type="button" className="btn-unblock-bar" onClick={handleUnblockOtherUser}>
+                                        Unblock
+                                    </button>
                                 </div>
-                            )}
-                            <form className="chat-input-form-wrapper" onSubmit={handleSendMessage}>
-                                <button 
-                                    type="button" 
-                                    className={`btn-more-actions-toggle ${showMoreActions ? 'active' : ''}`} 
-                                    onClick={() => setShowMoreActions(!showMoreActions)}
-                                    title="More Actions"
-                                >
-                                    {showMoreActions ? '✕' : '＋'}
-                                </button>
-                                
-                                {showMoreActions && (
-                                    <div className="more-actions-tray animate-fade-in-horizontal">
-                                        <button
-                                            type="button"
-                                            className="btn-icon ai-chat-btn"
-                                            onClick={(e) => { handleSmartReplies(e); setShowMoreActions(false); }}
-                                            title="AI reply ideas"
-                                            disabled={aiReplyLoading}
-                                        >
-                                            AI
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn-icon"
-                                            onClick={() => { document.getElementById('chat-image-input').click(); setShowMoreActions(false); }}
-                                            title="Send Image"
-                                        >
-                                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                                <circle cx="12" cy="13" r="4"></circle>
-                                            </svg>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn-icon"
-                                            onClick={() => { setShowGifts(!showGifts); setShowMoreActions(false); }}
-                                            title="Send Gift"
-                                        >
-                                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="20 12 20 22 4 22 4 12"></polyline>
-                                                <rect x="2" y="7" width="20" height="5"></rect>
-                                                <line x1="12" y1="22" x2="12" y2="7"></line>
-                                                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
+                            ) : (
+                                <>
+                                    {showMoreActions && (
+                                        <>
+                                            <div 
+                                                className="whatsapp-attachment-backdrop" 
+                                                onClick={() => setShowMoreActions(false)} 
+                                            />
+                                            <div className="whatsapp-attachment-sheet" role="dialog" aria-label="Attachment Options">
+                                                <div className="whatsapp-attachment-grid">
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { document.getElementById('chat-media-input').click(); setShowMoreActions(false); }}
+                                                        title="Photos & Videos"
+                                                    >
+                                                        <div className="attachment-circle circle-media">
+                                                            <span className="attachment-icon">📷</span>
+                                                        </div>
+                                                        <span className="attachment-label">Media</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { document.getElementById('chat-document-input').click(); setShowMoreActions(false); }}
+                                                        title="Documents & Files"
+                                                    >
+                                                        <div className="attachment-circle circle-doc">
+                                                            <span className="attachment-icon">📄</span>
+                                                        </div>
+                                                        <span className="attachment-label">Document</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { setShowLocationPicker(true); setShowMoreActions(false); }}
+                                                        title="Live Location Sharing"
+                                                    >
+                                                        <div className="attachment-circle circle-location">
+                                                            <span className="attachment-icon">📍</span>
+                                                        </div>
+                                                        <span className="attachment-label">Location</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { setShowGifts(true); setShowMoreActions(false); }}
+                                                        title="Campus Virtual Gifts"
+                                                    >
+                                                        <div className="attachment-circle circle-gift">
+                                                            <span className="attachment-icon">🎁</span>
+                                                        </div>
+                                                        <span className="attachment-label">Gift</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { setShowDealModal(true); setShowMoreActions(false); }}
+                                                        title="Campus Service Escrow Deals"
+                                                    >
+                                                        <div className="attachment-circle circle-escrow">
+                                                            <span className="attachment-icon">🤝</span>
+                                                        </div>
+                                                        <span className="attachment-label">Escrow</span>
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={(e) => { handleSmartReplies(e); setShowMoreActions(false); }}
+                                                        title="AI Smart Suggestions"
+                                                        disabled={aiReplyLoading}
+                                                    >
+                                                        <div className="attachment-circle circle-ai">
+                                                            <span className="attachment-icon">✨</span>
+                                                        </div>
+                                                        <span className="attachment-label">AI Assist</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* AI Smart Suggestions Strip */}
+
+                                    {aiReplies.length > 0 && (
+                                        <div className="chat-ai-suggestions-strip" role="region" aria-label="AI Suggestions">
+                                            <div className="ai-suggestions-header">
+                                                <span className="ai-suggestions-title">✨ AI Suggestions</span>
+                                                <button
+                                                    type="button"
+                                                    className="btn-ai-dismiss"
+                                                    onClick={() => setAiReplies([])}
+                                                    title="Dismiss suggestions"
+                                                    aria-label="Dismiss suggestions"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                            <div className="ai-suggestions-scroll">
+                                                {aiReplies.map((reply, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        className="ai-suggestion-chip"
+                                                        onClick={() => handleSelectAiReply(reply)}
+                                                    >
+                                                        <span className="chip-sparkle">💬</span>
+                                                        <span className="chip-text">{reply}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <form className={`chat-input-form-wrapper ${isVoiceRecording ? 'voice-recording-active' : ''}`} onSubmit={handleSendMessage}>
+
+                                        {!isVoiceRecording && (
+                                            <>
+                                                <button 
+                                                    type="button" 
+                                                    className={`btn-more-actions-toggle ${showMoreActions ? 'active' : ''}`} 
+                                                    onClick={() => setShowMoreActions(!showMoreActions)}
+                                                    title={showMoreActions ? "Close Actions" : "Add Features (Media, Documents, Location, Gifts, Escrow, AI Assist)"}
+                                                    aria-label={showMoreActions ? "Close Actions" : "Add Attachments and Campus Features"}
+                                                    aria-expanded={showMoreActions}
+                                                >
+                                                    {showMoreActions ? (
+                                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="toggle-svg-icon">
+                                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                        </svg>
+                                                    ) : (
+                                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="toggle-svg-icon icon-paperclip">
+                                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                                        </svg>
+                                                    )}
+                                                </button>
+
+                                        <div className="chat-composer-pill">
+                                            <button
+                                                type="button"
+                                                className="btn-icon composer-inline-btn"
+                                                onClick={() => setShowStickers(!showStickers)}
+                                                title="Stickers & Emojis"
+                                            >
+                                                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                                </svg>
+                                            </button>
+                                            <textarea
+                                                ref={chatInputRef}
+                                                id="chat-message-input"
+                                                name="message"
+                                                rows={1}
+                                                className="chat-input chat-textarea"
+                                                placeholder="Message"
+                                                value={newMessage}
+                                                onChange={e => { setNewMessage(e.target.value); handleTyping(); }}
+                                                onCompositionStart={() => {
+                                                    isComposingRef.current = true;
+                                                }}
+                                                onCompositionEnd={() => {
+                                                    isComposingRef.current = false;
+                                                }}
+                                                onKeyDown={e => {
+                                                    if (
+                                                        e.key === 'Enter' && !e.shiftKey &&
+                                                        !e.nativeEvent?.isComposing &&
+                                                        !isComposingRef.current &&
+                                                        e.keyCode !== 229 &&
+                                                        e.which !== 229
+                                                    ) {
+                                                        e.preventDefault();
+                                                        handleSendMessage(e);
+                                                    }
+                                                }}
+                                                inputMode="text"
+                                                autoComplete="on"
+                                                autoCorrect="on"
+                                                autoCapitalize="sentences"
+                                                spellCheck={true}
+                                                enterKeyHint="send"
+                                            />
+                                        </div>
+                                    </>
                                 )}
 
-                                <div className="chat-composer-pill">
-                                    <button
-                                        type="button"
-                                        className="btn-icon composer-inline-btn"
-                                        onClick={() => setShowStickers(!showStickers)}
-                                        title="Stickers & Emojis"
-                                    >
-                                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                                        </svg>
-                                    </button>
-                                    <input type="text" className="chat-input" placeholder="Message" value={newMessage} onChange={e => { setNewMessage(e.target.value); handleTyping(); }} />
-                                </div>
-
-                                <div className="chat-send-actions">
-                                    {newMessage.trim() ? (
+                                <div className={`chat-send-actions ${isVoiceRecording ? 'voice-takeover-active' : ''}`}>
+                                    {!isVoiceRecording && newMessage.trim() ? (
                                         <button type="submit" className="btn-send">
                                             <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1322,10 +2755,16 @@ export default function Chat() {
                                             </svg>
                                         </button>
                                     ) : (
-                                        <VoiceRecorder onRecordingComplete={handleVoiceStop} isSending={sending} variant="chat" />
+                                        <VoiceRecorder
+                                            onRecordingComplete={handleVoiceStop}
+                                            isSending={sending}
+                                            onRecordingStateChange={setIsVoiceRecording}
+                                        />
                                     )}
                                 </div>
                             </form>
+                        </>
+                    )}
 
                             {showStickers && <StickerDrawer onSelectSticker={handleStickerSelect} onClose={() => setShowStickers(false)} />}
                         </div>
@@ -1336,6 +2775,10 @@ export default function Chat() {
                             <div className="dashboard-icon-ring"><span className="icon-main">💬</span></div>
                             <h2>Your Conversations</h2>
                             <p>Pick up where you left off or start something new</p>
+                            <ContextualTip
+                                featureId="messages_chat"
+                                onLearnMore={() => setGuideModalOpen(true)}
+                            />
                         </div>
                         {conversations.length > 0 ? (
                             <div className="dashboard-sections">
@@ -1375,6 +2818,15 @@ export default function Chat() {
                     </div>
                 )}
             </div>
+            <AppGuideModal
+                isOpen={guideModalOpen}
+                onClose={() => setGuideModalOpen(false)}
+                initialFeatureId="messages_chat"
+            />
+            <OfficialHubModal
+                isOpen={officialHubOpen}
+                onClose={() => setOfficialHubOpen(false)}
+            />
         </div>
     );
 }

@@ -1,0 +1,120 @@
+{
+  "generatedAt": "2026-07-23T21:03:48.464Z",
+  "rows": [
+    {
+      "pathname": "/red-flags-student-relationships",
+      "source": "public/red-flags-student-relationships.html",
+      "title": "Red Flags in Student Relationships",
+      "description": "A safety-conscious guide to red flags in student relationships, including control, manipulation, isolation, dishonesty, disrespect, and when to seek help.",
+      "h1": "Red Flags in Student Relationships",
+      "wordCount": 758,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/healthy-relationship-university-students",
+      "source": "public/healthy-relationship-university-students.html",
+      "title": "How to Start a Healthy Relationship in University",
+      "description": "A practical guide for university students on starting a healthy relationship with trust, communication, boundaries, respect, expectations, and academic balance.",
+      "h1": "How to Start a Healthy Relationship in University",
+      "wordCount": 688,
+      "linkCount": 13
+    },
+    {
+      "pathname": "/signs-someone-likes-you-college",
+      "source": "public/signs-someone-likes-you-college.html",
+      "title": "How to Know Someone Likes You in College",
+      "description": "A student-friendly guide to signs someone may like you in college, how to read interest respectfully, and how to avoid assumptions or pressure.",
+      "h1": "How to Know Someone Likes You in College",
+      "wordCount": 689,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/long-distance-relationship-students",
+      "source": "public/long-distance-relationship-students.html",
+      "title": "Long Distance Relationships for Nigerian Students",
+      "description": "A practical guide to long distance relationships for Nigerian students, covering communication, trust, study schedules, visits, expectations, and warning signs.",
+      "h1": "Long Distance Relationships for Nigerian Students",
+      "wordCount": 659,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/talking-stage-students",
+      "source": "public/talking-stage-students.html",
+      "title": "Talking Stage Tips for Students",
+      "description": "A guide to the talking stage for students, including what it means, healthy communication, mistakes to avoid, and moving toward a relationship.",
+      "h1": "Talking Stage Tips for Students",
+      "wordCount": 654,
+      "linkCount": 14
+    },
+    {
+      "pathname": "/situationship-vs-relationship",
+      "source": "public/situationship-vs-relationship.html",
+      "title": "Situationship vs Relationship: Student Guide",
+      "description": "A clear comparison of situationships and relationships for students, covering definitions, expectations, commitment, warning signs, and healthy choices.",
+      "h1": "Situationship vs Relationship",
+      "wordCount": 636,
+      "linkCount": 13
+    },
+    {
+      "pathname": "/how-to-reject-someone-politely",
+      "source": "public/how-to-reject-someone-politely.html",
+      "title": "How to Reject Someone Politely",
+      "description": "Respectful rejection examples for students, including text messages, campus situations, dating-app conversations, boundaries, and safety considerations.",
+      "h1": "How to Reject Someone Politely",
+      "wordCount": 629,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/breakup-recovery-college-students",
+      "source": "public/breakup-recovery-college-students.html",
+      "title": "How to Recover After a Breakup in College",
+      "description": "A gentle breakup recovery guide for college students, covering emotional recovery, academics, friends, social media, healthy coping, and dating again.",
+      "h1": "How to Recover After a Breakup in College",
+      "wordCount": 679,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/student-dating-etiquette",
+      "source": "public/student-dating-etiquette.html",
+      "title": "Student Dating Etiquette",
+      "description": "A practical guide to student dating etiquette, including respect, consent, punctuality, communication, paying for dates, online manners, and boundaries.",
+      "h1": "Student Dating Etiquette",
+      "wordCount": 626,
+      "linkCount": 12
+    },
+    {
+      "pathname": "/questions-before-dating",
+      "source": "public/questions-before-dating.html",
+      "title": "Questions to Ask Before Dating Someone",
+      "description": "Useful questions students can ask before dating someone, covering goals, values, boundaries, expectations, communication, money, school, and safety.",
+      "h1": "Questions to Ask Before Dating Someone",
+      "wordCount": 645,
+      "linkCount": 14
+    }
+  ],
+  "maxSimilarity": {
+    "pair": "/situationship-vs-relationship <> /talking-stage-students",
+    "value": 0.2936046511627907
+  },
+  "warnings": [],
+  "errors": [],
+  "liveResults": [
+    "/red-flags-student-relationships: 200 no x-robots-tag",
+    "/healthy-relationship-university-students: 200 no x-robots-tag",
+    "/signs-someone-likes-you-college: 200 no x-robots-tag",
+    "/long-distance-relationship-students: 200 no x-robots-tag",
+    "/talking-stage-students: 200 no x-robots-tag",
+    "/situationship-vs-relationship: 200 no x-robots-tag",
+    "/how-to-reject-someone-politely: 200 no x-robots-tag",
+    "/breakup-recovery-college-students: 200 no x-robots-tag",
+    "/student-dating-etiquette: 200 no x-robots-tag",
+    "/questions-before-dating: 200 no x-robots-tag",
+    "/login: 200 noindex, nofollow",
+    "/signup: 200 noindex, nofollow",
+    "/dashboard: 200 noindex, nofollow",
+    "/chat: 200 noindex, nofollow",
+    "/auth/callback: 200 noindex, nofollow",
+    "/admin: 200 noindex, nofollow",
+    "/phase8-nonexistent: 404"
+  ]
+}

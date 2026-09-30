@@ -46,7 +46,11 @@ function getStableMediaId(src) {
     const url = new URL(src, window.location.origin);
     if (!['http:', 'https:'].includes(url.protocol)) return null;
 
-    const stablePath = `${url.origin}${url.pathname}`;
+    // Retain version/timestamp query params so cache-busting (?t=..., ?v=...) works
+    const versionParam = url.searchParams.get('t') || url.searchParams.get('v') || url.searchParams.get('ts') || url.searchParams.get('updated_at');
+    const stablePath = versionParam
+      ? `${url.origin}${url.pathname}?v=${encodeURIComponent(versionParam)}`
+      : `${url.origin}${url.pathname}`;
     return hashString(stablePath);
   } catch {
     return hashString(`local:${src}`);
@@ -164,6 +168,20 @@ export async function cacheMediaSource(src, { cacheKey } = {}) {
   } catch (error) {
     console.warn('[MediaCache] Write skipped:', error);
     return null;
+  }
+}
+
+export async function deleteCachedMedia(src) {
+  if (!canUseMediaCache() || !src) return;
+  try {
+    const cacheUrl = getCacheUrl(src);
+    if (!cacheUrl) return;
+    const cache = await window.caches.open(MEDIA_CACHE_NAME);
+    await cache.delete(cacheUrl);
+    const manifest = readManifest().filter(entry => entry.cacheUrl !== cacheUrl);
+    writeManifest(manifest);
+  } catch (error) {
+    console.warn('[MediaCache] Delete skipped:', error);
   }
 }
 

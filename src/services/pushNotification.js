@@ -249,6 +249,7 @@ async function initNativePush(userId) {
             OneSignal.User.pushSubscription.getTokenAsync()
         ]);
         await syncNativeOneSignalProfile(subscriptionId, token);
+        await syncOneSignalUserTags(userId);
     } catch (err) {
         console.error('[Native Push] Init error:', err);
         updatePushDebugState({ lastError: err.message || String(err) });
@@ -351,6 +352,7 @@ async function initWebPush(userId) {
                         token: OneSignal.User.PushSubscription.token
                     });
                 }
+                await syncOneSignalUserTags(userId);
             }
             updatePushDebugState({
                 userId,
@@ -508,3 +510,150 @@ export async function sendLocalNotification(title, message) {
         console.log(`[Mock Push] ${title}: ${message}`);
     }
 }
+
+/**
+ * Sync rich campus and engagement tags to OneSignal for targeted segmentation.
+ * Tags: university, faculty, department, gender, level, is_premium, verified, profile_completion, streak_count
+ */
+export async function syncOneSignalUserTags(userId, profile = null) {
+    if (!userId) return;
+
+    try {
+        let profileData = profile;
+        if (!profileData || !profileData.university) {
+            const { data } = await supabase
+                .from('profiles')
+                .select('university, faculty, department, gender, level, is_premium, verified, completion_score, full_name')
+                .eq('id', userId)
+                .maybeSingle();
+            if (data) {
+                profileData = { ...profileData, ...data };
+            }
+        }
+
+        // Fetch score streak if available
+        let streakCount = 0;
+        try {
+            const { data: streakData } = await supabase
+                .from('user_score_streaks')
+                .select('current_streak')
+                .eq('user_id', userId)
+                .maybeSingle();
+            if (streakData?.current_streak) {
+                streakCount = streakData.current_streak;
+            }
+        } catch {
+            // non-blocking
+        }
+
+        if (!profileData) return;
+
+        const tags = {};
+        if (profileData.university) tags.university = String(profileData.university);
+        if (profileData.faculty) tags.faculty = String(profileData.faculty);
+        if (profileData.department) tags.department = String(profileData.department);
+        if (profileData.gender) tags.gender = String(profileData.gender).toLowerCase();
+        if (profileData.level) tags.level = String(profileData.level);
+        tags.is_premium = String(Boolean(profileData.is_premium));
+        tags.verified = String(Boolean(profileData.verified));
+        if (typeof profileData.completion_score === 'number') {
+            tags.profile_completion = String(profileData.completion_score);
+        }
+        const firstName = profileData.full_name ? profileData.full_name.trim().split(/\s+/)[0] : '';
+        if (firstName) {
+            tags.first_name = String(firstName);
+        }
+        if (streakCount > 0) {
+            tags.streak_count = String(streakCount);
+        }
+
+        console.log('[OneSignal] Syncing user profile tags:', tags);
+
+        // Native Capacitor Plugin
+        if (isNative()) {
+            if (!nativeOneSignalInitialized) {
+                const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+                if (appId && import.meta.env.VITE_ENABLE_NATIVE_PUSH === 'true') {
+                    try {
+                        const { default: OneSignal, LogLevel } = await import('@onesignal/capacitor-plugin');
+                        OneSignal.Debug.setLogLevel(LogLevel.Warn);
+                        await OneSignal.initialize(appId);
+                        nativeOneSignalInitialized = true;
+                    } catch (initErr) {
+                        console.warn('[OneSignal] Lazy native initialization before tag sync failed:', initErr);
+                    }
+                }
+            }
+            if (nativeOneSignalInitialized) {
+                const { default: OneSignal } = await import('@onesignal/capacitor-plugin');
+                if (OneSignal?.User?.addTags) {
+                    await OneSignal.User.addTags(tags);
+                }
+            } else {
+                console.log('[OneSignal] Skipping native tag sync: OneSignal not yet initialized');
+            }
+        } else {
+            // Web SDK
+            if (typeof window !== 'undefined' && window.OneSignal?.User?.addTags) {
+                await window.OneSignal.User.addTags(tags);
+            } else if (typeof window !== 'undefined' && window.OneSignalDeferred) {
+                window.OneSignalDeferred.push(async function (OneSignal) {
+                    if (OneSignal?.User?.addTags) {
+                        await OneSignal.User.addTags(tags);
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        console.warn('[OneSignal] Tag sync warning:', err.message);
+    }
+}
+
+/**
+ * Link user email address to OneSignal user profile
+ */
+export async function syncOneSignalUserEmail(email) {
+    if (!email || typeof email !== 'string') return;
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes('@')) return;
+
+    try {
+        console.log('[OneSignal] Linking email subscription:', cleanEmail);
+        if (isNative()) {
+            if (!nativeOneSignalInitialized) {
+                const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+                if (appId && import.meta.env.VITE_ENABLE_NATIVE_PUSH === 'true') {
+                    try {
+                        const { default: OneSignal, LogLevel } = await import('@onesignal/capacitor-plugin');
+                        OneSignal.Debug.setLogLevel(LogLevel.Warn);
+                        await OneSignal.initialize(appId);
+                        nativeOneSignalInitialized = true;
+                    } catch (initErr) {
+                        console.warn('[OneSignal] Lazy native initialization before email sync failed:', initErr);
+                    }
+                }
+            }
+            if (nativeOneSignalInitialized) {
+                const { default: OneSignal } = await import('@onesignal/capacitor-plugin');
+                if (OneSignal?.User?.addEmail) {
+                    await OneSignal.User.addEmail(cleanEmail);
+                }
+            } else {
+                console.log('[OneSignal] Skipping native email sync: OneSignal not yet initialized');
+            }
+        } else {
+            if (typeof window !== 'undefined' && window.OneSignal?.User?.addEmail) {
+                await window.OneSignal.User.addEmail(cleanEmail);
+            } else if (typeof window !== 'undefined' && window.OneSignalDeferred) {
+                window.OneSignalDeferred.push(async function (OneSignal) {
+                    if (OneSignal?.User?.addEmail) {
+                        await OneSignal.User.addEmail(cleanEmail);
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        console.warn('[OneSignal] Email sync warning:', err.message);
+    }
+}
+

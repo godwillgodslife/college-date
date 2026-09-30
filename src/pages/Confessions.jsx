@@ -1,12 +1,29 @@
 import useSWR, { mutate } from 'swr';
 import { useState, useRef, memo, useCallback, useMemo, useEffect } from 'react';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
-import { postConfession, addEmojiReaction, claimConfession } from '../services/confessionService';
+import {
+    postConfession,
+    addEmojiReaction,
+    claimConfession,
+    repostConfession,
+    uploadConfessionMedia,
+    getAnonymousMessages,
+    getConfessionById,
+    recordConfessionView,
+    REACTION_EMOJIS
+} from '../services/confessionService';
 import { useConfessions } from '../hooks/useSWRData';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfessionDrawer from '../components/ConfessionDrawer';
+import AnonymousInboxModal from '../components/AnonymousInboxModal';
+import ConfessionMediaEditorModal from '../components/ConfessionMediaEditorModal';
+import ConfessionShareModal from '../components/ConfessionShareModal';
+import ConfessionStoryModal from '../components/ConfessionStoryModal';
 import { recordFeedImpressions } from '../services/feedImpressionService';
+import { supabase } from '../lib/supabase';
+import { getPublicAppUrl } from '../utils/appUrl';
 import './Confessions.css';
 
 function EmojiBurst({ emoji, x, y, onComplete }) {
@@ -39,49 +56,48 @@ const getTimeAgo = (d) => {
     return `${Math.floor(s / 86400)}d`;
 };
 
-const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onClaim, onOpenThread }) {
+const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onClaim, onRepost, onShare, onOpenThread }) {
     const meshClass = `mesh-gradient-${(index % 4) + 1}`;
     const [bursts, setBursts] = useState([]);
-    const longPressTimer = useRef(null);
+    const [showReactionPicker, setShowReactionPicker] = useState(false);
+    const pickerRef = useRef(null);
 
-    const handleStart = useCallback((e) => {
-        const touch = e.touches ? e.touches[0] : e;
-        const x = touch.clientX;
-        const y = touch.clientY;
-
-        longPressTimer.current = setTimeout(() => {
-            const newBursts = Array.from({ length: 6 }).map((_, i) => ({
-                id: Math.random(),
-                x,
-                y,
-                emoji: '🔥'
-            }));
-            setBursts(prev => [...prev, ...newBursts]);
-            onReact(post.id, '🔥');
-
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-        }, 600);
-    }, [onReact, post.id]);
-
-    const handleEnd = useCallback(() => {
-        if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    }, []);
+    // Dismiss reaction picker on clicking outside
+    useEffect(() => {
+        if (!showReactionPicker) return;
+        const handleOutside = (e) => {
+            if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+                setShowReactionPicker(false);
+            }
+        };
+        document.addEventListener('pointerdown', handleOutside);
+        return () => document.removeEventListener('pointerdown', handleOutside);
+    }, [showReactionPicker]);
 
     const timeAgo = useMemo(() => getTimeAgo(post.created_at), [post.created_at]);
+    const userReactedEmoji = post.userReactions?.[0];
+
+    const handleReactionSelect = (e, emoji) => {
+        e.stopPropagation();
+        setShowReactionPicker(false);
+        const rect = e.currentTarget.getBoundingClientRect();
+        setBursts(prev => [...prev, {
+            id: Math.random(),
+            x: rect.left + (rect.width / 2),
+            y: rect.top,
+            emoji
+        }]);
+        onReact(post.id, emoji);
+    };
 
     return (
         <motion.div
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ y: -5 }}
+            whileHover={{ y: -4 }}
             className={`confession-card-premium ${meshClass} ${post.isViral ? 'viral-hot' : ''}`}
             onClick={() => onOpenThread(post)}
-            onMouseDown={handleStart}
-            onMouseUp={handleEnd}
-            onMouseLeave={handleEnd}
-            onTouchStart={handleStart}
-            onTouchEnd={handleEnd}
         >
             <AnimatePresence>
                 {bursts.map(b => (
@@ -94,7 +110,24 @@ const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onCl
                     />
                 ))}
             </AnimatePresence>
-            <div className="long-press-indicator" />
+
+            {/* Campus Post Author Header */}
+            {!post.is_anonymous && post.author_name && (
+                <div className="confession-author-header">
+                    {post.author_avatar ? (
+                        <img src={post.author_avatar} alt={post.author_name} className="confession-author-avatar" />
+                    ) : (
+                        <div className="confession-author-avatar placeholder">
+                            {post.author_name.charAt(0)}
+                        </div>
+                    )}
+                    <div className="confession-author-meta">
+                        <span className="confession-author-name">{post.author_name}</span>
+                        {post.author_username && <span className="confession-author-handle">@{post.author_username}</span>}
+                    </div>
+                    <span className="confession-campus-badge">Campus Post</span>
+                </div>
+            )}
 
             {post.isViral && (
                 <div className="badge-viral">🔥 Trending</div>
@@ -102,47 +135,185 @@ const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onCl
 
             <p className="confession-body">{post.content}</p>
 
-            <div className="action-bar-floating" onClick={(e) => e.stopPropagation()}>
-                <div className="reactions-grid-breakdown">
-                    {['🔥', '😂', '🙊', '🙏', '😢'].map((emoji) => {
-                        const count = post.reactionCounts?.[emoji] || 0;
+            {/* Attached Media Photo */}
+            {post.image_url && (
+                <div className="confession-media-wrapper">
+                    <img src={post.image_url} alt="Post attachment" className="confession-media-img" loading="lazy" />
+                </div>
+            )}
+
+            <div 
+                className="action-bar-floating" 
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+            >
+                <div className="reactions-pill-strip" ref={pickerRef}>
+                    {/* Dedicated Reaction Trigger Button */}
+                    <button
+                        type="button"
+                        className={`btn-social-reaction ${userReactedEmoji ? 'active' : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowReactionPicker(prev => !prev);
+                        }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        title="React to secret"
+                        aria-label="React to secret"
+                    >
+                        <span>{userReactedEmoji || '🤍'}</span>
+                        <span className="reaction-count-text">{post.totalReactions || 0}</span>
+                    </button>
+
+                    {/* Floating Reaction Selector Popover (8 emojis) */}
+                    <AnimatePresence>
+                        {showReactionPicker && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8, y: 8 }}
+                                animate={{ opacity: 1, scale: 1, y: -48 }}
+                                exit={{ opacity: 0, scale: 0.8, y: 8 }}
+                                transition={{ duration: 0.15 }}
+                                className="confession-reaction-popover"
+                                onClick={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onTouchEnd={(e) => e.stopPropagation()}
+                            >
+                                {REACTION_EMOJIS.map((em) => {
+                                    const isSelected = post.userReactions?.includes(em);
+                                    return (
+                                        <button
+                                            key={em}
+                                            type="button"
+                                            className={`popover-emoji-btn ${isSelected ? 'selected' : ''}`}
+                                            onClick={(e) => handleReactionSelect(e, em)}
+                                            onTouchStart={(e) => e.stopPropagation()}
+                                            onTouchEnd={(e) => e.stopPropagation()}
+                                        >
+                                            {em}
+                                        </button>
+                                    );
+                                })}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Active Reaction Breakdown Badges */}
+                    {REACTION_EMOJIS.filter(em => (post.reactionCounts?.[em] || 0) > 0).slice(0, 3).map((emoji) => {
+                        const count = post.reactionCounts[emoji];
                         const userReacted = post.userReactions?.includes(emoji);
                         return (
                             <button
                                 key={emoji}
+                                type="button"
                                 className={`btn-social-emoji-breakdown ${userReacted ? 'active' : ''}`}
-                                onClick={() => onReact(post.id, emoji)}
+                                onClick={(e) => handleReactionSelect(e, emoji)}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onTouchEnd={(e) => e.stopPropagation()}
+                                title={`React ${emoji}`}
                             >
                                 <span>{emoji}</span>
-                                {count > 0 && <span className="emoji-count">{count}</span>}
+                                <span className="emoji-count">{count}</span>
                             </button>
                         );
                     })}
                 </div>
 
-                <div className="social-actions" style={{ display: 'flex', gap: '8px' }}>
+                <div 
+                    className="social-actions" 
+                    style={{ display: 'flex', gap: '6px', alignItems: 'center' }}
+                    onClick={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                >
+                    {/* Repost Button */}
                     <button
+                        type="button"
+                        className={`btn-social ${post.hasReposted ? 'active' : ''}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRepost(post.id);
+                        }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        title={post.hasReposted ? 'Undo repost' : 'Repost to profile'}
+                        aria-label="Repost"
+                    >
+                        <span>🔁</span>
+                        <span style={{ fontSize: '10px' }}>{post.repostCount || 0}</span>
+                    </button>
+
+                    {/* External Share Button */}
+                    <button
+                        type="button"
                         className="btn-social"
-                        onClick={() => onOpenThread(post)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onShare(post);
+                        }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        title="Share post"
+                        aria-label="Share post"
+                    >
+                        <span>📤</span>
+                    </button>
+
+                    {/* Comments Button */}
+                    <button
+                        type="button"
+                        className="btn-social"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenThread(post);
+                        }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
                         aria-label="View comments"
                     >
                         <span>💬</span>
                         <span style={{ fontSize: '10px' }}>{post.commentCount || 0}</span>
                     </button>
-                    <button
-                        className={`btn-social ${post.hasClaimed ? 'active' : ''}`}
-                        onClick={() => onClaim(post.id)}
-                        disabled={post.hasClaimed}
-                        aria-label="Claim secret ownership"
-                    >
-                        <span>{post.hasClaimed ? '✓' : '👀'}</span>
-                    </button>
+
+                    {/* Claim Ownership Button (if anonymous) */}
+                    {post.is_anonymous !== false && (
+                        <button
+                            type="button"
+                            className={`btn-social ${post.hasClaimed ? 'active' : ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onClaim(post.id);
+                            }}
+                            onTouchStart={(e) => e.stopPropagation()}
+                            onTouchEnd={(e) => e.stopPropagation()}
+                            disabled={post.hasClaimed}
+                            aria-label="Claim secret ownership"
+                        >
+                            <span>{post.hasClaimed ? '✓' : '👀'}</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
-            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.5, fontSize: '10px' }}>
-                <span>🎓 {post.university}</span>
-                <span>{timeAgo}</span>
+            {/* Card Metadata Footer with Views Metric */}
+            <div 
+                className="confession-card-footer"
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+            >
+                <div className="confession-footer-left">
+                    <span>🎓 {post.university}</span>
+                    <span className="footer-dot">•</span>
+                    <span>{timeAgo}</span>
+                </div>
+                <div 
+                    className="confession-views-badge" 
+                    title={`${post.viewCount || 0} students viewed this secret`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <span>👁 {post.viewCount || 0} views</span>
+                </div>
             </div>
         </motion.div>
     );
@@ -155,13 +326,32 @@ const CONFESSION_CATEGORIES = [
 export default function Confessions() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
+    const [searchParams] = useSearchParams();
+    const params = useParams();
+    const targetConfessionId = searchParams.get('id') || params?.id;
 
     const [posting, setPosting] = useState(false);
     const [newConfession, setNewConfession] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('General 🙊');
     const [selectedPost, setSelectedPost] = useState(null);
 
-    // SWR for confessions using custom hook - trim university to avoid casing/space mismatches
+    // Share & Story modals
+    const [shareModalPost, setShareModalPost] = useState(null);
+    const [storyModalPost, setStoryModalPost] = useState(null);
+
+    // Virality & Post Types
+    const [postType, setPostType] = useState('anonymous_confession'); // 'anonymous_confession' or 'campus_post'
+    const [selectedMediaFile, setSelectedMediaFile] = useState(null);
+    const [mediaPreviewUrl, setMediaPreviewUrl] = useState(null);
+    const [rawSelectedFile, setRawSelectedFile] = useState(null);
+    const [showMediaEditor, setShowMediaEditor] = useState(false);
+    const [showInboxModal, setShowInboxModal] = useState(false);
+    const [unreadAskCount, setUnreadAskCount] = useState(0);
+    const fileInputRef = useRef(null);
+
+    const askUrl = getPublicAppUrl(`ask/${userProfile?.username || currentUser?.id}`);
+
+    // SWR for confessions using custom hook
     const { data: confessions = [], isLoading, mutate: mutateConfessions } = useConfessions(
         userProfile?.university?.trim(),
         currentUser?.id
@@ -169,7 +359,6 @@ export default function Confessions() {
 
     const [visibleCount, setVisibleCount] = useState(15);
 
-    // Reset visibleCount if confessions list length changes
     useEffect(() => {
         setVisibleCount(15);
     }, [confessions.length]);
@@ -181,6 +370,58 @@ export default function Confessions() {
         if (!currentUser?.id || !visibleConfessionImpressionIds) return;
         recordFeedImpressions('confession', visibleConfessionImpressionIds.split(','), 'confessions', { limit: 20 });
     }, [currentUser?.id, visibleConfessionImpressionIds]);
+
+    // Record non-inflating view count for visible cards
+    useEffect(() => {
+        if (!visibleConfessions?.length) return;
+        visibleConfessions.forEach(p => {
+            recordConfessionView(p.id, currentUser?.id);
+        });
+    }, [visibleConfessions, currentUser?.id]);
+
+    // Auto-open confession when targetConfessionId is present in URL
+    useEffect(() => {
+        if (!targetConfessionId) return;
+        const found = confessions.find(c => c.id === targetConfessionId);
+        if (found) {
+            setSelectedPost(found);
+        } else {
+            getConfessionById(targetConfessionId, currentUser?.id).then(({ data }) => {
+                if (data) setSelectedPost(data);
+            }).catch(() => {});
+        }
+    }, [targetConfessionId, confessions, currentUser?.id]);
+
+    // Unread asks counter & subscription
+    useEffect(() => {
+        if (!currentUser?.id) return;
+        getAnonymousMessages(currentUser.id).then(({ data }) => {
+            if (data) {
+                const unread = data.filter(m => !m.is_read).length;
+                setUnreadAskCount(unread);
+            }
+        }).catch(() => {});
+
+        const askSub = supabase
+            .channel(`user_anon_inbox:${currentUser.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'user_anonymous_messages',
+                    filter: `recipient_id=eq.${currentUser.id}`
+                },
+                () => {
+                    setUnreadAskCount(prev => prev + 1);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(askSub);
+        };
+    }, [currentUser?.id]);
 
     // Sentinel intersection observer for infinite scroll
     const sentinelRef = useRef(null);
@@ -217,7 +458,7 @@ export default function Confessions() {
                         ? c.userReactions.filter(e => e !== emoji)
                         : [...(c.userReactions || []), emoji]
                 };
-            })
+            });
         }, false);
 
         const { error } = await addEmojiReaction(confessionId, currentUser.id, emoji);
@@ -244,21 +485,99 @@ export default function Confessions() {
         }
     }, [currentUser, mutateConfessions, addToast]);
 
+    const handleRepost = useCallback(async (confessionId) => {
+        if (!currentUser) return;
+
+        mutateConfessions((current) => {
+            if (!current) return current;
+            return current.map(c => {
+                if (c.id !== confessionId) return c;
+                const wasReposted = c.hasReposted;
+                const delta = wasReposted ? -1 : 1;
+                return {
+                    ...c,
+                    hasReposted: !wasReposted,
+                    repostCount: Math.max(0, (c.repostCount || 0) + delta)
+                };
+            });
+        }, false);
+
+        const { reposted, error } = await repostConfession(confessionId, currentUser.id);
+        if (error) {
+            mutateConfessions();
+            addToast('Could not update repost', 'error');
+        } else {
+            addToast(reposted ? 'Reposted to your profile! 🔁' : 'Repost removed', 'success');
+        }
+    }, [currentUser, mutateConfessions, addToast]);
+
+    const handleSharePost = useCallback((post) => {
+        setShareModalPost(post);
+    }, []);
+
     const handleOpenThread = useCallback((post) => {
         setSelectedPost(post);
     }, []);
 
+    const handleCommentAdded = useCallback((confessionId) => {
+        mutateConfessions((current) => {
+            if (!current) return current;
+            return current.map(c => c.id === confessionId ? { ...c, commentCount: (c.commentCount || 0) + 1 } : c);
+        }, false);
+    }, [mutateConfessions]);
+
+    // Media attachment flow
+    const handlePhotoSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 10 * 1024 * 1024) {
+            addToast('Image too large (max 10MB)', 'error');
+            return;
+        }
+        setRawSelectedFile(file);
+        setShowMediaEditor(true);
+        e.target.value = '';
+    };
+
+    const handleSaveEditedMedia = (editedFile) => {
+        setSelectedMediaFile(editedFile);
+        setMediaPreviewUrl(URL.createObjectURL(editedFile));
+        setShowMediaEditor(false);
+    };
+
+    const handleRemoveMedia = () => {
+        setSelectedMediaFile(null);
+        if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+        setMediaPreviewUrl(null);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newConfession.trim()) return;
+        if (!newConfession.trim() && !selectedMediaFile) return;
         setPosting(true);
         try {
+            let uploadedImageUrl = null;
+            if (selectedMediaFile) {
+                const { url, error: mediaErr } = await uploadConfessionMedia(selectedMediaFile, currentUser.id);
+                if (mediaErr) throw new Error(mediaErr);
+                uploadedImageUrl = url;
+            }
+
             const uni = userProfile?.university?.trim() || 'Unknown University';
-            const finalContent = selectedCategory !== 'General 🙊' ? `[${selectedCategory}] ${newConfession}` : newConfession;
-            const { data: newPost, error } = await postConfession(finalContent, uni, currentUser.id);
+            const finalContent = selectedCategory !== 'General 🙊' ? `[${selectedCategory}] ${newConfession.trim()}` : newConfession.trim();
+            const isAnon = postType !== 'campus_post';
+
+            const { data: newPost, error } = await postConfession(finalContent, uni, currentUser.id, {
+                postType,
+                isAnonymous: isAnon,
+                authorName: isAnon ? null : userProfile?.full_name,
+                authorAvatar: isAnon ? null : userProfile?.avatar_url,
+                authorUsername: isAnon ? null : userProfile?.username,
+                imageUrl: uploadedImageUrl
+            });
             if (error) throw new Error(error);
 
-            // Optimistically prepend the new confession to the local SWR cache
+            // Optimistically prepend the new confession
             mutateConfessions((current = []) => {
                 const optimisticPost = {
                     ...(newPost || {}),
@@ -269,18 +588,27 @@ export default function Confessions() {
                     reactionCounts: { '🔥': 0, '😂': 0, '🙊': 0, '🙏': 0, '😢': 0 },
                     userReactions: [],
                     hasClaimed: false,
+                    hasReposted: false,
+                    repostCount: 0,
                     totalReactions: 0,
                     commentCount: 0,
                     isViral: false,
+                    post_type: postType,
+                    is_anonymous: isAnon,
+                    author_name: isAnon ? null : userProfile?.full_name,
+                    author_avatar: isAnon ? null : userProfile?.avatar_url,
+                    author_username: isAnon ? null : userProfile?.username,
+                    image_url: uploadedImageUrl
                 };
                 return [optimisticPost, ...current];
-            }, false); // false = no re-fetch
+            }, false);
 
             setNewConfession('');
-            addToast('Secret posted! 🤫', 'success');
+            handleRemoveMedia();
+            addToast(isAnon ? 'Secret posted! 🤫' : 'Campus post published! 👤', 'success');
         } catch (err) {
-            addToast('Failed to post secret', 'error');
-            mutateConfessions(); // on error, re-fetch to get clean state
+            addToast('Failed to post: ' + err.message, 'error');
+            mutateConfessions();
         } finally {
             setPosting(false);
         }
@@ -303,6 +631,54 @@ export default function Confessions() {
                     <p className="hero-subtitle">Anonymous. Ephemeral. 100% Student-led.</p>
                 </motion.div>
 
+                {/* NGL-Style Anonymous Ask Banner */}
+                <div className="ngl-banner-strip">
+                    <div className="ngl-banner-left">
+                        <span className="ngl-badge-pill">💌 Anonymous Q&A</span>
+                        <h3 className="ngl-headline">Receive Anonymous Messages</h3>
+                        <span className="ngl-url-snippet">{askUrl}</span>
+                    </div>
+
+                    <div className="ngl-banner-actions">
+                        <button
+                            type="button"
+                            className="btn-ngl-copy"
+                            onClick={() => {
+                                navigator.clipboard?.writeText(askUrl);
+                                addToast('Ask link copied! Share to WhatsApp status 💌', 'success');
+                            }}
+                            title="Copy link to clipboard"
+                        >
+                            📋 Copy Link
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-ngl-wa"
+                            onClick={() => {
+                                const text = `Send me anonymous questions & confessions! 🤫 Drop yours here:\n${askUrl}`;
+                                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                            title="Share to WhatsApp Status"
+                        >
+                            💬 Status
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-ngl-inbox"
+                            onClick={() => {
+                                setShowInboxModal(true);
+                                setUnreadAskCount(0);
+                            }}
+                        >
+                            📥 Inbox
+                            {unreadAskCount > 0 && (
+                                <span className="ngl-unread-bubble">{unreadAskCount}</span>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Composer Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -310,6 +686,25 @@ export default function Confessions() {
                     className="input-card-ultimate glass-morph"
                 >
                     <form onSubmit={handleSubmit}>
+                        {/* Post Type Selector */}
+                        <div className="composer-type-row">
+                            <button
+                                type="button"
+                                className={`composer-type-btn ${postType === 'anonymous_confession' ? 'active' : ''}`}
+                                onClick={() => setPostType('anonymous_confession')}
+                            >
+                                <span>🎭 Secret / Meme (Anonymous)</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`composer-type-btn ${postType === 'campus_post' ? 'active' : ''}`}
+                                onClick={() => setPostType('campus_post')}
+                            >
+                                <span>👤 Campus Post (Public)</span>
+                            </button>
+                        </div>
+
+                        {/* Category Selector */}
                         <div className="confession-category-selector">
                             {CONFESSION_CATEGORIES.map((cat) => (
                                 <button
@@ -322,19 +717,53 @@ export default function Confessions() {
                                 </button>
                             ))}
                         </div>
+
+                        {/* Image Preview if attached */}
+                        {mediaPreviewUrl && (
+                            <div className="composer-media-preview-box">
+                                <img src={mediaPreviewUrl} alt="Attached thumbnail" className="composer-media-thumb" />
+                                <button
+                                    type="button"
+                                    className="btn-remove-media"
+                                    onClick={handleRemoveMedia}
+                                    title="Remove photo"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
+
                         <textarea
                             className="ultimate-textarea"
-                            placeholder="What's the tea today?..."
+                            placeholder={postType === 'campus_post' ? "Share what's on your mind on campus..." : "What's the tea today?..."}
                             value={newConfession}
                             onChange={(e) => setNewConfession(e.target.value)}
-                            maxLength={280}
+                            maxLength={350}
                         />
+
+                        {/* Hidden file input */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={handlePhotoSelect}
+                        />
+
                         <div className="ultimate-footer">
-                            <div className="char-info">
-                                <span className="char-count-text">{280 - newConfession.length} characters left</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <button
+                                    type="button"
+                                    className="btn-add-photo"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    📷 {selectedMediaFile ? 'Change Photo' : 'Add Photo'}
+                                </button>
+                                <span className="char-count-text">{350 - newConfession.length} chars left</span>
                             </div>
-                            <button type="submit" disabled={posting || !newConfession.trim()} className="btn-ultra-premium">
-                                {posting ? 'Posting...' : 'Post Secret'}
+
+                            <button type="submit" disabled={posting || (!newConfession.trim() && !selectedMediaFile)} className="btn-ultra-premium">
+                                {posting ? 'Posting...' : postType === 'campus_post' ? 'Post as Me' : 'Post Secret'}
                             </button>
                         </div>
                     </form>
@@ -362,6 +791,8 @@ export default function Confessions() {
                                     index={idx}
                                     onReact={handleReact}
                                     onClaim={handleClaim}
+                                    onRepost={handleRepost}
+                                    onShare={handleSharePost}
                                     onOpenThread={handleOpenThread}
                                 />
                             ))}
@@ -373,14 +804,51 @@ export default function Confessions() {
                 )}
             </div>
 
+            {/* In-thread Comment Drawer */}
             <AnimatePresence>
                 {selectedPost && (
                     <ConfessionDrawer
                         post={selectedPost}
                         onClose={() => setSelectedPost(null)}
+                        onCommentAdded={handleCommentAdded}
                     />
                 )}
             </AnimatePresence>
+
+            {/* Anonymous Inbox Modal */}
+            {showInboxModal && (
+                <AnonymousInboxModal
+                    currentUser={currentUser}
+                    userProfile={userProfile}
+                    onClose={() => setShowInboxModal(false)}
+                />
+            )}
+
+            {/* Photo Crop / Text / Stickers Editor Modal */}
+            {showMediaEditor && (
+                <ConfessionMediaEditorModal
+                    imageFile={rawSelectedFile}
+                    onSave={handleSaveEditedMedia}
+                    onCancel={() => setShowMediaEditor(false)}
+                />
+            )}
+
+            {/* Share Sheet Modal */}
+            {shareModalPost && (
+                <ConfessionShareModal
+                    post={shareModalPost}
+                    onClose={() => setShareModalPost(null)}
+                    onOpenStoryModal={(post) => setStoryModalPost(post)}
+                />
+            )}
+
+            {/* 9:16 Canvas Story Card Generator Modal */}
+            {storyModalPost && (
+                <ConfessionStoryModal
+                    post={storyModalPost}
+                    onClose={() => setStoryModalPost(null)}
+                />
+            )}
         </div>
     );
 }

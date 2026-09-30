@@ -1,43 +1,31 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { VIRTUAL_GIFTS } from '../services/coinService';
 import './GiftStore.css';
 
-const GIFTS = [
-    { id: 'rose', name: 'Digital Rose', emoji: '🌹', price: 200, color: '#f43f5e' },
-    { id: 'zubo', name: 'Cold Zobo', emoji: '🍷', price: 200, color: '#9d174d' },
-    { id: 'suya', name: 'Hot Suya', emoji: '🍢', price: 500, color: '#ea580c' },
-    { id: 'airtime', name: 'Airtime', emoji: '📱', price: 1000, color: '#2563eb' },
-    { id: 'l_time', name: 'L-Time', emoji: '⌛', price: 5000, color: '#ffd700' },
-];
-
-export default function GiftStore({ onSend, onClose, balance = 0 }) {
+export default function GiftStore({ onSend, onClose, coinBalance = 0, onOpenCoinStore }) {
     const [selectedGift, setSelectedGift] = useState(null);
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-    const navigate = useNavigate(); // Hook for navigation
 
     const handlePurchase = () => {
-        console.log('🎁 Purchase attempt:', selectedGift);
         if (!selectedGift) return;
 
-        if (balance < selectedGift.price) {
-            console.log('🎁 Insufficient balance:', balance, '<', selectedGift.price);
-            const confirmed = window.confirm('Insufficient wallet balance. Go to Add Funds?');
-            if (confirmed) {
-                onClose(); // Close modal first
-                navigate('/wallet'); // Redirect to Wallet/Add Funds
+        if (coinBalance < selectedGift.coins) {
+            if (onOpenCoinStore) {
+                onClose();
+                onOpenCoinStore();
+            } else {
+                alert('Insufficient CD Coins. Please recharge your coin balance.');
             }
             return;
         }
 
-        // Show custom confirmation instead of window.confirm
         setIsConfirming(true);
     };
 
     const confirmSend = async () => {
-        console.log('🎁 [GiftStore.jsx] confirmSend() triggered. Calling onSend...');
-        setIsConfirming(false); // Reset confirmation state immediately 
+        setIsConfirming(false);
         setIsSending(true);
         const success = await onSend(selectedGift);
         setIsSending(false);
@@ -45,7 +33,7 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
             setShowSuccess(true);
             setTimeout(() => {
                 onClose();
-            }, 2000); // Close after showing success for 2s
+            }, 1800);
         }
     };
 
@@ -53,27 +41,38 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
         <div className="gift-store-overlay">
             <div className="gift-store-modal">
                 <div className="gift-store-header">
-                    <h3>Icebreaker Store</h3>
-                    <div className={`wallet-pill ${balance < 200 ? 'low-balance' : ''}`}>
-                        Balance: ₦{balance.toLocaleString()}
+                    <div className="gift-header-title">
+                        <span className="gift-store-icon">🎁</span>
+                        <h3>Campus Gift Store</h3>
                     </div>
-                    <button className="btn-close" onClick={onClose}>&times;</button>
+                    <div className="gift-header-actions">
+                        <div
+                            className={`coin-balance-pill ${coinBalance < 20 ? 'low-coins' : ''}`}
+                            onClick={() => {
+                                if (onOpenCoinStore) {
+                                    onClose();
+                                    onOpenCoinStore();
+                                }
+                            }}
+                            title="Get more CD Coins"
+                        >
+                            🪙 {coinBalance.toLocaleString()} Coins <span>＋</span>
+                        </div>
+                        <button type="button" className="btn-close" onClick={onClose}>&times;</button>
+                    </div>
                 </div>
 
                 <div className="gift-grid">
-                    {GIFTS.map(gift => (
+                    {VIRTUAL_GIFTS.map(gift => (
                         <div
                             key={gift.id}
                             className={`gift-card ${selectedGift?.id === gift.id ? 'active' : ''}`}
-                            onClick={() => {
-                                console.log('🎁 Card clicked:', gift.name, gift.id);
-                                setSelectedGift(gift);
-                            }}
+                            onClick={() => setSelectedGift(gift)}
                             style={{ '--gift-color': gift.color }}
                         >
-                            <span className="gift-emoji" style={{ pointerEvents: 'none' }}>{gift.emoji}</span>
-                            <span className="gift-name" style={{ pointerEvents: 'none' }}>{gift.name}</span>
-                            <span className="gift-price" style={{ pointerEvents: 'none' }}>₦{gift.price.toLocaleString()}</span>
+                            <span className="gift-emoji">{gift.emoji}</span>
+                            <span className="gift-name">{gift.name}</span>
+                            <span className="gift-price">🪙 {gift.coins} Coins</span>
                         </div>
                     ))}
                 </div>
@@ -86,28 +85,35 @@ export default function GiftStore({ onSend, onClose, balance = 0 }) {
                         </div>
                     ) : isSending ? (
                         <div className="confirm-purchase-area">
-                            <p className="confirm-text">Sending <strong>{selectedGift.name}</strong>...</p>
-                            <button className="btn-buy" disabled>Processing...</button>
+                            <p className="confirm-text">Sending <strong>{selectedGift?.name}</strong>...</p>
+                            <button type="button" className="btn-buy" disabled>Processing...</button>
                         </div>
                     ) : isConfirming ? (
                         <div className="confirm-purchase-area">
-                            <p className="confirm-text">Confirm sending <strong>{selectedGift.name}</strong> for <strong>₦{selectedGift.price.toLocaleString()}</strong>?</p>
+                            <p className="confirm-text">
+                                Confirm sending <strong>{selectedGift?.name}</strong> for <strong>🪙 {selectedGift?.coins} Coins</strong>?
+                            </p>
                             <div className="confirm-btns">
-                                <button className="btn-cancel-buy" onClick={() => setIsConfirming(false)}>Cancel</button>
-                                <button className="btn-confirm-buy" onClick={confirmSend}>Yes, Send!</button>
+                                <button type="button" className="btn-cancel-buy" onClick={() => setIsConfirming(false)}>Cancel</button>
+                                <button type="button" className="btn-confirm-buy" onClick={confirmSend}>Yes, Send!</button>
                             </div>
                         </div>
                     ) : (
-                        <>
-                            <p className="gift-hint">Gifts appear with a special animation in the chat!</p>
+                        <div className="purchase-cta-area">
+                            <p className="gift-hint">Gifts appear instantly with a celebratory animation in chat!</p>
                             <button
+                                type="button"
                                 className="btn-buy"
                                 disabled={!selectedGift}
                                 onClick={handlePurchase}
                             >
-                                {selectedGift ? `Send for ₦${selectedGift.price.toLocaleString()}` : 'Select a Gift'}
+                                {selectedGift
+                                    ? coinBalance < selectedGift.coins
+                                        ? `Need ${selectedGift.coins - coinBalance} More Coins (Get Coins)`
+                                        : `Send for 🪙 ${selectedGift.coins} Coins`
+                                    : 'Select a Gift'}
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

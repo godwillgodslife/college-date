@@ -2,8 +2,9 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     background: rgba(0, 0, 0, 0.95);
     z-index: 10000;
     display: flex;
@@ -133,5 +134,23 @@
 @media (max-width: 500px) {
     .status-viewer-content {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    html.is-native-app .status-viewer-overlay,
+    html.is-native-app .status-viewer-content {
+        max-width: 100%;
+        overflow-x: clip;
+    }
+
+    html.is-native-app .status-viewer-header {
+        padding-top: max(25px, env(safe-area-inset-top, 0px) + 12px);
+    }
+
+    html.is-native-app .status-caption-overlay {
+        bottom: calc(42px + env(safe-area-inset-bottom, 0px));
+        padding-left: var(--native-page-padding-left);
+        padding-right: var(--native-page-padding-right);
     }
 }

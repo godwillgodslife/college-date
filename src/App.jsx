@@ -1,16 +1,17 @@
 import { useEffect, lazy, Suspense, Profiler } from 'react';
-import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './components/Toast';
 import { NotificationProvider } from './contexts/NotificationContext';
-import { initPushNotifications } from './services/pushNotification.js';
+import { initPushNotifications, syncOneSignalUserTags, syncOneSignalUserEmail } from './services/pushNotification.js';
 import { initializeRevenueCat } from './services/paymentService.js';
 import { warmupAppDataCache } from './services/cacheWarmupService.js';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
 import NotificationSoftPrompt from './components/NotificationSoftPrompt.jsx';
+import AppUpdatePrompt from './components/AppUpdatePrompt.jsx';
 import { SWRProvider } from './lib/perfSWR.jsx';
 import { performanceMonitor } from './utils/performanceMonitor';
 import { hasLocalAdminAccess } from './utils/adminAccess';
@@ -84,6 +85,8 @@ const AndroidUXComparison = lazyWithRetry(() => import('./pages/AndroidUXCompari
 const AndroidUXReview = lazyWithRetry(() => import('./pages/AndroidUXReview'));
 const AndroidDesignReview = lazyWithRetry(() => import('./pages/AndroidDesignReview'));
 const StaticPageViewer = lazyWithRetry(() => import('./pages/public/StaticPageViewer'));
+const AnonymousAskPage = lazyWithRetry(() => import('./pages/AnonymousAskPage'));
+const OfficialHubPage = lazyWithRetry(() => import('./pages/OfficialHubPage'));
 import { PUBLIC_SEO_SLUGS, PUBLIC_BLOG_SLUGS } from './constants/publicSeoRoutes';
 
 // Components that can be lazy loaded
@@ -91,7 +94,13 @@ const AppLayout = lazyWithRetry(() => import('./components/AppLayout.jsx'));
 const TourGuide = lazyWithRetry(() => import('./components/TourGuide'));
 
 function getSafeAuthRedirect(location, fallback = '/') {
-  const stateTarget = location.state?.from?.pathname || location.state?.from;
+  const from = location.state?.from;
+  let stateTarget = null;
+  if (typeof from === 'object' && from?.pathname) {
+    stateTarget = `${from.pathname}${from.search || ''}${from.hash || ''}`;
+  } else if (typeof from === 'string') {
+    stateTarget = from;
+  }
   const queryTarget = new URLSearchParams(location.search).get('redirect');
   const target = stateTarget || queryTarget || fallback;
 
@@ -212,6 +221,13 @@ function CanonicalNotificationRouteRedirect() {
 function AppRoutes() {
   const { currentUser, userProfile } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__reactNavigate = navigate;
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (performanceMonitor.isEnabled()) {
@@ -283,8 +299,12 @@ function AppRoutes() {
   useEffect(() => {
     if (currentUser) {
       warmupAppDataCache(currentUser.id, userProfile);
+      syncOneSignalUserTags(currentUser.id, userProfile);
+      if (currentUser.email) {
+        syncOneSignalUserEmail(currentUser.email);
+      }
     }
-  }, [currentUser, userProfile]);
+  }, [currentUser?.id, currentUser?.email, userProfile]);
 
   // Global loading gatekeeper removed to prevent "6-8 reloads" flicker.
   // We now let the individual routes (SmartHomeRoute, ProtectedRoute) handle 
@@ -324,6 +344,11 @@ function AppRoutes() {
         <Route path="/push-lab" element={<NotificationPreviewLab />} />
         <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
+        <Route path="/ask/:username" element={<AnonymousAskPage />} />
+        <Route path="/official" element={<OfficialHubPage />} />
+        <Route path="/official/:category" element={<OfficialHubPage />} />
+        <Route path="/guides" element={<OfficialHubPage />} />
+        <Route path="/guides/:category" element={<OfficialHubPage />} />
 
         {/* Public Content & Editorial Pages */}
         {PUBLIC_SEO_SLUGS.map((slug) => (
@@ -367,6 +392,7 @@ function AppRoutes() {
             <Route path="/requests" element={<ProfiledRoute id="Requests"><Requests /></ProfiledRoute>} />
             <Route path="/leaderboard" element={<ProfiledRoute id="Leaderboard"><Leaderboard /></ProfiledRoute>} />
             <Route path="/confessions" element={<ProfiledRoute id="Confessions"><Confessions /></ProfiledRoute>} />
+            <Route path="/confessions/:id" element={<ProfiledRoute id="Confessions"><Confessions /></ProfiledRoute>} />
             <Route path="/premium" element={<ProfiledRoute id="PremiumUpgrade"><PremiumUpgrade /></ProfiledRoute>} />
             <Route path="/viewers" element={<ProfiledRoute id="Viewers"><Viewers /></ProfiledRoute>} />
             <Route path="/notifications" element={<ProfiledRoute id="NotificationCenter"><NotificationCenter /></ProfiledRoute>} />
@@ -412,6 +438,7 @@ export default function App() {
         <AuthProvider>
           <SWRProvider>
             <NotificationSoftPrompt />
+            <AppUpdatePrompt />
             <ToastProvider>
               <NotificationProvider>
                 <AppRoutes />

@@ -11,8 +11,46 @@
     --android-ease-pop: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+:root[data-theme="light"],
+.theme-light {
+    --android-surface: #ffffff;
+    --android-surface-strong: #ffffff;
+    --android-stroke: rgba(0, 0, 0, 0.08);
+    --android-stroke-strong: rgba(0, 0, 0, 0.14);
+    --android-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.05);
+    --android-shadow-lifted: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --android-glow-primary: none;
+    --android-glow-warm: none;
+}
+
+html.is-native-app {
+    --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 24px));
+    --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 16px));
+    --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+    --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+    --header-content-height: 44px;
+    --header-total-height: calc(var(--safe-top) + var(--header-content-height));
+    --bottom-nav-height: 64px;
+    --bottom-nav-gap: 12px;
+    --native-page-padding-left: max(16px, var(--safe-left));
+    --native-page-padding-right: max(16px, var(--safe-right));
+    --app-bottom-clearance: calc(
+        var(--bottom-nav-height) +
+        var(--bottom-nav-gap) +
+        var(--safe-bottom)
+    );
+    --native-page-bottom-padding: calc(var(--app-bottom-clearance) + 24px);
+    --native-sheet-bottom: calc(var(--safe-bottom) + var(--keyboard-offset, 0px));
+    --toast-top-offset: calc(var(--safe-top) + 8px);
+}
+
 html.is-native-app,
 html.is-native-app body {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: calc(var(--vh, 1vh) * 100);
+    overflow-x: clip;
     overscroll-behavior: none;
     background:
         linear-gradient(180deg, #07070d 0%, #0b0b13 42%, #08080e 100%);
@@ -54,7 +92,10 @@ html.is-ios-app .conversation-item {
 html.is-native-app input,
 html.is-native-app textarea,
 html.is-native-app [contenteditable="true"] {
-    user-select: text;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    touch-action: manipulation;
 }
 
 html.is-native-app .app-layout {
@@ -64,63 +105,28 @@ html.is-native-app .app-layout {
         var(--bg-primary);
 }
 
-html.is-native-app .page-transition-wrapper {
-    animation: androidPageIn 320ms var(--android-ease);
-}
-
-html.is-native-app .dashboard > *,
-html.is-native-app .settings-section,
-html.is-native-app .premium-page > *,
-html.is-native-app .profile-card > *,
-html.is-native-app .requests-page > *,
-html.is-native-app .viewers-page > *,
-html.is-native-app .wallet-page > * {
-    animation: androidLiftIn 420ms var(--android-ease-pop) both;
-}
-
-html.is-native-app .dashboard > *:nth-child(2),
-html.is-native-app .settings-section:nth-of-type(2),
-html.is-native-app .premium-page > *:nth-child(2),
-html.is-native-app .profile-card > *:nth-child(2),
-html.is-native-app .requests-page > *:nth-child(2),
-html.is-native-app .viewers-page > *:nth-child(2),
-html.is-native-app .wallet-page > *:nth-child(2) {
-    animation-delay: 45ms;
-}
-
-html.is-native-app .dashboard > *:nth-child(3),
-html.is-native-app .settings-section:nth-of-type(3),
-html.is-native-app .premium-page > *:nth-child(3),
-html.is-native-app .profile-card > *:nth-child(3),
-html.is-native-app .requests-page > *:nth-child(3),
-html.is-native-app .viewers-page > *:nth-child(3),
-html.is-native-app .wallet-page > *:nth-child(3) {
-    animation-delay: 90ms;
+/* Hardware-accelerated smooth transitions */
+html.is-native-app .page-transition-wrapper:not(.match-route-static) {
+    will-change: opacity;
 }
 
 @keyframes androidPageIn {
     from {
         opacity: 0;
-        transform: translateY(10px) scale(0.992);
     }
-
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
     }
 }
 
 @keyframes androidLiftIn {
     from {
         opacity: 0;
-        transform: translateY(14px) scale(0.985);
-        filter: blur(3px);
+        transform: translateY(6px);
     }
-
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
+        transform: translateY(0);
     }
 }
 
@@ -184,18 +190,80 @@ html.is-native-app .ai-chat-btn {
 }
 
 html.is-native-app .navbar {
-    background: rgba(9, 9, 15, 0.72);
-    border-bottom-color: rgba(255, 255, 255, 0.07);
-    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+    padding-top: var(--safe-top);
+    height: var(--header-total-height);
+    background: rgba(9, 9, 15, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
 }
 
 html.is-native-app .navbar-inner {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+    height: var(--header-content-height);
+    padding-left: max(0.85rem, env(safe-area-inset-left));
+    padding-right: max(0.85rem, env(safe-area-inset-right));
+}
+
+html.is-native-app .navbar-logo {
+    width: 28px;
+    height: 28px;
+}
+
+html.is-native-app .navbar-brand {
+    gap: 0.5rem;
 }
 
 html.is-native-app .navbar-title {
+    font-size: 1.05rem;
     filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.18));
+}
+
+html.is-native-app .nav-icon-btn {
+    padding: 0.25rem 0.35rem;
+    font-size: 1.05rem;
+}
+
+html.is-native-app .app-main:not(.full-screen):not(.admin-layout) {
+    padding-top: var(--header-total-height);
+}
+
+/* ── ELIMINATE REDUNDANT TOP MARGINS/PADDINGS ON NATIVE APP ── */
+html.is-native-app .confessions-container {
+    padding-top: 0.25rem !important;
+}
+
+html.is-native-app .confessions-hero {
+    margin-bottom: 0.85rem !important;
+}
+
+html.is-native-app .chat-sidebar-header {
+    padding: 0.75rem 1rem 0.4rem !important;
+}
+
+html.is-native-app .chat-sidebar {
+    padding-bottom: calc(var(--native-page-bottom-padding) + 36px) !important;
+}
+
+html.is-native-app .settings-page,
+html.is-native-app .profile-page,
+html.is-native-app .dashboard,
+html.is-native-app .notification-center-page,
+html.is-native-app .requests-page,
+html.is-native-app .referrals-page,
+html.is-native-app .wallet-page,
+html.is-native-app .snapshots-page,
+html.is-native-app .status-page,
+html.is-native-app .edit-profile-page {
+    padding-top: 0.5rem !important;
+    margin-top: 0 !important;
+}
+
+html.is-native-app .settings-header,
+html.is-native-app .profile-header-area {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 html.is-native-app .nav-icon-btn,
@@ -212,20 +280,26 @@ html.is-native-app .btn-icon {
 html.is-native-app .bottom-nav {
     left: 12px;
     right: 12px;
-    bottom: max(10px, env(safe-area-inset-bottom));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    bottom: max(10px, var(--safe-bottom));
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 28px;
-    padding: 0.45rem 0.35rem;
-    background: rgba(12, 12, 19, 0.82);
+    padding: 0.35rem 0.35rem;
+    min-height: var(--bottom-nav-height);
+    background: rgba(12, 12, 20, 0.90);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     box-shadow:
-        0 20px 55px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 20px 55px rgba(0, 0, 0, 0.60),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    z-index: 1000;
 }
 
 html.is-native-app .bottom-nav-item {
-    border-radius: 22px;
-    min-height: 58px;
+    border-radius: 20px;
+    min-height: 52px;
+    padding: 0.4rem 0.2rem;
     justify-content: center;
+    gap: 2px;
     transition:
         color 180ms var(--android-ease),
         background 180ms var(--android-ease),
@@ -234,28 +308,49 @@ html.is-native-app .bottom-nav-item {
 
 html.is-native-app .bottom-nav-item.active {
     color: white;
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(255, 107, 157, 0.14));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09), var(--android-glow-primary);
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.26), rgba(255, 107, 157, 0.18));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), var(--android-glow-primary);
 }
 
 html.is-native-app .bottom-nav-item.active .bottom-nav-icon {
-    transform: translateY(-2px) scale(1.08);
-    filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.34));
+    transform: translateY(-1px) scale(1.10);
+    filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.40));
 }
 
 html.is-native-app .bottom-nav-label {
-    font-size: 0.58rem;
-    letter-spacing: 0;
-    text-transform: none;
-    opacity: 0.86;
+    display: none; /* Permanent fix for horizontal label smashing on mobile */
 }
 
 html.is-native-app .bottom-nav-indicator {
     top: auto;
-    bottom: 5px;
-    width: 18px;
+    bottom: 4px;
+    width: 14px;
     height: 3px;
     border-radius: 999px;
+    background: var(--gradient-primary);
+}
+
+html.is-native-app .toast-container {
+    top: var(--toast-top-offset);
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 440px;
+    margin: 0 auto;
+    z-index: 100000;
+    pointer-events: none;
+}
+
+html.is-native-app .toast {
+    pointer-events: auto;
+    border-radius: 20px;
+    background: rgba(14, 14, 24, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 html.is-native-app .settings-list,
@@ -357,7 +452,7 @@ html.is-native-app .swipe-card-image {
 }
 
 html.is-native-app .swipe-card:active .swipe-card-image {
-    filter: saturate(1.08) contrast(1.04);
+    filter: none;
 }
 
 html.is-native-app .swipe-card-gradient {
@@ -464,6 +559,64 @@ html.is-native-app .ai-card-insight {
     animation: androidAiReveal 320ms var(--android-ease-pop) both;
 }
 
+/* Android WebView compositor guard for swipe cards.
+   Keep the visual hierarchy, but avoid large blurred/blended layers that exhaust tile memory during drag. */
+html.is-native-app .discover-page::before,
+html.is-native-app .swipe-container::before,
+html.is-native-app .swipe-container::after,
+html.is-native-app .swipe-card::before,
+html.is-native-app .swipe-card::after {
+    display: none;
+}
+
+html.is-native-app .swipe-container {
+    perspective: none;
+    animation: none;
+}
+
+html.is-native-app .swipe-card {
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.48),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    transition: none;
+}
+
+html.is-native-app .swipe-card-image,
+html.is-native-app .swipe-card-image .opt-image-main {
+    transform: none;
+    transition: none;
+}
+
+html.is-native-app .swipe-card:active .swipe-card-image {
+    filter: none;
+}
+
+html.is-native-app .swipe-tag,
+html.is-native-app .live-pulse-container,
+html.is-native-app .premium-available,
+html.is-native-app .active-tag,
+html.is-native-app .top-seeker-tag,
+html.is-native-app .ai-wingman-btn,
+html.is-native-app .ai-detail-tools,
+html.is-native-app .swipe-action-btn,
+html.is-native-app .discover-rail-btn,
+html.is-native-app .discover-swipes-left-badge,
+html.is-native-app .swipes-counter-pill,
+html.is-native-app .live-toggle-pill {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+html.is-native-app .swipe-action-btn,
+html.is-native-app .ai-wingman-btn {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+}
+
+html.is-native-app .swipe-stamp {
+    text-shadow: none;
+    box-shadow: none;
+}
+
 html.is-native-app .chat-page {
     background:
         linear-gradient(180deg, rgba(108, 99, 255, 0.055), transparent 40%),
@@ -492,8 +645,14 @@ html.is-native-app .conversation-item.unread {
 }
 
 html.is-native-app .messages-container {
-    padding: 1rem 0.9rem 1.2rem;
+    padding: 0.75rem 0.9rem 0.5rem;
 }
+
+html.is-native-app.keyboard-open .chat-input-area,
+.keyboard-open .chat-input-area {
+    padding-bottom: 0.55rem;
+}
+
 
 html.is-native-app .message-bubble {
     border-radius: 20px;
@@ -524,10 +683,25 @@ html.is-native-app .message-received {
     border-bottom-left-radius: 7px;
 }
 
-html.is-native-app .chat-input-form {
-    background: rgba(255, 255, 255, 0.065);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 34px rgba(0, 0, 0, 0.24);
+html.is-native-app .chat-input-form,
+html.is-native-app .chat-input-form-wrapper {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+html.is-native-app .chat-input,
+html.is-native-app .chat-textarea {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    touch-action: manipulation;
+    pointer-events: auto !important;
+}
+
+html.is-native-app .chat-composer-pill,
+html.is-native-app .chat-input-area {
+    touch-action: manipulation;
 }
 
 html.is-native-app .call-selection-popover,
@@ -779,7 +953,6 @@ html.is-native-app .profile-avatar-wrapper {
 html.is-native-app .verification-alert,
 html.is-native-app .go-live-alert {
     position: relative;
-    overflow: hidden;
     border-radius: 22px;
 }
 
@@ -787,6 +960,10 @@ html.is-native-app .verify-btn-sm,
 html.is-native-app .go-live-btn {
     border-radius: 16px;
     min-height: 42px;
+    flex-shrink: 0 !important;
+    min-width: fit-content !important;
+    white-space: nowrap !important;
+    padding: 0.5rem 1.1rem !important;
 }
 
 html.is-native-app .slider {
@@ -815,9 +992,11 @@ html.is-native-app .spinner-brand {
 
 @media (max-width: 768px) {
     html.is-native-app .app-main:not(.full-screen):not(.admin-layout) {
-        padding-left: 0.65rem;
-        padding-right: 0.65rem;
-        padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: var(--app-bottom-clearance);
+        max-width: 100%;
+        overflow-x: clip;
     }
 
     html.is-native-app .dashboard,
@@ -826,9 +1005,67 @@ html.is-native-app .spinner-brand {
     html.is-native-app .premium-page,
     html.is-native-app .viewers-page,
     html.is-native-app .requests-page,
-    html.is-native-app .profile-page {
-        padding-left: 0.45rem;
-        padding-right: 0.45rem;
+    html.is-native-app .profile-page,
+    html.is-native-app .referrals-page,
+    html.is-native-app .notification-center-page,
+    html.is-native-app .notifications-page,
+    html.is-native-app .edit-profile-page,
+    html.is-native-app .status-updates-page,
+    html.is-native-app .snapshots-page,
+    html.is-native-app .explore-page,
+    html.is-native-app .dashboard {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-x: clip;
+        padding-left: var(--native-page-padding-left);
+        padding-right: var(--native-page-padding-right);
+        padding-bottom: calc(var(--native-page-bottom-padding) + 36px) !important;
+    }
+
+    html.is-native-app .edit-profile-page {
+        justify-content: flex-start;
+        background: linear-gradient(135deg, #f8faff 0%, #eef2f7 100%);
+    }
+
+    html.is-native-app .edit-profile-container,
+    html.is-native-app .notification-center-page > *,
+    html.is-native-app .settings-page > *,
+    html.is-native-app .premium-page > *,
+    html.is-native-app .requests-page > *,
+    html.is-native-app .viewers-page > * {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    html.is-native-app .settings-item,
+    html.is-native-app .request-card,
+    html.is-native-app .viewer-card,
+    html.is-native-app .notification-card,
+    html.is-native-app .form-section {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    html.is-native-app .item-info,
+    html.is-native-app .request-user,
+    html.is-native-app .viewer-info,
+    html.is-native-app .notification-body,
+    html.is-native-app .edit-profile-header {
+        min-width: 0;
+    }
+
+    html.is-native-app .item-info h3,
+    html.is-native-app .item-info p,
+    html.is-native-app .request-user h3,
+    html.is-native-app .viewer-info h3,
+    html.is-native-app .viewer-info p,
+    html.is-native-app .notification-body,
+    html.is-native-app .edit-profile-header h1,
+    html.is-native-app .edit-profile-header p {
+        overflow-wrap: anywhere;
     }
 
     html.is-native-app .navbar {
@@ -850,26 +1087,46 @@ html.is-native-app .spinner-brand {
     }
 
     html.is-native-app .swipe-container {
-        max-width: min(410px, calc(100vw - 24px));
-        height: calc(var(--vh, 1vh) * 80);
+        max-width: min(420px, calc(100vw - 24px));
+        height: calc(var(--vh, 1vh) * 78);
+    }
+
+    html.is-native-app .leaderboard-page {
+        padding-top: var(--safe-top);
+    }
+
+    html.is-native-app .leaderboard-container {
+        padding-top: 1.5rem;
+    }
+
+    html.is-native-app .explore-grid.masonry-layout {
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-auto-rows: 220px !important;
+        gap: 0.75rem !important;
+    }
+
+    html.is-native-app .explore-card {
+        border-radius: 20px;
     }
 
     html.is-native-app .floating-filter-btn {
-        top: max(env(safe-area-inset-top, 14px), 14px);
+        top: max(var(--safe-top), 14px);
         right: 18px;
     }
 
     html.is-native-app .chat-header {
         min-height: 60px;
-        padding-top: max(0.5rem, env(safe-area-inset-top));
+        padding-top: max(0.5rem, var(--safe-top));
     }
 
     html.is-native-app .chat-input-area {
         padding: 0.65rem 0.7rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
     }
 
-    html.is-native-app .chat-input-form {
-        min-height: 52px;
+    html.is-native-app .chat-input-form,
+    html.is-native-app .chat-input-form-wrapper {
+        min-height: 44px;
+        align-items: center;
     }
 
     html.is-native-app .message-bubble {
@@ -928,10 +1185,29 @@ html.is-native-app .spinner-brand {
     }
 
     html.is-native-app .premium-upsell-sticky {
-        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(var(--app-bottom-clearance) + 8px);
         left: 12px;
         right: 12px;
         padding: 1.1rem;
+    }
+
+    html.is-native-app .modal-content,
+    html.is-native-app .profile-modal,
+    html.is-native-app .gift-store-modal,
+    html.is-native-app .paystack-payment-container,
+    html.is-native-app .payment-modal-content,
+    html.is-native-app .boost-modal-content {
+        width: min(100%, calc(100vw - 32px));
+        max-width: calc(100vw - 32px);
+        max-height: calc((var(--vh, 1vh) * 100) - var(--keyboard-offset, 0px) - 32px);
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    html.is-native-app input,
+    html.is-native-app textarea,
+    html.is-native-app select {
+        scroll-margin-bottom: calc(var(--keyboard-offset, 0px) + var(--app-bottom-clearance) + 24px);
     }
 }
 
@@ -945,3 +1221,466 @@ html.is-native-app .spinner-brand {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Authoritative Premium User Badge & Crown Styling
+   ───────────────────────────────────────────────────────────── */
+.premium-crown {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 0.9em;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.7));
+    vertical-align: middle;
+    animation: premiumGlint 3s ease-in-out infinite alternate;
+}
+
+@keyframes premiumGlint {
+    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5)); }
+    100% { transform: scale(1.12); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95)); }
+}
+
+.premium-badge-glow,
+.drawer-premium-badge,
+.explore-premium-tag,
+.swipe-tag.premium-tag-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #9932cc 100%) !important;
+    color: #0b0b11 !important;
+    font-weight: 800 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.04em;
+    padding: 3px 9px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.45), 0 0 16px rgba(153, 50, 204, 0.25) !important;
+    text-transform: uppercase;
+}
+
+.explore-card.premium-card {
+    border: 1px solid rgba(255, 255, 0.35);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.12);
+}
+
+/* High Contrast Requests & Nudge Overrides (Dark Default) */
+html.is-native-app .completion-nudge-card {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(220, 38, 38, 0.12) 100%), var(--android-surface) !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.55) !important;
+}
+
+html.is-native-app .completion-nudge-card .nudge-content h3 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+html.is-native-app .completion-nudge-card .nudge-content p {
+    color: #fca5a5 !important;
+    font-weight: 500 !important;
+}
+
+html.is-native-app .requests-premium-upsell-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(238, 43, 105, 0.12) 100%), var(--android-surface) !important;
+    border: 1.5px solid rgba(255, 215, 0, 0.45) !important;
+}
+
+html.is-native-app .requests-premium-upsell-card .upsell-text h3 {
+    color: #ffffff !important;
+}
+
+html.is-native-app .requests-premium-upsell-card .upsell-text p {
+    color: #e2e8f0 !important;
+}
+
+/* Light Theme overrides for Requests & Nudge */
+html.is-native-app[data-theme="light"] .completion-nudge-card,
+.theme-light.is-native-app .completion-nudge-card {
+    background: #fef2f2 !important;
+    border: 1.5px solid #fecaca !important;
+}
+
+html.is-native-app[data-theme="light"] .completion-nudge-card .nudge-content h3,
+.theme-light.is-native-app .completion-nudge-card .nudge-content h3 {
+    color: #991b1b !important;
+}
+
+html.is-native-app[data-theme="light"] .completion-nudge-card .nudge-content p,
+.theme-light.is-native-app .completion-nudge-card .nudge-content p {
+    color: #b91c1c !important;
+}
+
+html.is-native-app[data-theme="light"] .requests-premium-upsell-card,
+.theme-light.is-native-app .requests-premium-upsell-card {
+    background: #fffbeb !important;
+    border: 1.5px solid #fde68a !important;
+}
+
+html.is-native-app[data-theme="light"] .requests-premium-upsell-card .upsell-text h3,
+.theme-light.is-native-app .requests-premium-upsell-card .upsell-text h3 {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .requests-premium-upsell-card .upsell-text p,
+.theme-light.is-native-app .requests-premium-upsell-card .upsell-text p {
+    color: #475569 !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Native Android Light Theme Refinement
+   ───────────────────────────────────────────────────────────── */
+html.is-native-app[data-theme="light"],
+html.is-native-app[data-theme="light"] body,
+.theme-light.is-native-app,
+.theme-light.is-native-app body {
+    background: var(--bg-primary, #f8f9fa) !important;
+    color: var(--text-primary, #111827);
+}
+
+html.is-native-app[data-theme="light"] .app-layout,
+.theme-light.is-native-app .app-layout {
+    background: var(--bg-primary, #f8f9fa) !important;
+}
+
+html.is-native-app[data-theme="light"] .navbar,
+.theme-light.is-native-app .navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.is-native-app[data-theme="light"] .navbar-title,
+.theme-light.is-native-app .navbar-title {
+    filter: none !important;
+}
+
+html.is-native-app[data-theme="light"] .nav-icon-btn,
+html.is-native-app[data-theme="light"] .navbar-hamburger,
+html.is-native-app[data-theme="light"] .restore-btn,
+html.is-native-app[data-theme="light"] .floating-filter-btn,
+html.is-native-app[data-theme="light"] .btn-call,
+html.is-native-app[data-theme="light"] .btn-icon,
+.theme-light.is-native-app .nav-icon-btn,
+.theme-light.is-native-app .navbar-hamburger {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: none !important;
+    color: var(--text-primary, #111827) !important;
+}
+
+html.is-native-app[data-theme="light"] .bottom-nav,
+.theme-light.is-native-app .bottom-nav {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+html.is-native-app[data-theme="light"] .bottom-nav-item,
+.theme-light.is-native-app .bottom-nav-item {
+    color: var(--text-tertiary, #6b7280) !important;
+}
+
+html.is-native-app[data-theme="light"] .bottom-nav-item.active,
+.theme-light.is-native-app .bottom-nav-item.active {
+    color: var(--color-primary, #635bff) !important;
+    background: rgba(99, 91, 255, 0.10) !important;
+    box-shadow: inset 0 0 0 1px rgba(99, 91, 255, 0.20) !important;
+}
+
+html.is-native-app[data-theme="light"] .bottom-nav-item.active .bottom-nav-icon,
+.theme-light.is-native-app .bottom-nav-item.active .bottom-nav-icon {
+    filter: none !important;
+}
+
+html.is-native-app[data-theme="light"] .settings-list,
+html.is-native-app[data-theme="light"] .premium-comparison-box,
+html.is-native-app[data-theme="light"] .glass-panel,
+html.is-native-app[data-theme="light"] .active-subscription,
+html.is-native-app[data-theme="light"] .boost-item,
+html.is-native-app[data-theme="light"] .request-card,
+html.is-native-app[data-theme="light"] .empty-requests,
+html.is-native-app[data-theme="light"] .no-viewers,
+html.is-native-app[data-theme="light"] .ai-profile-coach,
+html.is-native-app[data-theme="light"] .verification-alert,
+html.is-native-app[data-theme="light"] .go-live-alert,
+html.is-native-app[data-theme="light"] .balance-card,
+html.is-native-app[data-theme="light"] .mini-stat-card,
+html.is-native-app[data-theme="light"] .payout-instructions-card,
+html.is-native-app[data-theme="light"] .transaction-item,
+html.is-native-app[data-theme="light"] .viewer-card,
+html.is-native-app[data-theme="light"] .analytics-dashboard,
+html.is-native-app[data-theme="light"] .leaderboard-preview-container,
+html.is-native-app[data-theme="light"] .profile-card,
+html.is-native-app[data-theme="light"] .feature-card,
+html.is-native-app[data-theme="light"] .hidden-profile-banner,
+html.is-native-app[data-theme="light"] .wallet-overview-grid > *,
+html.is-native-app[data-theme="light"] .premium-upsell-sticky,
+.theme-light.is-native-app .settings-list,
+.theme-light.is-native-app .glass-panel,
+.theme-light.is-native-app .balance-card {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.is-native-app[data-theme="light"] .stat-card:active,
+html.is-native-app[data-theme="light"] .viewer-card:active,
+html.is-native-app[data-theme="light"] .transaction-item:active,
+html.is-native-app[data-theme="light"] .mini-stat-card:active {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-greeting,
+html.is-native-app[data-theme="light"] .settings-header h1,
+html.is-native-app[data-theme="light"] .wallet-header h1,
+html.is-native-app[data-theme="light"] .premium-header h1,
+html.is-native-app[data-theme="light"] .requests-header h1,
+html.is-native-app[data-theme="light"] .viewers-header h1,
+html.is-native-app[data-theme="light"] .profile-section-title,
+.theme-light.is-native-app .settings-header h1 {
+    text-shadow: none !important;
+    color: var(--text-primary, #111827) !important;
+}
+
+html.is-native-app[data-theme="light"] .settings-item.feature-link::after,
+html.is-native-app[data-theme="light"] .settings-item.partner-link::after {
+    border-top-color: rgba(0, 0, 0, 0.35) !important;
+    border-right-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+html.is-native-app[data-theme="light"] .call-selection-popover,
+html.is-native-app[data-theme="light"] .navbar-dropdown,
+html.is-native-app[data-theme="light"] .mobile-menu,
+.theme-light.is-native-app .call-selection-popover,
+.theme-light.is-native-app .navbar-dropdown,
+.theme-light.is-native-app .mobile-menu {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-color: rgba(0, 0, 0, 0.10) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
+    color: var(--text-primary, #111827) !important;
+}
+
+html.is-native-app[data-theme="light"] .toast,
+.theme-light.is-native-app .toast {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(0, 0, 0, 0.10) !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12) !important;
+    color: var(--text-primary, #111827) !important;
+}
+
+html.is-native-app[data-theme="light"] .swipe-card,
+.theme-light.is-native-app .swipe-card {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.is-native-app[data-theme="light"] .swipe-card::before,
+html.is-native-app[data-theme="light"] .swipe-card::after,
+.theme-light.is-native-app .swipe-card::before,
+.theme-light.is-native-app .swipe-card::after {
+    display: none !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-card::before,
+.theme-light.is-native-app .profile-card::before {
+    display: none !important;
+}
+
+html.is-native-app[data-theme="light"] .chat-page,
+.theme-light.is-native-app .chat-page {
+    background: var(--bg-primary, #f8f9fa) !important;
+}
+
+html.is-native-app[data-theme="light"] .chat-sidebar,
+html.is-native-app[data-theme="light"] .chat-header,
+html.is-native-app[data-theme="light"] .chat-input-area,
+.theme-light.is-native-app .chat-sidebar,
+.theme-light.is-native-app .chat-header,
+.theme-light.is-native-app .chat-input-area {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.is-native-app[data-theme="light"] .chat-input-form,
+.theme-light.is-native-app .chat-input-form {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: none !important;
+}
+
+html.is-native-app[data-theme="light"] .message-sent,
+.theme-light.is-native-app .message-sent {
+    background: var(--color-primary, #635bff) !important;
+    color: #ffffff !important;
+}
+
+html.is-native-app[data-theme="light"] .message-received,
+.theme-light.is-native-app .message-received {
+    background: #ffffff !important;
+    color: var(--text-primary, #111827) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+html.is-native-app[data-theme="light"] .mobile-nav-tabs,
+.theme-light.is-native-app .mobile-nav-tabs {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.is-native-app[data-theme="light"] .mobile-tab-item,
+.theme-light.is-native-app .mobile-tab-item {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: var(--text-secondary, #4b5563) !important;
+}
+
+html.is-native-app[data-theme="light"] .mobile-tab-item.active,
+.theme-light.is-native-app .mobile-tab-item.active {
+    background: var(--color-primary, #635bff) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(99, 91, 255, 0.3) !important;
+}
+
+/* Light Theme Pricing & Subscription High Contrast */
+html.is-native-app[data-theme="light"] .glass-panel .pricing-header h3,
+html.is-native-app[data-theme="light"] .price .currency,
+html.is-native-app[data-theme="light"] .price .amount,
+.theme-light.is-native-app .glass-panel .pricing-header h3,
+.theme-light.is-native-app .price .currency,
+.theme-light.is-native-app .price .amount {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .price .period,
+html.is-native-app[data-theme="light"] .billing-info,
+.theme-light.is-native-app .price .period,
+.theme-light.is-native-app .billing-info {
+    color: #64748b !important;
+}
+
+/* Light Theme Match Swipes Pill */
+html.is-native-app[data-theme="light"] .swipes-counter-pill,
+.theme-light.is-native-app .swipes-counter-pill {
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.is-native-app[data-theme="light"] .swipes-counter-pill .pill-number,
+.theme-light.is-native-app .swipes-counter-pill .pill-number {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .swipes-counter-pill .pill-label,
+.theme-light.is-native-app .swipes-counter-pill .pill-label {
+    color: #64748b !important;
+}
+
+/* Light Theme Chat Unread & Documents */
+html.is-native-app[data-theme="light"] .conv-name.bold,
+.theme-light.is-native-app .conv-name.bold {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .message-received .doc-name,
+.theme-light.is-native-app .message-received .doc-name {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .message-received .doc-meta-sub,
+.theme-light.is-native-app .message-received .doc-meta-sub {
+    color: #64748b !important;
+}
+
+html.is-native-app[data-theme="light"] .message-received .btn-download-doc,
+.theme-light.is-native-app .message-received .btn-download-doc {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+}
+
+/* Light Theme Leaderboard Highlights */
+html.is-native-app[data-theme="light"] .my-standing-highlight-card,
+.theme-light.is-native-app .my-standing-highlight-card {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(99, 91, 255, 0.25) !important;
+    box-shadow: 0 4px 16px rgba(99, 91, 255, 0.08) !important;
+}
+
+html.is-native-app[data-theme="light"] .my-standing-name,
+.theme-light.is-native-app .my-standing-name {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .my-standing-label,
+.theme-light.is-native-app .my-standing-label {
+    color: #64748b !important;
+}
+
+html.is-native-app[data-theme="light"] .my-standing-league,
+.theme-light.is-native-app .my-standing-league {
+    color: #7c3aed !important;
+}
+
+html.is-native-app[data-theme="light"] .my-score-val,
+.theme-light.is-native-app .my-score-val {
+    color: #635bff !important;
+}
+
+html.is-native-app[data-theme="light"] .my-score-lbl,
+.theme-light.is-native-app .my-score-lbl {
+    color: #64748b !important;
+}
+
+/* Light Theme Profile Detail Cards */
+html.is-native-app[data-theme="light"] .public-profile-details,
+.theme-light.is-native-app .public-profile-details {
+    background: #ffffff !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-title-row-premium h2,
+.theme-light.is-native-app .profile-title-row-premium h2 {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-uni-subtitle,
+.theme-light.is-native-app .profile-uni-subtitle {
+    color: #475569 !important;
+}
+
+html.is-native-app[data-theme="light"] .comp-info-details strong,
+.theme-light.is-native-app .comp-info-details strong {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .comp-info-details p,
+.theme-light.is-native-app .comp-info-details p {
+    color: #475569 !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item,
+.theme-light.is-native-app .profile-info-grid-premium .grid-item {
+    background: #f8f9fa !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item strong,
+.theme-light.is-native-app .profile-info-grid-premium .grid-item strong {
+    color: #64748b !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item span,
+.theme-light.is-native-app .profile-info-grid-premium .grid-item span {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-section-premium-block h4,
+.theme-light.is-native-app .profile-section-premium-block h4 {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .profile-bio-text,
+.theme-light.is-native-app .profile-bio-text {
+    color: #334155 !important;
+}
+

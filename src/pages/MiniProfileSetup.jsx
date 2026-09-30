@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { uploadProfilePhoto, upsertProfile } from '../services/profileService';
 import { requestProfileAiReview } from '../services/aiTrustService';
 import { useToast } from '../components/Toast';
@@ -8,6 +9,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { safeArray } from '../utils/profileData';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import FaceVerificationModal from '../components/FaceVerificationModal';
+import { AFRICAN_COUNTRIES, searchUniversities } from '../constants/universities';
 import './MiniProfileSetup.css';
 
 const STEPS = [
@@ -30,128 +33,6 @@ const INTENT_OPTIONS = [
     { value: 'Friends', label: 'Friends', icon: '🤝', desc: 'Expanding the social circle' }
 ];
 
-const UNIVERSITY_OPTIONS = [
-    // Federal Universities
-    'University of Lagos (UNILAG)',
-    'University of Ibadan (UI)',
-    'Obafemi Awolowo University (OAU)',
-    'Ahmadu Bello University (ABU)',
-    'University of Ilorin (UNILORIN)',
-    'University of Benin (UNIBEN)',
-    'University of Nigeria, Nsukka (UNN)',
-    'University of Port Harcourt (UNIPORT)',
-    'University of Calabar (UNICAL)',
-    'University of Abuja (UNIABUJA)',
-    'University of Jos (UNIJOS)',
-    'University of Maiduguri (UNIMAID)',
-    'University of Ado-Ekiti (UNIADY)',
-    'Federal University, Oye-Ekiti (FUOYE)',
-    'Federal University, Kashere (FUK)',
-    'Federal University, Lafia (FULAFIA)',
-    'Federal University, Lokoja (FULOKOJA)',
-    'Federal University, Ndufu-Alike (FUNAI)',
-    'Federal University, Otuoke (FUO)',
-    'Federal University, Birnin Kebbi (FUBK)',
-    'Federal University, Dutse (FUD)',
-    'Federal University, Dutsin-Ma (FUDMA)',
-    'Federal University, Gusau (FUGUS)',
-    'Federal University, Wukari (FUW)',
-    'Federal University of Agriculture, Abeokuta (FUNAAB)',
-    'Federal University of Agriculture, Makurdi (FUAM)',
-    'Federal University of Petroleum Resources, Effurun (FUPRE)',
-    'Federal University of Technology, Minna (FUTMINNA)',
-    'Federal University of Technology, Owerri (FUTO)',
-    'Federal University of Technology, Akure (FUTA)',
-    'Michael Okpara University of Agriculture, Umudike (MOUAU)',
-    'National Open University of Nigeria (NOUN)',
-    'Nigerian Defence Academy (NDA)',
-    'Air Force Institute of Technology (AFIT)',
-    'Nigerian Army University, Biu (NAUB)',
-    'Nigerian Police Academy, Wudil (POLAC)',
-
-    // State Universities
-    'Lagos State University (LASU)',
-    'Rivers State University (RSU)',
-    'Enugu State University of Science and Technology (ESUT)',
-    'Imo State University (IMSU)',
-    'Delta State University (DELSU)',
-    'Anambra State University (ANSU)',
-    'Cross River University of Technology (CRUTECH)',
-    'Abia State University, Uturu (ABSU)',
-    'Akwa Ibom State University (AKSU)',
-    'Bayelsa Medical University (BMU)',
-    'Niger Delta University (NDU)',
-    'Ignatius Ajuru University of Education (IAUE)',
-    'Ken Saro-Wiwa Polytechnic (KENPOLY)',
-    'Kogi State University (KSU)',
-    'Benue State University (BSU)',
-    'Nasarawa State University (NSU)',
-    'Plateau State University (PLASU)',
-    'Taraba State University (TSU)',
-    'Adamawa State University (ADSU)',
-    'Gombe State University (GSU)',
-    'Kebbi State University of Science and Technology (KSUSTA)',
-    'Sokoto State University (SSU)',
-    'Zamfara State University (ZAMSU)',
-    'Kaduna State University (KASU)',
-    'Kano University of Science and Technology (KUST)',
-    'Bayero University Kano (BUK)',
-    'Northwest University, Kano (NWU)',
-    'Osun State University (UNIOSUN)',
-    'Ekiti State University (EKSU)',
-    'Ondo State University of Science and Technology (OSUSTECH)',
-    'Ogun State Institute of Technology (OGITECH)',
-    'Olabisi Onabanjo University (OOU)',
-    'Lagos State University of Science and Technology (LASUSTECH)',
-    'Tai Solarin University of Education (TASUED)',
-    'Kwara State University (KWASU)',
-    'Anchor University Lagos (AUL)',
-
-    // Private Universities
-    'Covenant University',
-    'Babcock University',
-    'Pan-Atlantic University (PAU)',
-    'Afe Babalola University (ABUAD)',
-    'Bowen University',
-    'Bells University of Technology',
-    'Nnamdi Azikiwe University (UNIZIK)',
-    'Redeemer\'s University',
-    'Landmark University',
-    'Lead City University',
-    'Caleb University',
-    'Benson Idahosa University',
-    'Madonna University',
-    'American University of Nigeria (AUN)',
-    'Caritas University',
-    'Godfrey Okoye University',
-    'Gregory University',
-    'Achievers University',
-    'David Umahi Federal University of Health Sciences',
-    'Elizade University',
-    'Joseph Ayo Babalola University (JABU)',
-    'Adeleke University',
-    'Augustine University',
-    'Ajayi Crowther University',
-    'Southwestern University',
-    'Wesley University',
-    'Oduduwa University',
-    'Crawford University',
-    'Rhema University',
-    'Veritas University',
-
-    // Polytechnics & Colleges
-    'Yaba College of Technology (YABATECH)',
-    'Federal Polytechnic, Ile-Oluji',
-    'Federal Polytechnic, Ado-Ekiti',
-    'Federal Polytechnic, Nekede',
-    'Lagos City Polytechnic',
-    'Moshood Abiola Polytechnic',
-    'Gateway Polytechnic',
-    'The Polytechnic, Ibadan',
-    'Rufus Giwa Polytechnic',
-    'Auchi Polytechnic',
-];
-
 const LEVEL_OPTIONS = ['100L', '200L', '300L', '400L', '500L', 'Graduate'];
 
 export default function MiniProfileSetup() {
@@ -161,8 +42,11 @@ export default function MiniProfileSetup() {
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [direction, setDirection] = useState(0);
+    const [selectedCountry, setSelectedCountry] = useState('ALL');
     const [universitySearch, setUniversitySearch] = useState('');
     const [showUniDropdown, setShowUniDropdown] = useState(false);
+    const [showFaceVerify, setShowFaceVerify] = useState(false);
+    const [isPhotoVerified, setIsPhotoVerified] = useState(false);
 
     const [formData, setFormData] = useState(() => {
         const saved = localStorage.getItem('onboarding_data');
@@ -250,21 +134,33 @@ export default function MiniProfileSetup() {
         const file = e.target.files[0];
         if (!file) return;
 
+        let targetUserId = currentUser?.id;
+        if (!targetUserId) {
+            const { data: { session } } = await supabase.auth.getSession();
+            targetUserId = session?.user?.id;
+        }
+        if (!targetUserId) {
+            addToast("Your session has expired. Please log in again.", "error");
+            return;
+        }
+
         setLoading(true);
+        addToast('Verifying photo with AI...', 'info');
         try {
-            const { url, error } = await uploadProfilePhoto(file, currentUser.id, index);
-            if (error) throw new Error(error);
+            const { url, approved, reason, error } = await uploadProfilePhoto(file, targetUserId, index);
+            if (error || !approved) throw new Error(reason || error || 'Photo failed validation');
 
             setFormData(prev => {
                 const newPhotos = [...safeArray(prev.profile_photos)];
                 newPhotos[index] = url;
                 return { ...prev, profile_photos: newPhotos };
             });
-            addToast('Photo uploaded successfully! 📸', 'success');
+            addToast('Photo verified & approved! 📸 ✓', 'success');
         } catch (err) {
             addToast(err.message, 'error');
         } finally {
             setLoading(false);
+            if (e.target) e.target.value = '';
         }
     };
 
@@ -276,7 +172,25 @@ export default function MiniProfileSetup() {
                 throw new Error("You must be at least 18 years old to use College Date.");
             }
 
-            console.log('[Setup] Finishing onboarding for:', currentUser.id);
+            let targetUserId = currentUser?.id;
+            let targetEmail = currentUser?.email;
+
+            if (!targetUserId) {
+                const { data: { session } } = await supabase.auth.getSession();
+                targetUserId = session?.user?.id;
+                targetEmail = session?.user?.email;
+            }
+
+            if (!targetUserId) {
+                throw new Error("Your session has expired. Please log in again.");
+            }
+
+            console.log('[Setup] Finishing onboarding for:', targetUserId);
+
+            const profilePhotos = safeArray(formData.profile_photos).filter(p => Boolean(p && String(p).trim().length > 0));
+            if (profilePhotos.length === 0) {
+                throw new Error("Please upload at least one profile photo to continue.");
+            }
 
             const profileData = {
                 full_name: formData.full_name,
@@ -285,18 +199,20 @@ export default function MiniProfileSetup() {
                 level: formData.level,
                 interests: safeArray(formData.interests),
                 attraction_goal: formData.intent,
-                profile_photos: safeArray(formData.profile_photos),
-                avatar_url: safeArray(formData.profile_photos)[0],
-                email: currentUser.email,
+                profile_photos: profilePhotos,
+                avatar_url: profilePhotos[0],
+                email: targetEmail,
                 is_onboarded: true, // Explicitly mark as done
-                updated_at: new Date()
+                photo_verified: isPhotoVerified,
+                is_verified: isPhotoVerified,
+                updated_at: new Date().toISOString()
             };
 
-            const { data: updatedProfile, error } = await upsertProfile(currentUser.id, profileData);
+            const { data: updatedProfile, error } = await upsertProfile(targetUserId, profileData);
             if (error) throw new Error(error);
 
             console.log('[Setup] Upsert success. Verifying profile state...');
-            await fetchProfile(currentUser.id);
+            await fetchProfile(targetUserId);
             requestProfileAiReview('onboarding_complete');
             
             // Clean up ONLY after we are sure we've saved
@@ -314,7 +230,7 @@ export default function MiniProfileSetup() {
             handleNext(); // Move to success screen
         } catch (err) {
             console.error('[Setup] handleFinish error:', err);
-            addToast(err.message, 'error');
+            addToast(err.message || 'Failed to complete profile setup', 'error');
         } finally {
             setLoading(false);
         }
@@ -349,10 +265,8 @@ export default function MiniProfileSetup() {
         })
     };
 
-    // Filtered universities for autocomplete
-    const filteredUnis = UNIVERSITY_OPTIONS.filter(u =>
-        u.toLowerCase().includes(universitySearch.toLowerCase())
-    );
+    // Filtered universities for autocomplete across Africa
+    const filteredUnis = searchUniversities(universitySearch, selectedCountry);
 
     return (
         <div className="quiz-onboarding-page">
@@ -425,10 +339,27 @@ export default function MiniProfileSetup() {
 
                             {currentStep === 1 && (
                                 <div className="quiz-form">
+                                    {/* African Countries Quick Filter Pills */}
+                                    <div className="african-countries-container">
+                                        <span className="country-filter-label">Select Country:</span>
+                                        <div className="african-countries-pills">
+                                            {AFRICAN_COUNTRIES.map(c => (
+                                                <button
+                                                    key={c.code}
+                                                    type="button"
+                                                    className={`country-pill ${selectedCountry === c.code ? 'active' : ''}`}
+                                                    onClick={() => setSelectedCountry(c.code)}
+                                                >
+                                                    {c.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className="quiz-input-group university-select">
                                         <input
                                             type="text"
-                                            placeholder="Search University"
+                                            placeholder={selectedCountry === 'ALL' ? "Search any university in Africa..." : "Search university..."}
                                             value={universitySearch}
                                             onChange={(e) => {
                                                 setUniversitySearch(e.target.value);
@@ -452,9 +383,36 @@ export default function MiniProfileSetup() {
                                                         {u}
                                                     </div>
                                                 ))}
+                                                {universitySearch.trim().length > 1 && !filteredUnis.includes(universitySearch.trim()) && (
+                                                    <div
+                                                        className="uni-option custom-uni-option"
+                                                        onClick={() => {
+                                                            const customUni = universitySearch.trim();
+                                                            setFormData(p => ({ ...p, university: customUni }));
+                                                            setShowUniDropdown(false);
+                                                        }}
+                                                    >
+                                                        ✨ Use "{universitySearch.trim()}" as my university
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
+                                    {formData.university && (
+                                        <div className="selected-uni-badge">
+                                            <span>🎓 {formData.university}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData(p => ({ ...p, university: '' }));
+                                                    setUniversitySearch('');
+                                                    setShowUniDropdown(true);
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    )}
                                     {formData.university ? (
                                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="level-selection-container">
                                             <p className="level-prompt-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginTop: '1rem', textAlign: 'left' }}>Select your current level:</p>
@@ -543,6 +501,35 @@ export default function MiniProfileSetup() {
                                         ))}
                                     </div>
                                     <p className="photo-tip">Tip: Adding more photos gets you more matches! ✨</p>
+
+                                    {safeArray(formData.profile_photos).filter(Boolean).length > 0 && (
+                                        <div className="onboarding-verify-box">
+                                            <div className="onboarding-verify-header">
+                                                <span className="onboarding-verify-icon">🛡️</span>
+                                                <div className="onboarding-verify-info">
+                                                    <h4>Get Photo Verified (Recommended)</h4>
+                                                    <p>
+                                                        {isPhotoVerified
+                                                            ? 'Your face matched your profile photos! Green ✓ Verified badge is active.'
+                                                            : 'Confirm you look like your photos with a 5-second selfie scan to get the green ✓ badge immediately.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {isPhotoVerified ? (
+                                                <div className="onboarding-verified-badge">
+                                                    <span>✓ Face Verified! Green Badge Active</span>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary onboarding-verify-btn"
+                                                    onClick={() => setShowFaceVerify(true)}
+                                                >
+                                                    📷 Scan Face & Verify Now
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -550,6 +537,12 @@ export default function MiniProfileSetup() {
                                 <div className="success-screen">
                                     <div className="success-emoji">🚀</div>
                                     <p className="success-message">You're all set! Time to find your matches.</p>
+
+                                    <div className="campus-code-pledge-card">
+                                        <div className="campus-code-title">🛡️ The Campus Code</div>
+                                        <p>By entering discovery, you commit to mutual respect, student consent, and keeping our campus community safe & friendly.</p>
+                                    </div>
+
                                     <button
                                         className="quiz-final-btn"
                                         onClick={() => navigate('/match')}
@@ -581,6 +574,16 @@ export default function MiniProfileSetup() {
                     </motion.div>
                 </AnimatePresence>
             </div>
+
+            <FaceVerificationModal
+                isOpen={showFaceVerify}
+                onClose={() => setShowFaceVerify(false)}
+                candidatePhotoUrl={safeArray(formData.profile_photos).filter(Boolean)[0] || formData.avatar_url}
+                onVerified={() => {
+                    setIsPhotoVerified(true);
+                    setShowFaceVerify(false);
+                }}
+            />
         </div>
     );
 }

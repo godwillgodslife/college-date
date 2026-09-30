@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { createSwipeCompletionRegistry, getSwipeStackEntries, removeProfileById } from '../utils/swipeLifecycle';
+import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
 import { recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
 import { getDiscoveryCacheKey, useDiscoveryProfiles } from '../hooks/useSWRData';
 import { saveGenderPreference } from '../services/profileService';
@@ -22,6 +24,10 @@ import { recordFeedImpression } from '../services/feedImpressionService';
 import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
 import { enqueueOfflineOperation, getQueuedOperations, removeOfflineOperation } from '../lib/offlineQueue';
 import { setCachedData } from '../lib/persistentCache';
+import { useScoreStreak } from '../hooks/useScoreStreak';
+import ScoreStreakModal from '../components/ScoreStreakModal';
+import { useActiveProgram } from '../hooks/useActiveProgram';
+import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
@@ -33,6 +39,22 @@ export default function Match() {
     const currentUserId = currentUser?.id;
 
     const [matchData, setMatchData] = useState(null);
+    const [guideModalOpen, setGuideModalOpen] = useState(false);
+    const [streakModalOpen, setStreakModalOpen] = useState(false);
+    const [activeModalOpen, setActiveModalOpen] = useState(false);
+    const {
+        enrolled: activeEnrolled,
+        accruedEarnings: activeEarnings,
+        evaluateToday: evaluateActiveToday
+    } = useActiveProgram(currentUserId);
+    const {
+        streak: scoreStreak,
+        longestStreak,
+        activeToday: streakActiveToday,
+        nextMilestone: streakNextMilestone,
+        progressToMilestone: streakProgress,
+        recordActivity: recordStreakActivity
+    } = useScoreStreak(currentUserId);
     const [liveOnly, setLiveOnly] = useState(false);
     const [filters, setFilters] = useState(() => {
         let initialGender = 'All';
@@ -162,6 +184,12 @@ export default function Match() {
 
         return () => clearInterval(timer);
     }, [limitReached]);
+
+    useEffect(() => {
+        const handler = (e) => setMatchData(e.detail);
+        window.addEventListener('tcd:trigger-match-test', handler);
+        return () => window.removeEventListener('tcd:trigger-match-test', handler);
+    }, []);
 
     // SWR for Boosts & Limits
     const { data: limitsRes } = useSWR(currentUserId ? ['limits', currentUserId] : null, () => checkSwipeLimit(currentUserId));
@@ -302,6 +330,10 @@ export default function Match() {
 
         // Update streak if returned
         if (result.streak) setUserStreak(result.streak);
+        recordStreakActivity('swipe').catch(() => {});
+        if (evaluateActiveToday) {
+            evaluateActiveToday().catch(() => {});
+        }
 
         if (result.isMatch) {
             // Trigger the High-Fidelity Celebrity Overlay!
@@ -449,6 +481,14 @@ export default function Match() {
                             {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
                         </div>
 
+                        {/* Desktop Keyboard Shortcuts Hint */}
+                        <div className="match-desktop-shortcuts-hint" aria-hidden="true">
+                            <span><kbd>←</kbd> Pass</span>
+                            <span><kbd>↑</kbd> Super</span>
+                            <span><kbd>→</kbd> Like</span>
+                            <span><kbd>Space</kbd> Bio</span>
+                        </div>
+
                         <div className="discover-swipes-left-badge">
                             ⚡ <b>{isPremium ? '∞' : freeSwipes}</b> Swipes Left
                         </div>
@@ -457,9 +497,41 @@ export default function Match() {
                     <div className="swipe-container">
                         <StatusBubbles />
 
-                        {/* Streak Indicator (rendered beneath top rail) */}
-                        <div className="discovery-streak-overlay">
-                            <StreakIndicator streak={userStreak} badge={userProfile?.current_badge} />
+                        <ContextualTip
+                            featureId="match_swipe"
+                            className="match-contextual-tip"
+                            onLearnMore={() => setGuideModalOpen(true)}
+                        />
+
+                        {/* Streak & Active Program Overlay (rendered beneath top rail) */}
+                        <div className="discovery-streak-overlay" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <StreakIndicator 
+                                streak={scoreStreak || userStreak} 
+                                badge={userProfile?.current_badge} 
+                                onClick={() => setStreakModalOpen(true)}
+                            />
+                            {activeEnrolled && (
+                                <button 
+                                    type="button"
+                                    className="discovery-streak-pill active-program-pill"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px',
+                                        background: 'rgba(255, 215, 0, 0.15)',
+                                        border: '1px solid rgba(255, 215, 0, 0.35)',
+                                        borderRadius: '999px',
+                                        padding: '4px 10px',
+                                        color: '#ffd700',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '700',
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={() => setActiveModalOpen(true)}
+                                >
+                                    <span>⚡</span> ₦{activeEarnings?.toLocaleString()}
+                                </button>
+                            )}
                         </div>
 
                         {profiles.length === 0 ? (
@@ -581,33 +653,6 @@ export default function Match() {
                         </div>
                     )}
 
-                    {/* High-Fidelity Match Celebration */}
-                    <MatchCelebration
-                        isOpen={!!matchData}
-                        matchedProfile={matchData}
-                        userProfile={userProfile}
-                        onClose={() => {
-                            console.log('[Match] Celebration closed manually');
-                            setMatchData(null);
-                        }}
-                        onMessage={() => {
-                            const cid = matchData?.match_id;
-                            const uid = matchData?.id;
-                            
-                            console.log('[Match] Navigating to Chat. IDs:', { cid, uid });
-                            
-                            // Robust navigation: Pass everything so Chat.jsx can find the target
-                            navigate(cid ? `/chat?chatId=${cid}` : '/chat', { 
-                                state: { 
-                                    openChatWith: uid, // Fallback profile ID
-                                    matchData: matchData,
-                                    chatId: cid
-                                } 
-                            });
-                            setMatchData(null);
-                        }}
-                    />
-
                     {/* Limit Reached Overlay */}
                     {limitReached && (
                         <div className="limit-overlay">
@@ -693,6 +738,56 @@ export default function Match() {
                     )}
                 </>
             )}
+
+            <AppGuideModal
+                isOpen={guideModalOpen}
+                onClose={() => setGuideModalOpen(false)}
+                initialFeatureId="match_swipe"
+            />
+
+            <ScoreStreakModal
+                isOpen={streakModalOpen}
+                onClose={() => setStreakModalOpen(false)}
+                streak={scoreStreak || userStreak}
+                longestStreak={longestStreak}
+                activeToday={streakActiveToday}
+                nextMilestone={streakNextMilestone}
+                progressToMilestone={streakProgress}
+                onStartActivity={() => setStreakModalOpen(false)}
+            />
+
+            {/* High-Fidelity Match Celebration (Root level - immune to card deck unmounts) */}
+            <MatchCelebration
+                isOpen={!!matchData}
+                matchedProfile={matchData}
+                userProfile={userProfile}
+                onClose={() => {
+                    console.log('[Match] Celebration closed manually');
+                    setMatchData(null);
+                }}
+                onMessage={() => {
+                    const cid = matchData?.match_id;
+                    const uid = matchData?.id;
+                    
+                    console.log('[Match] Navigating to Chat. IDs:', { cid, uid });
+                    
+                    navigate(cid ? `/chat?chatId=${cid}` : '/chat', { 
+                        state: { 
+                            openChatWith: uid,
+                            matchData: matchData,
+                            chatId: cid
+                        } 
+                    });
+                    setMatchData(null);
+                }}
+            />
+
+            {/* College Date Active Program Modal */}
+            <CollegeDateActiveModal
+                isOpen={activeModalOpen}
+                onClose={() => setActiveModalOpen(false)}
+                userId={currentUserId}
+            />
         </div>
     );
 }

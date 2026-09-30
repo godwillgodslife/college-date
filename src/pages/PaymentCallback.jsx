@@ -40,9 +40,25 @@ export default function PaymentCallback() {
             }
 
             const productType = data?.result?.product_type;
-            addToast(productType === 'subscription' ? 'Premium activated successfully!' : 'Wallet funded successfully!', 'success');
-            await fetchProfile(currentUser.id);
-            navigate(productType === 'subscription' ? '/premium' : '/wallet', { replace: true });
+            const productId = data?.result?.product_id;
+
+            if (productType === 'subscription') {
+                addToast('Premium activated successfully! 🎉', 'success');
+                await fetchProfile(currentUser.id);
+                navigate('/premium', { replace: true });
+            } else if (productType === 'boost') {
+                addToast('24h Boost activated successfully! 🎉', 'success');
+                await fetchProfile(currentUser.id);
+                navigate('/premium', { replace: true });
+            } else if (productType === 'consumable' || productId === 'super_swipe') {
+                addToast('Super Swipe credit added! 🎉', 'success');
+                await fetchProfile(currentUser.id);
+                navigate('/match', { replace: true });
+            } else {
+                addToast('Wallet funded successfully! 🎉', 'success');
+                await fetchProfile(currentUser.id);
+                navigate('/wallet', { replace: true });
+            }
         }
 
         verifyPayment();

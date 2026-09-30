@@ -6,6 +6,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { hasActivePremium } from '../utils/premium';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
+import OptimizedImage from '../components/OptimizedImage';
+import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
 import './Viewers.css';
 
 export default function Viewers() {
@@ -13,6 +15,7 @@ export default function Viewers() {
     const [viewers, setViewers] = useState([]);
     const [viewerSummary, setViewerSummary] = useState({ total_count: 0, premium: false, upgrade_required: false });
     const [loading, setLoading] = useState(true);
+    const [guideModalOpen, setGuideModalOpen] = useState(false);
     const isPremium = viewerSummary.premium || hasActivePremium(userProfile);
     const navigate = useNavigate();
 
@@ -65,8 +68,6 @@ export default function Viewers() {
         }
     }
 
-    if (loading) return <LoadingSpinner fullScreen />;
-
     return (
         <div className="viewers-page">
             <header className="viewers-header">
@@ -74,8 +75,17 @@ export default function Viewers() {
                 <h1>Who Viewed You</h1>
             </header>
 
+            <ContextualTip
+                featureId="who_viewed_me"
+                onLearnMore={() => setGuideModalOpen(true)}
+            />
+
             <div className="viewers-list">
-                {viewerSummary.total_count === 0 ? (
+                {loading && !viewers.length ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 1rem' }}>
+                        <LoadingSpinner text="Checking profile viewers..." />
+                    </div>
+                ) : viewerSummary.total_count === 0 ? (
                     <div className="no-viewers">
                         <div className="no-viewers-icon">🕶️</div>
                         <h3>No views yet today</h3>
@@ -90,9 +100,10 @@ export default function Viewers() {
                     viewers.map((item, index) => (
                         <div key={item.id || `${item.created_at}-${index}`} className="viewer-card">
                             <div className={`viewer-avatar ${item.locked || !isPremium ? 'blurred' : ''}`}>
-                                <img
+                                <OptimizedImage
                                     src={item.viewer?.avatar_url || '/default-avatar.png'}
                                     alt="Viewer"
+                                    width={80}
                                 />
                             </div>
                             <div className="viewer-info">
@@ -121,6 +132,12 @@ export default function Viewers() {
                     </div>
                 </div>
             )}
+
+            <AppGuideModal
+                isOpen={guideModalOpen}
+                onClose={() => setGuideModalOpen(false)}
+                initialFeatureId="who_viewed_me"
+            />
         </div>
     );
 }

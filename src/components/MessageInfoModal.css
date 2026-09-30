@@ -1,0 +1,170 @@
+/* MessageInfoModal.css - Information Panel / Bottom Sheet */
+
+.msg-info-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3100;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: msgInfoFadeIn 0.2s ease-out both;
+}
+
+@keyframes msgInfoFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.msg-info-sheet {
+    background: #181524;
+    background: linear-gradient(180deg, #201a32 0%, #141121 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 1rem 1.4rem calc(1.4rem + env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(108, 99, 255, 0.15);
+    animation: msgInfoSlideUp 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes msgInfoSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.msg-info-handle {
+    width: 38px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    margin: 0 auto 0.9rem;
+}
+
+.msg-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.msg-info-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    margin: 0;
+}
+
+.msg-info-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    padding: 0;
+}
+
+.msg-info-close-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--text-primary, #ffffff);
+}
+
+/* Message Snippet Card inside Info */
+.msg-info-preview-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.2rem;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+.msg-info-snippet {
+    font-size: 0.88rem;
+    color: var(--text-primary, #ffffff);
+    margin: 0;
+    word-break: break-word;
+    opacity: 0.9;
+}
+
+.msg-info-type-tag {
+    font-size: 0.72rem;
+    color: var(--accent-primary, #6c63ff);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+/* Timestamp Rows */
+.msg-info-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.msg-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.msg-info-label-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.msg-info-icon {
+    font-size: 1.15rem;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.msg-info-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary, #ffffff);
+}
+
+.msg-info-time {
+    font-size: 0.88rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.75));
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+}
+
+.msg-info-time.unseen {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
+.msg-info-time.seen-active {
+    color: #4ade80;
+    font-weight: 600;
+}

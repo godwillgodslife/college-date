@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.collegedate.app",
+      "sha256_cert_fingerprints": [
+        "58:F4:54:BD:1C:57:CF:46:F9:6E:2C:4D:AD:E9:CC:71:F2:E1:E5:09:88:B7:CC:E1:31:A8:82:B6:0C:C4:D7:7B"
+      ]
+    }
+  }
+]

@@ -1,0 +1,366 @@
+/* Biometric Face Verification Modal */
+
+.face-verify-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10005;
+    background: rgba(4, 4, 8, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.face-verify-card {
+    background: linear-gradient(180deg, rgba(22, 22, 34, 0.98), rgba(13, 13, 20, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+}
+
+.face-verify-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.face-verify-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.face-verify-badge-icon,
+.face-verify-failed-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(108, 99, 255, 0.15);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.face-verify-success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.face-verify-failed-icon {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.face-verify-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.5rem;
+}
+
+.face-verify-desc {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+}
+
+.face-verify-perks {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.face-verify-perk {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.face-verify-perk span {
+    color: #10b981;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.face-verify-perk strong {
+    font-size: 0.88rem;
+    color: #fff;
+    display: block;
+}
+
+.face-verify-perk p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 2px 0 0;
+}
+
+/* Camera Viewport */
+.face-verify-camera-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.face-verify-viewport {
+    width: 260px;
+    height: 330px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.face-verify-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* mirror selfie view */
+}
+
+/* Biometric Oval Guide */
+.face-verify-oval {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 240px;
+    border-radius: 50%;
+    border: 3px dashed rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    transition: border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.face-verify-oval.active {
+    border: 3px solid #10b981;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.face-verify-scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #6c63ff, transparent);
+    animation: scanMove 2s infinite ease-in-out;
+}
+
+@keyframes scanMove {
+    0% { top: 10%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { top: 90%; opacity: 0; }
+}
+
+.face-verify-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.face-verify-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6c63ff, #10b981);
+    transition: width 0.2s ease;
+}
+
+.face-verify-instruction-pill {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.face-verify-hint {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0.75rem 0 0;
+    text-align: center;
+}
+
+.face-verify-spinner-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 3px solid rgba(108, 99, 255, 0.2);
+    border-top-color: #6c63ff;
+    animation: spin 1s infinite linear;
+    margin-bottom: 1.25rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Multi-Stage Interactive Tracker */
+.face-verify-stage-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+    width: 100%;
+}
+
+.stage-pill {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    opacity: 0.45;
+}
+
+.stage-pill.active {
+    opacity: 1;
+    background: rgba(108, 99, 255, 0.25);
+    border-color: #6c63ff;
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(108, 99, 255, 0.5);
+}
+
+.stage-pill.done {
+    opacity: 0.9;
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.face-verify-stage-banner {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 0.3rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.stage-banner-icon {
+    font-size: 1rem;
+}
+
+.stage-banner-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.instruction-text {
+    line-height: 1.3;
+    font-size: 0.88rem;
+}
+
+.face-verify-audio-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+}
+
+.btn-verify-audio-action {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-verify-audio-action:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.04);
+}
+
+.btn-verify-audio-action:active {
+    transform: scale(0.96);
+}
+
+
