@@ -12,7 +12,7 @@
     "test:swipe": "node --test test/swipe-lifecycle.test.mjs",
     "test:referral": "node --test test/referral-code.test.mjs test/referral-migration-static.test.mjs",
     "test:official": "node --test test/official-posts.test.mjs",
-    "test:features": "node --test test/score-streak-and-chat-edit.test.mjs test/campus-finder.test.mjs test/active-program.test.mjs test/requests-discovery.test.mjs test/notification-system-2.test.mjs test/chat-input-and-keyboard.test.mjs test/app-update-management.test.mjs test/policy-acceptance.test.mjs test/admin-data-accuracy.test.mjs test/android-ux-optimizations.test.mjs test/seo-expansion-100.test.mjs test/seo-wave1-100.test.mjs",
+    "test:features": "node --test test/score-streak-and-chat-edit.test.mjs test/campus-finder.test.mjs test/active-program.test.mjs test/requests-discovery.test.mjs test/notification-system-2.test.mjs test/chat-input-and-keyboard.test.mjs test/app-update-management.test.mjs test/policy-acceptance.test.mjs test/admin-data-accuracy.test.mjs test/android-ux-optimizations.test.mjs test/seo-expansion-100.test.mjs test/seo-wave1-100.test.mjs test/seo-expansion-400.test.mjs",
     "test:policy": "node --test test/policy-acceptance.test.mjs",
     "test:all": "npm run test:swipe && npm run test:referral && npm run test:official && npm run test:features",
     "cap:dist": "npm run build && npx cap copy",

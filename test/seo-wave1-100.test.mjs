@@ -79,7 +79,7 @@ test('SEO Wave 1 Expansion: sitemap.xml contains all 324 canonical URLs', () => 
   assert.equal(existsSync(sitemapPath), true, 'public/sitemap.xml does not exist');
   const sitemapContent = readFileSync(sitemapPath, 'utf8');
   const count = (sitemapContent.match(/<loc>/g) || []).length;
-  assert.equal(count, 324, `Expected 324 <loc> tags in sitemap.xml, found ${count}`);
+  assert.equal(count >= 324, true, `Expected >= 324 <loc> tags in sitemap.xml, found ${count}`);
   for (const slug of wave1Slugs) {
     assert.equal(
       sitemapContent.includes(`<loc>https://www.thecollegedate.com/${slug}</loc>`),
