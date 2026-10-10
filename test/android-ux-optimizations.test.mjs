@@ -38,9 +38,8 @@ test('Explore.jsx & Explore.css: surfaces Campus Finder camera button and preven
     const exploreCode = fs.readFileSync(path.resolve('src/pages/Explore.jsx'), 'utf-8');
     const exploreCss = fs.readFileSync(path.resolve('src/pages/Explore.css'), 'utf-8');
 
-    // Verifies inline camera search button in search bar
-    assert.match(exploreCode, /className="search-camera-btn"/);
-    assert.match(exploreCode, /📸/);
+    // Verifies duplicate camera button in search bar is removed to prevent clutter
+    assert.doesNotMatch(exploreCode, /className="search-camera-btn"/);
 
     // Verifies prominent Find by Camera chip in category filter strip
     assert.match(exploreCode, /category-chip category-chip-finder/);
