@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getDiscoverProfiles, trackProfileView, checkSwipeLimit, resetDiscovery, recordSwipe, searchProfilesByName, getExistingMatchWithUser } from '../services/swipeService';
@@ -14,6 +14,7 @@ import { isRecentlyLive, isRecentlyActive } from '../utils/presence';
 import { recordFeedImpressions } from '../services/feedImpressionService';
 import { getProfilePhotos, normalizeProfile, safeArray, formatDisplayName } from '../utils/profileData';
 import { hasActivePremium } from '../utils/premium';
+import { calculateActiveFilterCount, DEFAULT_EXPLORE_FILTERS, createDefaultExploreFilters } from '../utils/exploreFilters';
 import OptimizedImage from '../components/OptimizedImage';
 import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
 import CampusFinderModal from '../components/CampusFinderModal';
@@ -37,15 +38,12 @@ export default function Explore() {
     const searchTimerRef = useRef(null);
     const categories = ['All', '🔴 Live', 'Newest', 'Near Me', 'Serious', 'Casual', 'Trending'];
 
-    const [filters, setFilters] = useState({
-        gender: 'All',
-        university: 'All',
-        ageRange: [18, 50]
-    });
+    const [filters, setFilters] = useState(createDefaultExploreFilters);
 
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [vibeTargetProfile, setVibeTargetProfile] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
+    const activeFilterCount = useMemo(() => calculateActiveFilterCount(filters), [filters]);
 
     const { data: swrProfiles, mutate: mutateProfiles, isLoading: profilesLoading } = useDiscoveryProfiles(
         currentUser?.id,
@@ -159,11 +157,7 @@ export default function Explore() {
 
     const handleViewAll = () => {
         setCategory('All');
-        setFilters({
-            gender: 'All',
-            university: 'All',
-            ageRange: [18, 50]
-        });
+        setFilters(createDefaultExploreFilters());
         handleClearSearch();
     };
 
@@ -310,11 +304,19 @@ export default function Explore() {
                     </form>
                     <button 
                         type="button" 
-                        className={`explore-filter-btn ${showFilters ? 'active' : ''}`} 
+                        className={`explore-filter-btn ${showFilters ? 'active' : ''} ${activeFilterCount > 0 ? 'has-active-filters' : ''}`} 
                         onClick={() => setShowFilters(prev => !prev)}
-                        title="Filter by gender"
+                        title={activeFilterCount > 0 ? `Filters (${activeFilterCount} active)` : 'Filter discovery'}
+                        aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
+                        aria-expanded={showFilters}
+                        aria-controls="explore-filter-panel"
                     >
-                        ⚙️ Filter
+                        <span>⚙️ Filter</span>
+                        {activeFilterCount > 0 && (
+                            <span className="filter-badge" aria-hidden="true">
+                                {activeFilterCount}
+                            </span>
+                        )}
                     </button>
                 </div>
 
@@ -326,10 +328,26 @@ export default function Explore() {
                 )}
 
                 {showFilters && (
-                    <div className="explore-filter-panel">
+                    <div className="explore-filter-panel" id="explore-filter-panel" role="region" aria-label="Explore discovery filters">
                         <div className="explore-filter-panel-header">
-                            <h3>Filters</h3>
-                            <button type="button" onClick={() => setShowFilters(false)}>Close</button>
+                            <div className="explore-filter-panel-title-wrap">
+                                <h3>Filters</h3>
+                                {activeFilterCount > 0 && (
+                                    <span className="filter-count-badge">{activeFilterCount} active</span>
+                                )}
+                            </div>
+                            <div className="explore-filter-panel-actions">
+                                {activeFilterCount > 0 && (
+                                    <button 
+                                        type="button" 
+                                        className="btn-filter-reset"
+                                        onClick={() => setFilters(createDefaultExploreFilters())}
+                                    >
+                                        Reset
+                                    </button>
+                                )}
+                                <button type="button" onClick={() => setShowFilters(false)}>Close</button>
+                            </div>
                         </div>
                         <div className="explore-filter-options">
                             {['All', 'Men', 'Women'].map((gender) => (
@@ -382,17 +400,17 @@ export default function Explore() {
                     </div>
                 ) : displayedProfiles.length === 0 ? (
                     <div className="empty-discovery">
-                        <span className="empty-emoji">🧊</span>
-                        <h2>{dbSearchResults !== null ? 'No students found' : "It's quiet here..."}</h2>
-                        <p>{dbSearchResults !== null ? `No campus results matching "${searchQuery}". Try searching another name or university!` : 'Be the first to start the vibe!'}</p>
+                        <span className="empty-emoji">{dbSearchResults !== null ? '🔍' : activeFilterCount > 0 ? '⚙️' : '🧊'}</span>
+                        <h2>{dbSearchResults !== null ? 'No students found' : activeFilterCount > 0 ? 'No matching students' : "It's quiet here..."}</h2>
+                        <p>{dbSearchResults !== null ? (activeFilterCount > 0 ? `No campus results matching "${searchQuery}" with your active filters. Try clearing filters or searching another name!` : `No campus results matching "${searchQuery}". Try searching another name or university!`) : activeFilterCount > 0 ? 'No students match your active filters. Try clearing filters to see everyone!' : 'Be the first to start the vibe!'}</p>
                         <div style={{ display: 'flex', gap: '10px', marginTop: '1rem', justifyContent: 'center' }}>
                             {dbSearchResults !== null ? (
                                 <button onClick={handleClearSearch} className="btn btn-primary">
                                     Show All Profiles
                                 </button>
                             ) : (
-                                <button onClick={handleViewAll} className="btn btn-secondary">
-                                    View All Profiles
+                                <button onClick={handleViewAll} className={activeFilterCount > 0 ? 'btn btn-primary' : 'btn btn-secondary'}>
+                                    {activeFilterCount > 0 ? 'Clear Filters & Show All' : 'View All Profiles'}
                                 </button>
                             )}
                             {isLocal && (

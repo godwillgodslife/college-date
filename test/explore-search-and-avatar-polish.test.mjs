@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { calculateActiveFilterCount, DEFAULT_EXPLORE_FILTERS, createDefaultExploreFilters } from '../src/utils/exploreFilters.js';
 
 test('Explore.jsx: search input attributes, mobile IME enter key, and form submission blur', () => {
     const exploreCode = fs.readFileSync(path.resolve('src/pages/Explore.jsx'), 'utf-8');
@@ -135,4 +136,112 @@ test('Explore empty discovery contrast and atomic reset on handleViewAll', () =>
     // 2. handleViewAll atomically clears search
     assert.match(exploreCode, /const\s+handleViewAll\s*=\s*\(\)\s*=>\s*\{[\s\S]*?handleClearSearch\(\);/);
 });
+
+test('calculateActiveFilterCount: baseline defaults, individual filters, compound filters, and edge cases', () => {
+    // 1. Defaults produce count 0
+    assert.equal(calculateActiveFilterCount(DEFAULT_EXPLORE_FILTERS), 0);
+    assert.equal(calculateActiveFilterCount(createDefaultExploreFilters()), 0);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [18, 50] }), 0);
+
+    // 2. Case-insensitivity & whitespace normalization
+    assert.equal(calculateActiveFilterCount({ gender: 'all', university: 'all', ageRange: [18, 50] }), 0);
+    assert.equal(calculateActiveFilterCount({ gender: 'ALL', university: 'ALL', ageRange: [18, 50] }), 0);
+    assert.equal(calculateActiveFilterCount({ gender: '  All  ', university: '  all universities  ', ageRange: [18, 50] }), 0);
+
+    // 3. Gender filter active
+    assert.equal(calculateActiveFilterCount({ gender: 'Men', university: 'All', ageRange: [18, 50] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'Women', university: 'All', ageRange: [18, 50] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'Non-binary', university: 'All', ageRange: [18, 50] }), 1);
+
+    // 4. University & School alias filter active
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'University of Lagos', ageRange: [18, 50] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'Covenant University', ageRange: [18, 50] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', school: 'Obafemi Awolowo University', ageRange: [18, 50] }), 1);
+
+    // 5. Age range filter active & boundary/invalid edge cases
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [20, 50] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [18, 30] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [21, 28] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: ['18', '50'] }), 0);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: ['20', '35'] }), 1);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [NaN, 50] }), 0);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [18] }), 0);
+    assert.equal(calculateActiveFilterCount({ gender: 'All', university: 'All', ageRange: [] }), 0);
+
+    // 6. Compound filters & liveOnly
+    assert.equal(calculateActiveFilterCount({ gender: 'Men', university: 'UNILAG', ageRange: [18, 50] }), 2);
+    assert.equal(calculateActiveFilterCount({ gender: 'Women', university: 'UNILAG', ageRange: [19, 25] }), 3);
+    assert.equal(calculateActiveFilterCount({ gender: 'Women', university: 'UNILAG', ageRange: [19, 25], liveOnly: true }), 4);
+
+    // 7. Safe edge cases on null, undefined, primitives, arrays
+    assert.equal(calculateActiveFilterCount(null), 0);
+    assert.equal(calculateActiveFilterCount(undefined), 0);
+    assert.equal(calculateActiveFilterCount({}), 0);
+    assert.equal(calculateActiveFilterCount([]), 0);
+    assert.equal(calculateActiveFilterCount('string'), 0);
+    assert.equal(calculateActiveFilterCount(123), 0);
+    assert.equal(calculateActiveFilterCount({ gender: '', university: '' }), 0);
+
+    // 8. createDefaultExploreFilters produces independent mutable copies
+    const defaultA = createDefaultExploreFilters();
+    const defaultB = createDefaultExploreFilters();
+    assert.notEqual(defaultA, defaultB);
+    defaultA.gender = 'Men';
+    assert.equal(defaultB.gender, 'All');
+});
+
+test('Explore.jsx: active filter counter badge, WAI-ARIA disclosure, and UI integration', () => {
+    const exploreCode = fs.readFileSync(path.resolve('src/pages/Explore.jsx'), 'utf-8');
+
+    // 1. Imports calculateActiveFilterCount and createDefaultExploreFilters utility
+    assert.match(exploreCode, /import\s*\{[^}]*calculateActiveFilterCount[^}]*createDefaultExploreFilters[^}]*\}\s*from\s*['"]\.\.\/utils\/exploreFilters['"]/);
+
+    // 2. Initializes filters and computes activeFilterCount via useMemo
+    assert.match(exploreCode, /const\s+\[filters,\s*setFilters\]\s*=\s*useState\(createDefaultExploreFilters\);/);
+    assert.match(exploreCode, /const\s+activeFilterCount\s*=\s*useMemo\(\s*\(\)\s*=>\s*calculateActiveFilterCount\(filters\),\s*\[filters\]\s*\);/);
+
+    // 3. explore-filter-btn dynamically appends has-active-filters class and WAI-ARIA disclosure attributes
+    assert.match(exploreCode, /className=\{`explore-filter-btn\s+\$\{showFilters\s*\?\s*'active'\s*:\s*''\}\s+\$\{activeFilterCount\s*>\s*0\s*\?\s*'has-active-filters'\s*:\s*''\}`\}/);
+    assert.match(exploreCode, /aria-expanded=\{showFilters\}/);
+    assert.match(exploreCode, /aria-controls="explore-filter-panel"/);
+
+    // 4. explore-filter-btn renders filter-badge with active count and aria-hidden="true"
+    assert.match(exploreCode, /\{activeFilterCount\s*>\s*0\s*&&\s*\(\s*<span\s+className="filter-badge"\s+aria-hidden="true"[^>]*>\s*\{activeFilterCount\}\s*<\/span>\s*\)\}/s);
+
+    // 5. Filter panel includes accessibility role, active counter badge, and atomic Reset button
+    assert.match(exploreCode, /id="explore-filter-panel"/);
+    assert.match(exploreCode, /<span\s+className="filter-count-badge">\{activeFilterCount\}\s*active<\/span>/);
+    assert.match(exploreCode, /className="btn-filter-reset"[\s\S]*?onClick=\{\(\)\s*=>\s*setFilters\(createDefaultExploreFilters\(\)\)\}/);
+
+    // 6. Empty discovery state informs user about active filters and provides clear primary CTA
+    assert.match(exploreCode, /activeFilterCount\s*>\s*0\s*\?\s*'No matching students'/);
+    assert.match(exploreCode, /activeFilterCount\s*>\s*0\s*\?\s*['"]No students match your active filters/);
+    assert.match(exploreCode, /activeFilterCount\s*>\s*0\s*\?\s*['"]Clear Filters & Show All['"]\s*:\s*['"]View All Profiles['"]/);
+});
+
+test('Explore.css: active filter badge styling, theme contrast, and 360dp mobile layout', () => {
+    const exploreCss = fs.readFileSync(path.resolve('src/pages/Explore.css'), 'utf-8');
+
+    // 1. .explore-filter-btn uses inline-flex and gap for icon + badge alignment
+    assert.match(exploreCss, /\.explore-filter-btn\s*\{[^}]*display:\s*inline-flex;[^}]*gap:\s*0\.35rem;/s);
+
+    // 2. .explore-filter-btn.has-active-filters highlights active state and active/open inverted styling
+    assert.match(exploreCss, /\.explore-filter-btn\.has-active-filters\s*\{[^}]*border-color:\s*var\(--accent-primary/s);
+    assert.match(exploreCss, /\.explore-filter-btn\.has-active-filters\.active/);
+
+    // 3. .filter-badge defines pill dimensions, border-radius, and high-contrast text
+    assert.match(exploreCss, /\.explore-filter-btn\s+\.filter-badge\s*\{[^}]*border-radius:\s*9999px;[^}]*color:\s*#ffffff\s*!important;[^}]*font-weight:\s*700;/s);
+
+    // 4. Light and Dark Theme overrides
+    assert.match(exploreCss, /html\[data-theme="light"\]\s+\.explore-filter-btn\.has-active-filters/);
+    assert.match(exploreCss, /html\[data-theme="dark"\]\s+\.explore-filter-btn\.has-active-filters/);
+
+    // 5. Filter panel header badges and reset button
+    assert.match(exploreCss, /\.filter-count-badge\s*\{[^}]*border-radius:\s*9999px;/s);
+    assert.match(exploreCss, /\.btn-filter-reset\s*\{[^}]*color:\s*#ef4444\s*!important;/s);
+
+    // 6. 360dp mobile responsive adjustments in @media (max-width: 480px)
+    assert.match(exploreCss, /@media\s*\(max-width:\s*480px\)[\s\S]*?\.explore-filter-btn\s*\{[^}]*padding:\s*0\.42rem\s*0\.6rem;[\s\S]*?\.explore-filter-btn\s+\.filter-badge\s*\{[^}]*min-width:\s*1rem;/s);
+});
+
 

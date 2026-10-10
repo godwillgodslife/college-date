@@ -188,17 +188,22 @@ html[data-theme="dark"] .search-submit-btn {
 }
 
 .explore-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
     background: var(--bg-secondary);
     border: 1.5px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
     color: var(--text-primary);
     border-radius: 9999px;
-    padding: 0.45rem 0.9rem;
+    padding: 0.45rem 0.85rem;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    user-select: none;
 }
 
 .explore-filter-btn.active,
@@ -206,6 +211,100 @@ html[data-theme="dark"] .search-submit-btn {
     background: var(--accent-soft);
     color: var(--accent-primary);
     border-color: var(--accent-primary);
+}
+
+.explore-filter-btn.has-active-filters {
+    background: var(--accent-soft, rgba(99, 91, 255, 0.12));
+    border-color: var(--accent-primary, #635bff);
+    color: var(--accent-primary, #635bff);
+}
+
+.explore-filter-btn.has-active-filters.active,
+.explore-filter-btn.has-active-filters:hover {
+    background: var(--accent-primary, #635bff);
+    color: #ffffff;
+    border-color: var(--accent-primary, #635bff);
+}
+
+.explore-filter-btn.has-active-filters.active .filter-badge,
+.explore-filter-btn.has-active-filters:hover .filter-badge {
+    background: #ffffff;
+    color: var(--accent-primary, #635bff) !important;
+}
+
+.explore-filter-btn .filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.3rem;
+    border-radius: 9999px;
+    background: var(--accent-primary, #635bff);
+    color: #ffffff !important;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    box-sizing: border-box;
+}
+
+/* Light Theme overrides for active filter button & badge */
+html[data-theme="light"] .explore-filter-btn.has-active-filters,
+:root[data-theme="light"] .explore-filter-btn.has-active-filters {
+    background: rgba(99, 91, 255, 0.08);
+    border-color: #635bff;
+    color: #4f46e5;
+}
+
+html[data-theme="light"] .explore-filter-btn.has-active-filters.active,
+:root[data-theme="light"] .explore-filter-btn.has-active-filters.active,
+html[data-theme="light"] .explore-filter-btn.has-active-filters:hover,
+:root[data-theme="light"] .explore-filter-btn.has-active-filters:hover {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
+html[data-theme="light"] .explore-filter-btn.has-active-filters.active .filter-badge,
+:root[data-theme="light"] .explore-filter-btn.has-active-filters.active .filter-badge,
+html[data-theme="light"] .explore-filter-btn.has-active-filters:hover .filter-badge,
+:root[data-theme="light"] .explore-filter-btn.has-active-filters:hover .filter-badge {
+    background: #ffffff;
+    color: #4f46e5 !important;
+}
+
+html[data-theme="light"] .explore-filter-btn .filter-badge,
+:root[data-theme="light"] .explore-filter-btn .filter-badge {
+    background: #635bff;
+    color: #ffffff !important;
+}
+
+/* Dark Theme overrides for active filter button & badge */
+html[data-theme="dark"] .explore-filter-btn.has-active-filters {
+    background: rgba(108, 99, 255, 0.18);
+    border-color: #818cf8;
+    color: #e0e7ff;
+}
+
+html[data-theme="dark"] .explore-filter-btn.has-active-filters.active,
+html[data-theme="dark"] .explore-filter-btn.has-active-filters:hover {
+    background: #635bff;
+    color: #ffffff;
+    border-color: #818cf8;
+}
+
+html[data-theme="dark"] .explore-filter-btn.has-active-filters.active .filter-badge,
+html[data-theme="dark"] .explore-filter-btn.has-active-filters:hover .filter-badge {
+    background: #ffffff;
+    color: #635bff !important;
+}
+
+html[data-theme="dark"] .explore-filter-btn .filter-badge {
+    background: #635bff;
+    color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(99, 91, 255, 0.4);
 }
 
 .explore-finder-btn {
@@ -248,11 +347,52 @@ html[data-theme="dark"] .search-submit-btn {
     margin-bottom: 0.75rem;
 }
 
+.explore-filter-panel-title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .explore-filter-panel-header h3 {
     margin: 0;
     font-size: 0.95rem;
     color: var(--text-primary);
     font-weight: 700;
+}
+
+.filter-count-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-primary, #635bff);
+    background: var(--accent-soft, rgba(99, 91, 255, 0.12));
+    border: 1px solid var(--accent-soft, rgba(99, 91, 255, 0.22));
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    line-height: 1.2;
+}
+
+.explore-filter-panel-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-filter-reset {
+    background: transparent !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    color: #ef4444 !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    padding: 0 0.75rem !important;
+    min-height: 36px !important;
+    border-radius: 10px !important;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.btn-filter-reset:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: #ef4444 !important;
 }
 
 .explore-filter-panel-header button,
@@ -729,9 +869,16 @@ html[data-theme="dark"] .category-chip.active {
         flex-shrink: 0;
     }
     .explore-filter-btn {
-        padding: 0.45rem 0.6rem;
+        padding: 0.42rem 0.6rem;
         font-size: 0.78rem;
+        gap: 0.28rem;
         flex-shrink: 0;
+    }
+    .explore-filter-btn .filter-badge {
+        min-width: 1rem;
+        height: 1rem;
+        padding: 0 0.25rem;
+        font-size: 0.65rem;
     }
     .explore-categories {
         padding: 0.65rem 0.65rem;
