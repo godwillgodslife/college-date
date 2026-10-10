@@ -34,9 +34,15 @@
 .explore-search-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1.5rem;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
     background: transparent;
+}
+
+.explore-search-form {
+    flex: 1;
+    display: flex;
+    min-width: 0;
 }
 
 .explore-search-container {
@@ -44,37 +50,47 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--input-bg);
-    border: 1px solid var(--border-strong);
-    border-radius: 12px;
-    padding: 0.65rem 0.85rem;
+    background: var(--input-bg, #ffffff);
+    border: 1.5px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+    border-radius: 9999px;
+    padding: 0.45rem 0.85rem;
     position: relative;
     transition: all 0.25s ease;
+    min-width: 0;
 }
 
 .explore-search-container:focus-within {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    border-color: var(--accent-primary, #635bff);
+    box-shadow: 0 0 0 3px var(--accent-soft, rgba(99, 91, 255, 0.15));
 }
 
 .search-icon-glass {
     font-size: 0.95rem;
-    color: var(--icon-secondary);
+    color: var(--text-muted, #94a3b8);
+    flex-shrink: 0;
 }
 
 .explore-search-input {
     flex: 1;
+    min-width: 0;
     background: transparent;
     border: none;
     outline: none;
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 500;
     font-family: inherit;
 }
 
 .explore-search-input::placeholder {
     color: var(--text-muted);
+}
+
+.explore-search-input::-webkit-search-cancel-button,
+.explore-search-input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
 }
 
 .search-clear-btn {
@@ -86,13 +102,14 @@
     cursor: pointer;
     line-height: 1;
     padding: 0 4px;
+    flex-shrink: 0;
 }
 
 .search-camera-btn {
     background: transparent;
     border: none;
     outline: none;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     cursor: pointer;
     line-height: 1;
     padding: 0 4px;
@@ -100,6 +117,7 @@
     align-items: center;
     justify-content: center;
     transition: transform 0.18s ease;
+    flex-shrink: 0;
 }
 
 .search-camera-btn:hover {
@@ -109,29 +127,31 @@
 .search-spinner-tiny {
     font-size: 0.85rem;
     animation: spin 1s linear infinite;
+    flex-shrink: 0;
 }
 
 .search-submit-btn {
-    background: #0f172a;
-    border: 1px solid #0f172a;
-    color: #ffffff;
+    background: var(--accent-primary, #635bff);
+    border: none;
+    color: #ffffff !important;
     font-size: 0.8rem;
     font-weight: 700;
     padding: 0.35rem 0.85rem;
-    border-radius: 999px;
+    border-radius: 9999px;
     cursor: pointer;
     transition: all 0.18s ease;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 html[data-theme="dark"] .search-submit-btn {
-    background: #ffffff;
-    color: #0a0a0c;
-    border-color: #ffffff;
+    background: #635bff;
+    color: #ffffff !important;
+    border: none;
 }
 
 .search-submit-btn:hover:not(:disabled) {
-    opacity: 0.9;
+    opacity: 0.92;
     transform: translateY(-1px);
 }
 
@@ -169,17 +189,19 @@ html[data-theme="dark"] .search-submit-btn {
 
 .explore-filter-btn {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-default);
+    border: 1.5px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
     color: var(--text-primary);
-    border-radius: 12px;
-    padding: 0.65rem 1rem;
+    border-radius: 9999px;
+    padding: 0.45rem 0.9rem;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
+.explore-filter-btn.active,
 .explore-filter-btn:hover {
     background: var(--accent-soft);
     color: var(--accent-primary);
@@ -644,7 +666,21 @@ html[data-theme="dark"] .category-chip.active {
 .empty-discovery {
     text-align: center;
     padding: 5rem 2rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-secondary, #64748b);
+}
+
+.empty-discovery h2 {
+    color: var(--text-primary, #0f172a);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.empty-discovery p {
+    color: var(--text-secondary, #64748b);
+    font-size: 0.95rem;
+    max-width: 400px;
+    margin: 0 auto 1.25rem;
 }
 
 .empty-emoji {

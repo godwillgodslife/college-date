@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getDiscoverProfiles, trackProfileView, checkSwipeLimit, resetDiscovery, recordSwipe, searchProfilesByName, getExistingMatchWithUser } from '../services/swipeService';
@@ -34,6 +34,7 @@ export default function Explore() {
     const [searchQuery, setSearchQuery] = useState('');
     const [dbSearchResults, setDbSearchResults] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+    const searchTimerRef = useRef(null);
     const categories = ['All', '🔴 Live', 'Newest', 'Near Me', 'Serious', 'Casual', 'Trending'];
 
     const [filters, setFilters] = useState({
@@ -96,6 +97,10 @@ export default function Explore() {
     }, [currentUser?.id, visibleProfileImpressionIds]);
 
     const handlePerformSearch = useCallback(async (queryText) => {
+        if (searchTimerRef.current) {
+            clearTimeout(searchTimerRef.current);
+            searchTimerRef.current = null;
+        }
         const text = (queryText !== undefined ? queryText : searchQuery).trim();
         if (!text) {
             setDbSearchResults(null);
@@ -104,28 +109,45 @@ export default function Explore() {
         }
         setIsSearching(true);
         try {
-            const results = await searchProfilesByName(text, currentUser?.id, userProfile);
-            setDbSearchResults(results);
+            const results = await searchProfilesByName(text, currentUser?.id, userProfile, filters);
+            setDbSearchResults(results || []);
         } catch (err) {
             console.error('[Explore] search error:', err);
+            setDbSearchResults([]);
         } finally {
             setIsSearching(false);
         }
-    }, [searchQuery, currentUser?.id, userProfile]);
+    }, [searchQuery, currentUser?.id, userProfile, filters]);
 
     useEffect(() => {
         if (!searchQuery.trim()) {
+            if (searchTimerRef.current) {
+                clearTimeout(searchTimerRef.current);
+                searchTimerRef.current = null;
+            }
             setDbSearchResults(null);
             setIsSearching(false);
             return;
         }
-        const timer = setTimeout(() => {
+        if (searchTimerRef.current) {
+            clearTimeout(searchTimerRef.current);
+        }
+        searchTimerRef.current = setTimeout(() => {
             handlePerformSearch(searchQuery);
-        }, 400);
-        return () => clearTimeout(timer);
+        }, 350);
+        return () => {
+            if (searchTimerRef.current) {
+                clearTimeout(searchTimerRef.current);
+                searchTimerRef.current = null;
+            }
+        };
     }, [searchQuery, handlePerformSearch]);
 
     const handleClearSearch = () => {
+        if (searchTimerRef.current) {
+            clearTimeout(searchTimerRef.current);
+            searchTimerRef.current = null;
+        }
         setSearchQuery('');
         setDbSearchResults(null);
         setIsSearching(false);
@@ -142,6 +164,7 @@ export default function Explore() {
             university: 'All',
             ageRange: [18, 50]
         });
+        handleClearSearch();
     };
 
     const handleResetDiscovery = async () => {
@@ -155,11 +178,10 @@ export default function Explore() {
         }
     };
 
-    // GATEKEEPING: If the current user has no photos, they can't appear in discovery.
-    // Show them the 'hidden profile' state instead of the grid.
-    const userHasNoPhotos =
-        (safeArray(userProfile?.profile_photos).length === 0) &&
-        !userProfile?.avatar_url;
+    // GATEKEEPING: If the current user profile has loaded and truly has no photos or avatar
+    const userHasNoPhotos = Boolean(userProfile) &&
+        (safeArray(userProfile.profile_photos).length === 0) &&
+        !userProfile.avatar_url;
 
     // Filter profiles based on Search and Live category client-side
     const filteredProfiles = profiles.filter(profile => {
@@ -177,7 +199,7 @@ export default function Explore() {
 
     const displayedProfiles = (dbSearchResults !== null ? dbSearchResults : filteredProfiles).filter(profile => {
         if (profile.is_shadow_banned || profile.is_banned) return false;
-        if (category === '🔴 Live') {
+        if (dbSearchResults === null && category === '🔴 Live') {
             return isRecentlyLive(profile);
         }
         return true;
@@ -234,7 +256,9 @@ export default function Explore() {
 
     if (userHasNoPhotos) return <HiddenProfileBanner />;
 
-    const isLocal = window.location.hostname === 'localhost';
+    const isLocal = Boolean(
+        import.meta.env.DEV && (userProfile?.is_admin || userProfile?.is_staff || currentUser?.is_admin || currentUser?.is_staff)
+    );
 
     return (
         <div className="explore-page">
@@ -242,52 +266,54 @@ export default function Explore() {
             <div className="explore-sticky-header">
                 {/* Search and Filter Row */}
                 <div className="explore-search-row">
-                    <div className="explore-search-container">
-                        <span className="search-icon-glass">🔍</span>
-                        <input
-                            type="text"
-                            placeholder="Search name, username, school..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    handlePerformSearch();
-                                }
-                            }}
-                            className="explore-search-input"
-                        />
-                        {isSearching && <span className="search-spinner-tiny">⏳</span>}
-                        {searchQuery && !isSearching && (
-                            <button className="search-clear-btn" onClick={handleClearSearch} title="Clear">×</button>
-                        )}
-                        <button 
-                            type="button" 
-                            className="search-camera-btn" 
-                            onClick={() => setShowCampusFinder(true)} 
-                            title="Find campus students with camera"
-                            aria-label="Scan campus with camera"
-                        >
-                            📸
-                        </button>
-                        <button 
-                            className="search-submit-btn" 
-                            onClick={() => handlePerformSearch()} 
-                            disabled={isSearching}
-                            type="button"
-                        >
-                            {isSearching ? '...' : 'Search'}
-                        </button>
-                    </div>
+                    <form 
+                        className="explore-search-form" 
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            document.activeElement?.blur();
+                            handlePerformSearch();
+                        }}
+                        action="#"
+                    >
+                        <div className="explore-search-container">
+                            <span className="search-icon-glass">🔍</span>
+                            <input
+                                type="search"
+                                enterKeyHint="search"
+                                placeholder="Search name, school, dept..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        e.target.blur();
+                                        handlePerformSearch(searchQuery);
+                                    }
+                                }}
+                                className="explore-search-input"
+                                autoComplete="off"
+                                autoCapitalize="none"
+                                spellCheck="false"
+                            />
+                            {isSearching && <span className="search-spinner-tiny">⏳</span>}
+                            {searchQuery && !isSearching && (
+                                <button type="button" className="search-clear-btn" onClick={handleClearSearch} title="Clear">×</button>
+                            )}
+                            <button 
+                                className="search-submit-btn" 
+                                type="submit"
+                                disabled={isSearching}
+                            >
+                                {isSearching ? '...' : 'Search'}
+                            </button>
+                        </div>
+                    </form>
                     <button 
                         type="button" 
-                        className="explore-finder-btn" 
-                        onClick={() => setShowCampusFinder(true)}
-                        title="Find students on campus with camera"
+                        className={`explore-filter-btn ${showFilters ? 'active' : ''}`} 
+                        onClick={() => setShowFilters(prev => !prev)}
+                        title="Filter by gender"
                     >
-                        📸 Find
-                    </button>
-                    <button className="explore-filter-btn" onClick={() => setShowFilters(true)}>
                         ⚙️ Filter
                     </button>
                 </div>
@@ -348,7 +374,13 @@ export default function Explore() {
             />
 
             <div className="explore-grid-container">
-                {displayedProfiles.length === 0 ? (
+                {isSearching || (searchQuery.trim() !== '' && dbSearchResults === null && filteredProfiles.length === 0) ? (
+                    <div className="empty-discovery">
+                        <span className="empty-emoji">🔍</span>
+                        <h2>Searching campus...</h2>
+                        <p>Finding students matching "{searchQuery}"...</p>
+                    </div>
+                ) : displayedProfiles.length === 0 ? (
                     <div className="empty-discovery">
                         <span className="empty-emoji">🧊</span>
                         <h2>{dbSearchResults !== null ? 'No students found' : "It's quiet here..."}</h2>

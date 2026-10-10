@@ -1,6 +1,6 @@
 import { clearMobileCache, getMemoryCacheRecord, removeMobileCache, setMobileCache } from './mobileCache';
 
-export const APP_CACHE_VERSION = 'v2.2.64';
+export const APP_CACHE_VERSION = 'v2.2.66';
 const CACHE_PREFIX = `tcd-cache-${APP_CACHE_VERSION}:`;
 const LEGACY_PREFIXES = [
   'tcd-cache:',
@@ -14,7 +14,9 @@ const LEGACY_PREFIXES = [
   'tcd-cache-v2.2.60:',
   'tcd-cache-v2.2.61:',
   'tcd-cache-v2.2.62:',
-  'tcd-cache-v2.2.63:'
+  'tcd-cache-v2.2.63:',
+  'tcd-cache-v2.2.64:',
+  'tcd-cache-v2.2.65:'
 ];
 const DEFAULT_TTL_MS = 5 * 60 * 1000;
 
