@@ -251,12 +251,16 @@ html.is-native-app .profile-page,
 html.is-native-app .dashboard,
 html.is-native-app .notification-center-page,
 html.is-native-app .requests-page,
-html.is-native-app .referrals-page,
 html.is-native-app .wallet-page,
 html.is-native-app .snapshots-page,
 html.is-native-app .status-page,
 html.is-native-app .edit-profile-page {
     padding-top: 0.5rem !important;
+    margin-top: 0 !important;
+}
+
+html.is-native-app .referrals-page {
+    padding-top: calc(env(safe-area-inset-top, 24px) + 24px) !important;
     margin-top: 0 !important;
 }
 
