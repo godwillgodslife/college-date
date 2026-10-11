@@ -10,6 +10,76 @@
 ## Overall Project State
 The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, and production deployment across Web (Netlify) and Android (`v2.2.66` / VC 63). Signed release artifacts, live web deployment, and physical emulator verification completed with zero regressions.
 
+0.0000000000000000000000000000000000000000000000000000000000000. Profile Light Theme Avatar Box Fix, Self-Profile Presence Cleanup & AI Coach Integration (`v2.2.66` / VC 63)
+   - Profile UI/UX Polish & Forensic Alignment:
+     - Avatar Box Shadow Elimination: Removed the dark rectangular shadow/box surrounding the circular avatar in Light Theme (`html[data-theme="light"] .profile-avatar-wrapper`). Enforced strict `border-radius: 50% !important`, `box-shadow: none !important`, and `background: transparent !important` across wrappers, containers, and inner images.
+     - Self-Profile Presence & "LIVE" Badge Removal: Removed `{isOnline && <span className="profile-online-dot" />}` and `{isOnline && <span className="live-badge">LIVE</span>}` from the user's own profile header (`isOwnProfile`) in `src/pages/Profile.jsx`. Preserved public presence and live indicators when other students view public profiles.
+     - Face Verification Button Lifecycle: Confirmed that verified students (`photo_verified || is_verified`) never see "Re-verify", completely unmounting the verification card, while unverified students see the compact `Verify →` card.
+     - AI Profile Coach Relocation & Inline Integration: Removed the standalone `.ai-profile-coach` section from between the header and cards. Integrated coaching directly into `<ProfileCompletion>` (`src/components/ProfileCompletion.jsx`), featuring an inline 1-tap `[🤖 AI Coach]` / `[Hide Tips]` trigger that seamlessly expands actionable profile tips and bio suggestions without adding vertical bloat.
+     - Notification Chronological Grouping Stability: Hardened `test/server-authoritative-notifications-and-ux.test.mjs` test dates against midnight transitions using deterministic local calendar boundaries.
+   - Automated Verification & Quality Gates:
+     - Automated Test Suite: **183/183 tests PASSED** in 1.68s (`npm run test:all`).
+     - Production Vite Build: **PASSED in 21.99s** (`npm run build`).
+     - Capacitor Android Sync: **PASSED** (`npx cap sync android`).
+     - Gradle Release APK Build: **BUILD SUCCESSFUL in 1m 31s** (`assembleRelease`).
+     - Android Studio Emulator Live Verification: Verified on `Pixel_3a_Lightweight` (`emulator-5554`) in system Light Mode (`cmd uimode night no`) via CDP. Confirmed 100% circular avatar without shadow box, no self LIVE/dot indicator, and smooth inline AI Coach drawer expansion with photo proof (`public/evidence_qa/profile_light_verified_fixed.png`, `public/evidence_qa/profile_ai_coach_drawer_light.png`).
+
+0.000000000000000000000000000000000000000000000000000000000000. Bottom Navigation Streamlining, Avatar-First Profile Hierarchy, Face Verification Lifecycle & Subtle Luxury Elite Polish (`v2.2.66` / VC 63)
+   - Streamlined 5-Area User Navigation & Profile UX:
+     - Area 1 (Bottom Navigation Streamlining & Default Match Landing):
+       - Removed `/dashboard` (`Home`) from the persistent bottom navigation bar in `src/components/BottomNav.jsx`.
+       - Exactly 5 core tabs remain: `Match`, `Explore`, `Chats`, `Confessions`, `Profile`.
+       - Configured `SmartHomeRoute` in `src/App.jsx` to immediately navigate authenticated users with completed profiles to `/match` as the authoritative default landing surface.
+     - Area 2 (YouTube-Style Campus Command Center Bridge):
+       - Integrated a sleek, non-intrusive navigation row (`.profile-yt-bridge-wrap` / `.profile-yt-bridge-btn`) directly beneath the profile header in `src/pages/Profile.jsx`.
+       - Emulates YouTube's clean "You" tab pattern: displays `🏛️ Campus Command Center`, `Streaks • Daily Activities`, live balance chip (`₦565`), and subtle chevron (`›`), linking students smoothly to `/dashboard`.
+       - Polished with neutral light/dark elevation tokens, 16px radius, and haptic feedback. Verified live on physical emulator.
+     - Area 3 (Oversized Wallet Entry Card Removal):
+       - Completely removed the bulky gradient `.wallet-entry-card` (previously beneath AI Profile Coach) from `src/pages/Profile.jsx`, eliminating duplicate financial noise and reclaiming vertical screen real estate.
+     - Area 4 (Avatar-First Profile Hierarchy & Conditional Face Verification):
+       - Inverted Profile layout order: the student's avatar image, name, university, and badges now render as the very first element at the top of the Profile canvas above the fold.
+       - Wrapped the permanent verification card with `{!(userProfile?.photo_verified || userProfile?.is_verified) && ...}` in `src/pages/Profile.jsx`: once a student is verified, the card is completely unmounted and eliminated from the page.
+     - Area 5 (Subtle Luxury Elite Badge Polish):
+       - Redesigned the secondary `.premium-badge-pill` next to the user's name in `src/pages/Profile.jsx`, `src/pages/Profile.css`, and `src/styles/androidPolish.css`.
+       - Replaced cartoonish neon glow with an understated, elegant luxury pill: 10.5px typography, warm subtle amber tint (`rgba(245, 158, 11, 0.1)`), 1px border, zero drop shadow, and horizontal alignment with `✓ Verified` and `LIVE` badges.
+   - Automated Verification & Quality Gates:
+     - Automated Test Suite: **183/183 tests PASSED** in 2.0s (`npm run test:all`).
+     - Production Vite Build: **PASSED in 44.13s** (`npm run build`).
+     - Capacitor Android Sync: **PASSED** (`npx cap sync android`).
+     - Android Asset Preparation: **PASSED** (`npm run android:prepare-assets`).
+     - Gradle Release Bundle Build: **BUILD SUCCESSFUL in 1m 56s** (`bundleRelease`).
+     - Google Play Release Gate Verification: **PASSED all 9 Play Store verification gates** (`npm run aab:verify` on `release/TheCollegeDate-2.2.66-vc63-playstore.aab`).
+   - Production Release Artifacts (`v2.2.66` / VC 63):
+     - Google Play AAB: `release/TheCollegeDate-2.2.66-vc63-playstore.aab` (17,848,652 bytes / **17.0 MB**).
+
+0.00000000000000000000000000000000000000000000000000000000000. Multi-Surface Android UX Alignment, Chat Crash Elimination, Dynamic Gender Discovery, Sleek Profile Verification & Confession Optimization (`v2.2.66` / VC 63)
+   - Comprehensive 5-Area Forensic Remediation & Quality Polish:
+     - Area 1 (Dashboard Card Margins & Android Boundary Alignment):
+       - Refactored `.dashboard-streak-card`, `.dashboard-active-program-card`, and `.viewer-teaser-card` in `src/pages/Dashboard.jsx`, `src/pages/Dashboard.css`, `src/components/ViewerTeaser.css`, and `src/styles/androidPolish.css`.
+       - Unified cards with `width: 100% !important; margin: 0 !important; padding: 0.85rem 1rem !important; border-radius: 16px !important;`.
+       - Empirically verified bounding boxes on physical emulator via CDP: `hero: left 16px, right 376.76px`, `teaser: left 16px, right 376.76px`, `streak: left 16px, right 376.76px` (100.0% pixel-aligned with Android page boundaries).
+     - Area 2 (Chat Back Button & Match ErrorBoundary Crash Elimination):
+       - Diagnosed unhandled exception root causes: null-pointer transitions in `src/pages/Chat.jsx` during conversation cleanup (`setSelectedConv(null)`), and unbuilt React hook discrepancies.
+       - Hardened `selectedConv` null guards across chat message lists, virtuoso unmounts, call logs, unblock actions, and `handleCloseConversation`.
+       - Verified text transmission and `←` in-app back navigation on live emulator with zero crashes (`hasError: false, lastError: null`).
+     - Area 3 (Match Page Top Navbar & Dynamic Opposite-Gender Filter):
+       - Replaced previously clipped/unresponsive dropdown menu with a 1-tap cycling action on `.discover-rail-btn` (`👨 Men` -> `👩 Women` -> `✨ All`).
+       - Implemented `resolveOppositeGender(userProfile)` in `src/pages/Match.jsx` ensuring opposite-gender discovery by default (`Female` user sees `👨 Men`, `Male` user sees `👩 Women`) with persistent offline fallback.
+     - Area 4 (Compact Face Verification & Profile Strength Cards):
+       - Re-engineered giant vertical cards in `src/pages/Profile.jsx`, `src/pages/Profile.css`, `src/components/ProfileCompletion.jsx`, and `src/components/ProfileCompletion.css`.
+       - Slimmed Face Verification card from ~220px to a ~52px horizontal row with shield icon, green badge `✓`, subtext `✓ Verified • 3x more match requests`, and compact `Re-verify` button.
+       - Slimmed Profile Strength card from stacked vertical chips to a sleek ~52px horizontal progress bar with percentage and `[Finish Setup →]` CTA, ensuring the student's avatar and profile details are immediately visible above the fold.
+     - Area 5 (Confession Page Instant Loading Audit & Optimization):
+       - Audited `src/services/confessionService.js`: discovered 3 sequential database queries creating a 2.4s waterfall. Parallelized all 3 requests (`query`, `getFeedImpressionMap`, `confession_reposts`) using `Promise.all`.
+       - Eliminated the 300ms mobile touch delay on Android WebViews by enforcing `touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent;` on `.bottom-nav-item` in `src/components/BottomNav.css` and `src/styles/androidPolish.css`. Verified instant 1-tap opening on emulator.
+   - Automated Verification & Quality Gates:
+     - Automated Test Suite: **183/183 tests PASSED** in 2.3s (`npm run test:all`).
+     - Production Vite Build: **PASSED in 22.48s** (`npm run build`).
+     - Gradle Release AAB Build: **BUILD SUCCESSFUL in 1m 2s** (`bundleRelease`).
+     - Play Store Verification: **PASSED all 9 Play Store verification gates** (`npm run aab:verify` on `release/TheCollegeDate-2.2.66-vc63-playstore.aab`).
+   - Production Release Artifacts (`v2.2.66` / VC 63):
+     - Google Play AAB: `release/TheCollegeDate-2.2.66-vc63-playstore.aab` (17,847,123 bytes / **17.0 MB**).
+
 0.0000000000000000000000000000000000000000000000000000000000. Explore Page Polish, Mobile Search IME Dismissal, Gender Filter Recovery & Release (`v2.2.66` / VC 63)
    - Explore Page Forensic Remediation:
      - Form & IME Ergonomics: Wrapped search input in a proper `<form>` with `action="#"` and `onSubmit` blurring `document.activeElement` to reliably dismiss the Android soft keyboard (Gboard/Samsung Keyboard).
