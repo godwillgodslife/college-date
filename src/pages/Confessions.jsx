@@ -22,6 +22,7 @@ const AnonymousInboxModal = lazy(() => import('../components/AnonymousInboxModal
 const ConfessionMediaEditorModal = lazy(() => import('../components/ConfessionMediaEditorModal'));
 const ConfessionShareModal = lazy(() => import('../components/ConfessionShareModal'));
 const ConfessionStoryModal = lazy(() => import('../components/ConfessionStoryModal'));
+const StoryShareModal = lazy(() => import('../components/StoryShareModal'));
 import { recordFeedImpressions } from '../services/feedImpressionService';
 import { supabase } from '../lib/supabase';
 import { getPublicAppUrl } from '../utils/appUrl';
@@ -348,6 +349,7 @@ export default function Confessions() {
     const [rawSelectedFile, setRawSelectedFile] = useState(null);
     const [showMediaEditor, setShowMediaEditor] = useState(false);
     const [showInboxModal, setShowInboxModal] = useState(false);
+    const [showStoryModal, setShowStoryModal] = useState(false);
     const [unreadAskCount, setUnreadAskCount] = useState(0);
     const fileInputRef = useRef(null);
 
@@ -666,6 +668,14 @@ export default function Confessions() {
                         </button>
                         <button
                             type="button"
+                            className="btn-ngl-story"
+                            onClick={() => setShowStoryModal(true)}
+                            title="Generate 9:16 WhatsApp and IG Story Card"
+                        >
+                            📸 Story Card
+                        </button>
+                        <button
+                            type="button"
                             className="btn-ngl-inbox"
                             onClick={() => {
                                 setShowInboxModal(true);
@@ -873,6 +883,15 @@ export default function Confessions() {
                 <ConfessionStoryModal
                     post={storyModalPost}
                     onClose={() => setStoryModalPost(null)}
+                />
+            )}
+
+            {/* Viral Anonymous Q&A 9:16 Story Card Generator */}
+            {showStoryModal && (
+                <StoryShareModal
+                    userProfile={userProfile}
+                    currentUser={currentUser}
+                    onClose={() => setShowStoryModal(false)}
                 />
             )}
             </Suspense>

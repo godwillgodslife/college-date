@@ -133,6 +133,9 @@ function applyDiscoveryFreshness(results, impressionMap, userId, filters, userPr
     });
 }
 
+// Minimum profile count required for single-campus pool before expanding cross-campus
+export const CAMPUS_LIQUIDITY_MIN_THRESHOLD = 15;
+
 // Helper to get profiles for discovery with filters
 export async function getDiscoverProfiles(userId, filters = {}, userProfile = null) {
     try {
@@ -253,6 +256,78 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             } else if (filters.gender !== 'All') {
                 const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
                 results = results.filter(p => (p.gender || '').toLowerCase() === targetGender);
+            }
+        }
+
+        // ── CAMPUS LIQUIDITY & COLD-START EXPANSION ─────────────────────────
+        // If the user's selected campus has fewer than 15 profiles, expand discovery
+        // across other campuses so students never encounter a ghost-town deck.
+        const CAMPUS_LIQUIDITY_MIN_THRESHOLD = 15;
+        if (filters.university && filters.university !== 'All' && results.length < CAMPUS_LIQUIDITY_MIN_THRESHOLD) {
+            try {
+                const existingIds = new Set(results.map(p => p.id));
+                const combinedExcludeIds = [...new Set([...uniqueExcludeIds, ...Array.from(existingIds)])];
+
+                let fallbackQuery = supabase
+                    .from('discovery_feed_v3')
+                    .select('*')
+                    .or('avatar_url.not.is.null,profile_photos.not.eq.{}')
+                    .neq('university', filters.university);
+
+                if (combinedExcludeIds.length > 0) {
+                    fallbackQuery = fallbackQuery.not('id', 'in', `(${combinedExcludeIds.join(',')})`);
+                }
+
+                if (filters.gender && filters.gender !== 'All') {
+                    const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
+                    fallbackQuery = fallbackQuery.eq('gender', targetGender);
+                } else if (!filters.gender && currentUserGender) {
+                    const norm = currentUserGender.toLowerCase();
+                    const oppositeGender = norm === 'male' ? 'female' : norm === 'female' ? 'male' : null;
+                    if (oppositeGender) {
+                        fallbackQuery = fallbackQuery.eq('gender', oppositeGender);
+                    }
+                }
+
+                if (filters.ageRange) {
+                    const [min, max] = filters.ageRange;
+                    if (min) fallbackQuery = fallbackQuery.gte('age', min);
+                    if (max) fallbackQuery = fallbackQuery.lte('age', max);
+                }
+
+                fallbackQuery = fallbackQuery.order('completion_score', { ascending: false }).limit(60 - results.length);
+
+                const { data: fallbackProfiles, error: fallbackError } = await fallbackQuery;
+                if (!fallbackError && Array.isArray(fallbackProfiles) && fallbackProfiles.length > 0) {
+                    let filteredFallback = fallbackProfiles
+                        .filter(p => !p.is_shadow_banned && !p.is_banned && !existingIds.has(p.id))
+                        .map(p => {
+                            const normalized = normalizeProfile(p);
+                            return {
+                                ...normalized,
+                                profile_photos: getProfilePhotos(normalized),
+                                isExpandedCampus: true,
+                                is_expanded_campus: true
+                            };
+                        })
+                        .filter(p => p.profile_photos && p.profile_photos.length > 0);
+
+                    // Strictly preserve gender gatekeeping on fallback profiles
+                    if (currentUserGender) {
+                        const norm = (currentUserGender || '').toLowerCase();
+                        const oppositeGender = norm === 'male' ? 'female' : 'male';
+                        if (!filters.gender) {
+                            filteredFallback = filteredFallback.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
+                        } else if (filters.gender !== 'All') {
+                            const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
+                            filteredFallback = filteredFallback.filter(p => (p.gender || '').toLowerCase() === targetGender);
+                        }
+                    }
+
+                    results = [...results, ...filteredFallback];
+                }
+            } catch (fallbackErr) {
+                console.warn('Campus liquidity expansion fallback error (non-fatal):', fallbackErr);
             }
         }
 

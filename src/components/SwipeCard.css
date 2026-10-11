@@ -125,6 +125,14 @@
     box-shadow: 0 2px 8px rgba(108, 99, 255, 0.25);
 }
 
+.expanded-campus-tag {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.45) 0%, rgba(147, 51, 234, 0.35) 100%) !important;
+    border-color: rgba(147, 197, 253, 0.5) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
 .swipe-card-name {
     font-size: clamp(1.55rem, 7vw, 2.05rem);
     font-weight: 900;

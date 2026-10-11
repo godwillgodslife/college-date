@@ -915,6 +915,7 @@ html[data-theme="light"] .confession-body,
 
 .btn-ngl-copy,
 .btn-ngl-wa,
+.btn-ngl-story,
 .btn-ngl-inbox {
     border: none;
     border-radius: 12px;
@@ -938,6 +939,12 @@ html[data-theme="light"] .confession-body,
 .btn-ngl-wa {
     background: #25d366;
     color: #ffffff;
+}
+
+.btn-ngl-story {
+    background: linear-gradient(135deg, #f43f5e, #7c3aed);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
 }
 
 .btn-ngl-inbox {

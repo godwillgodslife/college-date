@@ -470,6 +470,9 @@ function SwipeCard({
                                 </div>
                             )}
                             <span className="swipe-tag uni-tag">🎓 {university}</span>
+                            {(displayProfile.isExpandedCampus || displayProfile.is_expanded_campus) && (
+                                <span className="swipe-tag expanded-campus-tag">📍 All Campuses</span>
+                            )}
                             {recentlyActive && (
                                 <span className="swipe-tag active-tag">🟢 Recently Active</span>
                             )}
