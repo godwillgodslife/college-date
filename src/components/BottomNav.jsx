@@ -5,6 +5,7 @@ import { usePrefetch } from '../hooks/usePrefetch';
 import { useNotifications } from '../contexts/NotificationContext';
 import { triggerLightHaptic } from '../utils/haptics';
 import { NOTIFICATION_CATEGORIES } from '../utils/notificationRouting';
+import { formatBadgeCount } from '../services/appBadgeService';
 import './BottomNav.css';
 
 const navItems = [
@@ -41,7 +42,7 @@ export default function BottomNav() {
     const { prefetch } = usePrefetch();
     
     // Connect notifications context
-    const { unreadByCategory = {} } = useNotifications();
+    const { unreadByCategory = {}, chatUnreadCount = 0 } = useNotifications();
 
     return (
         <nav className="bottom-nav">
@@ -52,7 +53,7 @@ export default function BottomNav() {
                 // Category-based notification counts
                 let badgeCount = 0;
                 if (item.path === '/chat') {
-                    badgeCount = unreadByCategory[NOTIFICATION_CATEGORIES.MESSAGES] || 0;
+                    badgeCount = chatUnreadCount > 0 ? chatUnreadCount : (unreadByCategory[NOTIFICATION_CATEGORIES.MESSAGES] || 0);
                 } else if (item.path === '/match') {
                     badgeCount = (unreadByCategory[NOTIFICATION_CATEGORIES.MATCHES] || 0)
                         + (unreadByCategory[NOTIFICATION_CATEGORIES.REQUESTS] || 0);
@@ -81,7 +82,7 @@ export default function BottomNav() {
                             {item.icon}
                             {badgeCount > 0 && (
                                 <span className="bottom-nav-badge">
-                                    {badgeCount > 9 ? '9+' : badgeCount}
+                                    {formatBadgeCount(badgeCount)}
                                 </span>
                             )}
                             {hasEarning && badgeCount === 0 && <span className="earning-dot" />}

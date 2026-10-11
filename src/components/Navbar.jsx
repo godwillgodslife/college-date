@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { formatBadgeCount } from '../services/appBadgeService';
 import { useState, useEffect, useRef } from 'react';
 import { usePrefetch } from '../hooks/usePrefetch';
 import NotificationTray from './NotificationTray';
@@ -141,7 +142,7 @@ export default function Navbar() {
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                                 </svg>
                             </span>
-                            {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
+                            {unreadCount > 0 && <span className="notif-badge">{formatBadgeCount(unreadCount)}</span>}
                         </button>
                         {showIndicator && (
                             <div className="notif-indicator-tooltip">

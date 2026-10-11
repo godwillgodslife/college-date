@@ -15,8 +15,14 @@ import {
     countUnreadByCategory,
     getNotificationCategory,
     getNotificationDeepLink,
-    isViewingNotificationDestination
+    isViewingNotificationDestination,
+    NOTIFICATION_CATEGORIES
 } from '../utils/notificationRouting';
+import {
+    setAppBadge,
+    clearAppBadge,
+    calculateLauncherBadgeCount
+} from '../services/appBadgeService';
 import { 
     playNotificationDing, 
     playMatchSuccess, 
@@ -178,7 +184,17 @@ export function NotificationProvider({ children }) {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [unreadByCategory, setUnreadByCategory] = useState({ total: 0 });
+    const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [incomingCall, setIncomingCall] = useState(null);
+
+    useEffect(() => {
+        const handleChatUnreadUpdate = (event) => {
+            const count = Number(event.detail?.count) || 0;
+            setChatUnreadCount(Math.max(0, count));
+        };
+        window.addEventListener('tcd:conversations-unread-updated', handleChatUnreadUpdate);
+        return () => window.removeEventListener('tcd:conversations-unread-updated', handleChatUnreadUpdate);
+    }, []);
 
     // Use a ref for userProfile to keep the realtime callback 'fresh' without re-subscribing
     const profileRef = useRef(userProfile);
@@ -526,7 +542,40 @@ export function NotificationProvider({ children }) {
                 type: 'notifications'
             });
         }
-    }, [notifications]);
+
+        if (currentUser?.id) {
+            const messageNotifsCount = counts[NOTIFICATION_CATEGORIES.MESSAGES] || 0;
+            const totalBadge = calculateLauncherBadgeCount({
+                generalUnreadCount: counts.total,
+                chatUnreadCount,
+                messageNotificationsCount: messageNotifsCount
+            });
+            setAppBadge(totalBadge);
+        } else {
+            clearAppBadge();
+        }
+    }, [notifications, chatUnreadCount, currentUser?.id]);
+
+    // Reconcile unread notifications on app reconnect and when app returns to foreground (Cases 7, 14, 18)
+    useEffect(() => {
+        const handleReconcile = () => {
+            if (currentUser?.id && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+                getNotifications(currentUser.id).then(({ data, error }) => {
+                    if (!error && Array.isArray(data)) {
+                        const validData = deduplicateNotifications(data);
+                        setNotifications(validData);
+                    }
+                }).catch(() => {});
+            }
+        };
+
+        window.addEventListener('online', handleReconcile);
+        document.addEventListener('visibilitychange', handleReconcile);
+        return () => {
+            window.removeEventListener('online', handleReconcile);
+            document.removeEventListener('visibilitychange', handleReconcile);
+        };
+    }, [currentUser?.id]);
 
     const markRead = async (id) => {
         // Optimistic update
@@ -591,6 +640,34 @@ export function NotificationProvider({ children }) {
         }
     };
 
+    const markConversationNotificationsRead = (matchId) => {
+        if (!matchId) return;
+        setNotifications(prev => {
+            let changed = false;
+            const next = prev.map(n => {
+                const nMatchId = n.match_id || n.conversation_id || n.metadata?.match_id || n.metadata?.conversation_id;
+                if (nMatchId === matchId && !n.is_read) {
+                    changed = true;
+                    return { ...n, is_read: true, read_at: new Date().toISOString() };
+                }
+                return n;
+            });
+            return changed ? next : prev;
+        });
+    };
+
+    // Global listener for conversation-read synchronization
+    useEffect(() => {
+        const handleConvRead = (e) => {
+            const matchId = e.detail?.matchId;
+            if (matchId) {
+                markConversationNotificationsRead(matchId);
+            }
+        };
+        window.addEventListener('tcd:conversation-read', handleConvRead);
+        return () => window.removeEventListener('tcd:conversation-read', handleConvRead);
+    }, []);
+
     const dismissNotification = async (id) => {
         if (!id) return;
         // Optimistic state update
@@ -604,14 +681,27 @@ export function NotificationProvider({ children }) {
         await deleteNotification(id).catch(err => console.warn('[NotificationContext] Delete error:', err));
     };
 
-    const value = useMemo(() => ({
-        notifications,
-        unreadCount,
-        unreadByCategory,
-        markRead,
-        markAllRead,
-        dismissNotification
-    }), [notifications, unreadCount, unreadByCategory]);
+    const value = useMemo(() => {
+        const messageNotifsCount = unreadByCategory[NOTIFICATION_CATEGORIES.MESSAGES] || 0;
+        const totalBadgeCount = calculateLauncherBadgeCount({
+            generalUnreadCount: unreadCount,
+            chatUnreadCount,
+            messageNotificationsCount: messageNotifsCount
+        });
+
+        return {
+            notifications,
+            unreadCount,
+            unreadByCategory,
+            chatUnreadCount,
+            totalBadgeCount,
+            setChatUnreadCount,
+            markRead,
+            markAllRead,
+            markConversationNotificationsRead,
+            dismissNotification
+        };
+    }, [notifications, unreadCount, unreadByCategory, chatUnreadCount]);
 
     return (
         <NotificationContext.Provider value={value}>
