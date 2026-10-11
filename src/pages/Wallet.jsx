@@ -217,6 +217,7 @@ export default function Wallet() {
         try {
             const { data: payment, error } = await startPaystackPayment(selectedFundingProduct.productId);
             if (error) throw new Error(error);
+            // openHostedPaystackCheckout(payment)
             await openHostedPaystackCheckout(payment, {
                 onClose: () => {
                     loadWalletData();
@@ -250,14 +251,24 @@ export default function Wallet() {
             return;
         }
 
+        if (!payoutDetails?.bank_name?.trim() || !payoutDetails?.account_number?.trim() || !payoutDetails?.account_name?.trim()) {
+            addToast('Please enter and save your bank payout details below before requesting a withdrawal.', 'warning');
+            return;
+        }
+
+        const cleanAccNum = payoutDetails.account_number.trim().replace(/\D/g, '');
+        if (cleanAccNum.length !== 10) {
+            addToast('Nigerian bank account numbers must be exactly 10 digits.', 'warning');
+            return;
+        }
+
         setIsProcessing(true);
         try {
             const { error } = await requestWalletWithdrawal(amount, {
-                bank_name: payoutDetails.bank_name,
-                account_number: payoutDetails.account_number,
-                account_name: payoutDetails.account_name,
-                paypal_email: payoutDetails.paypal_email,
-                preferred_method: payoutDetails.preferred_method
+                bank_name: payoutDetails.bank_name.trim(),
+                account_number: cleanAccNum,
+                account_name: payoutDetails.account_name.trim(),
+                preferred_method: 'bank'
             });
 
             if (error) throw new Error(error);

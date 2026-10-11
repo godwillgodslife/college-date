@@ -65,13 +65,87 @@
     overflow: visible;
 }
 
+.conversation-row-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-primary, #0f0f1a);
+}
+
+.conv-swipe-actions-left {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3b82f6;
+    z-index: 1;
+}
+
+.conv-swipe-actions-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: #1e1b2e;
+    z-index: 1;
+}
+
+.conv-swipe-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    border: none;
+    color: #ffffff;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: opacity 0.15s ease;
+}
+
+.conv-swipe-btn.read {
+    background: #3b82f6;
+    width: 76px;
+}
+
+.conv-swipe-btn.more {
+    background: #6366f1;
+    width: 50px;
+}
+
+.conv-swipe-btn.delete {
+    background: #ef4444;
+    width: 60px;
+}
+
+.conv-swipe-btn:active {
+    opacity: 0.85;
+}
+
 .conversation-item {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    background: var(--bg-primary, #0f0f1a);
+    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), background 0.15s ease;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
 }
 
 .conversation-item:hover {
@@ -167,6 +241,25 @@
 .msg-snippet.unread-text {
     color: var(--text-primary);
     font-weight: 600;
+}
+
+/* Dating-App Conversation Unread Badge Pill */
+.conv-unread-pill {
+    background: #ff2d55;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(255, 45, 85, 0.4);
+    box-sizing: border-box;
+    letter-spacing: -0.2px;
 }
 
 .msg-snippet.muted {
@@ -3494,3 +3587,210 @@ html[data-theme="light"] .message-received {
 .theme-light .section-label {
     color: #475569;
 }
+
+/* ── Conversation & Message Skeletons (Perceived Performance) ────────── */
+.conversation-skeleton-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.conv-skeleton-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.05));
+}
+
+.conv-skeleton-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.conv-skeleton-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.conv-skeleton-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.conv-skeleton-name {
+    height: 16px;
+    width: 45%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.conv-skeleton-time {
+    height: 12px;
+    width: 38px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.conv-skeleton-msg {
+    height: 14px;
+    width: 75%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Chat bubble placeholders */
+.chat-bubbles-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 1.5rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.chat-bubble-skeleton-item {
+    display: flex;
+    width: 100%;
+}
+
+.chat-bubble-skeleton-item.incoming {
+    justify-content: flex-start;
+}
+
+.chat-bubble-skeleton-item.outgoing {
+    justify-content: flex-end;
+}
+
+.chat-bubble-skeleton-item .bubble-skeleton {
+    padding: 14px 18px;
+    border-radius: 20px;
+    max-width: 68%;
+    min-width: 130px;
+}
+
+.chat-bubble-skeleton-item.incoming .bubble-skeleton {
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom-left-radius: 4px;
+}
+
+.chat-bubble-skeleton-item.outgoing .bubble-skeleton {
+    background: rgba(108, 99, 255, 0.22);
+    border-bottom-right-radius: 4px;
+}
+
+.bubble-skeleton-line {
+    height: 13px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.bubble-skeleton-line.short {
+    width: 60%;
+    margin-top: 6px;
+}
+
+/* Light theme shimmer tokens */
+[data-theme="light"] .conv-skeleton-avatar,
+[data-theme="light"] .conv-skeleton-name,
+[data-theme="light"] .conv-skeleton-time,
+[data-theme="light"] .conv-skeleton-msg,
+.theme-light .conv-skeleton-avatar,
+.theme-light .conv-skeleton-name,
+.theme-light .conv-skeleton-time,
+.theme-light .conv-skeleton-msg {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .conv-skeleton-row,
+.theme-light .conv-skeleton-row {
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .chat-bubble-skeleton-item.incoming .bubble-skeleton,
+.theme-light .chat-bubble-skeleton-item.incoming .bubble-skeleton {
+    background: #e2e8f0;
+}
+
+[data-theme="light"] .chat-bubble-skeleton-item.outgoing .bubble-skeleton,
+.theme-light .chat-bubble-skeleton-item.outgoing .bubble-skeleton {
+    background: rgba(108, 99, 255, 0.18);
+}
+
+[data-theme="light"] .bubble-skeleton-line,
+.theme-light .bubble-skeleton-line {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Failed message retry badge */
+.read-receipt.failed {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: #ef4444 !important;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 1px 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    margin-left: 4px;
+}
+
+.read-receipt.failed:hover {
+    background: rgba(239, 68, 68, 0.24);
+    transform: translateY(-1px);
+}
+
+.read-receipt.failed:active {
+    transform: scale(0.96);
+}
+
+/* Offline Banner Pill */
+.chat-offline-banner-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 7px 14px;
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 20px;
+    color: #fbbf24;
+    font-size: 0.76rem;
+    font-weight: 600;
+    margin: 8px 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: chat-slide-down 0.25s ease;
+}
+
+[data-theme="light"] .chat-offline-banner-pill,
+.theme-light .chat-offline-banner-pill {
+    background: #fef3c7;
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #92400e;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+@keyframes chat-slide-down {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

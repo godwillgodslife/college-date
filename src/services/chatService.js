@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 import { getMessageInfo, isValidMessageId, isMessageDeletedForUser } from '../utils/messageInfo.js';
+import { compressImage } from '../utils/imageCompressor';
 
 export { getMessageInfo, isValidMessageId, isMessageDeletedForUser };
 
@@ -74,6 +75,9 @@ export async function getConversations(userId) {
                 has_unread: lastMsg
                     ? (lastMsg.sender_id !== userId && !lastMsg.is_read)
                     : false,
+                unread_count: (lastMsg && lastMsg.sender_id !== userId && !lastMsg.is_read)
+                    ? (lastMsg.unread_count || 1)
+                    : 0,
                 other_user: otherUser
             };
         });
@@ -360,6 +364,10 @@ export async function markConversationRead(matchId, userId) {
             // Notification sync failure is non-blocking
         }
 
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tcd:conversation-read', { detail: { matchId } }));
+        }
+
         return { error: null };
     } catch (err) {
         console.error('markConversationRead error:', err.message);
@@ -420,11 +428,15 @@ export async function addReaction(messageId, emoji, userId) {
  */
 export async function uploadChatImage(matchId, senderId, file) {
     try {
-        const fileExt = file.type === 'image/webp' ? 'webp' : 'jpg';
+        let uploadFile = file;
+        if (file && file.type && file.type.startsWith('image/') && (file.type !== 'image/webp' || file.size > 200 * 1024)) {
+            uploadFile = await compressImage(file, { maxWidth: 1080, targetSizeKB: 120 });
+        }
+        const fileExt = uploadFile.type === 'image/webp' ? 'webp' : 'jpg';
         const fileName = `matches/${matchId}/images/${senderId}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { data, error } = await supabase.storage
             .from('chat-media')
-            .upload(fileName, file, { contentType: file.type || 'image/jpeg' });
+            .upload(fileName, uploadFile, { contentType: uploadFile.type || 'image/jpeg' });
 
         if (error) throw error;
 

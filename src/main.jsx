@@ -75,10 +75,22 @@ async function initKeyboardOffsetTracking() {
   if (isNative) {
     try {
       const { Keyboard } = await import('@capacitor/keyboard');
-      Keyboard.addListener('keyboardWillShow', (info) => setKeyboardOffset(info?.keyboardHeight));
-      Keyboard.addListener('keyboardDidShow', (info) => setKeyboardOffset(info?.keyboardHeight));
-      Keyboard.addListener('keyboardWillHide', () => setKeyboardOffset(0));
-      Keyboard.addListener('keyboardDidHide', () => setKeyboardOffset(0));
+      Keyboard.addListener('keyboardWillShow', (info) => {
+        setKeyboardOffset(info?.keyboardHeight);
+        window.dispatchEvent(new CustomEvent('tcd:keyboard-show', { detail: info }));
+      });
+      Keyboard.addListener('keyboardDidShow', (info) => {
+        setKeyboardOffset(info?.keyboardHeight);
+        window.dispatchEvent(new CustomEvent('tcd:keyboard-show', { detail: info }));
+      });
+      Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardOffset(0);
+        window.dispatchEvent(new CustomEvent('tcd:keyboard-hide'));
+      });
+      Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardOffset(0);
+        window.dispatchEvent(new CustomEvent('tcd:keyboard-hide'));
+      });
       return;
     } catch (error) {
       console.warn('[Capacitor] Keyboard offset tracking skipped:', error);

@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 import { getFeedImpressionMap, recordFeedImpression } from './feedImpressionService';
+import { compressImage } from '../utils/imageCompressor';
 
 // Emoji set used in Confessions.jsx and DB constraint
 export const REACTION_EMOJIS = ['❤️', '🔥', '😂', '🙊', '🙏', '😢', '😡', '🙈'];
@@ -588,14 +589,19 @@ export async function markAnonymousMessageRead(messageId) {
  */
 export async function uploadConfessionMedia(file, userId) {
     try {
-        const fileExt = file.name ? file.name.split('.').pop() : 'jpg';
+        let uploadFile = file;
+        if (file && file.type && file.type.startsWith('image/')) {
+            uploadFile = await compressImage(file, { maxWidth: 1080, targetSizeKB: 120 });
+        }
+        const fileExt = uploadFile.type === 'image/webp' ? 'webp' : (file.name ? file.name.split('.').pop() : 'jpg');
         const fileName = `${userId || 'anon'}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
             .from('confessions-media')
-            .upload(filePath, file, {
+            .upload(filePath, uploadFile, {
                 cacheControl: '3600',
+                contentType: uploadFile.type || 'image/jpeg',
                 upsert: false
             });
 

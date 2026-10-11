@@ -43,3 +43,23 @@ test('maps validation and application outcomes to user-facing messages', () => {
         'Sign in first so we can apply this referral code.'
     );
 });
+
+test('Referrals.jsx contains WhatsApp sharing and campus-tailored copy', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const referralsCode = readFileSync(resolve('src/pages/Referrals.jsx'), 'utf8');
+    assert.match(referralsCode, /handleShareWhatsApp/);
+    assert.match(referralsCode, /api\.whatsapp\.com\/send\?text=/);
+    assert.match(referralsCode, /share-btn-whatsapp/);
+    assert.match(referralsCode, /Share on WhatsApp/);
+});
+
+test('Wallet.jsx enforces 10-digit Nigerian bank account and prevents empty withdrawals', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const walletCode = readFileSync(resolve('src/pages/Wallet.jsx'), 'utf8');
+    assert.match(walletCode, /payoutDetails\?\.bank_name\?\.trim\(\)/);
+    assert.match(walletCode, /cleanAccNum\.length !== 10/);
+    assert.match(walletCode, /Nigerian bank account numbers must be exactly 10 digits/);
+});
+

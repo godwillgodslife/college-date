@@ -8,6 +8,15 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5188,
     strictPort: true,
+    watch: {
+      ignored: [
+        '**/android/**',
+        '**/ios/**',
+        '**/release/**',
+        '**/dist/**',
+        '**/.git/**'
+      ]
+    },
     hmr: {
       protocol: 'ws',
       host: '127.0.0.1',

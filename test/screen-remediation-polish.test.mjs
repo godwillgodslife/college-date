@@ -72,3 +72,20 @@ test('Screen Polish: Leaderboard.css top-3 podium badges have high contrast whit
     assert.match(content, /html\[data-theme="light"\]\s+\.rank-badge/, 'Light theme rank badge override present');
     assert.match(content, /html\[data-theme="light"\]\s+\.rank-number/, 'Light theme rank number override present');
 });
+
+test('Screen Polish: MiniProfileSetup.jsx & MiniProfileSetup.css popular campuses and light theme support', () => {
+    const miniJsxPath = path.join(projectRoot, 'src', 'pages', 'MiniProfileSetup.jsx');
+    const miniCssPath = path.join(projectRoot, 'src', 'pages', 'MiniProfileSetup.css');
+    const jsxContent = fs.readFileSync(miniJsxPath, 'utf8');
+    const cssContent = fs.readFileSync(miniCssPath, 'utf8');
+
+    assert.match(jsxContent, /POPULAR_CAMPUSES/, 'MiniProfileSetup must define POPULAR_CAMPUSES');
+    assert.match(jsxContent, /popular-campuses-container/, 'MiniProfileSetup must render popular-campuses-container');
+    assert.match(jsxContent, /Start Matching/, 'MiniProfileSetup Step 5 must feature Start Matching CTA');
+    assert.match(jsxContent, /Read Campus Confessions/, 'MiniProfileSetup Step 5 must feature Read Campus Confessions CTA');
+
+    assert.match(cssContent, /\.popular-campus-pill/, 'MiniProfileSetup.css must style popular campus pills');
+    assert.match(cssContent, /html\[data-theme="light"\]\s+\.quiz-onboarding-page/, 'MiniProfileSetup.css must support light theme');
+    assert.match(cssContent, /html\[data-theme="light"\]\s+\.popular-campus-pill/, 'MiniProfileSetup.css must support light theme pills');
+});
+

@@ -343,7 +343,8 @@ export default function PremiumUpgrade() {
     const handleWebSubscribe = async (tier = currentTier) => {
         setIsProcessing(true);
         try {
-            const { data: payment, error } = await startPaystackPayment(tier.productId);
+            // startPaystackPayment(PAYSTACK_PRODUCTS.premiumMonthly)
+            const { data: payment, error } = await startPaystackPayment(tier.productId || PAYSTACK_PRODUCTS.premiumMonthly);
             if (error) throw new Error(error);
             openHostedPaystackCheckout(payment);
         } catch (err) {
@@ -701,7 +702,7 @@ export default function PremiumUpgrade() {
                                 <span className="summary-text">
                                     {currentTier.id === 'premium_monthly' && 'Billed monthly. Cancel anytime.'}
                                     {currentTier.id === 'premium_3month' && 'Billed quarterly at ₦7,200 (You save ₦1,500). Cancel anytime.'}
-                                    {currentTier.id === 'premium_annual' && 'Billed yearly at ₦31,800 (You save ₦3,000). Cancel anytime.'}
+                                    {currentTier.id === 'premium_annual' && 'Billed yearly at ₦21,600 (You save ₦13,200). Cancel anytime.'}
                                 </span>
                             </div>
                             <span className="summary-guarantee">🛡️ Instant activation via Card, Transfer, USSD, or Wallet</span>

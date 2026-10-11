@@ -123,6 +123,169 @@
     }
 }
 
+/* Skeleton Shimmer Loading Card */
+.swipe-card-skeleton {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--card-bg, #14141e);
+    border-radius: 30px;
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.38),
+        0 0 0 1px var(--border-subtle, rgba(255, 255, 255, 0.05)),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    z-index: 5;
+    pointer-events: none;
+}
+
+[data-theme="light"] .swipe-card-skeleton,
+.theme-light .swipe-card-skeleton {
+    background-color: #ffffff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.swipe-skeleton-image {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+[data-theme="light"] .swipe-skeleton-image,
+.theme-light .swipe-skeleton-image {
+    background: linear-gradient(180deg, #f1f3f6 0%, #e2e5eb 100%);
+}
+
+.swipe-skeleton-overlay {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.swipe-skeleton-chips {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.skeleton-chip {
+    height: 24px;
+    width: 80px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.swipe-skeleton-name {
+    height: 32px;
+    width: 60%;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.swipe-skeleton-bio {
+    height: 18px;
+    width: 85%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.swipe-skeleton-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.skeleton-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.skeleton-btn-star {
+    width: 48px;
+    height: 48px;
+}
+
+/* Shimmer pulse animation */
+@keyframes skeleton-shimmer {
+    0% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 0.85;
+    }
+    100% {
+        opacity: 0.4;
+    }
+}
+
+.shimmer {
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+[data-theme="light"] .skeleton-chip,
+[data-theme="light"] .swipe-skeleton-name,
+[data-theme="light"] .swipe-skeleton-bio,
+[data-theme="light"] .skeleton-btn,
+.theme-light .skeleton-chip,
+.theme-light .swipe-skeleton-name,
+.theme-light .swipe-skeleton-bio,
+.theme-light .skeleton-btn {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Offline badge */
+.match-offline-badge {
+    position: absolute;
+    top: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(30, 27, 46, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    animation: match-fade-in 0.3s ease;
+}
+
+[data-theme="light"] .match-offline-badge,
+.theme-light .match-offline-badge {
+    background: rgba(254, 243, 199, 0.95);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #b45309;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.offline-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f59e0b;
+    display: inline-block;
+}
+
 .no-profiles {
     text-align: center;
     color: var(--text-secondary);
@@ -1187,4 +1350,49 @@ html[data-theme="light"] .tooltip-features li,
 html[data-theme="light"] .tooltip-features li strong,
 .theme-light .tooltip-features li strong {
     color: #0f172a;
+}
+
+/* Match Top Bar Notification Button & WhatsApp-Style Badge */
+.discover-notif-btn {
+    position: relative;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.discover-notif-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: scale(1.05);
+}
+
+.discover-notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #25d366;
+    color: #ffffff;
+    font-size: 0.58rem;
+    font-weight: 800;
+    line-height: 1;
+    border-radius: 999px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-card, var(--bg-primary, #0f172a));
+    box-shadow: 0 2px 5px rgba(37, 211, 102, 0.45);
+    letter-spacing: -0.2px;
+    box-sizing: border-box;
 }

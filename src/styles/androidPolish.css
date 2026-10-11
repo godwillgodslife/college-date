@@ -639,16 +639,22 @@ html.is-native-app .chat-input-area {
     -webkit-backdrop-filter: blur(22px);
 }
 
-html.is-native-app .conversation-item {
+html.is-native-app .conversation-row-wrapper {
     margin: 0.35rem 0.55rem;
-    border: 1px solid transparent;
     border-radius: 18px;
+    overflow: hidden;
+}
+
+html.is-native-app .conversation-row-wrapper .conversation-item {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    width: 100%;
     padding: 0.9rem 1rem;
 }
 
-html.is-native-app .conversation-item.active,
-html.is-native-app .conversation-item.unread {
-    border-left: 1px solid rgba(108, 99, 255, 0.26);
+html.is-native-app .conversation-row-wrapper .conversation-item.active,
+html.is-native-app .conversation-row-wrapper .conversation-item.unread {
+    border-left: 2px solid rgba(108, 99, 255, 0.5);
     background: linear-gradient(135deg, rgba(108, 99, 255, 0.16), rgba(255, 107, 157, 0.06));
 }
 

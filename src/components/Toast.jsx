@@ -162,6 +162,24 @@ export function ToastProvider({ children }) {
         info: 'ℹ',
     };
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.__showNotificationToast = (title, body, meta, type = 'info') => {
+                addToast(title, type, 10000, {
+                    variant: 'notification',
+                    title,
+                    body,
+                    meta: meta || 'Tap to open'
+                });
+            };
+        }
+        return () => {
+            if (typeof window !== 'undefined') {
+                delete window.__showNotificationToast;
+            }
+        };
+    }, [addToast]);
+
     return (
         <ToastContext.Provider value={{ addToast, success, error, info, warning }}>
             {children}

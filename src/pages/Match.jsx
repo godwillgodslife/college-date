@@ -29,6 +29,8 @@ import ScoreStreakModal from '../components/ScoreStreakModal';
 import { useActiveProgram } from '../hooks/useActiveProgram';
 import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
+import { useNotifications } from '../contexts/NotificationContext';
+import { formatBadgeCount } from '../services/appBadgeService';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
@@ -49,6 +51,7 @@ function resolveOppositeGender(profile) {
 export default function Match() {
     const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
+    const { unreadCount = 0 } = useNotifications();
     const navigate = useNavigate();
     const currentUserId = currentUser?.id;
 
@@ -89,13 +92,31 @@ export default function Match() {
         });
     }, [userProfile?.gender, userProfile?.interest_gender, hasUserChangedGender]);
 
-    const { data: swrProfiles, mutate: mutateProfiles } = useDiscoveryProfiles(
+    const { data: swrProfiles, error: swrError, mutate: mutateProfiles } = useDiscoveryProfiles(
         currentUserId,
         { ...filters, liveOnly },
         userProfile
     );
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isOffline, setIsOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
+
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (swrError) {
+            setLoading(false);
+        }
+    }, [swrError]);
     const [showFilters, setShowFilters] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
     const [superSwipesAvailable, setSuperSwipesAvailable] = useState(0);
@@ -532,12 +553,37 @@ export default function Match() {
                             <span><kbd>Space</kbd> Bio</span>
                         </div>
 
-                        <div className="discover-swipes-left-badge">
-                            ⚡ <b>{isPremium ? '∞' : freeSwipes}</b> Swipes Left
+                        <div className="discover-top-right-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div className="discover-swipes-left-badge">
+                                ⚡ <b>{isPremium ? '∞' : freeSwipes}</b> Swipes Left
+                            </div>
+                            <button
+                                type="button"
+                                className="discover-notif-btn"
+                                onClick={() => navigate('/notifications')}
+                                aria-label="Notifications"
+                                title="Notifications"
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                </svg>
+                                {unreadCount > 0 && (
+                                    <span className="discover-notif-badge">
+                                        {formatBadgeCount(unreadCount)}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
 
                     <div className="swipe-container">
+                        {isOffline && (
+                            <div className="match-offline-badge" role="status" title="Swipes will be queued offline and synced when reconnected">
+                                <span className="offline-dot" />
+                                <span>Offline Mode • Swipes Saved</span>
+                            </div>
+                        )}
                         <StatusBubbles />
 
                         <ContextualTip
@@ -577,7 +623,24 @@ export default function Match() {
                             )}
                         </div>
 
-                        {profiles.length === 0 ? (
+                        {loading ? (
+                            <div className="swipe-card-skeleton" aria-label="Loading student profiles" role="status">
+                                <div className="swipe-skeleton-image shimmer" />
+                                <div className="swipe-skeleton-overlay">
+                                    <div className="swipe-skeleton-chips">
+                                        <div className="skeleton-chip shimmer" />
+                                        <div className="skeleton-chip shimmer" />
+                                    </div>
+                                    <div className="swipe-skeleton-name shimmer" />
+                                    <div className="swipe-skeleton-bio shimmer" />
+                                    <div className="swipe-skeleton-actions">
+                                        <div className="skeleton-btn shimmer" />
+                                        <div className="skeleton-btn skeleton-btn-star shimmer" />
+                                        <div className="skeleton-btn shimmer" />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : profiles.length === 0 ? (
                             <div className="no-profiles">
                                 <div className="pulse-icon">🔍</div>
                                 <h2>No more profiles right now</h2>

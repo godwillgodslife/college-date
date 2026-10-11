@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { supabase } from '../lib/supabase';
 import { updatePresence } from '../services/profileService';
 import { logoutPushNotifications } from '../services/pushNotification';
+import { clearAppBadge } from '../services/appBadgeService';
 import { hasActivePremium } from '../utils/premium';
 import { clearAppCache, getCachedData, setCachedData } from '../lib/persistentCache';
 import { clearOfflineQueue } from '../lib/offlineQueue';
@@ -651,7 +652,10 @@ export function AuthProvider({ children }) {
             setBiometricLocked(false);
             setBiometricEnabled(false);
 
-            await logoutPushNotifications();
+            await Promise.allSettled([
+                logoutPushNotifications(),
+                clearAppBadge()
+            ]);
 
             const { error: logoutError } = await withTimeout(
                 supabase.auth.signOut({ scope: 'local' }),

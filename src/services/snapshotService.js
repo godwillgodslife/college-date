@@ -1,17 +1,25 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
+import { compressImage } from '../utils/imageCompressor';
 
 // Upload media for snapshot
 export async function uploadSnapshotMedia(file, userId) {
     try {
-        const fileExt = file.name.split('.').pop();
+        let uploadFile = file;
+        if (file && file.type && file.type.startsWith('image/')) {
+            uploadFile = await compressImage(file, { maxWidth: 1080, targetSizeKB: 120 });
+        }
+        const fileExt = uploadFile.type === 'image/webp' ? 'webp' : (file.name ? file.name.split('.').pop() : 'jpg');
         const fileName = `${userId}/${Date.now()}_snapshot.${fileExt}`;
         const filePath = `${fileName}`;
 
         // Using 'snapshot-media' bucket as per migration script
         const { error: uploadError } = await supabase.storage
             .from('snapshot-media')
-            .upload(filePath, file);
+            .upload(filePath, uploadFile, {
+                contentType: uploadFile.type || 'image/jpeg',
+                upsert: true
+            });
 
         if (uploadError) throw uploadError;
 

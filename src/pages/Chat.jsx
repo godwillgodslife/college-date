@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { formatSidebarTimestamp, formatChatTimestamp } from '../utils/formatTimestamp';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import {
     getMessages,
     sendMessage,
@@ -67,6 +68,7 @@ import { recordStreakActivity } from '../services/scoreStreakService';
 import { evaluateDailyQualification } from '../services/activeProgramService';
 import OfficialChannelCard from '../components/OfficialChannelCard';
 import OfficialHubModal from '../components/OfficialHubModal';
+import ChatActionModal from '../components/ChatActionModal';
 import { triggerLightHaptic } from '../utils/haptics';
 import {
     getCampusCommonGround as computeCampusCommonGround,
@@ -138,8 +140,24 @@ import {
 
 
 // ── Tick Read-Receipt Icons ────────────────────────────────────────────
-function ReadReceipt({ msg, isSender }) {
+function ReadReceipt({ msg, isSender, onRetry }) {
     if (!isSender) return null;
+    if (msg._failed) {
+        return (
+            <span
+                className="read-receipt failed"
+                title="Failed to send. Tap to retry."
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (onRetry) onRetry(msg);
+                }}
+                role="button"
+                tabIndex={0}
+            >
+                ⚠️ Tap to retry
+            </span>
+        );
+    }
     if (msg._pending) {
         return <span className="read-receipt pending" title="Sending">⏳</span>;
     }
@@ -254,6 +272,7 @@ function ChatMedia({ msg, type, isSent }) {
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
+    const { markConversationNotificationsRead } = useNotifications() || {};
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -278,6 +297,15 @@ export default function Chat() {
 
     // SWR for Conversations Sidebar via custom hook
     const { data: conversations = [], isLoading: convsLoading, mutate: revalidateConvs } = useConversations(currentUser?.id);
+
+    useEffect(() => {
+        if (Array.isArray(conversations)) {
+            const unreadConvs = conversations.filter(c => c.has_unread).length;
+            window.dispatchEvent(new CustomEvent('tcd:conversations-unread-updated', {
+                detail: { count: unreadConvs }
+            }));
+        }
+    }, [conversations]);
 
     const [callChoiceOpen, setCallChoiceOpen] = useState(false);
     const typingTimeoutRef = useRef(null);
@@ -384,7 +412,53 @@ export default function Chat() {
     const longPressTimer = useRef(null);
     const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
 
+    // Conversation list row swipe & contextual bottom sheet states
+    const [contextConv, setContextConv] = useState(null);
+    const [swipedConvId, setSwipedConvId] = useState(null);
+    const [swipedOffset, setSwipedOffset] = useState(0);
+    const draftsByConvRef = useRef({});
+    const convTouchStartRef = useRef({ x: 0, y: 0, time: 0, id: null, isScrolling: false });
+    const convLongPressTimerRef = useRef(null);
+    const [mutedConvs, setMutedConvs] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('tcd_muted_convs') || '[]');
+        } catch {
+            return [];
+        }
+    });
+
+    const scrollToBottomSmooth = useCallback(() => {
+        if (virtuosoRef.current && messages.length > 0) {
+            virtuosoRef.current.scrollToIndex({
+                index: messages.length - 1,
+                align: 'end',
+                behavior: 'smooth'
+            });
+        }
+    }, [messages.length]);
+
+    useEffect(() => {
+        const handleKeyboardShow = () => {
+            setTimeout(scrollToBottomSmooth, 150);
+        };
+        window.addEventListener('tcd:keyboard-show', handleKeyboardShow);
+        return () => window.removeEventListener('tcd:keyboard-show', handleKeyboardShow);
+    }, [scrollToBottomSmooth]);
+
     const [pendingSelection, setPendingSelection] = useState(null);
+    const [messagesLoading, setMessagesLoading] = useState(false);
+    const [isOffline, setIsOffline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine === false);
+
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const [replyToMessage, setReplyToMessage] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
@@ -731,23 +805,6 @@ export default function Chat() {
         return () => clearInterval(pollTimer);
     }, [pendingSelection, convsLoading]);
 
-
-    // Robust Retry: Watch conversations and pick up pending selection once it arrives
-    useEffect(() => {
-        if (!pendingSelection || conversations.length === 0) return;
-
-        const { chatId, openChatWith } = pendingSelection;
-        const target = chatId 
-            ? conversations.find(c => c?.id === chatId)
-            : conversations.find(c => c?.other_user?.id === openChatWith);
-
-        if (target) {
-            console.log('[Chat] Pending target found! Selecting...');
-            setSelectedConv(target);
-            setPendingSelection(null);
-        }
-    }, [conversations, pendingSelection]);
-
     // ── Hide Navbar on Mobile during active chat ───────
     useEffect(() => {
         if (selectedConv) {
@@ -763,6 +820,10 @@ export default function Chat() {
 
     // ── Dedicated Back Navigation (Android hardware back & in-app back arrow) ──
     const handleCloseConversation = useCallback(() => {
+        if (selectedConv?.id) {
+            draftsByConvRef.current[selectedConv.id] = newMessage;
+        }
+        setNewMessage('');
         setSelectedConv(null);
         setPendingSelection(null);
         setCallChoiceOpen(false);
@@ -780,7 +841,7 @@ export default function Chat() {
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('tcd:active-chat-changed', { detail: { chatId: null } }));
         }
-    }, [location.search, location.state, navigate]);
+    }, [location.search, location.state, navigate, selectedConv?.id, newMessage]);
 
     useEffect(() => {
         if (!selectedConv) return;
@@ -812,15 +873,169 @@ export default function Chat() {
         if (sidebarRef.current) {
             sidebarScrollPos.current = sidebarRef.current.scrollTop;
         }
+        if (selectedConv?.id && selectedConv.id !== conv?.id) {
+            draftsByConvRef.current[selectedConv.id] = newMessage;
+        }
+        const restoredDraft = (conv?.id && draftsByConvRef.current[conv.id]) || '';
+        setNewMessage(restoredDraft);
+
         setSelectedConv(conv);
         setPendingSelection(null);
+        if (conv?.has_unread) {
+            revalidateConvs(
+                (prev) => (prev || []).map(c => c.id === conv.id ? { ...c, has_unread: false, unread_count: 0 } : c),
+                false
+            );
+        }
         if (conv?.id && conv.id !== 'null' && !String(conv.id).startsWith('temp-')) {
             navigate(`/chat?chatId=${conv.id}`, { replace: true });
             if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('tcd:active-chat-changed', { detail: { chatId: conv.id } }));
             }
         }
+    }, [navigate, revalidateConvs, selectedConv?.id, newMessage]);
+
+    // ── Contextual Actions for Chat List Bottom Sheet & Gestures ──
+    const handleToggleConvRead = useCallback((conv) => {
+        if (!conv?.id) return;
+        const isCurrentlyUnread = Boolean(conv.has_unread);
+        if (isCurrentlyUnread) {
+            markConversationRead(conv.id, currentUser?.id);
+            if (typeof markConversationNotificationsRead === 'function') {
+                markConversationNotificationsRead(conv.id);
+            }
+            revalidateConvs(
+                (prev) => (prev || []).map(c => c.id === conv.id ? { ...c, has_unread: false, unread_count: 0 } : c),
+                false
+            );
+            addToast('Marked as read', 'info');
+        } else {
+            revalidateConvs(
+                (prev) => (prev || []).map(c => c.id === conv.id ? { ...c, has_unread: true, unread_count: 1 } : c),
+                false
+            );
+            window.dispatchEvent(new CustomEvent('tcd:conversations-unread-updated', { detail: { count: 1 } }));
+            addToast('Marked as unread', 'info');
+        }
+    }, [currentUser?.id, markConversationNotificationsRead, revalidateConvs, addToast]);
+
+    const handleViewProfile = useCallback((conv) => {
+        const targetUserId = conv?.other_user?.id;
+        if (targetUserId) {
+            navigate(`/profile/${targetUserId}`);
+        }
     }, [navigate]);
+
+    const handleToggleConvMute = useCallback((conv) => {
+        if (!conv?.id) return;
+        setMutedConvs(prev => {
+            const isMuted = prev.includes(conv.id);
+            const updated = isMuted ? prev.filter(id => id !== conv.id) : [...prev, conv.id];
+            try {
+                localStorage.setItem('tcd_muted_convs', JSON.stringify(updated));
+            } catch (e) {
+                console.warn('[Chat] Failed to persist muted convs:', e);
+            }
+            addToast(isMuted ? 'Notifications unmuted' : 'Notifications muted', 'info');
+            return updated;
+        });
+    }, [addToast]);
+
+    const handleDeleteConv = useCallback(async (conv) => {
+        if (!conv?.id) return;
+        try {
+            revalidateConvs((prev) => (prev || []).filter(c => c.id !== conv.id), false);
+            if (selectedConv?.id === conv.id) {
+                handleCloseConversation();
+            }
+            await supabase.from('matches').delete().eq('id', conv.id);
+            addToast('Conversation removed', 'info');
+        } catch (err) {
+            console.warn('[Chat] Delete conversation error:', err);
+        }
+    }, [revalidateConvs, selectedConv?.id, handleCloseConversation, addToast]);
+
+    const handleConvTouchStart = (e, conv) => {
+        const touch = e.touches[0];
+        convTouchStartRef.current = {
+            x: touch.clientX,
+            y: touch.clientY,
+            time: Date.now(),
+            id: conv.id,
+            isScrolling: false
+        };
+
+        if (convLongPressTimerRef.current) {
+            clearTimeout(convLongPressTimerRef.current);
+        }
+
+        convLongPressTimerRef.current = setTimeout(() => {
+            triggerLightHaptic();
+            setContextConv(conv);
+            setSwipedConvId(null);
+            setSwipedOffset(0);
+        }, 500);
+    };
+
+    const handleConvTouchMove = (e, conv) => {
+        const touch = e.touches[0];
+        const dx = touch.clientX - convTouchStartRef.current.x;
+        const dy = touch.clientY - convTouchStartRef.current.y;
+
+        // Disambiguate vertical scroll vs horizontal swipe
+        if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) {
+            // User is scrolling vertically through list
+            if (convLongPressTimerRef.current) {
+                clearTimeout(convLongPressTimerRef.current);
+                convLongPressTimerRef.current = null;
+            }
+            convTouchStartRef.current.isScrolling = true;
+            return;
+        }
+
+        if (Math.abs(dx) > 10) {
+            // Horizontal swipe gesture in progress
+            if (convLongPressTimerRef.current) {
+                clearTimeout(convLongPressTimerRef.current);
+                convLongPressTimerRef.current = null;
+            }
+        }
+    };
+
+    const handleConvTouchEnd = (e, conv) => {
+        if (convLongPressTimerRef.current) {
+            clearTimeout(convLongPressTimerRef.current);
+            convLongPressTimerRef.current = null;
+        }
+
+        if (convTouchStartRef.current.isScrolling) {
+            return;
+        }
+
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - convTouchStartRef.current.x;
+        const dt = Date.now() - convTouchStartRef.current.time;
+
+        if (dx > 60) {
+            // Swiped right -> reveal left read/unread action (76px)
+            triggerLightHaptic();
+            setSwipedConvId(swipedConvId === conv.id ? null : conv.id);
+            setSwipedOffset(76);
+        } else if (dx < -60) {
+            // Swiped left -> reveal right actions (-110px)
+            triggerLightHaptic();
+            setSwipedConvId(swipedConvId === conv.id ? null : conv.id);
+            setSwipedOffset(-110);
+        } else if (Math.abs(dx) < 10 && dt < 450) {
+            // Normal tap
+            if (swipedConvId) {
+                setSwipedConvId(null);
+                setSwipedOffset(0);
+            } else {
+                handleSelectConversation(conv);
+            }
+        }
+    };
 
     useEffect(() => {
         const convId = selectedConv?.id;
@@ -844,10 +1059,16 @@ export default function Chat() {
                 .filter(Boolean);
             const initialMessages = [...cachedMessages, ...queuedMessages].reduce(mergeMessageList, []);
             setMessages(initialMessages);
+            if (initialMessages.length === 0) {
+                setMessagesLoading(true);
+            }
             loadMessages(convId, 0, true);
         }
 
         markConversationRead(convId, currentUser.id);
+        if (typeof markConversationNotificationsRead === 'function') {
+            markConversationNotificationsRead(convId);
+        }
 
         const msgSub = subscribeToMessages(
             convId,
@@ -912,7 +1133,10 @@ export default function Chat() {
 
     // ── Load messages (paginated) ──────────────────────────────────────
     async function loadMessages(matchId, pageNum = 0, reset = false) {
-        if (!matchId || matchId === 'null' || String(matchId).startsWith('temp-')) return;
+        if (!matchId || matchId === 'null' || String(matchId).startsWith('temp-')) {
+            setMessagesLoading(false);
+            return;
+        }
         try {
             const { data = [], total = 0, error } = await getMessages(matchId, pageNum);
 
@@ -946,6 +1170,8 @@ export default function Chat() {
             }
         } catch (err) {
             console.error('[Chat] loadMessages error:', err);
+        } finally {
+            setMessagesLoading(false);
         }
     }
 
@@ -1033,6 +1259,9 @@ export default function Chat() {
         };
 
         setMessages(prev => mergeMessageList(prev, optimisticMsg));
+        if (selectedConv?.id) {
+            delete draftsByConvRef.current[selectedConv.id];
+        }
         setNewMessage('');
         setReplyToMessage(null);
         setSending(true);
@@ -1178,6 +1407,49 @@ export default function Chat() {
 
         return () => window.removeEventListener('online', handleOnline);
     }, [currentUser?.id, flushPendingMessages]);
+
+    const handleRetryMessage = async (msg) => {
+        if (!msg || !currentUser?.id) return;
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            addToast('You are currently offline. Message will send once connection returns.', 'info');
+            return;
+        }
+
+        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, _pending: true, _failed: false } : m));
+        const clientNonce = msg.metadata?.client_nonce || createClientNonce();
+        const metadata = {
+            ...(msg.metadata || {}),
+            client_nonce: clientNonce,
+            recipientIsActive: Boolean(isOtherOnline),
+            suppressPush: Boolean(isOtherOnline),
+            suppress_push: Boolean(isOtherOnline),
+            suppress_email: Boolean(isOtherOnline)
+        };
+
+        try {
+            const { data, error } = await sendMessage(
+                msg.match_id || selectedConv?.id,
+                currentUser.id,
+                msg.content,
+                msg.type || 'text',
+                metadata
+            );
+
+            if (error) {
+                setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, _pending: true, _failed: true } : m));
+                addToast('Could not resend message. Tap retry again when signal improves.', 'error');
+            } else if (data) {
+                removeOfflineOperation(currentUser.id, `send_message:${clientNonce}`);
+                setMessages(prev => mergeMessageList(prev, data));
+                playSendSwoosh();
+                addToast('Message sent! 🚀', 'success');
+            }
+        } catch (err) {
+            console.error('[Chat] Retry message exception:', err);
+            setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, _pending: true, _failed: true } : m));
+            addToast('Could not resend: ' + (err.message || 'Network error'), 'error');
+        }
+    };
 
     const handleTyping = () => {
         if (!selectedConv || !currentUser || !userProfile) return;
@@ -2063,6 +2335,9 @@ export default function Chat() {
         if (filterTab === 'Online') {
             return matchesSearch && (presence[conv.other_user?.id]?.length || 0) > 0;
         }
+        if (filterTab === 'Matches') {
+            return matchesSearch && (!conv.last_message || conv.last_message_type === null);
+        }
         return matchesSearch;
     });
 
@@ -2183,6 +2458,13 @@ export default function Chat() {
                     <h1>Messages</h1>
                 </div>
 
+                {isOffline && (
+                    <div className="chat-offline-banner-pill" role="status">
+                        <span className="offline-dot" />
+                        <span>Offline • Messages queued</span>
+                    </div>
+                )}
+
                 <ContextualTip
                     featureId="messages_chat"
                     className="chat-contextual-tip"
@@ -2265,7 +2547,20 @@ export default function Chat() {
                     <OfficialChannelCard onClick={() => setOfficialHubOpen(true)} />
 
                     {convsLoading && conversations.length === 0 ? (
-                        <LoadingSpinner text="Opening messages..." />
+                        <div className="conversation-skeleton-list" aria-label="Loading conversations" role="status">
+                            {[1, 2, 3, 4, 5].map((idx) => (
+                                <div key={idx} className="conv-skeleton-row shimmer">
+                                    <div className="conv-skeleton-avatar" />
+                                    <div className="conv-skeleton-content">
+                                        <div className="conv-skeleton-top">
+                                            <div className="conv-skeleton-name" />
+                                            <div className="conv-skeleton-time" />
+                                        </div>
+                                        <div className="conv-skeleton-msg" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : filteredConvs.length === 0 ? (
                         <div className="chat-empty-state"><p>No messages found.</p></div>
                     ) : (
@@ -2274,32 +2569,115 @@ export default function Chat() {
                             const isOnline = (presence[conv.other_user?.id]?.length || 0) > 0;
                             const isSentByMe = conv.last_message_sender_id === currentUser?.id;
                             const hasUnread = conv.has_unread && selectedConv?.id !== conv.id;
+                            const isMuted = mutedConvs.includes(conv.id);
+                            const isSwiped = swipedConvId === conv.id;
                             const typePrefix = conv.last_message_type === 'voice' ? '🎙️ ' : conv.last_message_type === 'gift' ? '🎁 ' : conv.last_message_type === 'sticker' ? '😊 ' : '';
                             return (
-                                <div key={conv.id} className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`} onClick={() => handleSelectConversation(conv)}>
-                                    <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
-                                        <img src={getAvatarUrl(conv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
-                                        {isOnline && <span className="online-dot" />}
-                                        {hasActivePremium(conv.other_user) && (
-                                            <span className="chat-avatar-premium-badge" title="Premium Member">👑</span>
-                                        )}
+                                <div key={conv.id} className="conversation-row-wrapper">
+                                    {/* Left swipe actions (revealed when swiped right) */}
+                                    <div className="conv-swipe-actions-left">
+                                        <button
+                                            type="button"
+                                            className="conv-swipe-btn read"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleConvRead(conv);
+                                                setSwipedConvId(null);
+                                                setSwipedOffset(0);
+                                            }}
+                                            aria-label={conv.has_unread ? "Mark as read" : "Mark as unread"}
+                                        >
+                                            <span>{conv.has_unread ? '📬' : '✉️'}</span>
+                                            <span>{conv.has_unread ? 'Read' : 'Unread'}</span>
+                                        </button>
                                     </div>
-                                    <div className="conv-info">
-                                        <div className="conv-name-row">
-                                            <span className={`conv-name ${hasUnread ? 'bold' : ''}`}>
-                                                {conv.other_user?.full_name || 'User'}
-                                                {hasActivePremium(conv.other_user) && <span className="premium-crown" title="Premium Member">👑</span>}
-                                                {(conv.other_user?.is_verified || conv.other_user?.photo_verified) && (
-                                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
-                                                )}
-                                            </span>
-                                            <span className="conv-time">{formatSidebarTimestamp(conv.last_message_at)}</span>
+
+                                    {/* Right swipe actions (revealed when swiped left) */}
+                                    <div className="conv-swipe-actions-right">
+                                        <button
+                                            type="button"
+                                            className="conv-swipe-btn more"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setContextConv(conv);
+                                                setSwipedConvId(null);
+                                                setSwipedOffset(0);
+                                            }}
+                                            aria-label="More conversation options"
+                                        >
+                                            <span>⋯</span>
+                                            <span>More</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="conv-swipe-btn delete"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setContextConv(conv);
+                                                setSwipedConvId(null);
+                                                setSwipedOffset(0);
+                                            }}
+                                            aria-label="Delete conversation"
+                                        >
+                                            <span>🗑️</span>
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+
+                                    <div
+                                        className={`conversation-item ${selectedConv?.id === conv.id ? 'active' : ''} ${hasUnread ? 'unread' : ''}`}
+                                        style={isSwiped ? { transform: `translateX(${swipedOffset}px)` } : undefined}
+                                        onTouchStart={(e) => handleConvTouchStart(e, conv)}
+                                        onTouchMove={(e) => handleConvTouchMove(e, conv)}
+                                        onTouchEnd={(e) => handleConvTouchEnd(e, conv)}
+                                        onTouchCancel={() => {
+                                            if (convLongPressTimerRef.current) clearTimeout(convLongPressTimerRef.current);
+                                        }}
+                                        onContextMenu={(e) => {
+                                            e.preventDefault();
+                                            triggerLightHaptic();
+                                            setContextConv(conv);
+                                        }}
+                                        onClick={() => {
+                                            if (swipedConvId) {
+                                                setSwipedConvId(null);
+                                                setSwipedOffset(0);
+                                            } else {
+                                                handleSelectConversation(conv);
+                                            }
+                                        }}
+                                    >
+                                        <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
+                                            <img src={getAvatarUrl(conv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
+                                            {isOnline && <span className="online-dot" />}
+                                            {hasActivePremium(conv.other_user) && (
+                                                <span className="chat-avatar-premium-badge" title="Premium Member">👑</span>
+                                            )}
                                         </div>
-                                        <div className="conv-last-msg">
-                                            {isTypingNow ? <span className="typing-text">typing...</span> : <span className={`msg-snippet ${hasUnread ? 'unread-text' : ''}`}>{isSentByMe ? 'You: ' : ''}{typePrefix}{conv.last_message || 'Say hi 👋'}</span>}
+                                        <div className="conv-info">
+                                            <div className="conv-name-row">
+                                                <span className={`conv-name ${hasUnread ? 'bold' : ''}`}>
+                                                    {conv.other_user?.full_name || 'User'}
+                                                    {isMuted && <span className="conv-muted-icon" title="Notifications muted"> 🔕</span>}
+                                                    {hasActivePremium(conv.other_user) && <span className="premium-crown" title="Premium Member">👑</span>}
+                                                    {(conv.other_user?.is_verified || conv.other_user?.photo_verified) && (
+                                                        <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                                    )}
+                                                </span>
+                                                <span className="conv-time">{formatSidebarTimestamp(conv.last_message_at)}</span>
+                                            </div>
+                                            <div className="conv-last-msg">
+                                                {isTypingNow ? <span className="typing-text">typing...</span> : <span className={`msg-snippet ${hasUnread ? 'unread-text' : ''} ${isMuted ? 'muted' : ''}`}>{isSentByMe ? 'You: ' : ''}{typePrefix}{conv.last_message || 'Say hi 👋'}</span>}
+                                            </div>
+                                        </div>
+                                        <div className="conv-meta-right">
+                                            {hasUnread && (
+                                                <span className="conv-unread-pill">
+                                                    {conv.unread_count > 99 ? '99+' : (conv.unread_count || 1)}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="conv-meta-right">{hasUnread && <span className="unread-badge">●</span>}</div>
                                 </div>
                             );
                         })
@@ -2479,13 +2857,45 @@ export default function Chat() {
                             </div>
                         </div>
 
+                        {isOffline && (
+                            <div className="chat-offline-banner-pill" role="status">
+                                <span className="offline-dot" />
+                                <span>Offline Mode • Messages will send when connected</span>
+                            </div>
+                        )}
+
                         <div className="messages-container">
                             {activeDisappearingSeconds > 0 && (
                                 <div className="disappearing-notice">
                                     Messages in this chat disappear after {activeDisappearingLabel.toLowerCase()}.
                                 </div>
                             )}
-                            {messages.length === 0 ? (
+                            {messagesLoading && messages.length === 0 ? (
+                                <div className="chat-bubbles-skeleton" aria-label="Loading messages" role="status">
+                                    <div className="chat-bubble-skeleton-item incoming">
+                                        <div className="bubble-skeleton shimmer">
+                                            <div className="bubble-skeleton-line" />
+                                            <div className="bubble-skeleton-line short" />
+                                        </div>
+                                    </div>
+                                    <div className="chat-bubble-skeleton-item outgoing">
+                                        <div className="bubble-skeleton shimmer">
+                                            <div className="bubble-skeleton-line" />
+                                        </div>
+                                    </div>
+                                    <div className="chat-bubble-skeleton-item incoming">
+                                        <div className="bubble-skeleton shimmer">
+                                            <div className="bubble-skeleton-line" />
+                                        </div>
+                                    </div>
+                                    <div className="chat-bubble-skeleton-item outgoing">
+                                        <div className="bubble-skeleton shimmer">
+                                            <div className="bubble-skeleton-line" />
+                                            <div className="bubble-skeleton-line short" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : messages.length === 0 ? (
                                 (() => {
                                     const { highlight, badges } = getCampusCommonGround(selectedConv?.other_user, userProfile);
                                     const icebreakers = getCampusIcebreakers(selectedConv?.other_user, userProfile);
@@ -2602,7 +3012,7 @@ export default function Chat() {
                                                     <span className="message-time">
                                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
-                                                    <ReadReceipt msg={msg} isSender={isSent} />
+                                                    <ReadReceipt msg={msg} isSender={isSent} onRetry={handleRetryMessage} />
                                                 </div>
                                                 {renderReactions(msg)}
                                             </div>
@@ -2837,6 +3247,7 @@ export default function Chat() {
                                                 className="chat-input chat-textarea"
                                                 placeholder="Message"
                                                 value={newMessage}
+                                                onFocus={scrollToBottomSmooth}
                                                 onChange={e => { setNewMessage(e.target.value); handleTyping(); }}
                                                 onCompositionStart={() => {
                                                     isComposingRef.current = true;
@@ -2908,7 +3319,7 @@ export default function Chat() {
                                         <h3 className="section-label">✨ New Matches</h3>
                                         <div className="new-matches-row">
                                             {conversations.filter(c => c && !c.last_message).slice(0, 5).map(conv => (
-                                                <div key={conv.id} className="new-match-avatar-card" onClick={() => setSelectedConv(conv)}>
+                                                <div key={conv.id} className="new-match-avatar-card" onClick={() => handleSelectConversation(conv)}>
                                                     <div className="avatar-ring"><img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'Match'} /></div>
                                                     <span className="match-name">{conv.other_user?.full_name?.split(' ')[0] || 'Match'}</span>
                                                 </div>
@@ -2920,7 +3331,7 @@ export default function Chat() {
                                     <h3 className="section-label">🕒 Recent Chats</h3>
                                     <div className="recent-chats-grid">
                                         {conversations.filter(c => c && c.last_message).slice(0, 6).map(conv => (
-                                            <div key={conv.id} className="recent-chat-card glass" onClick={() => setSelectedConv(conv)}>
+                                            <div key={conv.id} className="recent-chat-card glass" onClick={() => handleSelectConversation(conv)}>
                                                 <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'User'} className="card-avatar" />
                                                 <div className="card-info"><span className="card-name">{conv.other_user?.full_name || 'User'}</span><p className="card-last-msg">{conv.last_message}</p></div>
                                                 <div className="card-arrow">→</div>
@@ -2948,6 +3359,17 @@ export default function Chat() {
                 isOpen={officialHubOpen}
                 onClose={() => setOfficialHubOpen(false)}
             />
+            {contextConv && (
+                <ChatActionModal
+                    conversation={contextConv}
+                    isMuted={mutedConvs.includes(contextConv?.id)}
+                    onClose={() => setContextConv(null)}
+                    onToggleRead={handleToggleConvRead}
+                    onViewProfile={handleViewProfile}
+                    onToggleMute={handleToggleConvMute}
+                    onDeleteConversation={handleDeleteConv}
+                />
+            )}
         </div>
     );
 }

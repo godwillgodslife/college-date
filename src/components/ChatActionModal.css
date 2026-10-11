@@ -1,0 +1,306 @@
+/* ChatActionModal.css - Long Press Bottom Sheet for Conversations */
+
+.chat-action-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999 !important;
+    background: rgba(0, 0, 0, 0.72) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: chatActionFadeIn 0.2s ease-out both;
+}
+
+@keyframes chatActionFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.chat-action-sheet {
+    background: #181524;
+    background: linear-gradient(180deg, #201a32 0%, #141121 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 1rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(108, 99, 255, 0.15);
+    animation: chatActionSlideUp 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes chatActionSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.chat-action-handle {
+    width: 38px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    margin: 0 auto 1rem;
+}
+
+/* Contact Preview Card */
+.chat-action-contact-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    margin-bottom: 1.1rem;
+}
+
+.chat-action-avatar-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.chat-action-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(108, 99, 255, 0.4);
+}
+
+.chat-action-verified-tick {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    background: #10b981;
+    color: #ffffff;
+    font-size: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    border: 2px solid #181524;
+}
+
+.chat-action-contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.chat-action-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chat-action-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-action-subtext {
+    font-size: 0.82rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Action Buttons */
+.chat-action-buttons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.chat-action-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    color: var(--text-primary, #ffffff);
+    font-size: 0.96rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, transform 0.1s ease;
+    touch-action: manipulation;
+}
+
+.chat-action-item:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.985);
+}
+
+.chat-action-icon {
+    font-size: 1.25rem;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-action-label {
+    flex: 1;
+}
+
+.chat-action-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+}
+
+.chat-action-item.danger {
+    color: #ef4444;
+}
+
+.chat-action-item.danger:active {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.chat-action-item.cancel {
+    justify-content: center;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Delete Confirmation Card */
+.chat-action-confirm-card {
+    text-align: center;
+    padding: 0.75rem 0.5rem 0.5rem;
+    animation: chatActionFadeIn 0.2s ease-out;
+}
+
+.chat-action-warning-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.chat-action-confirm-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    margin: 0 0 0.5rem;
+}
+
+.chat-action-confirm-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    line-height: 1.4;
+    margin: 0 0 1.25rem;
+}
+
+.chat-action-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-action-btn-danger {
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 14px;
+    border: none;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.chat-action-btn-danger:active {
+    opacity: 0.85;
+}
+
+.chat-action-btn-cancel {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ── Light Theme Adaptations ────────────────────────────────────────── */
+html[data-theme="light"] .chat-action-sheet,
+.theme-light .chat-action-sheet {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.16);
+}
+
+html[data-theme="light"] .chat-action-handle,
+.theme-light .chat-action-handle {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="light"] .chat-action-contact-card,
+.theme-light .chat-action-contact-card {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .chat-action-name,
+.theme-light .chat-action-name {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .chat-action-subtext,
+.theme-light .chat-action-subtext {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .chat-action-item,
+.theme-light .chat-action-item {
+    color: #1e293b !important;
+}
+
+html[data-theme="light"] .chat-action-item.danger,
+.theme-light .chat-action-item.danger {
+    color: #ef4444 !important;
+}
+
+html[data-theme="light"] .chat-action-item:active,
+.theme-light .chat-action-item:active {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .chat-action-divider,
+.theme-light .chat-action-divider {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .chat-action-btn-cancel,
+.theme-light .chat-action-btn-cancel {
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #475569 !important;
+}

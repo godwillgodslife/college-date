@@ -159,28 +159,58 @@ export default function Referrals() {
         return null;
     }
 
+    const handleShareWhatsApp = async () => {
+        const code = referralCode || await ensureReferralCode();
+        if (!code) return;
+        const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
+        const campus = userProfile?.university || userProfile?.campus || '';
+        const campusText = campus ? `at ${campus}` : 'across campus';
+        const message = `Hey! 🎓 Check out The College Date — it's the verified student app for dating & networking ${campusText}.\n\nUse my invite code *${code}* to get 20 bonus free swipes! 🚀\n\nJoin here: ${referralLink}`;
+
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+        if (typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
+            try {
+                const { Browser } = await import('@capacitor/browser');
+                await Browser.open({ url: whatsappUrl });
+                return;
+            } catch {
+                // fall through to window.open
+            }
+        }
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    };
+
     const handleCopyLink = async () => {
         const code = referralCode || await ensureReferralCode();
         if (!code) return;
         const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
 
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Join me on The College Date',
-                    text: 'Join The College Date and start meeting students around your campus.',
-                    url: referralLink
-                });
-                return;
-            } catch {
-                // Fall back to copying if the native share sheet is cancelled or unavailable.
-            }
-        }
-
         await copyToClipboard(referralLink);
         setCopying(true);
         addToast('Referral link copied to clipboard!', 'success');
         setTimeout(() => setCopying(false), 2000);
+    };
+
+    const handleNativeShare = async () => {
+        const code = referralCode || await ensureReferralCode();
+        if (!code) return;
+        const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
+        const campus = userProfile?.university || userProfile?.campus || '';
+        const campusText = campus ? `at ${campus}` : 'on campus';
+
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'The College Date',
+                    text: `Join me on The College Date ${campusText}! Use my code ${code} for 20 free swipes.`,
+                    url: referralLink
+                });
+                return;
+            } catch {
+                // fall through
+            }
+        }
+        await handleCopyLink();
     };
 
     const handleCopyCode = async () => {
@@ -249,9 +279,30 @@ export default function Referrals() {
                     </div>
 
                     <div className="share-actions">
-                        <button className="btn btn-primary share-btn" onClick={handleCopyLink}>
-                            {copying ? 'Copied!' : 'Copy Referral Link'}
+                        <button
+                            type="button"
+                            className="btn btn-whatsapp share-btn-whatsapp"
+                            onClick={handleShareWhatsApp}
+                        >
+                            <span className="share-icon">💬</span> Share on WhatsApp
                         </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary share-btn"
+                            onClick={handleCopyLink}
+                        >
+                            <span className="share-icon">📋</span> {copying ? 'Copied!' : 'Copy Link'}
+                        </button>
+                        {typeof navigator !== 'undefined' && Boolean(navigator.share) && (
+                            <button
+                                type="button"
+                                className="btn btn-secondary share-btn-more"
+                                onClick={handleNativeShare}
+                                title="More sharing options"
+                            >
+                                <span>↗</span> More...
+                            </button>
+                        )}
                     </div>
                 </div>
 

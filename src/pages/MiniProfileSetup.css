@@ -291,12 +291,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
-    padding-top: 2rem;
+    gap: 0.85rem;
+    padding-top: 0.5rem;
 }
 
 .success-emoji {
-    font-size: 5rem;
+    font-size: 3.25rem;
     animation: bounce 2s infinite;
 }
 
@@ -320,20 +320,21 @@
 }
 
 .success-message {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
     color: var(--text-secondary);
 }
 
 .quiz-final-btn {
-    padding: 1.25rem 3rem;
+    width: 100%;
+    padding: 0.95rem 1.5rem;
     background: linear-gradient(135deg, #ff4b4b, #ff8e53);
     border: none;
     color: white;
-    font-size: 1.25rem;
+    font-size: 1.05rem;
     font-weight: 800;
     border-radius: 100px;
     cursor: pointer;
-    box-shadow: 0 10px 25px rgba(255, 75, 75, 0.4);
+    box-shadow: 0 8px 20px rgba(255, 75, 75, 0.35);
 }
 
 /* Footer / Thumb Zone */
@@ -726,8 +727,8 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
-    padding: 1rem 1.15rem;
-    margin: 1.25rem 0;
+    padding: 0.75rem 1rem;
+    margin: 0.65rem 0;
     text-align: center;
 }
 
@@ -747,5 +748,201 @@
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.45;
     margin: 0;
+}
+
+/* Popular Campuses Quick Select */
+.popular-campuses-container {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.popular-campuses-pills {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.popular-campuses-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.popular-campus-pill {
+    padding: 0.4rem 0.85rem;
+    background: rgba(108, 99, 255, 0.1);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    border-radius: 9999px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.popular-campus-pill:hover,
+.popular-campus-pill.active {
+    background: linear-gradient(135deg, #6C63FF, #FF6B9D);
+    border-color: #6C63FF;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.35);
+}
+
+/* Success CTA Action Stack */
+.success-cta-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+    margin-top: 0.65rem;
+}
+
+.quiz-secondary-feed-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.quiz-secondary-feed-btn:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Light Theme Support for MiniProfileSetup ─── */
+html[data-theme="light"] .quiz-onboarding-page,
+.theme-light .quiz-onboarding-page {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .quiz-title,
+.theme-light .quiz-title {
+    background: linear-gradient(to right, #0f172a, #334155);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html[data-theme="light"] .quiz-subtitle,
+.theme-light .quiz-subtitle {
+    color: #64748b;
+}
+
+html[data-theme="light"] .step-indicator,
+.theme-light .step-indicator {
+    color: #635bff;
+}
+
+html[data-theme="light"] .big-input,
+.theme-light .big-input {
+    color: #0f172a;
+    border-bottom-color: rgba(15, 23, 42, 0.15);
+}
+
+html[data-theme="light"] .country-filter-label,
+.theme-light .country-filter-label {
+    color: #475569;
+}
+
+html[data-theme="light"] .country-pill,
+.theme-light .country-pill {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+html[data-theme="light"] .popular-campus-pill,
+.theme-light .popular-campus-pill {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+    color: #4338ca;
+}
+
+html[data-theme="light"] .uni-dropdown,
+.theme-light .uni-dropdown {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .uni-option,
+.theme-light .uni-option {
+    color: #1e293b;
+    border-bottom-color: #f1f5f9;
+}
+
+html[data-theme="light"] .uni-option:hover,
+.theme-light .uni-option:hover {
+    background: #f8fafc;
+}
+
+html[data-theme="light"] .level-btn,
+.theme-light .level-btn {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+html[data-theme="light"] .mood-bubble,
+.theme-light .mood-bubble {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+html[data-theme="light"] .intent-card,
+.theme-light .intent-card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+html[data-theme="light"] .intent-info h3,
+.theme-light .intent-info h3 {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .intent-info p,
+.theme-light .intent-info p {
+    color: #64748b;
+}
+
+html[data-theme="light"] .campus-code-pledge-card,
+.theme-light .campus-code-pledge-card {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .campus-code-title,
+.theme-light .campus-code-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .campus-code-pledge-card p,
+.theme-light .campus-code-pledge-card p {
+    color: #475569;
+}
+
+html[data-theme="light"] .quiz-secondary-feed-btn,
+.theme-light .quiz-secondary-feed-btn {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
 }
 

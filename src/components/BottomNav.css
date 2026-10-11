@@ -103,7 +103,7 @@
     position: absolute;
     top: -5px;
     right: -8px;
-    background: #25d366;
+    background: #ff2d55;
     color: #ffffff;
     font-size: 0.62rem;
     font-weight: 800;
@@ -116,7 +116,7 @@
     align-items: center;
     justify-content: center;
     border: 2px solid var(--bg-card, var(--bg-primary, #0f172a));
-    box-shadow: 0 2px 6px rgba(37, 211, 102, 0.45);
+    box-shadow: 0 2px 6px rgba(255, 45, 85, 0.45);
     letter-spacing: -0.2px;
     box-sizing: border-box;
 }

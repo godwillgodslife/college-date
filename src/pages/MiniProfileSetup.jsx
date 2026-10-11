@@ -35,6 +35,19 @@ const INTENT_OPTIONS = [
 
 const LEVEL_OPTIONS = ['100L', '200L', '300L', '400L', '500L', 'Graduate'];
 
+const POPULAR_CAMPUSES = [
+    { label: 'UNILAG', name: 'University of Lagos (UNILAG)' },
+    { label: 'LASU', name: 'Lagos State University (LASU)' },
+    { label: 'UI', name: 'University of Ibadan (UI)' },
+    { label: 'OAU', name: 'Obafemi Awolowo University (OAU)' },
+    { label: 'FUTA', name: 'Federal University of Technology, Akure (FUTA)' },
+    { label: 'UNIBEN', name: 'University of Benin (UNIBEN)' },
+    { label: 'UNN', name: 'University of Nigeria, Nsukka (UNN)' },
+    { label: 'ABU', name: 'Ahmadu Bello University (ABU)' },
+    { label: 'Covenant', name: 'Covenant University' },
+    { label: 'Babcock', name: 'Babcock University' }
+];
+
 export default function MiniProfileSetup() {
     const { currentUser, userProfile, fetchProfile, loading: authLoading } = useAuth();
     const navigate = useNavigate();
@@ -71,19 +84,28 @@ export default function MiniProfileSetup() {
         };
     });
 
-    useEffect(() => {
-        localStorage.setItem('onboarding_data', JSON.stringify(formData));
-        localStorage.setItem('onboarding_step', currentStep.toString());
-    }, [formData, currentStep]);
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+    const isPreview = searchParams.get('preview') === 'true';
 
     useEffect(() => {
+        if (isPreview) return;
+        localStorage.setItem('onboarding_data', JSON.stringify(formData));
+        localStorage.setItem('onboarding_step', currentStep.toString());
+    }, [formData, currentStep, isPreview]);
+
+    useEffect(() => {
+        const queryStep = searchParams.get('step');
+        if (queryStep !== null && !isNaN(parseInt(queryStep, 10))) {
+            setCurrentStep(parseInt(queryStep, 10));
+            return;
+        }
         const savedStep = localStorage.getItem('onboarding_step');
         if (savedStep) setCurrentStep(parseInt(savedStep));
     }, []);
 
     // 🚀 Auto-Redirect Escape Hatch: If user is already complete, don't trap them here!
     useEffect(() => {
-        if (!authLoading && userProfile) {
+        if (!authLoading && userProfile && !isPreview) {
             const hasFullName = userProfile.full_name && userProfile.full_name.trim().length > 1;
             const hasUniversity = userProfile.university && userProfile.university !== 'None';
             const hasPhoto = (safeArray(userProfile.profile_photos).filter(p => p && p !== '').length >= 1) || 
@@ -95,7 +117,7 @@ export default function MiniProfileSetup() {
                 navigate('/match', { replace: true });
             }
         }
-    }, [userProfile, authLoading, navigate]);
+    }, [userProfile, authLoading, navigate, isPreview]);
 
     const triggerHaptic = () => {
         if (window.navigator?.vibrate) {
@@ -356,6 +378,28 @@ export default function MiniProfileSetup() {
                                         </div>
                                     </div>
 
+                                    {/* 1-Tap Popular Campuses Row */}
+                                    <div className="popular-campuses-container">
+                                        <span className="country-filter-label">🔥 Popular Campuses:</span>
+                                        <div className="popular-campuses-pills">
+                                            {POPULAR_CAMPUSES.map(camp => (
+                                                <button
+                                                    key={camp.label}
+                                                    type="button"
+                                                    className={`popular-campus-pill ${formData.university === camp.name ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        triggerHaptic();
+                                                        setFormData(p => ({ ...p, university: camp.name }));
+                                                        setUniversitySearch(camp.name);
+                                                        setShowUniDropdown(false);
+                                                    }}
+                                                >
+                                                    {camp.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className="quiz-input-group university-select">
                                         <input
                                             type="text"
@@ -543,12 +587,22 @@ export default function MiniProfileSetup() {
                                         <p>By entering discovery, you commit to mutual respect, student consent, and keeping our campus community safe & friendly.</p>
                                     </div>
 
-                                    <button
-                                        className="quiz-final-btn"
-                                        onClick={() => navigate('/match')}
-                                    >
-                                        Let's Go! 🚀
-                                    </button>
+                                    <div className="success-cta-actions">
+                                        <button
+                                            type="button"
+                                            className="quiz-final-btn"
+                                            onClick={() => navigate('/match')}
+                                        >
+                                            Start Matching 💘
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="quiz-secondary-feed-btn"
+                                            onClick={() => navigate('/confessions')}
+                                        >
+                                            Read Campus Confessions 🤫
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
