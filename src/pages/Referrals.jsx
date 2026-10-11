@@ -1,11 +1,24 @@
 import { useCallback, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useCachedAsync } from '../hooks/useCachedAsync';
 import { applyReferralCode, getReferralMessage } from '../services/referralService';
+import { getCampusBadgeText, TOP_CAMPUS_CONNECTORS, getReferralMilestone } from '../utils/ambassadorLeague';
+import profileTunde from '../assets/landing-profile-tunde.webp';
+import profileAmaka from '../assets/landing-profile-amaka.webp';
+import profileZainab from '../assets/landing-profile-zainab.webp';
 import './Referrals.css';
+
+const AVATAR_MAP = {
+    tunde: profileTunde,
+    amaka: profileAmaka,
+    zainab: profileZainab
+};
+
+export { getCampusBadgeText, TOP_CAMPUS_CONNECTORS, getReferralMilestone };
 
 const PUBLIC_APP_URL = (import.meta.env.VITE_PUBLIC_APP_URL || 'https://www.thecollegedate.com').replace(/\/$/, '');
 
@@ -36,6 +49,9 @@ async function copyToClipboard(text) {
 export default function Referrals() {
     const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
+
+    const [searchParams] = useSearchParams();
+    const isPreview = searchParams.get('preview') === 'true' || searchParams.get('demo') === 'true' || (typeof window !== 'undefined' && window.location.pathname.includes('preview'));
 
     const [copying, setCopying] = useState(false);
     const [checkingRewards, setCheckingRewards] = useState(false);
@@ -124,6 +140,32 @@ export default function Referrals() {
         currentUser ? ['wallet-referral-summary', currentUser.id] : null,
         fetchWalletData,
         { enabled: Boolean(currentUser), ttlMs: 5 * 60 * 1000, initialData: null }
+    );
+
+    const fetchTopConnectors = useCallback(async () => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, full_name, username, avatar_url, referral_count')
+                .order('referral_count', { ascending: false })
+                .limit(3);
+            if (!error && data && data.length >= 3 && data[0]?.referral_count > 0) {
+                return [
+                    { id: data[1].id, rank: 2, name: data[1].full_name?.split(' ')[0] + ' ' + (data[1].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[1].referral_count || 35, avatar: data[1].avatar_url || profileAmaka, isLeader: false },
+                    { id: data[0].id, rank: 1, name: data[0].full_name?.split(' ')[0] + ' ' + (data[0].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[0].referral_count || 42, avatar: data[0].avatar_url || profileTunde, isLeader: true },
+                    { id: data[2].id, rank: 3, name: data[2].full_name?.split(' ')[0] + ' ' + (data[2].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[2].referral_count || 28, avatar: data[2].avatar_url || profileZainab, isLeader: false }
+                ];
+            }
+        } catch {
+            // fallback
+        }
+        return TOP_CAMPUS_CONNECTORS;
+    }, []);
+
+    const { data: connectors = TOP_CAMPUS_CONNECTORS } = useCachedAsync(
+        ['campus-top-connectors', userProfile?.campus || 'unilag'],
+        fetchTopConnectors,
+        { ttlMs: 15 * 60 * 1000, initialData: TOP_CAMPUS_CONNECTORS }
     );
 
     async function ensureReferralCode() {
@@ -244,28 +286,132 @@ export default function Referrals() {
         }
     };
 
+    const baseReferralCount = referrals.length;
+    const referralCount = isPreview ? 3 : baseReferralCount;
+    const MILESTONE_GOAL = 5;
+    const milestoneProgress = Math.min(referralCount, MILESTONE_GOAL);
+    const milestonePercent = Math.min(100, Math.round((milestoneProgress / MILESTONE_GOAL) * 100));
+    const remainingInvites = Math.max(0, MILESTONE_GOAL - referralCount);
+    const isMilestoneUnlocked = referralCount >= MILESTONE_GOAL;
+    const campusBadgeText = getCampusBadgeText(userProfile);
+
     return (
         <div className="referrals-page animated fadeIn">
-            <div className="referral-header">
-                <h1>Invite & Earn</h1>
-                <p>Grow the community and get exclusive rewards for every friend who joins.</p>
+            {/* Campus Ambassador League Header */}
+            <div className="ambassador-header">
+                <h1 className="ambassador-title">Campus Ambassador League 🏆</h1>
+                <div className="campus-identity-pill">
+                    <span className="campus-crest">🏛️</span>
+                    <span className="campus-name-text">{campusBadgeText}</span>
+                </div>
             </div>
 
-            <section className="referral-incentives">
+            {/* Your Referral Milestone Card */}
+            <div className="referral-milestone-card">
+                <div className="milestone-card-top">
+                    <div className="milestone-text-block">
+                        <h3 className="milestone-card-title">Your Referral Milestone</h3>
+                        <div className="milestone-progress-track">
+                            <div 
+                                className="milestone-progress-fill" 
+                                style={{ width: `${Math.max(6, milestonePercent)}%` }} 
+                            />
+                        </div>
+                        <div className="milestone-count-label">
+                            {milestoneProgress} of {MILESTONE_GOAL} Friends Joined
+                        </div>
+                    </div>
+                    <div className="milestone-crown-badge" title="Elite Rewards">
+                        <span className="milestone-crown-symbol">👑</span>
+                    </div>
+                </div>
+                <div className="milestone-card-subtitle">
+                    {isMilestoneUnlocked 
+                        ? '🎉 Milestone Unlocked: 3 Days Free Elite Active!' 
+                        : `${remainingInvites} more ${remainingInvites === 1 ? 'invite' : 'invites'} to unlock 3 Days Free Elite!`}
+                </div>
+            </div>
+
+            {/* Top Campus Connectors Section */}
+            <section className="top-connectors-section">
+                <h2 className="top-connectors-title">Top Campus Connectors</h2>
+                <div className="connectors-podium-row">
+                    {connectors.map(connector => (
+                        <div 
+                            key={connector.id} 
+                            className={`connector-podium-card ${connector.isLeader ? 'is-leader' : ''}`}
+                        >
+                            {connector.isLeader && (
+                                <div className="leader-floating-crown" aria-hidden="true">👑</div>
+                            )}
+                            <span className="connector-rank-num">{connector.rank}</span>
+                            <div className="connector-avatar-wrapper">
+                                <img 
+                                    src={connector.avatar || AVATAR_MAP[connector.avatarKey] || profileTunde} 
+                                    alt={connector.name} 
+                                    className="connector-avatar" 
+                                />
+                            </div>
+                            <div className="connector-name">{connector.name}</div>
+                            <div className="connector-subtext">- Students -</div>
+                            <div className="connector-metric">{connector.students} Students</div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Primary WhatsApp Share CTA with Referral Code Pill */}
+            <div className="ambassador-cta-container">
+                <button
+                    type="button"
+                    className="btn btn-whatsapp share-btn-whatsapp ambassador-whatsapp-btn"
+                    onClick={handleShareWhatsApp}
+                >
+                    <div className="whatsapp-btn-row">
+                        <span className="share-icon">💬</span>
+                        <span className="whatsapp-btn-text">Share on WhatsApp Status & Groups</span>
+                    </div>
+                    <span className="whatsapp-code-pill">{referralCode || 'CD-ALEX'}</span>
+                </button>
+            </div>
+
+            {/* Referral Incentives */}
+            <section className="referral-incentives" aria-label="Referral Rewards">
                 <div className="incentive-card">
-                    <div className="incentive-icon">⚡</div>
-                    <h3>3 Free Swipes</h3>
-                    <p>Instant bonus for every friend who joins CD.</p>
+                    <div className="incentive-card-top">
+                        <div className="incentive-icon-wrap">
+                            <span className="incentive-icon" aria-hidden="true">⚡</span>
+                        </div>
+                        <span className="incentive-badge">Instant</span>
+                    </div>
+                    <div className="incentive-card-body">
+                        <h3>3 Free Swipes</h3>
+                        <p>Instant bonus for every friend who joins CD.</p>
+                    </div>
                 </div>
                 <div className="incentive-card highlight">
-                    <div className="incentive-icon">💰</div>
-                    <h3>₦3,000 Cash</h3>
-                    <p>Milestone reward for every 10 successful referrals.</p>
+                    <div className="incentive-card-top">
+                        <div className="incentive-icon-wrap highlight-icon">
+                            <span className="incentive-icon" aria-hidden="true">💰</span>
+                        </div>
+                        <span className="incentive-badge highlight-badge">Top Reward ⭐</span>
+                    </div>
+                    <div className="incentive-card-body">
+                        <h3>₦3,000 Cash</h3>
+                        <p>Milestone reward for every 10 successful referrals.</p>
+                    </div>
                 </div>
                 <div className="incentive-card">
-                    <div className="incentive-icon">🎁</div>
-                    <h3>Friend's Gift</h3>
-                    <p>Your friend gets 20 free swipes to start swiping.</p>
+                    <div className="incentive-card-top">
+                        <div className="incentive-icon-wrap">
+                            <span className="incentive-icon" aria-hidden="true">🎁</span>
+                        </div>
+                        <span className="incentive-badge">For Friends</span>
+                    </div>
+                    <div className="incentive-card-body">
+                        <h3>Friend's Gift</h3>
+                        <p>Your friend gets 20 free swipes to start swiping.</p>
+                    </div>
                 </div>
             </section>
 

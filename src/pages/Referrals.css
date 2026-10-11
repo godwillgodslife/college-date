@@ -1,8 +1,373 @@
 .referrals-page {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1.25rem;
+    padding-top: calc(env(safe-area-inset-top, 24px) + 24px);
     padding-bottom: calc(6rem + env(safe-area-inset-bottom));
     max-width: 700px;
     margin: 0 auto;
+}
+
+/* Campus Ambassador League Section */
+.ambassador-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.ambassador-title {
+    font-size: 2.25rem;
+    font-weight: 900;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    margin: 0 0 0.85rem 0;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.campus-identity-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    padding: 8px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.campus-identity-pill .campus-crest {
+    font-size: 1.15rem;
+}
+
+/* Your Referral Milestone Card */
+.referral-milestone-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: 1.6rem 1.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    margin-bottom: 2.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.milestone-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.milestone-text-block {
+    flex: 1;
+}
+
+.milestone-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+    letter-spacing: -0.3px;
+}
+
+.milestone-progress-track {
+    width: 100%;
+    height: 12px;
+    background: rgba(139, 92, 246, 0.16);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 0.65rem;
+}
+
+.milestone-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.milestone-count-label {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+}
+
+.milestone-crown-badge {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(234, 179, 8, 0.1));
+    border: 2px solid rgba(250, 204, 21, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 18px rgba(234, 179, 8, 0.25);
+    flex-shrink: 0;
+}
+
+.milestone-crown-badge .milestone-crown-symbol,
+.milestone-crown-badge .crown-icon {
+    position: static !important;
+    transform: none !important;
+    font-size: 2rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 6px rgba(234, 179, 8, 0.5));
+}
+
+.milestone-card-subtitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Top Campus Connectors Section */
+.top-connectors-section {
+    margin-bottom: 2rem;
+}
+
+.top-connectors-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    margin: 0 0 1.25rem 0;
+    letter-spacing: -0.3px;
+}
+
+.connectors-podium-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 18px 4px 14px 4px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: center;
+}
+
+.connectors-podium-row::-webkit-scrollbar {
+    display: none;
+}
+
+.connector-podium-card {
+    flex: 1 1 125px;
+    min-width: 115px;
+    max-width: 145px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    padding: 1.15rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+    scroll-snap-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.connector-podium-card.is-leader {
+    border: 2px solid #facc15 !important;
+    box-shadow: 0 10px 24px rgba(250, 204, 21, 0.25) !important;
+    transform: translateY(-4px);
+}
+
+.leader-floating-crown {
+    position: absolute;
+    top: -16px;
+    right: 12px;
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transform: rotate(18deg);
+}
+
+.connector-rank-num {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.connector-podium-card.is-leader .connector-rank-num {
+    color: #ca8a04;
+    opacity: 1;
+    font-size: 1.2rem;
+}
+
+.connector-avatar-wrapper {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0.65rem 0 0.5rem 0;
+    background: var(--bg-tertiary);
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.connector-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.connector-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.connector-subtext {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+.connector-metric {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Primary Ambassador WhatsApp CTA */
+.ambassador-cta-container {
+    margin-bottom: 2.5rem;
+    width: 100%;
+}
+
+.ambassador-whatsapp-btn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 1.15rem 1.5rem !important;
+    border-radius: 22px !important;
+    background: #22c55e !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.38) !important;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.ambassador-whatsapp-btn:active {
+    transform: scale(0.98);
+}
+
+.whatsapp-btn-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.whatsapp-btn-row .share-icon {
+    font-size: 1.45rem;
+}
+
+.whatsapp-btn-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    font-family: 'Outfit', sans-serif;
+    color: #ffffff;
+}
+
+.whatsapp-code-pill {
+    background: rgba(0, 0, 0, 0.18);
+    color: #ffffff;
+    padding: 5px 18px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Light Theme Overrides matching the exact Mockup */
+html[data-theme="light"] .ambassador-title {
+    color: #1e1b4b !important;
+}
+
+html[data-theme="light"] .campus-identity-pill {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="light"] .referral-milestone-card {
+    background: #ffffff !important;
+    border-color: #f1f5f9 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="light"] .milestone-card-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .milestone-count-label {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .milestone-card-subtitle {
+    color: #334155 !important;
+}
+
+html[data-theme="light"] .milestone-crown-badge {
+    background: linear-gradient(135deg, #fef9c3, #fef08a) !important;
+    border: 2px solid #facc15 !important;
+    box-shadow: 0 4px 16px rgba(234, 179, 8, 0.28) !important;
+}
+
+html[data-theme="light"] .top-connectors-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .connector-podium-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="light"] .connector-podium-card.is-leader {
+    border-color: #facc15 !important;
+}
+
+html[data-theme="light"] .connector-name {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .connector-metric {
+    color: #1e293b !important;
 }
 
 .referral-header {
@@ -277,34 +642,104 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Referral Incentives Section — High Contrast Final Fix
+   Referral Incentives Section — Compact Modern Rewards Deck
    ═══════════════════════════════════════════════════════════ */
 .referral-incentives {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3.5rem;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 4px 10px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-bottom: 2rem;
+}
+
+.referral-incentives::-webkit-scrollbar {
+    display: none;
 }
 
 .incentive-card,
 html[data-theme="light"] .incentive-card,
 html.is-native-app .incentive-card,
 html.is-native-app[data-theme="light"] .incentive-card {
-    padding: 2.5rem 1.25rem;
-    border-radius: 36px;
-    text-align: center;
+    flex: 0 0 156px;
+    min-width: 150px;
+    scroll-snap-align: start;
+    padding: 14px 12px;
+    border-radius: 18px;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 138px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .incentive-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.incentive-card-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.incentive-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    flex-shrink: 0;
+}
+
+.incentive-icon {
+    font-size: 1.35rem !important;
+    line-height: 1;
+    margin: 0;
+    display: inline-block;
+}
+
+.incentive-badge {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+}
+
+.incentive-badge.highlight-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+}
+
+.incentive-card-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .incentive-card h3,
@@ -312,10 +747,13 @@ html[data-theme="light"] .incentive-card h3,
 html.is-native-app .incentive-card h3,
 html.is-native-app[data-theme="light"] .incentive-card h3 {
     color: #ffffff !important;
-    font-size: 1.3rem !important;
-    font-weight: 900 !important;
-    margin: 5px 0 0 !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    font-family: 'Outfit', sans-serif !important;
+    margin: 0 !important;
+    letter-spacing: -0.2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    line-height: 1.25;
 }
 
 .incentive-card p,
@@ -323,17 +761,15 @@ html[data-theme="light"] .incentive-card p,
 html.is-native-app .incentive-card p,
 html.is-native-app[data-theme="light"] .incentive-card p {
     color: #ffffff !important;
-    opacity: 0.9 !important;
-    font-size: 0.95rem !important;
-    line-height: 1.5;
+    opacity: 0.88 !important;
+    font-size: 0.76rem !important;
+    line-height: 1.35;
     margin: 0 !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.incentive-icon {
-    font-size: 3.5rem !important;
-    margin-bottom: 5px;
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* ⚡ Swipes Gradient (Indigo) */
@@ -352,7 +788,7 @@ html.is-native-app[data-theme="light"] .incentive-card:nth-of-type(3) {
     background: linear-gradient(135deg, #e11d48, #881337) !important;
 }
 
-/* 💰 THE CASH REWARD (Middle Card) - Bold Gold Highlight */
+/* 💰 THE CASH REWARD (Middle Card) - Elegant Gold Aura & Border */
 .incentive-card:nth-of-type(2),
 .incentive-card.highlight,
 html[data-theme="light"] .incentive-card:nth-of-type(2),
@@ -362,48 +798,28 @@ html.is-native-app .incentive-card.highlight,
 html.is-native-app[data-theme="light"] .incentive-card:nth-of-type(2),
 html.is-native-app[data-theme="light"] .incentive-card.highlight {
     background: linear-gradient(135deg, #1e1b4b, #2e1065) !important;
-    /* Deep Dark Context */
-    border: 4px solid #fcd34d !important;
-    /* ULTRA BOLD GOLD BORDER */
-    transform: scale(1.05);
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 20px rgba(252, 211, 77, 0.3);
-    z-index: 2;
-}
-
-.incentive-card.highlight h3,
-html[data-theme="light"] .incentive-card.highlight h3,
-html.is-native-app .incentive-card.highlight h3,
-html.is-native-app[data-theme="light"] .incentive-card.highlight h3,
-.incentive-card.highlight p,
-html[data-theme="light"] .incentive-card.highlight p,
-html.is-native-app .incentive-card.highlight p,
-html.is-native-app[data-theme="light"] .incentive-card.highlight p {
-    color: #ffffff !important;
-    opacity: 1 !important;
+    border: 1.5px solid rgba(251, 191, 36, 0.75) !important;
+    transform: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 14px rgba(251, 191, 36, 0.18);
+    z-index: 1;
 }
 
 .incentive-card.highlight::after {
-    content: 'BEST';
-    position: absolute;
-    top: 15px;
-    right: -30px;
-    background: #ef4444;
-    color: #ffffff !important;
-    font-size: 0.7rem;
-    font-weight: 900;
-    padding: 5px 35px;
-    transform: rotate(45deg);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    display: none !important;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 600px) {
     .referral-incentives {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        overflow-x: visible;
+        padding: 4px 0 8px 0;
     }
 
-    .incentive-card.highlight {
-        transform: scale(1.02);
+    .incentive-card {
+        flex: 1;
+        min-width: 0;
     }
 }
 
