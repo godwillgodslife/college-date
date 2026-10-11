@@ -1166,4 +1166,81 @@ html[data-theme="light"] .btn-add-photo,
     color: #0f172a;
 }
 
+/* Campus Daily Question Banner */
+.campus-daily-prompt-card {
+    margin: 1rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.12), rgba(124, 58, 237, 0.16));
+    border: 1px solid rgba(244, 63, 94, 0.28);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.daily-prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.daily-prompt-tag {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #f43f5e;
+    text-transform: uppercase;
+}
+
+.daily-prompt-category {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-muted, #94a3b8);
+}
+
+.daily-prompt-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--text-primary, #ffffff);
+    margin: 0;
+}
+
+.daily-prompt-answer-btn {
+    align-self: flex-start;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(135deg, #f43f5e, #7c3aed);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+    transition: transform 0.15s ease;
+}
+
+.daily-prompt-answer-btn:hover {
+    transform: translateY(-1px);
+}
+
+html[data-theme="light"] .campus-daily-prompt-card,
+.theme-light .campus-daily-prompt-card {
+    background: linear-gradient(135deg, #fff1f2, #f5f3ff);
+    border-color: rgba(244, 63, 94, 0.25);
+    box-shadow: 0 4px 16px rgba(244, 63, 94, 0.08);
+}
+
+html[data-theme="light"] .daily-prompt-text,
+.theme-light .daily-prompt-text {
+    color: #0f172a;
+}
+
+
 

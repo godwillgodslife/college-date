@@ -1,15 +1,16 @@
 .viewer-teaser-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
+    background: var(--bg-card, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-subtle, rgba(255, 107, 107, 0.2));
+    border-radius: 16px;
+    padding: 0.85rem 1rem;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 .viewer-teaser-card:hover {
@@ -53,15 +54,15 @@
 
 .teaser-text {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary, rgba(255, 255, 255, 0.8));
 }
 
 .teaser-highlight {
-    color: #fff;
+    color: var(--text-primary, #fff);
     font-weight: 700;
 }
 
 .teaser-arrow {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted, rgba(255, 255, 255, 0.4));
     font-size: 1.2rem;
 }

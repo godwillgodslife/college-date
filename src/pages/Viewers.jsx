@@ -4,18 +4,21 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { hasActivePremium } from '../utils/premium';
+import { getAvatarUrl } from '../utils/profileData';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import OptimizedImage from '../components/OptimizedImage';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
+import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import './Viewers.css';
 
 export default function Viewers() {
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, fetchProfile } = useAuth();
     const [viewers, setViewers] = useState([]);
     const [viewerSummary, setViewerSummary] = useState({ total_count: 0, premium: false, upgrade_required: false });
     const [loading, setLoading] = useState(true);
     const [guideModalOpen, setGuideModalOpen] = useState(false);
+    const [paywallOpen, setPaywallOpen] = useState(false);
     const isPremium = viewerSummary.premium || hasActivePremium(userProfile);
     const navigate = useNavigate();
 
@@ -57,6 +60,9 @@ export default function Viewers() {
 
             setViewers(nextItems);
             setViewerSummary(nextSummary);
+            if (nextItems.length > 0) {
+                markFeatureUsed('who_viewed_me');
+            }
             setCachedData(['viewers', currentUser.id], { items: nextItems, summary: nextSummary }, {
                 userId: currentUser.id,
                 type: 'viewers'
@@ -98,13 +104,38 @@ export default function Viewers() {
                     </div>
                 ) : (
                     viewers.map((item, index) => (
-                        <div key={item.id || `${item.created_at}-${index}`} className="viewer-card">
+                        <div
+                            key={item.id || `${item.created_at}-${index}`}
+                            className="viewer-card"
+                            onClick={() => {
+                                if (item.locked || !isPremium) setPaywallOpen(true);
+                            }}
+                            style={{ cursor: item.locked || !isPremium ? 'pointer' : 'default' }}
+                        >
                             <div className={`viewer-avatar ${item.locked || !isPremium ? 'blurred' : ''}`}>
-                                <OptimizedImage
-                                    src={item.viewer?.avatar_url || '/default-avatar.png'}
-                                    alt="Viewer"
-                                    width={80}
-                                />
+                                {(() => {
+                                    const viewerProfile = item.viewer;
+                                    const displayName = viewerProfile?.full_name || '';
+                                    const isGenericName = !displayName || /^(viewer|visitor|admirer|user|student)$/i.test(displayName.trim());
+                                    const initial = !isGenericName && displayName.trim().length > 0 ? displayName.trim().charAt(0).toUpperCase() : '👤';
+                                    const viewerAvatar = viewerProfile ? (
+                                        getAvatarUrl(viewerProfile) || (viewerProfile.id ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${viewerProfile.id}` : null)
+                                    ) : null;
+                                    return !item.locked && isPremium && viewerAvatar ? (
+                                        <OptimizedImage
+                                            src={viewerAvatar}
+                                            alt={!isGenericName ? displayName : "Campus Student"}
+                                            width={80}
+                                            height={80}
+                                            priority={true}
+                                            className="viewer-avatar-img"
+                                        />
+                                    ) : (
+                                        <div className="avatar-placeholder">
+                                            {item.locked || !isPremium ? '?' : initial}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                             <div className="viewer-info">
                                 <h3 className={item.locked || !isPremium ? 'blurred-text' : ''}>
@@ -123,7 +154,7 @@ export default function Viewers() {
                     <h3>Unlock {viewerSummary.total_count} Secret Admirers!</h3>
                     <p>See exactly who’s interested in you.</p>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                        <button className="btn-unlock-premium" onClick={() => navigate('/premium')} style={{ flex: 1 }}>
+                        <button className="btn-unlock-premium" onClick={() => setPaywallOpen(true)} style={{ flex: 1 }}>
                             Get Premium
                         </button>
                         <button className="btn-unlock-premium" onClick={() => navigate('/premium')} style={{ flex: 1, background: 'var(--accent-color)' }}>
@@ -137,6 +168,16 @@ export default function Viewers() {
                 isOpen={guideModalOpen}
                 onClose={() => setGuideModalOpen(false)}
                 initialFeatureId="who_viewed_me"
+            />
+
+            <ContextualPaywallSheet
+                isOpen={paywallOpen}
+                onClose={() => setPaywallOpen(false)}
+                triggerSource="viewers_list"
+                onSuccess={() => {
+                    fetchViewers();
+                    if (currentUser && fetchProfile) fetchProfile(currentUser.id);
+                }}
             />
         </div>
     );

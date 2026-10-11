@@ -235,10 +235,10 @@ export default function Dashboard() {
             to: '/wallet'
         },
         {
-            icon: isFemale ? '💌' : '🛡️',
-            title: isFemale ? 'Requests' : 'Safety & Settings',
-            description: isFemale ? 'Review attention and match requests' : 'Control account, safety, and preferences',
-            to: isFemale ? '/requests' : '/settings'
+            icon: '💌',
+            title: 'Requests',
+            description: 'Review attention and match requests',
+            to: '/requests'
         }
     ];
 
@@ -265,33 +265,22 @@ export default function Dashboard() {
                 <div 
                     className="dashboard-streak-card" 
                     onClick={() => setStreakModalOpen(true)}
-                    style={{
-                        margin: '0.75rem 0',
-                        padding: '0.85rem 1rem',
-                        background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.16), rgba(255, 165, 2, 0.09))',
-                        border: '1px solid rgba(255, 107, 107, 0.32)',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer'
-                    }}
                     role="button"
                     tabIndex={0}
                     aria-label={`Score Streak: ${scoreStreak} days`}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
-                        <span style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>🔥</span>
-                        <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="dashboard-card-left" style={{ minWidth: 0, flex: 1 }}>
+                        <span className="dashboard-card-icon">🔥</span>
+                        <div className="dashboard-card-info">
+                            <div className="dashboard-card-title" style={{ color: 'var(--text-primary)' }}>
                                 Score Streak: {scoreStreak} {scoreStreak === 1 ? 'Day' : 'Days'}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: streakActiveToday ? '#4ade80' : '#f87171', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div className={`dashboard-card-subtitle ${streakActiveToday ? 'streak-active' : 'streak-pending'}`}>
                                 {streakActiveToday ? '✓ Streak active today' : '⏳ Action needed today to keep alive'}
                             </div>
                         </div>
                     </div>
-                    <span style={{ fontSize: '0.82rem', fontWeight: '600', color: '#ff9f43', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                    <span className="dashboard-card-action" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
                         View →
                     </span>
                 </div>
@@ -301,33 +290,22 @@ export default function Dashboard() {
                     <div 
                         className="dashboard-active-program-card" 
                         onClick={() => setActiveModalOpen(true)}
-                        style={{
-                            margin: '0.75rem 0',
-                            padding: '0.85rem 1rem',
-                            background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.14), rgba(16, 185, 129, 0.1))',
-                            border: '1px solid rgba(255, 215, 0, 0.35)',
-                            borderRadius: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            cursor: 'pointer'
-                        }}
                         role="button"
                         tabIndex={0}
                         aria-label="College Date Active Program"
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
-                            <span style={{ fontSize: '1.8rem', lineHeight: 1, flexShrink: 0 }}>⚡</span>
-                            <div style={{ minWidth: 0 }}>
-                                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#ffd700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    College Date Active: ₦{activeEarnings?.toLocaleString()}
+                        <div className="dashboard-card-left">
+                            <span className="dashboard-card-icon">⚡</span>
+                            <div className="dashboard-card-info">
+                                <div className="dashboard-card-title" style={{ color: 'var(--text-primary)' }}>
+                                    College Date Active: <span style={{ color: '#d97706' }}>₦{activeEarnings?.toLocaleString()}</span>
                                 </div>
-                                <div style={{ fontSize: '0.8rem', color: todayQualified ? '#4ade80' : 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <div className={`dashboard-card-subtitle ${todayQualified ? 'streak-active' : ''}`} style={{ color: todayQualified ? '#16a34a' : 'var(--text-secondary)' }}>
                                     {todayQualified ? `✓ Today's +₦${dailyReward || 625} Qualified` : `${qualifyingDaysCount || 0}/${minQualifyingDays || 24} qualifying days`}
                                 </div>
                             </div>
                         </div>
-                        <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#ffd700', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '0.5rem' }}>
+                        <span className="dashboard-card-action">
                             View →
                         </span>
                     </div>

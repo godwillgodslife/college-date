@@ -1,6 +1,7 @@
 import { getConversations } from './chatService';
 import { getLeaderboards } from './leaderboardService';
 import { getDiscoverProfiles, checkSwipeLimit } from './swipeService';
+import { getConfessions } from './confessionService';
 import { getDiscoveryCacheKey } from '../hooks/useSWRData';
 import { setCachedData } from '../lib/persistentCache';
 
@@ -45,6 +46,11 @@ export function warmupAppDataCache(userId, userProfile) {
             getDiscoverProfiles(userId, matchDiscoveryFilters, userProfile).then(({ data }) => {
                 if (discoveryCacheKey && data) {
                     setCachedData(discoveryCacheKey, data);
+                }
+            }),
+            getConfessions(userProfile?.university?.trim() || null, userId).then(({ data }) => {
+                if (data) {
+                    setCachedData(['confessions', userProfile?.university?.trim() || '', userId], data);
                 }
             })
         ];

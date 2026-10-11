@@ -75,22 +75,20 @@ export async function getConfessions(university = null, userId = null) {
             query = query.ilike('university', university.trim());
         }
 
-        const { data, error } = await query;
-        if (error) throw error;
+        // Parallelize database queries for instant 1-tap feed loading
+        const [confessionsRes, confessionImpressions, userRepostsRes] = await Promise.all([
+            query,
+            getFeedImpressionMap(userId, 'confession', 14),
+            userId
+                ? supabase.from('confession_reposts').select('confession_id').eq('user_id', userId)
+                : Promise.resolve({ data: [] })
+        ]);
 
-        const confessionImpressions = await getFeedImpressionMap(userId, 'confession', 14);
+        if (confessionsRes.error) throw confessionsRes.error;
+        const data = confessionsRes.data;
 
-        // Fetch user reposts if logged in
-        let userRepostSet = new Set();
-        if (userId) {
-            const { data: repData } = await supabase
-                .from('confession_reposts')
-                .select('confession_id')
-                .eq('user_id', userId);
-            if (repData) {
-                userRepostSet = new Set(repData.map(r => r.confession_id));
-            }
-        }
+        // Fetch user reposts set
+        const userRepostSet = new Set((userRepostsRes.data || []).map(r => r.confession_id));
 
         // Map the pre-aggregated data from the view to the expected JS format
         const enriched = (data || []).map(c => {
@@ -692,3 +690,8 @@ export async function recordConfessionView(confessionId, userId = null) {
         console.warn('recordConfessionView non-blocking error:', err);
     }
 }
+
+// ─── CAMPUS DAILY PROMPT ENGINE ─────────────────────────────────────────────
+
+export { CAMPUS_DAILY_PROMPTS, getCampusDailyPrompt } from '../utils/campusCommonGround.js';
+

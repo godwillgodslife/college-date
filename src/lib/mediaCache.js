@@ -3,6 +3,8 @@ const MEDIA_MANIFEST_KEY = 'tcd-media-cache-manifest';
 const MAX_MEDIA_ENTRIES = 120;
 const MAX_MEDIA_BYTES = 60 * 1024 * 1024;
 const MAX_SINGLE_MEDIA_BYTES = 5 * 1024 * 1024;
+const failedCacheUrls = new Set();
+const inFlightFetches = new Map();
 
 function canUseMediaCache() {
   return typeof window !== 'undefined'
@@ -131,44 +133,63 @@ export async function getCachedMediaObjectUrl(src, { cacheKey } = {}) {
 export async function cacheMediaSource(src, { cacheKey } = {}) {
   if (!canUseMediaCache() || !looksCacheableImage(src)) return null;
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+  if (failedCacheUrls.has(src)) return null;
+
+  if (inFlightFetches.has(src)) {
+    return inFlightFetches.get(src);
+  }
 
   const cacheUrl = getCacheUrl(src, cacheKey);
   if (!cacheUrl) return null;
 
-  try {
-    const response = await fetch(src, { cache: 'force-cache' });
-    const contentType = response.headers.get('content-type') || '';
-    if (!response.ok || !looksCacheableImage(src, contentType)) return null;
-
-    const blob = await response.blob();
-    if (!blob || blob.size === 0 || blob.size > MAX_SINGLE_MEDIA_BYTES) return null;
-
-    const cache = await window.caches.open(MEDIA_CACHE_NAME);
-    await cache.put(cacheUrl, new Response(blob, {
-      headers: {
-        'content-type': contentType || blob.type || 'application/octet-stream',
-        'x-tcd-media-src': src,
-        'x-tcd-cached-at': String(Date.now())
+  const fetchPromise = (async () => {
+    try {
+      const response = await fetch(src, { cache: 'force-cache' });
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || !looksCacheableImage(src, contentType)) {
+        failedCacheUrls.add(src);
+        return null;
       }
-    }));
 
-    const now = Date.now();
-    const manifest = readManifest().filter(entry => entry.cacheUrl !== cacheUrl);
-    manifest.unshift({
-      cacheUrl,
-      size: blob.size,
-      contentType: contentType || blob.type,
-      cachedAt: now,
-      lastAccessed: now
-    });
-    writeManifest(manifest);
-    await trimMediaCache(cache);
+      const blob = await response.blob();
+      if (!blob || blob.size === 0 || blob.size > MAX_SINGLE_MEDIA_BYTES) {
+        failedCacheUrls.add(src);
+        return null;
+      }
 
-    return cacheUrl;
-  } catch (error) {
-    console.warn('[MediaCache] Write skipped:', error);
-    return null;
-  }
+      const cache = await window.caches.open(MEDIA_CACHE_NAME);
+      await cache.put(cacheUrl, new Response(blob, {
+        headers: {
+          'content-type': contentType || blob.type || 'application/octet-stream',
+          'x-tcd-media-src': src,
+          'x-tcd-cached-at': String(Date.now())
+        }
+      }));
+
+      const now = Date.now();
+      const manifest = readManifest().filter(entry => entry.cacheUrl !== cacheUrl);
+      manifest.unshift({
+        cacheUrl,
+        size: blob.size,
+        contentType: contentType || blob.type,
+        cachedAt: now,
+        lastAccessed: now
+      });
+      writeManifest(manifest);
+      await trimMediaCache(cache);
+
+      return cacheUrl;
+    } catch (error) {
+      failedCacheUrls.add(src);
+      console.warn('[MediaCache] Write skipped:', error);
+      return null;
+    } finally {
+      inFlightFetches.delete(src);
+    }
+  })();
+
+  inFlightFetches.set(src, fetchPromise);
+  return fetchPromise;
 }
 
 export async function deleteCachedMedia(src) {

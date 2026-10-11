@@ -3,6 +3,7 @@ import { compressImage } from '../utils/imageCompressor';
 import { normalizeProfile, safeArray } from '../utils/profileData';
 import { clearAppCache } from '../lib/persistentCache';
 import { clearMediaCache } from '../lib/mediaCache';
+import { preValidatePhoto } from './ai/localEngine';
 
 // Helper for timeout
 const withTimeout = (promise, ms = 10000) => {
@@ -269,6 +270,17 @@ export async function uploadVoiceIntro(blob, userId) {
  */
 export async function validateAndUploadProfilePhoto(file, userId, index = 0) {
     try {
+        // Fast client-side pre-validation (filters out empty, corrupt, extreme size, or pitch black/white images)
+        const preCheck = await preValidatePhoto(file);
+        if (!preCheck.ok) {
+            return {
+                url: null,
+                approved: false,
+                reason: preCheck.reason,
+                error: preCheck.reason
+            };
+        }
+
         const compressedFile = await compressImage(file, { maxWidth: 800, targetSizeKB: 90 });
         const fileExt = compressedFile.type === 'image/webp' ? 'webp' : (file.name.split('.').pop() || 'jpg');
         const pendingPath = `${userId}/${Date.now()}_pending_${index}.${fileExt}`;

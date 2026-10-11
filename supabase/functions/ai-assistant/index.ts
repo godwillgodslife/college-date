@@ -119,6 +119,7 @@ async function callOpenRouter(prompt: string) {
   console.log(`[OpenRouter] Sending request to model: ${model}`);
   let response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
@@ -142,6 +143,7 @@ async function callOpenRouter(prompt: string) {
     model = 'openrouter/free';
     response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
+      signal: AbortSignal.timeout(10000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',

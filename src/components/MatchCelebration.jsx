@@ -48,6 +48,26 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
         }
     }, [isOpen]);
 
+    const handleShareInvite = async () => {
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.thecollegedate.com';
+        const shareText = "I just matched on The College Date! 🔥 Join our campus community here: " + origin;
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'The College Date',
+                    text: shareText,
+                    url: origin
+                });
+                return;
+            } catch {
+                // Ignore cancel
+            }
+        }
+        if (typeof window !== 'undefined') {
+            window.open("https://wa.me/?text=" + encodeURIComponent(shareText), '_blank');
+        }
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -108,6 +128,24 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
                             </button>
                             <button className="btn-match-continue" onClick={onClose}>
                                 Keep Swiping
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-match-invite"
+                                onClick={handleShareInvite}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.08)',
+                                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                                    color: '#ffffff',
+                                    borderRadius: '16px',
+                                    padding: '0.65rem 1.25rem',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    marginTop: '0.25rem'
+                                }}
+                            >
+                                👥 Invite Friends to College Date
                             </button>
                         </motion.div>
                     </div>

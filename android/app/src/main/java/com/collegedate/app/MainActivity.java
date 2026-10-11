@@ -13,11 +13,19 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 import com.collegedate.app.plugins.PlayUpdatePlugin;
+import com.collegedate.app.plugins.AppBadgePlugin;
+
+import android.os.Build;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(PlayUpdatePlugin.class);
+        registerPlugin(AppBadgePlugin.class);
 
         // Install AndroidX Splash Screen so postSplashScreenTheme is applied
         SplashScreen.installSplashScreen(this);
@@ -39,14 +47,26 @@ public class MainActivity extends BridgeActivity {
             getSupportActionBar().hide();
         }
 
-        // Pre-request dangerous runtime permissions for calls (Mic, Camera, Audio Settings)
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS
-            }, 1001);
+        // Initialize Android 8.0+ Notification Channels
+        createNotificationChannels();
+
+        // Pre-request critical runtime permissions (Mic, Camera, and Android 13+ Push Notifications)
+        List<String> permissionsToRequest = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.RECORD_AUDIO);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA);
+        }
+        if (Build.VERSION.SDK_INT >= 33) { // Android 13 (TIRAMISU)
+            if (ContextCompat.checkSelfPermission(this, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add("android.permission.POST_NOTIFICATIONS");
+            }
+        }
+        permissionsToRequest.add(Manifest.permission.MODIFY_AUDIO_SETTINGS);
+
+        if (!permissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toArray(new String[0]), 1001);
         }
 
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
@@ -68,4 +88,42 @@ public class MainActivity extends BridgeActivity {
             }
         }
     }
+
+    private void createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                NotificationChannel channelMessages = new NotificationChannel(
+                    "channel_messages",
+                    "Messages & Chats",
+                    NotificationManager.IMPORTANCE_HIGH
+                );
+                channelMessages.setDescription("Notifications for direct chat messages and replies");
+                channelMessages.enableVibration(true);
+                channelMessages.setShowBadge(true);
+
+                NotificationChannel channelMatches = new NotificationChannel(
+                    "channel_matches",
+                    "Matches & Connections",
+                    NotificationManager.IMPORTANCE_HIGH
+                );
+                channelMatches.setDescription("Notifications for new likes and mutual matches");
+                channelMatches.enableVibration(true);
+                channelMatches.setShowBadge(true);
+
+                NotificationChannel channelActivity = new NotificationChannel(
+                    "channel_activity",
+                    "Campus Activity & Social",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                );
+                channelActivity.setDescription("Notifications for confessions, questions, and streak updates");
+                channelActivity.setShowBadge(true);
+
+                notificationManager.createNotificationChannel(channelMessages);
+                notificationManager.createNotificationChannel(channelMatches);
+                notificationManager.createNotificationChannel(channelActivity);
+            }
+        }
+    }
 }
+

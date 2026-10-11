@@ -85,6 +85,15 @@ export default function PublicFooter() {
                   Instagram
                 </a>
               </li>
+              <li>
+                <a
+                  href="https://www.tiktok.com/@thecollegedate1?_r=1&_t=ZN-9AAGLzQHv1y"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  TikTok
+                </a>
+              </li>
             </ul>
           </div>
         </div>

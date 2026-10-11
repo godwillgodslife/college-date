@@ -131,6 +131,15 @@
         </activity>
 
         <!-- ═══════════════════════════════════
+             BOOT RECEIVERS & PERFORMANCE HARDENING
+             LocalNotificationRestoreReceiver executes synchronously on LOCKED_BOOT_COMPLETED,
+             triggering ANRs on low-end devices and emulators. Removed to eliminate boot stalls.
+        ═══════════════════════════════════ -->
+        <receiver
+            android:name="com.capacitorjs.plugins.localnotifications.LocalNotificationRestoreReceiver"
+            tools:node="remove" />
+
+        <!-- ═══════════════════════════════════
              FILE PROVIDER
              Required for camera/file upload on Android 7+
         ═══════════════════════════════════ -->

@@ -7,10 +7,11 @@ import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import { hasActivePremium } from '../utils/premium';
+import { getAvatarUrl } from '../utils/profileData';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import OptimizedImage from '../components/OptimizedImage';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, isGuideSeen, markFeatureUsed } from '../components/ContextualGuide';
 import MatchCelebration from '../components/MatchCelebration';
 import { markRequestsDiscovered } from '../utils/requestsDiscovery';
 import './Requests.css';
@@ -22,6 +23,10 @@ export default function Requests() {
     const { addToast } = useToast();
     const [matchData, setMatchData] = useState(null);
     const [requests, setRequests] = useState([]);
+    const [nudgeDismissed, setNudgeDismissed] = useState(() => {
+        if (typeof window === 'undefined' || !window.localStorage) return false;
+        return window.localStorage.getItem('tcd_nudge_dismissed_profile_completion') === 'true';
+    });
     const [requestSummary, setRequestSummary] = useState({ total_count: 0, premium: false, upgrade_required: false, free_accepts_remaining: 3, daily_limit: 3, today_accepts_count: 0 });
     const [loading, setLoading] = useState(true);
     const [actioning, setActioning] = useState(null); // ID of request being processed
@@ -126,6 +131,7 @@ export default function Requests() {
             if (data && !data.success) throw new Error(data.error || 'Failed to accept');
 
             addToast('Request accepted! Chat unlocked.', 'success');
+            markFeatureUsed('accept_request');
             const targetRequest = requests.find(r => r.id === swipeId);
             const remainingRequests = requests.filter(r => r.id !== swipeId);
             setRequests(remainingRequests);
@@ -179,6 +185,7 @@ export default function Requests() {
             if (!success) throw new Error(error);
 
             addToast('Request declined.', 'info');
+            markFeatureUsed('accept_request');
             const remainingRequests = requests.filter(r => r.id !== swipeId);
             setRequests(remainingRequests);
 
@@ -204,17 +211,22 @@ export default function Requests() {
     return (
         <div className="requests-page animated fadeIn">
             <div className="requests-header">
+                <div className="requests-section-label">CONNECTIONS</div>
                 <h1>Connection Requests</h1>
                 <p>Manage people who want to vibe with you.</p>
 
-                <ContextualTip
-                    featureId="accept_request"
-                    onLearnMore={(fId) => { setGuideFeatureId(fId); setGuideModalOpen(true); }}
-                />
-                <ContextualTip
-                    featureId="who_liked_me"
-                    onLearnMore={(fId) => { setGuideFeatureId(fId); setGuideModalOpen(true); }}
-                />
+                {/* Single Contextual Tip Priority: Never stack 2 tips simultaneously */}
+                {!isGuideSeen('accept_request') ? (
+                    <ContextualTip
+                        featureId="accept_request"
+                        onLearnMore={(fId) => { setGuideFeatureId(fId); setGuideModalOpen(true); }}
+                    />
+                ) : !isGuideSeen('who_liked_me') ? (
+                    <ContextualTip
+                        featureId="who_liked_me"
+                        onLearnMore={(fId) => { setGuideFeatureId(fId); setGuideModalOpen(true); }}
+                    />
+                ) : null}
                 
                 {/* 3 Free Accepts Daily Quota Banner */}
                 <div className="requests-quota-banner">
@@ -263,13 +275,36 @@ export default function Requests() {
                 <AndroidInstallButton />
             </div>
 
-            {userProfile?.completion_score < 100 && (
+            {!nudgeDismissed && typeof userProfile?.completion_score === 'number' && userProfile.completion_score > 0 && userProfile.completion_score < 60 && (
                 <div className="completion-nudge-card card-glow" onClick={() => navigate('/profile/edit')}>
                     <div className="nudge-icon">⚠️</div>
                     <div className="nudge-content">
                         <h3>Your profile is {userProfile.completion_score}% complete</h3>
                         <p>Complete it to appear more in discovery.</p>
                     </div>
+                    <button
+                        type="button"
+                        className="nudge-dismiss-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setNudgeDismissed(true);
+                            try {
+                                localStorage.setItem('tcd_nudge_dismissed_profile_completion', 'true');
+                            } catch (_) {}
+                        }}
+                        aria-label="Dismiss completion reminder"
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--text-muted, #94a3b8)',
+                            fontSize: '1.15rem',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            marginLeft: 'auto'
+                        }}
+                    >
+                        ✕
+                    </button>
                 </div>
             )}
 
@@ -278,19 +313,42 @@ export default function Requests() {
                     <LoadingSpinner text="Checking connection requests..." />
                 </div>
             ) : requestSummary.total_count > 0 ? (
-                <div className="requests-grid">
+                <>
+                    <div className="requests-section-label" style={{ marginBottom: '0.75rem' }}>
+                        ADMIRERS ({requestSummary.total_count})
+                    </div>
+                    <div className="requests-grid">
                     {requests.map((req, index) => (
                         <div key={req.id || `${req.created_at}-${index}`} className={`request-card ${req.is_priority ? 'priority' : ''}`}>
                             {req.is_priority && (
                                 <div className="priority-badge">💎 PREMIUM</div>
                             )}
                             <div className="request-user">
-                                <div className={`user-avatar-small ${req.locked ? 'blurred-freemium' : ''}`}>
-                                    {!req.locked && req.swiper?.avatar_url ? (
-                                        <OptimizedImage src={req.swiper.avatar_url} alt="Admirer" width={80} />
-                                    ) : (
-                                        <div className="avatar-placeholder">?</div>
-                                    )}
+                                <div style={{ position: 'relative', width: '60px', height: '60px', flexShrink: 0 }}>
+                                    <div className={`user-avatar-small ${req.locked ? 'blurred-freemium' : ''}`}>
+                                        {(() => {
+                                            const swiperAvatar = req.swiper ? (
+                                                getAvatarUrl(req.swiper) || (req.swiper.id ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.swiper.id}` : null)
+                                            ) : null;
+                                            const displayName = req.swiper?.full_name || '';
+                                            const isGenericName = !displayName || /^(admirer|secret\s*admirer|viewer|visitor|user|student)$/i.test(displayName.trim());
+                                            const initial = !isGenericName && displayName.trim().length > 0 ? displayName.trim().charAt(0).toUpperCase() : '👤';
+                                            return !req.locked && swiperAvatar ? (
+                                                <OptimizedImage
+                                                    src={swiperAvatar}
+                                                    alt={!isGenericName ? displayName : "Admirer"}
+                                                    width={80}
+                                                    height={80}
+                                                    priority={true}
+                                                    className="admirer-avatar-img"
+                                                />
+                                            ) : (
+                                                <div className="avatar-placeholder">
+                                                    {req.locked ? '?' : initial}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
                                     {!req.locked && hasActivePremium(req.swiper) && (
                                         <span className="request-avatar-premium-badge" title="Premium Member">👑</span>
                                     )}
@@ -351,6 +409,7 @@ export default function Requests() {
                         </div>
                     ))}
                 </div>
+                </>
             ) : (
                 <div className="empty-requests">
                     <div className="empty-icon">💌</div>

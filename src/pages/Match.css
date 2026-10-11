@@ -141,7 +141,7 @@
     font-family: 'Outfit', sans-serif;
     font-size: 2rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
@@ -746,28 +746,29 @@
 
 /* ── Gender Quick Menu ─────────────────────────────────────── */
 .gender-quick-menu {
-    position: absolute;
-    top: 4.5rem;
-    right: 1.5rem;
-    z-index: 500;
-    background: rgba(18, 18, 28, 0.95);
+    position: fixed;
+    top: calc(var(--nav-height, 56px) + 52px);
+    right: 1.25rem;
+    z-index: 1000;
+    background: var(--bg-secondary, #1a1a24);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    padding: 0.6rem;
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+    border-radius: 18px;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    gap: 0.35rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
     animation: dropIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .gender-opt-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.75);
-    min-height: 44px;
-    padding: 0.55rem 1.1rem;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.75));
+    min-height: 42px;
+    padding: 0.5rem 1rem;
     border-radius: 12px;
     font-size: 0.86rem;
     font-weight: 600;
@@ -778,8 +779,8 @@
 }
 
 .gender-opt-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.08));
+    color: var(--text-primary, #fff);
 }
 
 .gender-opt-btn.active {
@@ -806,7 +807,7 @@
 .gender-menu-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 400;
+    z-index: 999;
 }
 
 @keyframes dropIn {
@@ -894,19 +895,30 @@
 }
 
 .info-trigger {
-    background: rgba(255, 255, 255, 0.08);
-    width: 28px;
-    height: 28px;
+    background: rgba(255, 255, 255, 0.12);
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    position: relative;
+}
+
+.info-trigger::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
 }
 
 .info-trigger:hover {
@@ -981,26 +993,51 @@
 }
 
 /* ==========================================================================
-   Discover Page Top Rail Redesign
+   Discover Page Top Rail Redesign & Small-Screen Horizontal Scroll
    ========================================================================== */
 
-.discover-top-rail {
+.discover-top-rail,
+.match-filter-strip {
     position: absolute;
     top: max(env(safe-area-inset-top, 16px), 16px);
-    left: 16px;
-    right: 16px;
+    left: 12px;
+    right: 12px;
     display: flex;
-    justify-content: space-between;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
     align-items: center;
+    justify-content: space-between;
     z-index: 1000;
     pointer-events: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.discover-top-filters {
+.discover-top-rail::-webkit-scrollbar,
+.match-filter-strip::-webkit-scrollbar,
+.discover-top-filters::-webkit-scrollbar,
+.filter-chips-row::-webkit-scrollbar,
+.match-top-actions::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.discover-top-filters,
+.filter-chips-row,
+.match-top-actions {
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     align-items: center;
-    gap: 0.4rem;
+    gap: 8px;
     position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-shrink: 0;
 }
 
 .discover-rail-btn {
@@ -1017,6 +1054,8 @@
     cursor: pointer;
     transition: all 0.25s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 .discover-rail-btn:hover {
@@ -1044,10 +1083,22 @@
     display: inline-flex;
     align-items: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 .discover-swipes-left-badge b {
     color: #fff;
+}
+
+@media (max-width: 768px) {
+    .discover-top-rail,
+    .match-filter-strip {
+        left: 8px;
+        right: 8px;
+        justify-content: flex-start;
+        padding-bottom: 2px;
+    }
 }
 
 /* Streak Indicator Floating positioning */
@@ -1101,5 +1152,39 @@ html[data-theme="light"] .discover-swipes-left-badge,
 
 html[data-theme="light"] .discover-swipes-left-badge b,
 .theme-light .discover-swipes-left-badge b {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .info-trigger,
+.theme-light .info-trigger {
+    background: rgba(15, 23, 42, 0.08);
+    border-color: rgba(15, 23, 42, 0.15);
+    color: #0f172a;
+}
+
+html[data-theme="light"] .swipe-tooltip,
+.theme-light .swipe-tooltip {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.1);
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.15);
+}
+
+html[data-theme="light"] .swipe-tooltip h4,
+.theme-light .swipe-tooltip h4 {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .swipe-tooltip p,
+.theme-light .swipe-tooltip p {
+    color: #475569;
+}
+
+html[data-theme="light"] .tooltip-features li,
+.theme-light .tooltip-features li {
+    color: #334155;
+}
+
+html[data-theme="light"] .tooltip-features li strong,
+.theme-light .tooltip-features li strong {
     color: #0f172a;
 }

@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { createSwipeCompletionRegistry, getSwipeStackEntries, removeProfileById } from '../utils/swipeLifecycle';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
 import { recordSwipe, trackProfileView, checkSwipeLimit, superSwipe } from '../services/swipeService';
 import { getDiscoveryCacheKey, useDiscoveryProfiles } from '../hooks/useSWRData';
 import { saveGenderPreference } from '../services/profileService';
@@ -28,12 +28,26 @@ import { useScoreStreak } from '../hooks/useScoreStreak';
 import ScoreStreakModal from '../components/ScoreStreakModal';
 import { useActiveProgram } from '../hooks/useActiveProgram';
 import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
+import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
 
+function resolveOppositeGender(profile) {
+    if (!profile) return 'All';
+    const interest = String(profile.interest_gender || '').toLowerCase().trim();
+    if (interest === 'female' || interest === 'women' || interest === 'woman') return 'Female';
+    if (interest === 'male' || interest === 'men' || interest === 'man') return 'Male';
+    if (interest && interest !== 'all') return profile.interest_gender;
+
+    const g = String(profile.gender || '').toLowerCase().trim();
+    if (g === 'female' || g === 'woman' || g === 'girl') return 'Male';
+    if (g === 'male' || g === 'man' || g === 'guy') return 'Female';
+    return 'All';
+}
+
 export default function Match() {
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
     const currentUserId = currentUser?.id;
@@ -56,21 +70,24 @@ export default function Match() {
         recordActivity: recordStreakActivity
     } = useScoreStreak(currentUserId);
     const [liveOnly, setLiveOnly] = useState(false);
-    const [filters, setFilters] = useState(() => {
-        let initialGender = 'All';
-        if (userProfile) {
-            if (userProfile.interest_gender && userProfile.interest_gender !== 'All') {
-                initialGender = userProfile.interest_gender;
-            } else if (userProfile.gender) {
-                initialGender = userProfile.gender.toLowerCase() === 'male' ? 'Female' : 'Male';
+    const [filters, setFilters] = useState(() => ({
+        gender: resolveOppositeGender(userProfile),
+        university: 'All',
+        ageRange: [18, 50]
+    }));
+    const [hasUserChangedGender, setHasUserChangedGender] = useState(false);
+
+    // Synchronize opposite-gender default when userProfile is loaded
+    useEffect(() => {
+        if (!userProfile || hasUserChangedGender) return;
+        const expectedGender = resolveOppositeGender(userProfile);
+        setFilters(prev => {
+            if (prev.gender !== expectedGender) {
+                return { ...prev, gender: expectedGender };
             }
-        }
-        return {
-            gender: initialGender,
-            university: 'All',
-            ageRange: [18, 50]
-        };
-    });
+            return prev;
+        });
+    }, [userProfile?.gender, userProfile?.interest_gender, hasUserChangedGender]);
 
     const { data: swrProfiles, mutate: mutateProfiles } = useDiscoveryProfiles(
         currentUserId,
@@ -95,6 +112,7 @@ export default function Match() {
     // Limit Reached State
     const [limitReached, setLimitReached] = useState(null);
     const [timeLeft, setTimeLeft] = useState('');
+    const [paywallOpen, setPaywallOpen] = useState(false);
 
     useEffect(() => {
         // Sync SWR data to local profiles stack
@@ -104,14 +122,18 @@ export default function Match() {
                     .map(operation => operation.payload?.swipedId)
                     .filter(Boolean)
             );
-            const processedProfiles = (swrProfiles || []).map(profile => {
-                const normalizedProfile = normalizeProfile(profile);
-                return { ...normalizedProfile, profile_photos: getProfilePhotos(normalizedProfile) };
-            });
+            const processedProfiles = (swrProfiles || [])
+                .filter(Boolean)
+                .map(profile => {
+                    const normalizedProfile = normalizeProfile(profile);
+                    if (!normalizedProfile || !normalizedProfile.id) return null;
+                    return { ...normalizedProfile, profile_photos: getProfilePhotos(normalizedProfile) };
+                })
+                .filter(Boolean);
 
             // STRICT CLIENT-SIDE GATEKEEPING
             const validProfiles = processedProfiles.filter(p =>
-                p.profile_photos && p.profile_photos.length > 0 && !queuedSwipeIds.has(p.id)
+                p && p.id && Array.isArray(p.profile_photos) && p.profile_photos.length > 0 && !queuedSwipeIds.has(p.id)
             );
 
             setTimeout(() => {
@@ -250,6 +272,7 @@ export default function Match() {
         }
 
         playCardSwipe();
+        markFeatureUsed('match_swipe');
 
         setPendingSwipeIds(prev => prev.includes(swipedProfile.id) ? prev : [...prev, swipedProfile.id]);
 
@@ -391,40 +414,57 @@ export default function Match() {
         addToast(`⭐ Super Swipe sent! ${swipedProfile.full_name || 'They'} will get an instant notification!`, 'success');
     }, [currentUserId, addToast]);
 
+    const persistGenderPreference = useCallback(async (g) => {
+        if (!currentUserId) return;
+        const operationId = `save_gender_preference:${currentUserId}`;
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            enqueueOfflineOperation(currentUserId, {
+                id: operationId,
+                type: 'save_gender_preference',
+                payload: { userId: currentUserId, gender: g }
+            });
+        } else {
+            const result = await saveGenderPreference(currentUserId, g);
+            if (result?.error) {
+                enqueueOfflineOperation(currentUserId, {
+                    id: operationId,
+                    type: 'save_gender_preference',
+                    payload: { userId: currentUserId, gender: g },
+                    lastError: result.error
+                });
+            } else {
+                removeOfflineOperation(currentUserId, operationId);
+            }
+        }
+    }, [currentUserId]);
+
+    const handleGenderCycle = useCallback(() => {
+        const cycle = ['Male', 'Female', 'All'];
+        const normalized = filters.gender === 'Women' ? 'Female' : filters.gender === 'Men' ? 'Male' : filters.gender;
+        const currentIndex = cycle.indexOf(normalized);
+        const nextGender = currentIndex === -1 ? 'Female' : cycle[(currentIndex + 1) % cycle.length];
+
+        setHasUserChangedGender(true);
+        setFilters(prev => ({ ...prev, gender: nextGender }));
+        persistGenderPreference(nextGender);
+        const label = nextGender === 'Female' ? '👩 Women' : nextGender === 'Male' ? '👨 Men' : '✨ Everyone';
+        addToast(`Discovery filter: ${label}`, 'info');
+    }, [filters.gender, persistGenderPreference, addToast]);
+
     if (loading) return <LoadingSpinner fullScreen text="Finding matches..." />;
 
-    // Quick Gender Menu (rendered inline)
+    // Quick Gender Menu (rendered at unclipped root level)
     const quickGenderMenu = (
         <div className="gender-quick-menu" onClick={e => e.stopPropagation()}>
-            {['Female', 'Male', 'All'].map(g => (
+            {['Male', 'Female', 'All'].map(g => (
                 <button
                     key={g}
                     className={`gender-opt-btn ${filters.gender === g ? 'active' : ''}`}
-                        onClick={async () => {
-                            setFilters(prev => ({ ...prev, gender: g }));
-                            setShowGenderMenu(false);
-                        if (currentUserId) {
-                            const operationId = `save_gender_preference:${currentUserId}`;
-                            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                                enqueueOfflineOperation(currentUserId, {
-                                    id: operationId,
-                                    type: 'save_gender_preference',
-                                    payload: { userId: currentUserId, gender: g }
-                                });
-                            } else {
-                                const result = await saveGenderPreference(currentUserId, g);
-                                if (result?.error) {
-                                    enqueueOfflineOperation(currentUserId, {
-                                        id: operationId,
-                                        type: 'save_gender_preference',
-                                        payload: { userId: currentUserId, gender: g },
-                                        lastError: result.error
-                                    });
-                                } else {
-                                    removeOfflineOperation(currentUserId, operationId);
-                                }
-                            }
-                        }
+                    onClick={() => {
+                        setHasUserChangedGender(true);
+                        setFilters(prev => ({ ...prev, gender: g }));
+                        setShowGenderMenu(false);
+                        persistGenderPreference(g);
                     }}
                 >
                     {g === 'Female' ? '👩 Women' : g === 'Male' ? '👨 Men' : '✨ All'}
@@ -463,8 +503,8 @@ export default function Match() {
             ) : (
                 <>
                     {/* Compact Top Rail */}
-                    <div className="discover-top-rail">
-                        <div className="discover-top-filters">
+                    <div className="discover-top-rail match-filter-strip">
+                        <div className="discover-top-filters filter-chips-row match-top-actions">
                             <button 
                                 className={`discover-rail-btn ${liveOnly ? 'active' : ''}`} 
                                 onClick={handleLiveNearMe}
@@ -473,12 +513,15 @@ export default function Match() {
                             </button>
                             <button 
                                 className={`discover-rail-btn ${filters.gender !== 'All' ? 'active' : ''}`} 
-                                onClick={() => setShowGenderMenu(prev => !prev)}
+                                onClick={handleGenderCycle}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    setShowGenderMenu(prev => !prev);
+                                }}
+                                title="Tap to toggle gender (or right-click/hold for menu)"
                             >
                                 {filters.gender === 'Female' ? '👩 Women' : filters.gender === 'Male' ? '👨 Men' : '✨ All'}
                             </button>
-                            {showGenderMenu && quickGenderMenu}
-                            {showGenderMenu && <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />}
                         </div>
 
                         {/* Desktop Keyboard Shortcuts Hint */}
@@ -537,8 +580,32 @@ export default function Match() {
                         {profiles.length === 0 ? (
                             <div className="no-profiles">
                                 <div className="pulse-icon">🔍</div>
-                                <h2>No more profiles</h2>
-                                <p>We couldn't find anyone new matching your filters right now.</p>
+                                <h2>No more profiles right now</h2>
+                                <p>You've caught up with student profiles matching your current filters.</p>
+
+                                <div className="empty-deck-actions-grid" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', maxWidth: '320px', margin: '0 auto 1.5rem' }}>
+                                    <button
+                                        onClick={() => setShowFilters(true)}
+                                        className="btn btn-primary retry-btn"
+                                        style={{ width: '100%' }}
+                                    >
+                                        Adjust Campus Filters
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/confessions')}
+                                        className="btn btn-secondary empty-fallback-btn"
+                                        style={{ width: '100%', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'var(--text-primary)' }}
+                                    >
+                                        🤫 Read Campus Confessions
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/explore')}
+                                        className="btn btn-secondary empty-fallback-btn"
+                                        style={{ width: '100%', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'var(--text-primary)' }}
+                                    >
+                                        🧭 Explore Campus Directory
+                                    </button>
+                                </div>
 
                                 {(userProfile?.completion_score || 0) < 60 && (
                                     <div className="profile-nudge-mini">
@@ -548,13 +615,6 @@ export default function Match() {
                                         </button>
                                     </div>
                                 )}
-
-                                <button
-                                    onClick={() => setShowFilters(true)}
-                                    className="btn btn-primary retry-btn"
-                                >
-                                    Adjust Filters
-                                </button>
                             </div>
                         ) : (
                             <>
@@ -565,9 +625,9 @@ export default function Match() {
                                             <h4>💎 Swipe Types</h4>
                                             <p>Choosing the right swipe increases your matching chance.</p>
                                             <ul className="tooltip-features">
-                                                <li>✅ <strong>Standard (₦500)</strong>: Normal request sent.</li>
-                                                <li>⭐ <strong>Super Swipe</strong>: Instant notification to the person!</li>
-                                                <li>👑 <strong>Monthly Subscription</strong>: Get 100 free standard swipes!</li>
+                                                <li>✨ <strong>Free Daily Swipes</strong>: Match with classmates around your campus for free.</li>
+                                                <li>⭐ <strong>Super Swipe</strong>: Stand out and notify them immediately!</li>
+                                                <li>👑 <strong>College Date Elite</strong>: Unlimited swipes, boost your profile, and see secret admirers.</li>
                                             </ul>
                                         </div>
                                     )}
@@ -578,6 +638,7 @@ export default function Match() {
                                     <SwipeCard
                                         key={profile.id}
                                         profile={profile}
+                                        myProfile={userProfile}
                                         onSwipe={handleSwipe}
                                         onBeforeSwipe={canStartSwipe}
                                         superSwipesAvailable={superSwipesAvailable}
@@ -587,17 +648,6 @@ export default function Match() {
                                     />
                                     );
                                 })}
-
-                                {/* HIDDEN PRELOADER: Silently download the next 5 profiles in the background */}
-                                <div style={{ display: 'none' }}>
-                                    {profiles.slice(2, 7).map(profile => {
-                                        const photos = getProfilePhotos(profile);
-                                        if (!photos[0]) return null;
-                                        // Use identical URL format so browser cache matches EXACTLY
-                                        const preloadUrl = typeof getOptimizedUrl === 'function' ? getOptimizedUrl(photos[0], 800) : photos[0];
-                                        return <img key={`preload-${profile.id}`} src={preloadUrl} alt="" />;
-                                    })}
-                                </div>
                             </>
                         )}
                     </div>
@@ -671,10 +721,10 @@ export default function Match() {
                                     </div>
 
                                     <div className="premium-upsell">
-                                        <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
+                                        <button className="btn btn-premium-unlock" onClick={() => setPaywallOpen(true)}>
                                             🔓 Unlock Unlimited Swipes
                                         </button>
-                                        <p className="premium-price">₦2,900 Premium</p>
+                                        <p className="premium-price">₦2,400/mo (Quarterly Plan)</p>
                                     </div>
                                 </div>
 
@@ -724,10 +774,10 @@ export default function Match() {
                                         priority visibility, and direct messaging without matching.
                                     </p>
                                     <div className="premium-upsell">
-                                        <button className="btn btn-premium-unlock" onClick={() => navigate('/premium')}>
+                                        <button className="btn btn-premium-unlock" onClick={() => setPaywallOpen(true)}>
                                             🔓 Upgrade to Premium
                                         </button>
-                                        <p className="premium-price">₦2,900 / Month</p>
+                                        <p className="premium-price">₦2,400 / Month</p>
                                     </div>
                                 </div>
                                 <button className="limit-close" onClick={() => setShowPremiumNudge(false)}>
@@ -788,6 +838,27 @@ export default function Match() {
                 onClose={() => setActiveModalOpen(false)}
                 userId={currentUserId}
             />
+
+            {/* Contextual Premium Trial / Subscription Paywall Sheet */}
+            <ContextualPaywallSheet
+                isOpen={paywallOpen}
+                onClose={() => setPaywallOpen(false)}
+                triggerSource="swipe_wall"
+                onSuccess={() => {
+                    setLimitReached(null);
+                    setShowPremiumNudge(false);
+                    setFreeSwipes(999);
+                    if (currentUserId && fetchProfile) fetchProfile(currentUserId);
+                }}
+            />
+
+            {/* Quick Gender Filter Menu (Unclipped at root level) */}
+            {showGenderMenu && (
+                <>
+                    <div className="gender-menu-backdrop" onClick={() => setShowGenderMenu(false)} />
+                    {quickGenderMenu}
+                </>
+            )}
         </div>
     );
 }

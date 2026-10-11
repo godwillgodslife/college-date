@@ -12,6 +12,34 @@
     margin-bottom: 1.25rem;
 }
 
+.notification-back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.15));
+    color: var(--text-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.notification-back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(-2px);
+}
+
+[data-theme="light"] .notification-back-btn,
+.theme-light .notification-back-btn {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
 .notification-center-kicker {
     margin: 0 0 0.35rem;
     color: var(--accent-primary);
@@ -276,3 +304,150 @@
         gap: 0.15rem;
     }
 }
+
+/* ── Chronological Group Dividers ── */
+.notification-center-group {
+    display: grid;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+}
+
+.notification-center-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.2rem;
+}
+
+.notification-center-group-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.notification-center-group-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.notification-center-group-items {
+    display: grid;
+    gap: 0.6rem;
+}
+
+/* ── Shimmer Loading Skeleton ── */
+.notification-center-skeleton {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    gap: 0.85rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    animation: notificationPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes notificationPulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.85; }
+}
+
+.notification-skeleton-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.notification-skeleton-lines {
+    display: grid;
+    gap: 0.5rem;
+    align-content: center;
+}
+
+.notification-skeleton-line {
+    height: 0.85rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.notification-skeleton-line.short {
+    width: 40%;
+}
+
+.notification-skeleton-line.medium {
+    width: 75%;
+}
+
+/* ── Light Theme Tokens Support ── */
+html[data-theme='light'] .notification-center-mark {
+    background: #ffffff;
+    border-color: var(--border-subtle, rgba(15, 23, 42, 0.1));
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+html[data-theme='light'] .notification-filter {
+    background: #ffffff;
+    border-color: var(--border-subtle, rgba(15, 23, 42, 0.1));
+    color: var(--text-secondary);
+}
+
+html[data-theme='light'] .notification-filter.active {
+    background: rgba(255, 77, 184, 0.12);
+    border-color: rgba(255, 77, 184, 0.5);
+    color: var(--accent-primary);
+}
+
+html[data-theme='light'] .notification-center-item {
+    background: #ffffff;
+    border-color: var(--border-subtle, rgba(15, 23, 42, 0.08));
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+html[data-theme='light'] .notification-center-item:hover {
+    background: #f8fafc;
+    border-color: rgba(255, 77, 184, 0.3);
+}
+
+html[data-theme='light'] .notification-center-item.unread {
+    background: #fff7fb;
+    border-color: rgba(255, 77, 184, 0.28);
+}
+
+html[data-theme='light'] .notification-center-group-count {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--text-secondary);
+}
+
+html[data-theme='light'] .notification-center-dot {
+    background: #ff2d88;
+    box-shadow: 0 0 10px rgba(255, 45, 136, 0.6);
+}
+
+html[data-theme='light'] .notification-center-empty {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(15, 23, 42, 0.02);
+}
+
+html[data-theme='light'] .notification-center-skeleton {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: var(--border-subtle, rgba(15, 23, 42, 0.08));
+}
+
+html[data-theme='light'] .notification-skeleton-icon,
+html[data-theme='light'] .notification-skeleton-line {
+    background: rgba(15, 23, 42, 0.07);
+}
+

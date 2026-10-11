@@ -14,6 +14,7 @@ import {
     completeVisualSwipe,
     resolveSwipeDirection
 } from '../utils/swipeLifecycle';
+import { getWhyYouMatchBadge } from '../utils/campusCommonGround';
 import './SwipeCard.css';
 
 const EXIT_TRANSITION = { type: 'tween', duration: 0.22, ease: 'easeOut' };
@@ -61,25 +62,27 @@ function SwipeCard({
         return Math.min(99, score);
     }, [displayProfile, myProfile, mutualInterests]);
 
+    const whyYouMatchBadge = useMemo(() => {
+        return getWhyYouMatchBadge(displayProfile, myProfile);
+    }, [displayProfile, myProfile]);
+
     useEffect(() => {
         if (isSwipeDebugEnabled()) {
             renderCountRef.current += 1;
-            incrementSwipeDebugCounter(`cardRender:${displayProfile.id || 'unknown'}`);
+            incrementSwipeDebugCounter(`cardRender:${displayProfile?.id || 'unknown'}`);
+            recordSwipeDebug('card-render', {
+                profileId: displayProfile?.id,
+                renderCount: renderCountRef.current,
+                isTop,
+                stackPosition,
+                swipeInProgress: swipeInProgressRef.current
+            });
         }
-        recordSwipeDebug('card-render', {
-            profileId: displayProfile.id,
-            renderCount: renderCountRef.current,
-            isTop,
-            stackPosition,
-            swipeInProgress: swipeInProgressRef.current
-        });
-    });
+    }, [displayProfile?.id]);
 
     useEffect(() => {
         if (activePhotoIdx < photos.length - 1) {
             const nextUrl = getOptimizedUrl(photos[activePhotoIdx + 1], 800);
-            const nextImg = new Image();
-            nextImg.src = nextUrl;
             cacheMediaSource(nextUrl).catch(() => {});
         }
     }, [activePhotoIdx, photos]);
@@ -456,6 +459,9 @@ function SwipeCard({
                             )}
                             {(displayProfile.is_verified || displayProfile.photo_verified) && (
                                 <span className="swipe-tag verified-tag-glow">✓ Verified</span>
+                            )}
+                            {whyYouMatchBadge && (
+                                <span className="swipe-tag why-you-match-tag">{whyYouMatchBadge}</span>
                             )}
                             {isLive && (
                                 <div className="live-pulse-container">

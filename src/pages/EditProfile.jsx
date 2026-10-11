@@ -13,6 +13,7 @@ import { hasActivePremium } from '../utils/premium';
 import { clearAppCache } from '../lib/persistentCache';
 import { clearMediaCache } from '../lib/mediaCache';
 import FaceVerificationModal from '../components/FaceVerificationModal';
+import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import { searchUniversities } from '../constants/universities';
 import './EditProfile.css';
 
@@ -32,6 +33,7 @@ export default function EditProfile() {
     const [aiCoach, setAiCoach] = useState(null);
     const [showFaceVerification, setShowFaceVerification] = useState(false);
     const [showUniDropdown, setShowUniDropdown] = useState(false);
+    const [paywallOpen, setPaywallOpen] = useState(false);
     const uniDropdownRef = useRef(null);
 
     const [formData, setFormData] = useState({
@@ -197,8 +199,7 @@ export default function EditProfile() {
         if (!file) return;
 
         if (!hasActivePremium(userProfile)) {
-            addToast('👑 10s Video Profile is an exclusive Premium benefit. Upgrade to unlock!', 'info');
-            navigate('/premium');
+            setPaywallOpen(true);
             return;
         }
 
@@ -399,7 +400,7 @@ export default function EditProfile() {
                         </div>
 
                         {!hasActivePremium(userProfile) ? (
-                            <div className="video-premium-locked-card">
+                            <div className="video-premium-locked-card" onClick={() => setPaywallOpen(true)} style={{ cursor: 'pointer' }}>
                                 <div className="locked-icon">🔒</div>
                                 <div className="locked-info">
                                     <strong>Unlock 10s Video Profile</strong>
@@ -408,7 +409,10 @@ export default function EditProfile() {
                                 <button
                                     type="button"
                                     className="btn btn-primary btn-sm"
-                                    onClick={() => navigate('/premium')}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPaywallOpen(true);
+                                    }}
                                 >
                                     Upgrade 👑
                                 </button>
@@ -773,6 +777,16 @@ export default function EditProfile() {
                 onVerified={() => {
                     fetchProfile?.(currentUser?.id);
                     setShowFaceVerification(false);
+                }}
+            />
+
+            {/* Contextual Premium Trial / Subscription Paywall Sheet */}
+            <ContextualPaywallSheet
+                isOpen={paywallOpen}
+                onClose={() => setPaywallOpen(false)}
+                triggerSource="video_upload"
+                onSuccess={() => {
+                    if (currentUser?.id) fetchProfile?.(currentUser.id);
                 }}
             />
         </div>

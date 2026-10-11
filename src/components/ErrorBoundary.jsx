@@ -12,6 +12,16 @@ export default class ErrorBoundary extends Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary caught:', error, errorInfo);
+        try {
+            window.sessionStorage?.setItem('tcd_last_error', JSON.stringify({
+                message: error?.message || String(error),
+                stack: error?.stack,
+                componentStack: errorInfo?.componentStack,
+                url: typeof window !== 'undefined' ? window.location.href : '',
+                timestamp: new Date().toISOString()
+            }));
+        } catch (_) {}
+
         const message = String(error?.message || error || '');
         if (message.includes("Cannot access 'canReadFinance' before initialization")) {
             this.recoverFromStaleAppShell('admin-permission-tdz', {
@@ -54,10 +64,77 @@ export default class ErrorBoundary extends Component {
         }
 
         reloadWithFreshUrl();
-    }
+    };
+
+    handleReset = () => {
+        this.setState({ hasError: false, error: null });
+        if (typeof this.props.onReset === 'function') {
+            this.props.onReset();
+        }
+    };
 
     render() {
         if (this.state.hasError) {
+            if (this.props.pageLevel) {
+                return (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: '60vh',
+                        padding: '2rem 1.5rem',
+                        textAlign: 'center',
+                        fontFamily: 'var(--font-family, inherit)',
+                        margin: 'auto',
+                        maxWidth: '480px'
+                    }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>💫</div>
+                        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.4rem', color: 'var(--text-primary, #fff)', fontWeight: '700' }}>
+                            Something went wrong in this section
+                        </h2>
+                        <p style={{ color: 'var(--text-secondary, #94a3b8)', marginBottom: '1.25rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                            Don't worry, your data is safe. You can reload this view or head back to campus discovery.
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                                type="button"
+                                onClick={this.handleReset}
+                                style={{
+                                    padding: '0.65rem 1.5rem',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    background: 'var(--gradient-primary, linear-gradient(135deg, #ff6b6b, #ff8e53))',
+                                    color: 'white',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
+                                }}
+                            >
+                                Try Again
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { window.location.href = '/match'; }}
+                                style={{
+                                    padding: '0.65rem 1.5rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border-default, rgba(255, 255, 255, 0.2))',
+                                    background: 'var(--bg-secondary, rgba(255, 255, 255, 0.08))',
+                                    color: 'var(--text-primary, #fff)',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                }}
+                            >
+                                Go to Match
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
             return (
                 <div style={{
                     display: 'flex',

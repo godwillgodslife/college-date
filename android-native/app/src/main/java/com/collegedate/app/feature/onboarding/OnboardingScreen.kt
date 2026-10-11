@@ -110,7 +110,7 @@ fun OnboardingScreen(
                 ErrorCard(
                     title = "Needs attention",
                     message = it,
-                    onRetryClick = viewModel::completeOnboarding,
+                    onRetryClick = viewModel::loadProfile,
                 )
             }
 

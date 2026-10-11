@@ -51,8 +51,13 @@ class OnboardingViewModel @Inject constructor(
                     it.copy(isLoading = false, error = result.message)
                 }
 
-                is OperationResult.Success -> _uiState.update {
-                    it.copy(isLoading = false).prefill(result.value)
+                is OperationResult.Success -> {
+                    _uiState.update {
+                        it.copy(isLoading = false).prefill(result.value)
+                    }
+                    if (result.value?.isOnboarded == true) {
+                        authRepository.markOnboardingComplete()
+                    }
                 }
             }
         }

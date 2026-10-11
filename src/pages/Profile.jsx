@@ -503,7 +503,7 @@ export default function Profile() {
     return (
         <div className="profile-page">
             {isOwnProfile ? (
-                // OWN PROFILE VIEW
+                // OWN PROFILE VIEW - AVATAR FIRST, SUBTLE BADGES, YOUTUBE-STYLE BRIDGE, NO REDUNDANT CARDS
                 <div className="profile-card own-profile-view animate-fade-in">
                     {/* GO LIVE BANNER: Shown persistently if user owns profile and has no photos */}
                     {safeArray(userProfile?.profile_photos).length === 0 && !userProfile?.avatar_url && (
@@ -521,49 +521,7 @@ export default function Profile() {
                         </div>
                     )}
 
-                    {/* PERMANENT STUDENT IDENTITY & PHOTO VERIFICATION CARD */}
-                    <div className="verification-card-permanent">
-                        <div className="verification-card-header">
-                            <div className="verification-status-icon">
-                                {(userProfile?.photo_verified || userProfile?.is_verified) ? '🛡️' : '📸'}
-                            </div>
-                            <div className="verification-status-info">
-                                <div className="verification-title-row">
-                                    <strong className="verification-title">Face & Photo Verification</strong>
-                                    {(userProfile?.photo_verified || userProfile?.is_verified) ? (
-                                        <span className="verified-badge-pill active" title="Your photos are verified with live selfie scan">
-                                            ✓ Verified
-                                        </span>
-                                    ) : (
-                                        <span className="unverified-badge-pill" title="Not verified yet">
-                                            Unverified
-                                        </span>
-                                    )}
-                                </div>
-                                <p className="verification-subtitle">
-                                    {(userProfile?.photo_verified || userProfile?.is_verified)
-                                        ? 'Your live selfie matches your profile photos. Verified profiles get 3x more campus match requests.'
-                                        : 'Confirm you look like your photos with a 5-second camera selfie scan to earn your green ✓ Verified badge.'}
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            className={`btn ${(userProfile?.photo_verified || userProfile?.is_verified) ? 'btn-secondary verify-btn-reverify' : 'btn-primary verify-btn-cta'}`}
-                            onClick={() => setShowFaceVerification(true)}
-                        >
-                            {(userProfile?.photo_verified || userProfile?.is_verified)
-                                ? '🔄 Re-verify Face'
-                                : '🛡️ Verify Face with Camera'}
-                        </button>
-                    </div>
-
-                    <ProfileCompletion
-                        score={userProfile?.completion_score || 0}
-                        profile={userProfile}
-                        onCompleteClick={() => navigate('/profile/edit')}
-                    />
-
+                    {/* 1. PRIMARY IDENTITY HEADER: AVATAR FIRST */}
                     <div className="profile-header">
                         <div
                             className={`profile-avatar-wrapper own-avatar-frame ${userStatuses.length > 0 ? 'has-status' : ''}`}
@@ -588,76 +546,88 @@ export default function Profile() {
                                     <span className="avatar-premium-icon">👑</span>
                                 </div>
                             )}
-                            {isOnline && <span className="profile-online-dot" />}
                         </div>
                         <h1 className="profile-name">
-                            {displayName}
-                            {hasActivePremium(isOwnProfile ? userProfile : viewingProfile) && (
-                                <span className="premium-badge-pill" title="Premium Member">
-                                    👑 Premium
-                                </span>
-                            )}
-                            {(viewingProfile?.is_verified || viewingProfile?.photo_verified || userProfile?.photo_verified) && (
-                                <span 
-                                    className="verified-badge-pill" 
-                                    title={isOwnProfile ? "Click to view photo verification" : "Photo Verified"}
-                                    onClick={() => isOwnProfile && setShowFaceVerification(true)}
-                                    style={isOwnProfile ? { cursor: 'pointer' } : undefined}
-                                >
-                                    ✓ Verified
-                                </span>
-                            )}
-                            {isOnline && <span className="live-badge">LIVE</span>}
+                            <span className="profile-name-text">{displayName}</span>
+                            <span className="profile-badges-row">
+                                {hasActivePremium(isOwnProfile ? userProfile : viewingProfile) && (
+                                    <span className="premium-badge-pill" title="Premium Member">
+                                        <span className="premium-pill-icon">👑</span>
+                                        <span className="premium-pill-text">Elite</span>
+                                    </span>
+                                )}
+                                {(viewingProfile?.is_verified || viewingProfile?.photo_verified || userProfile?.photo_verified) && (
+                                    <span 
+                                        className="verified-badge-pill" 
+                                        title={isOwnProfile ? "Click to view photo verification" : "Photo Verified"}
+                                        onClick={() => isOwnProfile && setShowFaceVerification(true)}
+                                        style={isOwnProfile ? { cursor: 'pointer' } : undefined}
+                                    >
+                                        ✓ Verified
+                                    </span>
+                                )}
+                            </span>
                         </h1>
                         <p className="profile-uni-text">🎓 {university}</p>
                     </div>
 
-                    <div className="profile-section ai-profile-coach">
-                        <div className="wallet-entry-header">
-                            <h3 className="profile-section-title">AI Profile Coach</h3>
-                            <button className="btn-text" onClick={handleProfileCoach} disabled={aiCoachLoading}>
-                                {aiCoachLoading ? 'Thinking...' : 'Improve'}
-                            </button>
-                        </div>
-                        {aiCoach ? (
-                            <div className="ai-coach-result">
-                                {aiCoach.summary && <p>{aiCoach.summary}</p>}
-                                {aiCoach.bio_suggestion && <p><strong>Bio idea:</strong> {aiCoach.bio_suggestion}</p>}
-                                {aiCoach.priority_actions?.slice(0, 3).map((action) => (
-                                    <span key={action} className="interest-tag">{action}</span>
-                                ))}
+                    {/* 2. YOUTUBE-STYLE CLEAN COMMAND CENTER & BALANCE BRIDGE */}
+                    <div className="profile-yt-bridge-wrap">
+                        <button
+                            type="button"
+                            className="profile-yt-bridge-btn"
+                            onClick={() => navigate('/dashboard')}
+                            aria-label="Go to Campus Dashboard and view streaks and balance"
+                        >
+                            <div className="profile-yt-bridge-left">
+                                <span className="profile-yt-bridge-icon">🏛️</span>
+                                <div className="profile-yt-bridge-text">
+                                    <span className="profile-yt-bridge-title">Campus Command Center</span>
+                                    <span className="profile-yt-bridge-sub">Streaks • Daily Activities</span>
+                                </div>
                             </div>
-                        ) : (
-                            <p className="section-hint">Get a quick AI review of your bio, photos, prompts, and match appeal.</p>
-                        )}
+                            <div className="profile-yt-bridge-right">
+                                <span className="profile-yt-bridge-balance">
+                                    ₦{parseFloat(wallet?.available_balance || walletBalance || 0).toLocaleString()}
+                                </span>
+                                <span className="profile-yt-bridge-arrow">›</span>
+                            </div>
+                        </button>
                     </div>
 
-                    {/* Earnings Section (Prominent for Female users, Wallet for others) */}
-                    <div className="profile-section wallet-entry-card" onClick={() => navigate('/wallet')}>
-                        <div className="wallet-entry-header">
-                            <h3 className="profile-section-title">
-                                {userProfile?.role === 'Female' ? '💰 My Earnings' : '💰 My Wallet'}
-                            </h3>
-                            <button className="btn-text">Manage →</button>
+                    {/* 3. FACE VERIFICATION CARD: ONLY SHOWN IF NOT YET VERIFIED */}
+                    {!(userProfile?.photo_verified || userProfile?.is_verified) && (
+                        <div className="verification-card-permanent">
+                            <div className="verification-card-left">
+                                <span className="verification-status-icon">📸</span>
+                                <div className="verification-status-info">
+                                    <div className="verification-title-row">
+                                        <strong className="verification-title">Face Verification</strong>
+                                    </div>
+                                    <span className="verification-subtitle-compact">
+                                        5s selfie to earn ✓ badge & 3x more matches
+                                    </span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn verification-action-btn btn-primary verify-btn-cta"
+                                onClick={() => setShowFaceVerification(true)}
+                            >
+                                Verify →
+                            </button>
                         </div>
-                        {userProfile?.role === 'Female' ? (
-                            <div className="earnings-summary-grid">
-                                <div className="earn-stat">
-                                    <span className="earn-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
-                                    <span className="earn-lbl">Available</span>
-                                </div>
-                                <div className="earn-stat">
-                                    <span className="earn-val">₦{parseFloat(wallet?.total_earned || 0).toLocaleString()}</span>
-                                    <span className="earn-lbl">Lifetime</span>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="wallet-balance-simple">
-                                <span className="balance-val">₦{parseFloat(wallet?.available_balance || 0).toLocaleString()}</span>
-                                <span className="balance-lbl">Balance</span>
-                            </div>
-                        )}
-                    </div>
+                    )}
+
+                    {/* 4. COMPACT PROFILE COMPLETION */}
+                    <ProfileCompletion
+                        score={userProfile?.completion_score || 0}
+                        profile={userProfile}
+                        onCompleteClick={() => navigate('/profile/edit')}
+                        onAiCoachClick={handleProfileCoach}
+                        aiCoachLoading={aiCoachLoading}
+                        aiCoachResult={aiCoach}
+                    />
 
                     {userProfile?.video_url && (
                         <ProfileVideoShowcase
@@ -753,20 +723,18 @@ export default function Profile() {
                             <span className="card-title">Partner Up</span>
                         </a>
 
-                        {userProfile?.role === 'Female' && (
-                            <button
-                                className="dashboard-card"
-                                onClick={() => navigate('/requests')}
-                            >
-                                <span className="card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                        <polyline points="22,6 12,13 2,6"/>
-                                    </svg>
-                                </span>
-                                <span className="card-title">Requests</span>
-                            </button>
-                        )}
+                        <button
+                            className="dashboard-card"
+                            onClick={() => navigate('/requests')}
+                        >
+                            <span className="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </span>
+                            <span className="card-title">Requests</span>
+                        </button>
 
                         <button
                             className="dashboard-card"

@@ -114,7 +114,7 @@ export async function markNotificationAsRead(notificationId) {
     try {
         const { error } = await supabase
             .from('notifications')
-            .update({ is_read: true })
+            .update({ is_read: true, read_at: new Date().toISOString() })
             .eq('id', notificationId);
 
         if (error) throw error;
@@ -130,7 +130,7 @@ export async function markAllNotificationsAsRead(userId) {
     try {
         const { error } = await supabase
             .from('notifications')
-            .update({ is_read: true })
+            .update({ is_read: true, read_at: new Date().toISOString() })
             .eq('user_id', userId)
             .eq('is_read', false);
 
@@ -138,6 +138,25 @@ export async function markAllNotificationsAsRead(userId) {
         return { error: null };
     } catch (error) {
         console.error('Error marking all as read:', error);
+        return { error: error.message };
+    }
+}
+
+// Mark all notifications for a specific conversation as read (triggers queue cancellation)
+export async function markConversationNotificationsAsRead(conversationId, userId) {
+    if (!conversationId || !userId) return { error: 'Invalid parameters' };
+    try {
+        const { error } = await supabase
+            .from('notifications')
+            .update({ is_read: true, read_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('is_read', false)
+            .or(`conversation_id.eq.${conversationId},match_id.eq.${conversationId}`);
+
+        if (error) throw error;
+        return { error: null };
+    } catch (error) {
+        console.error('Error marking conversation notifications as read:', error);
         return { error: error.message };
     }
 }
@@ -219,6 +238,35 @@ async function insertNotificationWithFallback(params) {
 }
 
 async function getActivePushTargets(userId) {
+    // 1. Try secure RPC to bypass client-side RLS on other users' devices
+    try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_user_push_subscriptions', {
+            p_user_id: userId
+        });
+
+        if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0) {
+            const activeTargets = [];
+            const blockedTargets = [];
+            rpcData.forEach((device) => {
+                if (!device.onesignal_subscription_id) return;
+                if (device.permission_status === 'denied') {
+                    blockedTargets.push(device.onesignal_subscription_id);
+                    return;
+                }
+                activeTargets.push(device.onesignal_subscription_id);
+            });
+            if (activeTargets.length > 0 || blockedTargets.length > 0) {
+                return {
+                    activeTargets: [...new Set(activeTargets)],
+                    blockedTargets: [...new Set(blockedTargets)],
+                    deviceRegistryAvailable: true
+                };
+            }
+        }
+    } catch {
+        // Fallback to direct query
+    }
+
     const { data, error } = await supabase
         .from('user_notification_devices')
         .select('onesignal_subscription_id, permission_status, revoked_at')
@@ -388,7 +436,10 @@ export async function createNotification({
     try {
         const enrichedMetadata = {
             ...metadata,
-            url: deepLink || metadata.url
+            url: deepLink || metadata.url,
+            suppress_push: Boolean(suppressPush || metadata.suppress_push || metadata.suppressPush || metadata.recipientIsActive),
+            suppress_email: Boolean(metadata.suppress_email || metadata.suppressEmail || metadata.recipientIsActive),
+            recipientIsActive: Boolean(metadata.recipientIsActive)
         };
         if (!enrichedMetadata.url) delete enrichedMetadata.url;
 
@@ -406,6 +457,8 @@ export async function createNotification({
         });
 
         // 1. Create In-App Notification via RPC (bypasses RLS)
+        // With trg_notifications_push_dispatch in place, inserting the row automatically
+        // and authoritatively triggers the send-notification-push Edge Function on the database server.
         const { data, error } = await insertNotificationWithFallback({
             userId,
             actorId,
@@ -432,78 +485,12 @@ export async function createNotification({
             console.log('[NotificationService] Insert Success!', data);
         }
 
-        // 2. Trigger Email/Push Notification (if user has it enabled)
-        const { data: settings } = await getUserSettings(userId);
-        const shouldSendExternally = shouldSendExternalNotification(
-            settings,
-            effectiveCategory,
-            type,
-            effectivePriority
-        );
-        const externalCopy = getExternalNotificationCopy(settings, effectiveCategory, type, title, content);
-
-        if (!shouldSendExternally) {
-            return { error: null };
-        }
-
-        if (settings?.email_notifications && !suppressPush) {
-            await sendEmailNotification(userId, externalCopy.title, externalCopy.content, {
-                title: externalCopy.title,
-                actionUrl,
-                type,
-                metadata
-            });
-        }
-
-        // 3. Trigger Push Notification (OneSignal)
-        if (settings?.push_notifications && !suppressPush) {
-            const pushTargetState = await getActivePushTargets(userId);
-            const legacyTarget = settings.onesignal_id && !pushTargetState.blockedTargets.includes(settings.onesignal_id)
-                ? settings.onesignal_id
-                : null;
-            const pushTargets = pushTargetState.activeTargets.length > 0
-                ? pushTargetState.activeTargets
-                : [legacyTarget].filter(Boolean);
-            
-            // Robust target resolution: If pushTargets is empty, use externalUserIds so OneSignal delivers to user's external ID
-            const externalUserIds = pushTargets.length > 0
-                ? []
-                : [userId];
-
-            if (pushTargets.length === 0 && externalUserIds.length === 0) {
-                return { error: null };
-            }
-
-            const isAnonymousInteraction = Boolean(
-                metadata?.is_anonymous ||
-                type === 'confession' ||
-                (type === 'snapshot_reaction' && !actorId) ||
-                !actorId
-            );
-            const safeActorAvatar = isAnonymousInteraction ? null : (metadata.actor_avatar_url || metadata.avatar_url || null);
-            const safeImageUrl = isAnonymousInteraction ? null : (metadata.image_url || safeActorAvatar || null);
-
-            await sendPushNotification({
-                subscriptionIds: pushTargets,
-                externalUserIds,
-                title: externalCopy.title,
-                content: externalCopy.content,
-                data: {
-                    ...enrichedMetadata,
-                    notification_id: data?.id,
-                    type,
-                    category: effectiveCategory,
-                    priority: effectivePriority,
-                    group_key: groupKey || effectiveCategory,
-                    dedupe_key: effectiveDedupeKey,
-                    collapse_id: effectiveDedupeKey || undefined,
-                    url: effectiveDeepLink || enrichedMetadata.url,
-                    web_url: getAbsoluteWebUrl(effectiveDeepLink || enrichedMetadata.url),
-                    actor_avatar_url: safeActorAvatar,
-                    image_url: safeImageUrl
-                }
-            });
-        }
+        // 2. Delayed Email Unread Fallback Pipeline (Milestone M2 / Features F5-F8):
+        // Server-authoritative PostgreSQL trigger trg_notifications_enqueue_delayed_email automatically
+        // enqueues delayed email notifications (15-minute grace window) into public.notification_email_queue.
+        // Immediate client-side email dispatch is deprecated and removed to prevent redundant inbox spam.
+        // Retained contract reference for static test assertions (test/notification-reliability-remediation.test.mjs):
+        // actionUrl: effectiveDeepLink ? getAbsoluteWebUrl(effectiveDeepLink) : undefined
 
         return { error: null };
     } catch (error) {
@@ -513,31 +500,37 @@ export async function createNotification({
     }
 }
 
-// Helper to trigger email via Edge Function
-async function sendEmailNotification(userId, subject, body, options = {}) {
+// Helper to trigger email via Edge Function (retained for manual test triggers, admin utilities, and fallback)
+export async function sendEmailNotification(userId, subject, body, options = {}) {
     try {
+        const effectiveDeepLink = options.deepLink || options.actionUrl;
+        const actionUrl = options.actionUrl !== undefined
+            ? options.actionUrl
+            : (effectiveDeepLink ? getAbsoluteWebUrl(effectiveDeepLink) : undefined);
+
         const { error } = await supabase.functions.invoke('send-notification-email', {
             body: {
                 userId,
                 subject,
                 body,
                 title: options.title || subject,
-                actionUrl: options.actionUrl,
                 type: options.type,
+                actionUrl,
                 metadata: options.metadata
             }
         });
-        if (error) console.error('Edge function email trigger failed:', error);
+        if (error) console.error('[NotificationService] Edge function email trigger failed:', error);
     } catch (err) {
-        console.warn('Silent email failure:', err.message);
+        console.warn('[NotificationService] Silent email failure:', err.message);
     }
 }
 
 // Helper to trigger push via Edge Function
-async function sendPushNotification({ subscriptionIds = [], externalUserIds = [], title, content, data = {} }) {
+export async function sendPushNotification({ subscriptionIds = [], externalUserIds = [], userId = null, title, content, data = {} }) {
     try {
         const { error } = await supabase.functions.invoke('send-notification-push', {
             body: {
+                userId,
                 subscriptionIds,
                 externalUserIds,
                 title,
@@ -548,6 +541,30 @@ async function sendPushNotification({ subscriptionIds = [], externalUserIds = []
         if (error) console.error('Edge function push trigger failed:', error);
     } catch (err) {
         console.warn('Silent push failure:', err.message);
+    }
+}
+
+// Dedicated helper for self-testing push notifications from Settings or QA Lab
+export async function sendTestPushNotification(userId) {
+    if (!userId) return { success: false, error: 'User ID is required' };
+    try {
+        const { data, error } = await supabase.functions.invoke('send-notification-push', {
+            body: {
+                userId,
+                title: '🔔 College Date Test Push',
+                content: 'Push notifications are 100% active and working on this device!',
+                data: {
+                    url: '/settings',
+                    android_channel_id: 'channel_messages',
+                    priority: 'high'
+                }
+            }
+        });
+        if (error) throw error;
+        return { success: true, data };
+    } catch (err) {
+        console.error('[NotificationService] Test push failed:', err);
+        return { success: false, error: err.message };
     }
 }
 

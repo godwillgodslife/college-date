@@ -6,8 +6,10 @@ import {
     countUnreadByCategory,
     getNotificationCategory,
     getNotificationDeepLink,
-    getNotificationIcon
+    getNotificationIcon,
+    groupNotificationsChronologically
 } from '../utils/notificationRouting';
+import { triggerLightHaptic, triggerMediumHaptic, triggerSuccessHaptic } from '../services/haptics';
 import './NotificationCenter.css';
 
 const FILTERS = [
@@ -49,7 +51,12 @@ export default function NotificationCenter() {
         return (notifications || []).filter((notification) => getNotificationCategory(notification) === activeFilter);
     }, [activeFilter, notifications]);
 
+    const notificationGroups = useMemo(() => {
+        return groupNotificationsChronologically(filteredNotifications);
+    }, [filteredNotifications]);
+
     const handleOpenNotification = (notification) => {
+        triggerLightHaptic();
         if (notification.type === 'call') {
             dismissNotification(notification.id);
         } else {
@@ -59,10 +66,32 @@ export default function NotificationCenter() {
         navigate(destination.to, destination.state ? { state: destination.state } : undefined);
     };
 
+    const handleMarkAllRead = async () => {
+        try {
+            triggerSuccessHaptic();
+            await markAllRead();
+        } catch (err) {
+            console.warn('[NotificationCenter] Failed to mark all read:', err);
+        }
+    };
+
+    const handleFilterSelect = (filterId) => {
+        triggerMediumHaptic();
+        setActiveFilter(filterId);
+    };
+
     return (
         <div className="notification-center-page">
             <header className="notification-center-header">
                 <div>
+                    <button
+                        className="notification-back-btn"
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        aria-label="Go back"
+                    >
+                        ←
+                    </button>
                     <p className="notification-center-kicker">Activity</p>
                     <h1>Notifications</h1>
                     <p>Messages, matches, requests, profile activity, and account updates in one place.</p>
@@ -70,7 +99,7 @@ export default function NotificationCenter() {
                 <button
                     className="notification-center-mark"
                     type="button"
-                    onClick={markAllRead}
+                    onClick={handleMarkAllRead}
                     disabled={!unreadCounts.total}
                 >
                     Mark all read
@@ -90,7 +119,7 @@ export default function NotificationCenter() {
                             role="tab"
                             aria-selected={activeFilter === filter.id}
                             className={`notification-filter ${activeFilter === filter.id ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(filter.id)}
+                            onClick={() => handleFilterSelect(filter.id)}
                         >
                             <span>{filter.label}</span>
                             {count > 0 && <strong>{count > 99 ? '99+' : count}</strong>}
@@ -102,52 +131,63 @@ export default function NotificationCenter() {
             <section className="notification-center-list" aria-live="polite">
                 {filteredNotifications.length === 0 ? (
                     <div className="notification-center-empty">
-                        <span>!</span>
+                        <span>🔔</span>
                         <h2>No notifications here</h2>
                         <p>When something meaningful happens, it will appear in this section.</p>
                     </div>
                 ) : (
-                    filteredNotifications.map((notification) => (
-                        <div
-                            key={notification.id}
-                            role="button"
-                            tabIndex={0}
-                            className={`notification-center-item ${notification.is_read ? '' : 'unread'}`}
-                            onClick={() => handleOpenNotification(notification)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    handleOpenNotification(notification);
-                                }
-                            }}
-                        >
-                            <span className="notification-center-icon">
-                                {getNotificationIcon(notification.type)}
-                            </span>
-                            <span className="notification-center-copy">
-                                <span className="notification-center-title-row">
-                                    <strong>{notification.title || 'Notification'}</strong>
-                                    <time>{formatNotificationTime(notification.created_at)}</time>
-                                </span>
-                                <span className="notification-center-message">
-                                    {notification.content || 'Open to view the latest activity.'}
-                                </span>
-                                <small>{getNotificationCategory(notification).replace(/_/g, ' ')}</small>
-                            </span>
-                            <div className="notification-center-actions">
-                                {!notification.is_read && <span className="notification-center-dot" />}
-                                <button
-                                    type="button"
-                                    className="notification-center-dismiss-btn"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        dismissNotification(notification.id);
-                                    }}
-                                    title="Dismiss notification"
-                                    aria-label="Dismiss notification"
-                                >
-                                    ✕
-                                </button>
+                    notificationGroups.map((group) => (
+                        <div key={group.id} className="notification-center-group">
+                            <div className="notification-center-group-header">
+                                <span className="notification-center-group-title">{group.title}</span>
+                                <span className="notification-center-group-count">{group.items.length}</span>
+                            </div>
+                            <div className="notification-center-group-items">
+                                {group.items.map((notification) => (
+                                    <div
+                                        key={notification.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        className={`notification-center-item ${notification.is_read ? '' : 'unread'}`}
+                                        onClick={() => handleOpenNotification(notification)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                handleOpenNotification(notification);
+                                            }
+                                        }}
+                                    >
+                                        <span className="notification-center-icon">
+                                            {getNotificationIcon(notification.type)}
+                                        </span>
+                                        <span className="notification-center-copy">
+                                            <span className="notification-center-title-row">
+                                                <strong>{notification.title || 'Notification'}</strong>
+                                                <time>{formatNotificationTime(notification.created_at)}</time>
+                                            </span>
+                                            <span className="notification-center-message">
+                                                {notification.content || 'Open to view the latest activity.'}
+                                            </span>
+                                            <small>{getNotificationCategory(notification).replace(/_/g, ' ')}</small>
+                                        </span>
+                                        <div className="notification-center-actions">
+                                            {!notification.is_read && <span className="notification-center-dot" />}
+                                            <button
+                                                type="button"
+                                                className="notification-center-dismiss-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    triggerLightHaptic();
+                                                    dismissNotification(notification.id);
+                                                }}
+                                                title="Dismiss notification"
+                                                aria-label="Dismiss notification"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))

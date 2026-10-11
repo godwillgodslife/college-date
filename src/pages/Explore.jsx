@@ -16,7 +16,7 @@ import { getProfilePhotos, normalizeProfile, safeArray, formatDisplayName } from
 import { hasActivePremium } from '../utils/premium';
 import { calculateActiveFilterCount, DEFAULT_EXPLORE_FILTERS, createDefaultExploreFilters } from '../utils/exploreFilters';
 import OptimizedImage from '../components/OptimizedImage';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
 import CampusFinderModal from '../components/CampusFinderModal';
 import MatchCelebration from '../components/MatchCelebration';
 import './Explore.css';
@@ -106,6 +106,7 @@ export default function Explore() {
             return;
         }
         setIsSearching(true);
+        markFeatureUsed('explore_filters');
         try {
             const results = await searchProfilesByName(text, currentUser?.id, userProfile, filters);
             setDbSearchResults(results || []);
@@ -378,7 +379,10 @@ export default function Explore() {
                         <button
                             key={cat}
                             className={`category-chip ${category === cat ? 'active' : ''}`}
-                            onClick={() => setCategory(cat)}
+                            onClick={() => {
+                                setCategory(cat);
+                                markFeatureUsed('explore_filters');
+                            }}
                         >
                             {cat}
                         </button>

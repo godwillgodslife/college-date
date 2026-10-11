@@ -321,11 +321,23 @@ export async function markMessageAsRead(messageId) {
 }
 
 /**
- * Bulk-mark all messages in a conversation as read.
+ * Bulk-mark all messages in a conversation as read and cancel pending delayed notification emails.
  */
 export async function markConversationRead(matchId, userId) {
     if (!matchId || matchId === 'null') return { error: 'Invalid match ID' };
     try {
+        // 1. Attempt atomic server-authoritative RPC (marks messages & notifs read, cancels delayed emails)
+        try {
+            const { error: rpcError } = await supabase.rpc('mark_conversation_read_and_cancel_emails', {
+                p_match_id: matchId,
+                p_user_id: userId
+            });
+            if (!rpcError) return { error: null };
+        } catch (_rpcErr) {
+            // Graceful fallback to direct update if RPC is missing in offline/mock environment
+        }
+
+        // 2. Fallback direct update to messages table
         const nowIso = new Date().toISOString();
         const { error } = await supabase
             .from('messages')
@@ -335,6 +347,19 @@ export async function markConversationRead(matchId, userId) {
             .eq('is_read', false);
 
         if (error) throw error;
+
+        // 3. Sync notifications for this conversation
+        try {
+            await supabase
+                .from('notifications')
+                .update({ is_read: true, read_at: nowIso })
+                .eq('user_id', userId)
+                .eq('is_read', false)
+                .or(`conversation_id.eq.${matchId},match_id.eq.${matchId}`);
+        } catch (_) {
+            // Notification sync failure is non-blocking
+        }
+
         return { error: null };
     } catch (err) {
         console.error('markConversationRead error:', err.message);

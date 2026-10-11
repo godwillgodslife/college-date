@@ -104,6 +104,17 @@ function getProfileImages(profile: Record<string, unknown>) {
 }
 
 function normalizeSelfieReview(raw: Record<string, unknown>, livenessScore: number): AiReview {
+  const isRawEmpty = !raw || Object.keys(raw).length === 0;
+  if (isRawEmpty) {
+    return {
+      status: 'needs_review',
+      score: Math.min(65, Math.max(50, livenessScore)),
+      photo_origin: 'camera_likely',
+      summary: 'Selfie captured with live motion. Verification response was incomplete and is queued for review.',
+      flags: ['incomplete_model_response'],
+    };
+  }
+
   const match = raw?.match === true ||
     raw?.status === 'verified' ||
     String(raw?.status).toLowerCase().includes('verif') ||
@@ -113,16 +124,21 @@ function normalizeSelfieReview(raw: Record<string, unknown>, livenessScore: numb
   const flags = Array.isArray(raw?.flags) ? raw.flags.map(String).slice(0, 10) : [];
   const hasSevereSafetyFlags = flags.some((flag) => /minor|child|explicit|weapon/i.test(flag));
 
-  // If match is affirmed, or score >= 45 with no severe safety flags, approve as verified!
-  const status: AiReview['status'] = (!hasSevereSafetyFlags && (match || score >= 45 || raw?.status !== 'rejected'))
-    ? 'verified'
-    : 'rejected';
+  // Determine status authoritatively:
+  let status: AiReview['status'] = 'needs_review';
+  if (hasSevereSafetyFlags || raw?.status === 'rejected' || raw?.match === false || score < 35) {
+    status = 'rejected';
+  } else if (match && score >= 45) {
+    status = 'verified';
+  } else {
+    status = 'needs_review';
+  }
 
   return {
     status,
     score: Math.max(score, livenessScore, 85),
     photo_origin: 'camera_likely',
-    summary: String(raw?.summary || (status === 'verified' ? 'Face matched successfully with live interactive verification.' : 'Facial verification rejected.')),
+    summary: String(raw?.summary || (status === 'verified' ? 'Face matched successfully with live interactive verification.' : status === 'rejected' ? 'Facial verification rejected.' : 'Facial verification pending review.')),
     flags,
   };
 }
@@ -136,13 +152,13 @@ async function runSelfieFaceMatch(selfieBase64: string, profilePhotoUrl?: string
   if (!apiKey || !enabled) {
     return {
       provider: 'local-presence',
-      model: 'liveness-motion-verified',
+      model: 'liveness-motion-pending',
       review: {
-        status: 'verified' as const,
-        score: Math.max(85, livenessScore),
+        status: 'needs_review' as const,
+        score: Math.min(65, Math.max(50, livenessScore)),
         photo_origin: 'camera_likely' as const,
-        summary: 'Live presence and interactive facial movements verified successfully.',
-        flags: [],
+        summary: 'Live presence recorded. Cloud verification is currently queued for manual review.',
+        flags: ['ai_credits_exhausted_or_offline'],
       },
       raw: null,
     };
@@ -232,16 +248,16 @@ async function runSelfieFaceMatch(selfieBase64: string, profilePhotoUrl?: string
       raw,
     };
   } catch (err) {
-    console.warn('[Face Match] AI provider fallback to liveness motion verification:', err);
+    console.warn('[Face Match] AI provider fallback to liveness motion review:', err);
     return {
       provider: 'liveness-motion',
-      model: 'motion-liveness-verified',
+      model: 'motion-liveness-pending',
       review: {
-        status: 'verified' as const,
-        score: Math.max(88, livenessScore),
+        status: 'needs_review' as const,
+        score: Math.min(65, Math.max(50, livenessScore)),
         photo_origin: 'camera_likely' as const,
-        summary: 'Live human presence and multi-stage facial motion verified.',
-        flags: [],
+        summary: 'Live presence captured, but automated verification is temporarily queued for review.',
+        flags: ['ai_service_unavailable'],
       },
       raw: null,
     };
@@ -258,11 +274,11 @@ async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: 
       provider: 'placeholder',
       model: 'local-placeholder',
       review: normalizeReview({
-        status: imageUrls.length > 0 ? 'verified' : 'needs_review',
-        score: imageUrls.length > 0 ? 80 : 40,
+        status: 'needs_review',
+        score: imageUrls.length > 0 ? 60 : 30,
         photo_origin: 'camera_likely',
-        summary: 'Profile reviewed and verified.',
-        flags: [],
+        summary: 'Profile saved successfully. AI verification is pending credit reload or manual review.',
+        flags: ['ai_credits_exhausted_or_offline'],
       }),
       raw: null,
     };
@@ -332,16 +348,16 @@ async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: 
   }
 
   if (!response.ok) {
-    console.warn(`[OpenRouter Profile Review] API failed with ${response.status}, using verified fallback`);
+    console.warn(`[OpenRouter Profile Review] API failed with ${response.status}, queuing for review without verified badge`);
     return {
       provider: 'fallback-safety',
-      model: 'profile-verified',
+      model: 'profile-pending-review',
       review: {
-        status: 'verified' as const,
-        score: 85,
+        status: 'needs_review' as const,
+        score: 60,
         photo_origin: 'camera_likely' as const,
-        summary: 'Student profile verified.',
-        flags: [],
+        summary: 'Student profile saved. AI verification is queued pending credit renewal or admin check.',
+        flags: ['ai_credit_exhausted_or_error'],
       },
       raw: null,
     };
@@ -485,13 +501,13 @@ serve(async (req) => {
     console.error('ai-profile-review error:', error);
     return jsonResponse({
       success: true,
-      verified: true,
+      verified: false,
       review: {
-        status: 'verified',
-        score: 85,
+        status: 'needs_review',
+        score: 50,
         photo_origin: 'camera_likely',
-        summary: 'Biometric liveness verified via interactive motion challenge.',
-        flags: [],
+        summary: 'Profile saved. Verification is currently pending review.',
+        flags: ['system_fallback'],
       },
     }, 200);
   }

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import './ContextualGuide.css';
 
 const GUIDE_STORAGE_KEY_PREFIX = 'tcd_guide_seen_';
+const GUIDE_VIEWS_KEY_PREFIX = 'tcd_guide_views_';
+const GUIDE_LAST_SEEN_KEY_PREFIX = 'tcd_guide_last_seen_';
 
 export const GUIDE_FEATURES = {
     match_swipe: {
@@ -107,7 +109,29 @@ export const GUIDE_FEATURES = {
 
 export function isGuideSeen(featureId) {
     if (typeof window === 'undefined' || !window.localStorage) return true;
-    return window.localStorage.getItem(`${GUIDE_STORAGE_KEY_PREFIX}${featureId}`) === 'true';
+    try {
+        if (window.localStorage.getItem(`${GUIDE_STORAGE_KEY_PREFIX}${featureId}`) === 'true') {
+            return true;
+        }
+
+        // Auto-retire if user has seen this tip >= 2 times total
+        const views = parseInt(window.localStorage.getItem(`${GUIDE_VIEWS_KEY_PREFIX}${featureId}`) || '0', 10);
+        if (views >= 2) {
+            markGuideSeen(featureId);
+            return true;
+        }
+
+        // If viewed once in a past session (> 30 minutes ago), auto-retire so it doesn't reappear on app reopen
+        const lastSeen = parseInt(window.localStorage.getItem(`${GUIDE_LAST_SEEN_KEY_PREFIX}${featureId}`) || '0', 10);
+        if (views >= 1 && lastSeen > 0 && (Date.now() - lastSeen) > 30 * 60 * 1000) {
+            markGuideSeen(featureId);
+            return true;
+        }
+
+        return false;
+    } catch {
+        return true;
+    }
 }
 
 export function markGuideSeen(featureId) {
@@ -119,13 +143,46 @@ export function markGuideSeen(featureId) {
     }
 }
 
+export function recordGuideImpression(featureId) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    try {
+        const viewKey = `${GUIDE_VIEWS_KEY_PREFIX}${featureId}`;
+        const timeKey = `${GUIDE_LAST_SEEN_KEY_PREFIX}${featureId}`;
+        const currentViews = parseInt(window.localStorage.getItem(viewKey) || '0', 10);
+        const newViews = currentViews + 1;
+        window.localStorage.setItem(viewKey, newViews.toString());
+        window.localStorage.setItem(timeKey, Date.now().toString());
+
+        if (newViews >= 2) {
+            markGuideSeen(featureId);
+        }
+    } catch (e) {
+        console.warn('[ContextualGuide] Could not record guide impression:', e);
+    }
+}
+
+/**
+ * Intuitive Action Hook:
+ * Whenever a user actually uses a feature (e.g. swipes a card, submits a search,
+ * accepts a connection request, opens a chat message), call markFeatureUsed.
+ * The system intuitively knows the user understands the feature, so the introductory tip goes off!
+ */
+export function markFeatureUsed(featureId) {
+    markGuideSeen(featureId);
+}
+
 export function resetAllGuides() {
     if (typeof window === 'undefined' || !window.localStorage) return;
     try {
         Object.keys(GUIDE_FEATURES).forEach(featureId => {
             window.localStorage.removeItem(`${GUIDE_STORAGE_KEY_PREFIX}${featureId}`);
+            window.localStorage.removeItem(`${GUIDE_VIEWS_KEY_PREFIX}${featureId}`);
+            window.localStorage.removeItem(`${GUIDE_LAST_SEEN_KEY_PREFIX}${featureId}`);
         });
         window.localStorage.removeItem('hasSeenAppTour');
+        window.localStorage.removeItem('tcd_nudge_dismissed_profile_completion');
+        window.localStorage.removeItem('tcd_dismissed_profile_completion');
+        window.localStorage.removeItem('tcd_dismissed_face_verify_card');
     } catch (e) {
         console.warn('[ContextualGuide] Could not reset guides:', e);
     }
@@ -133,25 +190,67 @@ export function resetAllGuides() {
 
 /**
  * ContextualTip
- * Lightweight inline dismissible banner that teaches a specific feature on first visit.
+ * Modern compact pill banner that teaches a specific feature on first visit.
+ * Collapsed by default (<= 38px height) to avoid obscuring discovery cards / student faces.
+ * Automatically goes off after 8s of inactivity, on user scroll, on feature usage, or on ✕.
  */
-export function ContextualTip({ featureId, className = '', onLearnMore }) {
+export function ContextualTip({ featureId, className = '', onLearnMore, autoHideSeconds = 8 }) {
     const [visible, setVisible] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isDismissing, setIsDismissing] = useState(false);
     const feature = GUIDE_FEATURES[featureId];
 
     useEffect(() => {
         if (!feature) return;
         if (!isGuideSeen(featureId)) {
+            recordGuideImpression(featureId);
             setVisible(true);
         }
     }, [featureId, feature]);
 
-    if (!visible || !feature) return null;
+    // WhatsApp-Style Intuitive Dismissal:
+    // Auto-dismiss after 8s of display if user doesn't expand,
+    // or when the user scrolls the page to read/view content
+    useEffect(() => {
+        if (!visible || isExpanded) return;
+
+        let timer = null;
+        if (autoHideSeconds > 0) {
+            timer = setTimeout(() => {
+                handleAutoDismiss();
+            }, autoHideSeconds * 1000);
+        }
+
+        const handleScroll = () => {
+            if (window.scrollY > 40 || document.documentElement.scrollTop > 40) {
+                handleAutoDismiss();
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            if (timer) clearTimeout(timer);
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [visible, isExpanded, autoHideSeconds]);
+
+    const handleAutoDismiss = () => {
+        setIsDismissing(true);
+        setTimeout(() => {
+            markGuideSeen(featureId);
+            setVisible(false);
+            setIsDismissing(false);
+        }, 350);
+    };
 
     const handleDismiss = (e) => {
         e?.stopPropagation?.();
-        markGuideSeen(featureId);
-        setVisible(false);
+        setIsDismissing(true);
+        setTimeout(() => {
+            markGuideSeen(featureId);
+            setVisible(false);
+            setIsDismissing(false);
+        }, 300);
     };
 
     const handleAction = (e) => {
@@ -163,44 +262,104 @@ export function ContextualTip({ featureId, className = '', onLearnMore }) {
         }
     };
 
+    if (!visible || !feature) return null;
+
     return (
-        <div className={`contextual-tip-card ${className} animate-fade-in`}>
-            <div className="contextual-tip-header">
-                <div className="tip-badge-row">
-                    <span className="tip-icon">{feature.icon}</span>
-                    <span className="tip-badge">{feature.badge}</span>
+        <div 
+            className={`contextual-tip-card contextual-tip-pill ${isExpanded ? 'is-expanded' : 'is-collapsed'} ${isDismissing ? 'is-dismissing' : ''} ${className} animate-fade-in`}
+            role="region"
+            aria-label={`Tip for ${feature.title}`}
+        >
+            {!isExpanded ? (
+                <div 
+                    className="contextual-tip-collapsed" 
+                    onClick={() => setIsExpanded(true)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExpanded(true); } }}
+                    title="Tap to learn more"
+                >
+                    <div className="tip-collapsed-content">
+                        <span className="tip-collapsed-icon">{feature.icon || '💡'}</span>
+                        <span className="tip-collapsed-prefix">Tip:</span>
+                        <span className="tip-collapsed-text">{feature.shortText}</span>
+                    </div>
+                    <div className="tip-collapsed-actions">
+                        <button
+                            type="button"
+                            className="tip-collapsed-expand-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsExpanded(true);
+                            }}
+                            aria-label="Expand tip details"
+                        >
+                            Learn More
+                        </button>
+                        <button
+                            type="button"
+                            className="tip-close-btn tip-collapsed-close"
+                            onClick={handleDismiss}
+                            aria-label="Dismiss tip permanently"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
-                <button
-                    type="button"
-                    className="tip-close-btn"
-                    onClick={handleDismiss}
-                    aria-label="Dismiss tip"
-                >
-                    ✕
-                </button>
-            </div>
-            <div className="contextual-tip-body">
-                <h4 className="tip-title">{feature.title}</h4>
-                <p className="tip-text">{feature.shortText}</p>
-            </div>
-            <div className="contextual-tip-actions">
-                {onLearnMore && (
-                    <button
-                        type="button"
-                        className="tip-action-btn secondary"
-                        onClick={handleAction}
-                    >
-                        Learn More
-                    </button>
-                )}
-                <button
-                    type="button"
-                    className="tip-action-btn primary"
-                    onClick={handleDismiss}
-                >
-                    Got It 👍
-                </button>
-            </div>
+            ) : (
+                <div className="contextual-tip-expanded-content">
+                    <div className="contextual-tip-header">
+                        <div className="tip-badge-row">
+                            <span className="tip-icon">{feature.icon}</span>
+                            <span className="tip-badge">{feature.badge}</span>
+                        </div>
+                        <div className="tip-header-actions">
+                            <button
+                                type="button"
+                                className="tip-collapse-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsExpanded(false);
+                                }}
+                                aria-label="Collapse tip"
+                                title="Collapse"
+                            >
+                                ▴
+                            </button>
+                            <button
+                                type="button"
+                                className="tip-close-btn"
+                                onClick={handleDismiss}
+                                aria-label="Dismiss tip"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    <div className="contextual-tip-body">
+                        <h4 className="tip-title">{feature.title}</h4>
+                        <p className="tip-text">{feature.shortText}</p>
+                    </div>
+                    <div className="contextual-tip-actions">
+                        {onLearnMore && (
+                            <button
+                                type="button"
+                                className="tip-action-btn secondary"
+                                onClick={handleAction}
+                            >
+                                Full Guide
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className="tip-action-btn primary"
+                            onClick={handleDismiss}
+                        >
+                            Got It 👍
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

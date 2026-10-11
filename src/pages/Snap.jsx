@@ -70,10 +70,11 @@ export default function Snap() {
     };
 
     const handleSend = async () => {
-        if (!selectedFile || !selectedFriend) return;
+        const recipientId = selectedFriend?.other_user?.id || selectedFriend?.other_user_id || selectedFriend?.id;
+        if (!selectedFile || !recipientId || !currentUser?.id) return;
 
         setSending(true);
-        const { error } = await sendSnap(currentUser.id, selectedFriend.other_user.id, selectedFile);
+        const { error } = await sendSnap(currentUser.id, recipientId, selectedFile);
 
         if (error) {
             addToast('Failed to send snap', 'error');

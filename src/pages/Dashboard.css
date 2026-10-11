@@ -230,6 +230,7 @@ html[data-theme="dark"] .dashboard-primary-action {
 
     .dashboard-hero {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 
     .dashboard-hero-content {
@@ -281,4 +282,97 @@ html[data-theme="dark"] .dashboard-primary-action {
     .features-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Streak & Active Program Cards (aligned with viewer teaser and page borders) */
+.dashboard-streak-card,
+.dashboard-active-program-card {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dashboard-streak-card {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.16), rgba(255, 165, 2, 0.09)), var(--bg-card, var(--bg-secondary));
+    border: 1px solid rgba(255, 107, 107, 0.32);
+}
+
+.dashboard-streak-card:hover {
+    border-color: rgba(255, 107, 107, 0.5);
+    transform: translateY(-1px);
+}
+
+.dashboard-active-program-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.14), rgba(16, 185, 129, 0.1)), var(--bg-card, var(--bg-secondary));
+    border: 1px solid rgba(255, 215, 0, 0.35);
+}
+
+.dashboard-active-program-card:hover {
+    border-color: rgba(255, 215, 0, 0.55);
+    transform: translateY(-1px);
+}
+
+.dashboard-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.dashboard-card-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.dashboard-card-info {
+    min-width: 0;
+}
+
+.dashboard-card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-card-subtitle {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-card-subtitle.streak-active {
+    color: #16a34a;
+}
+
+.dashboard-card-subtitle.streak-pending {
+    color: #ef4444;
+}
+
+.dashboard-card-action {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+
+.dashboard-streak-card .dashboard-card-action {
+    color: #ff9f43;
+}
+
+.dashboard-active-program-card .dashboard-card-action {
+    color: #d97706;
 }

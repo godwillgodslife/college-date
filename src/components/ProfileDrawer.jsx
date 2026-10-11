@@ -247,7 +247,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                         <div className="drawer-details">
                             <div className="drawer-header">
                                 <h2 className="drawer-name">
-                                    {displayProfile.full_name}, <span className="drawer-age">{displayProfile.age}</span>
+                                    {(displayProfile.full_name || '').trim()}{displayProfile.age ? <>, <span className="drawer-age">{displayProfile.age}</span></> : null}
                                     {profileIsPremium && <span className="premium-crown" title="Premium Member">👑</span>}
                                     {(displayProfile.is_verified || displayProfile.photo_verified) && (
                                         <span className="card-verified-tick" title="Photo Verified Student">✓</span>
@@ -263,7 +263,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                             </div>
 
                             <p className="drawer-university">
-                                🎓 {displayProfile.level} - {displayProfile.faculty} <br />
+                                🎓 {[displayProfile.level, displayProfile.faculty].filter(Boolean).join(' - ') || 'Student'} <br />
                                 {displayProfile.university}
                             </p>
 

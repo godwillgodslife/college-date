@@ -1,0 +1,1367 @@
+[
+  {
+    "screen": "Dashboard",
+    "path": "/dashboard",
+    "lightScreenshot": "audit_dashboard_light.png",
+    "darkScreenshot": "audit_dashboard_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/dashboard",
+      "domNodes": 271,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Score Streak: 0 Days",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "DIV"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/dashboard",
+      "domNodes": 271,
+      "issues": []
+    }
+  },
+  {
+    "screen": "Match",
+    "path": "/match",
+    "lightScreenshot": "audit_match_light.png",
+    "darkScreenshot": "audit_match_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/match",
+      "domNodes": 260,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "i",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.08)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "i",
+          "width": 28,
+          "height": 28
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/match",
+      "domNodes": 260,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "i",
+          "width": 28,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Explore",
+    "path": "/explore",
+    "lightScreenshot": "audit_explore_light.png",
+    "darkScreenshot": "audit_explore_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/explore",
+      "domNodes": 172,
+      "issues": []
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/explore",
+      "domNodes": 172,
+      "issues": []
+    }
+  },
+  {
+    "screen": "Chat",
+    "path": "/chat",
+    "lightScreenshot": "audit_chat_light.png",
+    "darkScreenshot": "audit_chat_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/chat",
+      "domNodes": 348,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "CONVERSATIONS",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.95)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Got It 👍",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.95)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "All",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.95)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "All",
+          "width": 44,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Unread",
+          "width": 74,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Online",
+          "width": 70,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Matches",
+          "width": 83,
+          "height": 29
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/chat",
+      "domNodes": 348,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "All",
+          "width": 44,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Unread",
+          "width": 74,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Online",
+          "width": 70,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Matches",
+          "width": 83,
+          "height": 29
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Profile",
+    "path": "/profile",
+    "lightScreenshot": "audit_profile_light.png",
+    "darkScreenshot": "audit_profile_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/profile",
+      "domNodes": 299,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Improve",
+          "color": "rgba(255, 255, 255, 0.8)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Improve",
+          "width": 67,
+          "height": 24
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Manage →",
+          "color": "rgba(255, 255, 255, 0.8)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Manage →",
+          "width": 81,
+          "height": 25
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "₦65",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Balance",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "View Feed →",
+          "color": "rgba(255, 255, 255, 0.8)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "View Feed →",
+          "width": 95,
+          "height": 25
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/profile",
+      "domNodes": 325,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "Improve",
+          "width": 67,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Manage →",
+          "width": 81,
+          "height": 25
+        },
+        {
+          "type": "small_tap_target",
+          "text": "View Feed →",
+          "width": 95,
+          "height": 25
+        }
+      ]
+    }
+  },
+  {
+    "screen": "EditProfile",
+    "path": "/profile/edit",
+    "lightScreenshot": "audit_editprofile_light.png",
+    "darkScreenshot": "audit_editprofile_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/profile/edit",
+      "domNodes": 319,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "×",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "×",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Review",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.86)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Save Changes",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/profile/edit",
+      "domNodes": 319,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "×",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "×",
+          "width": 24,
+          "height": 24
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Settings",
+    "path": "/settings",
+    "lightScreenshot": "audit_settings_light.png",
+    "darkScreenshot": "audit_settings_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/settings",
+      "domNodes": 485,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Preview",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Preview",
+          "width": 80,
+          "height": 37
+        },
+        {
+          "type": "small_tap_target",
+          "text": "🔄",
+          "width": 27,
+          "height": 44
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/settings",
+      "domNodes": 485,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "Preview",
+          "width": 80,
+          "height": 37
+        },
+        {
+          "type": "small_tap_target",
+          "text": "🔄",
+          "width": 27,
+          "height": 44
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Referrals",
+    "path": "/referrals",
+    "lightScreenshot": "audit_referrals_light.png",
+    "darkScreenshot": "audit_referrals_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/referrals",
+      "domNodes": 236,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "3 Free Swipes",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "H3"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Instant bonus for every friend who joins",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "₦3,000 Cash",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "H3"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Milestone reward for every 10 successful",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Friend's Gift",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "H3"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Your friend gets 20 free swipes to start",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/referrals",
+      "domNodes": 240,
+      "issues": []
+    }
+  },
+  {
+    "screen": "Wallet",
+    "path": "/wallet",
+    "lightScreenshot": "audit_wallet_light.png",
+    "darkScreenshot": "audit_wallet_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/wallet",
+      "domNodes": 269,
+      "issues": []
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/wallet",
+      "domNodes": 269,
+      "issues": []
+    }
+  },
+  {
+    "screen": "Requests",
+    "path": "/requests",
+    "lightScreenshot": "audit_requests_light.png",
+    "darkScreenshot": "audit_requests_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/requests",
+      "domNodes": 270,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "CONNECTIONS",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Got It 👍",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "ADMIRERS",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Got It 👍",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/requests",
+      "domNodes": 270,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Leaderboard",
+    "path": "/leaderboard",
+    "lightScreenshot": "audit_leaderboard_light.png",
+    "darkScreenshot": "audit_leaderboard_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/leaderboard",
+      "domNodes": 246,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "10",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "10",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "10",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "P"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/leaderboard",
+      "domNodes": 246,
+      "issues": [
+        {
+          "type": "dark_text_on_dark_bg",
+          "text": "2",
+          "color": "rgb(0, 0, 0)",
+          "parentBg": "rgb(10, 10, 12)",
+          "tag": "DIV"
+        },
+        {
+          "type": "dark_text_on_dark_bg",
+          "text": "1",
+          "color": "rgb(0, 0, 0)",
+          "parentBg": "rgb(10, 10, 12)",
+          "tag": "DIV"
+        },
+        {
+          "type": "dark_text_on_dark_bg",
+          "text": "3",
+          "color": "rgb(0, 0, 0)",
+          "parentBg": "rgb(10, 10, 12)",
+          "tag": "DIV"
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Confessions",
+    "path": "/confessions",
+    "lightScreenshot": "audit_confessions_light.png",
+    "darkScreenshot": "audit_confessions_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/confessions",
+      "domNodes": 233,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "📋 Copy Link",
+          "width": 112,
+          "height": 34
+        },
+        {
+          "type": "small_tap_target",
+          "text": "💬 Status",
+          "width": 88,
+          "height": 32
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Post Secret",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "BUTTON"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/confessions",
+      "domNodes": 233,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "📋 Copy Link",
+          "width": 112,
+          "height": 34
+        },
+        {
+          "type": "small_tap_target",
+          "text": "💬 Status",
+          "width": 88,
+          "height": 32
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Premium",
+    "path": "/premium",
+    "lightScreenshot": "audit_premium_light.png",
+    "darkScreenshot": "audit_premium_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/premium",
+      "domNodes": 325,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "VIP MEMBERSHIP",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Got It 👍",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Your subscription is active.",
+          "color": "rgba(255, 255, 255, 0.7)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "○",
+          "color": "rgba(255, 255, 255, 0.4)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Save ₦3,000",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "○",
+          "color": "rgba(255, 255, 255, 0.4)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Wallet Balance: ₦65 (Fund wallet to pay ",
+          "color": "rgba(255, 255, 255, 0.5)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "P"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/premium",
+      "domNodes": 325,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Viewers",
+    "path": "/viewers",
+    "lightScreenshot": "audit_viewers_light.png",
+    "darkScreenshot": "audit_viewers_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/viewers",
+      "domNodes": 343,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "←",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "←",
+          "width": 24,
+          "height": 33
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "CAMPUS RADAR",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Got It 👍",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "09:48 AM",
+          "color": "rgba(255, 255, 255, 0.5)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "09:47 AM",
+          "color": "rgba(255, 255, 255, 0.5)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "P"
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "09:47 AM",
+          "color": "rgba(255, 255, 255, 0.5)",
+          "parentBg": "rgb(255, 255, 255)",
+          "tag": "P"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/viewers",
+      "domNodes": 343,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "←",
+          "width": 24,
+          "height": 33
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Notifications",
+    "path": "/notifications",
+    "lightScreenshot": "audit_notifications_light.png",
+    "darkScreenshot": "audit_notifications_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/notifications",
+      "domNodes": 608,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "E",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "E",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "E",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "E",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "E",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "SPAN"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/notifications",
+      "domNodes": 608,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        },
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 30,
+          "height": 27
+        }
+      ]
+    }
+  },
+  {
+    "screen": "MiniProfileSetup",
+    "path": "/mini-profile-setup",
+    "lightScreenshot": "audit_miniprofilesetup_light.png",
+    "darkScreenshot": "audit_miniprofilesetup_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/match",
+      "domNodes": 253,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "white_text_on_light_bg",
+          "text": "i",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgba(255, 255, 255, 0.08)",
+          "tag": "BUTTON"
+        },
+        {
+          "type": "small_tap_target",
+          "text": "i",
+          "width": 28,
+          "height": 28
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/match",
+      "domNodes": 253,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 24,
+          "height": 24
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Learn More",
+          "width": 91,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "Got It 👍",
+          "width": 76,
+          "height": 28
+        },
+        {
+          "type": "small_tap_target",
+          "text": "i",
+          "width": 28,
+          "height": 28
+        }
+      ]
+    }
+  },
+  {
+    "screen": "OfficialHub",
+    "path": "/official",
+    "lightScreenshot": "audit_officialhub_light.png",
+    "darkScreenshot": "audit_officialhub_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/official",
+      "domNodes": 306,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 28,
+          "height": 36
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/official",
+      "domNodes": 306,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "✕",
+          "width": 28,
+          "height": 36
+        }
+      ]
+    }
+  },
+  {
+    "screen": "Login",
+    "path": "/login",
+    "lightScreenshot": "audit_login_light.png",
+    "darkScreenshot": "audit_login_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/dashboard",
+      "domNodes": 272,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Score Streak: 0 Days",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "DIV"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/dashboard",
+      "domNodes": 272,
+      "issues": []
+    }
+  },
+  {
+    "screen": "Signup",
+    "path": "/signup",
+    "lightScreenshot": "audit_signup_light.png",
+    "darkScreenshot": "audit_signup_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/dashboard",
+      "domNodes": 272,
+      "issues": [
+        {
+          "type": "white_text_on_light_bg",
+          "text": "Score Streak: 0 Days",
+          "color": "rgb(255, 255, 255)",
+          "parentBg": "rgb(248, 249, 250)",
+          "tag": "DIV"
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/dashboard",
+      "domNodes": 272,
+      "issues": []
+    }
+  },
+  {
+    "screen": "ForgotPassword",
+    "path": "/forgot-password",
+    "lightScreenshot": "audit_forgotpassword_light.png",
+    "darkScreenshot": "audit_forgotpassword_dark.png",
+    "lightAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "light",
+      "url": "/forgot-password",
+      "domNodes": 152,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "Already have a 6-digit code? E",
+          "width": 282,
+          "height": 30
+        }
+      ]
+    },
+    "darkAnalysis": {
+      "title": "The College Date - Campus Dating App for Students",
+      "theme": "dark",
+      "url": "/forgot-password",
+      "domNodes": 152,
+      "issues": [
+        {
+          "type": "small_tap_target",
+          "text": "Already have a 6-digit code? E",
+          "width": 282,
+          "height": 30
+        }
+      ]
+    }
+  }
+]

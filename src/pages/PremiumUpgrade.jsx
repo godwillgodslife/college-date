@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { PAYSTACK_PRODUCTS, getSubscription, getWallet, payWithWallet, purchaseBoost, getActiveBoosts, getRevenueCatPackages, purchaseRevenueCatPackage, startPaystackPayment, openHostedPaystackCheckout } from '../services/paymentService';
+import {
+    PAYSTACK_PRODUCTS,
+    getSubscription,
+    getWallet,
+    payWithWallet,
+    purchaseBoost,
+    getActiveBoosts,
+    getRevenueCatPackages,
+    purchaseRevenueCatPackage,
+    startPaystackPayment,
+    openHostedPaystackCheckout,
+    restoreRevenueCatPurchases,
+    verifyAndRestorePremium
+} from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { hasActivePremium } from '../utils/premium';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
+import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
+import { recordPremiumPageVisit } from '../services/trialService';
+import confetti from 'canvas-confetti';
 import './PremiumUpgrade.css';
 
 const isNative = () => {
@@ -19,55 +36,153 @@ const SUBSCRIPTION_TIERS = [
         id: 'premium_monthly',
         productId: PAYSTACK_PRODUCTS.premiumMonthly,
         name: '1 Month',
+        durationShort: '1 Mo',
         price: 2900,
-        rateLabel: '₦2,900 / mo',
+        rateLabel: '₦2,900',
+        perPeriod: '/ mo',
         totalLabel: '₦2,900 billed monthly',
         durationDays: 30,
         tag: null,
-        savings: 0
+        savings: 0,
+        dailyRate: '₦97/day'
     },
     {
         id: 'premium_3month',
         productId: PAYSTACK_PRODUCTS.premium3Month,
         name: '3 Months',
+        durationShort: '3 Mo',
         price: 7200,
-        rateLabel: '₦2,400 / mo',
+        rateLabel: '₦2,400',
+        perPeriod: '/ mo',
         totalLabel: '₦7,200 billed quarterly',
         durationDays: 90,
-        tag: '🔥 Most Popular',
-        savings: 1500
+        tag: 'Save ₦1,500',
+        savings: 1500,
+        isPopular: true,
+        dailyRate: '₦80/day'
     },
     {
         id: 'premium_annual',
         productId: PAYSTACK_PRODUCTS.premiumAnnual,
         name: '12 Months',
-        price: 31800,
-        rateLabel: '₦2,650 / mo',
-        totalLabel: '₦31,800 billed yearly',
+        durationShort: '12 Mo',
+        price: 21600,
+        rateLabel: '₦1,800',
+        perPeriod: '/ mo',
+        totalLabel: '₦21,600 billed yearly',
         durationDays: 365,
-        tag: '👑 Best Value',
-        savings: 3000
+        tag: 'Best Value',
+        savings: 13200,
+        isBestValue: true,
+        dailyRate: '₦59/day'
+    }
+];
+
+const PREVIEW_TABS = [
+    {
+        id: 'admirers',
+        label: '👀 Secret Admirers',
+        title: 'See Who Checked You Out',
+        badge: 'Instant Mutual Match',
+        description: 'Skip the guessing game. See the exact list of students who liked you and match with them in 1 tap without waiting.'
+    },
+    {
+        id: 'spotlight',
+        label: '🚀 Priority Spotlight',
+        title: 'Top 10% Campus Feed Placement',
+        badge: '10x Higher Visibility',
+        description: 'Be seen first by the most active, attractive students across your university and department before anyone else.'
+    },
+    {
+        id: 'video',
+        label: '🎬 10s Live Video',
+        title: 'Authentic Voice & Vibe',
+        badge: '3x More Matches',
+        description: 'Introduce yourself with a real 10-second video on your profile and daily chat. Proven to build immediate chemistry.'
+    }
+];
+
+const OUTCOME_HIGHLIGHTS = [
+    {
+        icon: '✨',
+        title: 'Unlimited Swipes',
+        outcome: 'No 20-swipe walls between lectures'
+    },
+    {
+        icon: '👀',
+        title: 'Unblurred Views',
+        outcome: 'See every student who checks your profile'
+    },
+    {
+        icon: '⚡',
+        title: 'Free Weekly Boost',
+        outcome: '₦4,000 monthly value credited automatically'
+    },
+    {
+        icon: '📞',
+        title: 'Unlimited HD Calls',
+        outcome: 'Deep late-night voice & video without limits'
+    },
+    {
+        icon: '👑',
+        title: 'Verified Crown Badge',
+        outcome: 'Command attention & +3x match response rate'
+    },
+    {
+        icon: '🕵️',
+        title: 'Incognito Ghost Mode',
+        outcome: 'Browse campus crushes with complete privacy'
+    }
+];
+
+const FAQS = [
+    {
+        question: 'Will my card be charged automatically?',
+        answer: 'Card subscriptions renew at the end of each billing cycle so your benefits never lapse. You can easily turn off auto-renewal anytime in Settings or your Google Play account with 1 tap. Campus wallet payments never renew automatically.'
+    },
+    {
+        question: 'Can I cancel anytime?',
+        answer: 'Yes, absolutely! You can cancel at any time with zero hassle from your Account Settings or Google Play Subscriptions. Your premium perks stay active until the end of your prepaid period.'
+    },
+    {
+        question: 'What if I pay but Premium doesn\'t activate immediately?',
+        answer: 'All payments are linked directly to your student account. If a network delay occurs, simply tap "Restore" at the top right of this screen, or tap "Chat with us" below for instant WhatsApp support.'
+    },
+    {
+        question: 'Can I pay with bank transfer, USSD, or wallet balance?',
+        answer: 'Yes! Paystack securely supports all Nigerian debit cards (Mastercard, Visa, Verve), direct bank transfer, USSD (*737#, *919#, etc.), and your College Date wallet balance.'
     }
 ];
 
 export default function PremiumUpgrade() {
+    const navigate = useNavigate();
     const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [guideModalOpen, setGuideModalOpen] = useState(false);
     const [subscription, setSubscription] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isRestoring, setIsRestoring] = useState(false);
     const [wallet, setWallet] = useState(null);
     const [boostData, setBoostData] = useState({ hasBoosted: false, activeBoost: null, superSwipeCount: 0 });
     const [processingBoost, setProcessingBoost] = useState(null);
-    const [expandedFeature, setExpandedFeature] = useState(null);
     const [rcPackages, setRcPackages] = useState([]);
     const [selectedTierId, setSelectedTierId] = useState('premium_3month');
+    const [activeTab, setActiveTab] = useState('admirers');
+    const [openFaqIndex, setOpenFaqIndex] = useState(null);
+    const [showManagePlans, setShowManagePlans] = useState(false);
+    const [showFeaturePreviews, setShowFeaturePreviews] = useState(false);
+    const [paywallOpen, setPaywallOpen] = useState(false);
+    const [paywallTrigger, setPaywallTrigger] = useState('repeated_premium_visits');
 
     const currentTier = SUBSCRIPTION_TIERS.find(t => t.id === selectedTierId) || SUBSCRIPTION_TIERS[1];
+    const isPremium = hasActivePremium(userProfile) || hasActivePremium(subscription);
 
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser) {
+            setLoading(false);
+            return;
+        }
 
         async function initPageData() {
             setLoading(true);
@@ -89,12 +204,41 @@ export default function PremiumUpgrade() {
         }
 
         initPageData();
-    }, [currentUser]);
+
+        // Celebration confetti trigger if arriving via post-purchase redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('welcome') === 'true') {
+            try {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } catch {
+                // Ignore confetti environment errors
+            }
+        }
+
+        if (!isPremium && currentUser) {
+            const shouldNudge = recordPremiumPageVisit();
+            if (shouldNudge) {
+                const timer = setTimeout(() => {
+                    setPaywallOpen(true);
+                }, 1500);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [currentUser, isPremium]);
 
     async function loadRevenueCatOfferings() {
-        const pkgs = await getRevenueCatPackages();
-        if (pkgs && pkgs.length > 0) {
-            setRcPackages(pkgs);
+        try {
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve([]), 3000));
+            const pkgs = await Promise.race([getRevenueCatPackages(), timeoutPromise]);
+            if (pkgs && pkgs.length > 0) {
+                setRcPackages(pkgs);
+            }
+        } catch (err) {
+            console.warn('[RevenueCat] Package load timed out or failed:', err);
         }
     }
 
@@ -170,11 +314,16 @@ export default function PremiumUpgrade() {
             const { success, error } = await purchaseRevenueCatPackage(pkgToBuy, {
                 requiredEntitlement: 'Premium'
             });
-            
+
             if (success) {
-                addToast('Welcome to Premium! Your features are now unlocked.', 'success');
-                loadSubscription();
-                fetchProfile(currentUser.id);
+                addToast('Welcome to College Date Elite! Your benefits are unlocked.', 'success');
+                try {
+                    confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                } catch {
+                    // Confetti fallback
+                }
+                await loadSubscription();
+                await fetchProfile(currentUser.id);
             } else {
                 console.warn('[PremiumUpgrade] Native purchase fallback:', error);
                 addToast('Redirecting to secure card checkout...', 'info');
@@ -223,15 +372,51 @@ export default function PremiumUpgrade() {
 
             if (error) throw error;
 
-            addToast(`Welcome to Premium! Paid ₦${tier.price.toLocaleString()} via wallet balance.`, 'success');
-            loadSubscription();
-            fetchProfile(currentUser.id);
-            loadWallet();
+            addToast(`Welcome to Elite! Paid ₦${tier.price.toLocaleString()} via wallet balance.`, 'success');
+            try {
+                confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+            } catch {
+                // Confetti fallback
+            }
+            await loadSubscription();
+            await fetchProfile(currentUser.id);
+            await loadWallet();
         } catch (err) {
             console.error('Wallet payment error:', err);
             addToast(err.message || 'Payment failed', 'error');
         } finally {
             setIsProcessing(false);
+        }
+    };
+
+    const handleRestorePurchases = async () => {
+        setIsRestoring(true);
+        addToast('Verifying existing purchases...', 'info');
+        try {
+            if (isNative()) {
+                const { success } = await restoreRevenueCatPurchases();
+                if (success) {
+                    addToast('Active subscription restored successfully! 🎉', 'success');
+                    await loadSubscription();
+                    await fetchProfile(currentUser.id);
+                    return;
+                }
+            }
+
+            // Fallback for Web / Paystack transactions
+            const { data } = await verifyAndRestorePremium();
+            if (data?.is_premium || data?.success) {
+                addToast('Subscription verified and updated! 🎉', 'success');
+                await loadSubscription();
+                await fetchProfile(currentUser.id);
+            } else {
+                addToast('No active subscription found to restore.', 'info');
+            }
+        } catch (err) {
+            console.error('Restore purchases error:', err);
+            addToast(err.message || 'Could not verify purchases', 'error');
+        } finally {
+            setIsRestoring(false);
         }
     };
 
@@ -246,7 +431,7 @@ export default function PremiumUpgrade() {
         }
 
         setProcessingBoost(boostType);
-        
+
         try {
             if (wallet && wallet.available_balance >= cost) {
                 const { error } = await purchaseBoost(currentUser.id, boostType);
@@ -293,319 +478,546 @@ export default function PremiumUpgrade() {
         return `${hours}h ${minutes}m`;
     }
 
-    const toggleFeature = (id) => {
-        setExpandedFeature(expandedFeature === id ? null : id);
-    };
-
-    const isPremium = hasActivePremium(userProfile) || hasActivePremium(subscription);
     const boostTimeRemaining = getBoostTimeRemaining();
 
-    const premiumFeatures = [
-        {
-            id: 'unlimited',
-            icon: '✨',
-            title: 'Unlimited Swipes',
-            short: 'No daily limits',
-            detail: 'Free users get 20 free swipes per day. Premium removes all limits — swipe as much as you want, anytime.'
-        },
-        {
-            id: 'viewed',
-            icon: '👀',
-            title: 'Who Viewed Me',
-            short: 'See your admirers',
-            detail: 'See exactly who checked out your profile. Know who\'s interested before they even swipe — give yourself the advantage.'
-        },
-        {
-            id: 'priority',
-            icon: '🚀',
-            title: 'Priority Discovery',
-            short: 'Be seen first',
-            detail: 'Your profile appears at the top of the stack for other users. More visibility = more matches. Simple.'
-        },
-        {
-            id: 'filters',
-            icon: '🎓',
-            title: 'Advanced Filters',
-            short: 'School, Course, Level',
-            detail: 'Filter by specific university, department, and year level. Find exactly who you\'re looking for on campus.'
-        },
-        {
-            id: 'weekly',
-            icon: '⚡',
-            title: 'Weekly Boost',
-            short: '1 free boost every week',
-            detail: 'Get a free 24h visibility boost every week — worth ₦1,000 each time. That\'s ₦4,000+ saved monthly.'
-        },
-        {
-            id: 'badge',
-            icon: '👑',
-            title: 'Premium Crown Badge',
-            short: 'Stand out on campus',
-            detail: 'A verified premium crown badge on your profile. Shows you\'re serious about connecting. Proven to increase match rate by 3x.'
-        },
-        {
-            id: 'video_profile',
-            icon: '🎬',
-            title: '10s Video Profile',
-            short: 'Dynamic video showcase',
-            detail: 'Upload an authentic 10-second live video showcase on your profile. Attract students with your real voice, smile, and energy.'
-        },
-        {
-            id: 'chat_video',
-            icon: '📹',
-            title: '10s Daily Chat Video',
-            short: 'Real moments in DM',
-            detail: 'Share 10-second video clips directly in chat once per day. Build immediate trust without leaving the platform.'
-        },
-        {
-            id: 'incognito',
-            icon: '🕵️',
-            title: 'Incognito Ghost Mode',
-            short: 'Private campus browsing',
-            detail: 'Browse student profiles completely invisible. Check out campus crushes without showing up in their view history.'
-        },
-        {
-            id: 'chat_vibes',
-            icon: '⚡',
-            title: 'Direct Chat Vibes',
-            short: 'Skip the match queue',
-            detail: 'Send instant Paid Chat Vibes to start conversations right away, even before mutual match confirmation.'
-        },
-        {
-            id: 'hd_calls',
-            icon: '📞',
-            title: 'Unlimited HD Calling',
-            short: 'Voice & Video calls',
-            detail: 'Enjoy unlimited crystal-clear Agora RTC voice and video calls with verified students across any Nigerian campus.'
-        }
-    ];
+    const getDaysRemaining = () => {
+        if (!subscription?.current_period_end) return null;
+        const end = new Date(subscription.current_period_end);
+        const now = new Date();
+        const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? diff : 0;
+    };
+
+    const daysRemaining = getDaysRemaining();
+    const activePreview = PREVIEW_TABS.find(t => t.id === activeTab) || PREVIEW_TABS[0];
+
+    if (loading) {
+        return (
+            <div className="premium-page premium-loading-state">
+                <LoadingSpinner text="Loading College Date Elite..." />
+            </div>
+        );
+    }
 
     return (
         <div className="premium-page animate-fade-in">
-            {/* ── Social Proof Banner ── */}
-            <div className="social-proof-banner">
-                <span className="pulse-dot"></span>
-                <p><strong>2,500+ students</strong> upgraded to Premium this week.</p>
-            </div>
-
-            <header className="premium-header">
-                <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="premium-badge-large"
+            {/* ── Top Navigation Bar ── */}
+            <div className="premium-top-bar">
+                <button
+                    type="button"
+                    className="top-bar-btn btn-back"
+                    onClick={() => navigate(-1)}
+                    aria-label="Go back"
                 >
-                    💎
-                </motion.div>
-                <h1>{isPremium ? 'You have the Elite Edge' : 'Unlock Your Full Potential'}</h1>
-                <p className="premium-subtitle">Stop guessing. Start matching. Take control of your dating life on campus.</p>
-                <ContextualTip
-                    featureId="premium_benefits"
-                    onLearnMore={() => setGuideModalOpen(true)}
-                />
-            </header>
-
-            {/* ── Premium vs Free Checklist (Loss Aversion) ── */}
-            <div className="premium-comparison-box">
-                <div className="comparison-header-row">
-                    <div className="col-feature">Features</div>
-                    <div className="col-free">Free</div>
-                    <div className="col-premium">Premium</div>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <div className="top-bar-title">
+                    <span className="brand-crest">👑</span>
+                    <span className="brand-name">College Date Elite</span>
                 </div>
-                <div className="comparison-body">
-                    <div className="comparison-row">
-                        <div className="col-feature">Unlimited Swipes</div>
-                        <div className="col-free">❌ <span>(20/day)</span></div>
-                        <div className="col-premium">✅ <span>Unlimited</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">See who viewed you</div>
-                        <div className="col-free">❌ <span>(Blurred)</span></div>
-                        <div className="col-premium">✅ <span>Full Clarity</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">Priority Discovery Queue</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>(Top 10%)</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">Advanced Filters (Dept, Level)</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅</div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">Free Weekly Boost (₦1,000 value)</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>(Every 7d)</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">👑 Premium Crown Badge</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>(+3x Matches)</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">🎬 10s Profile Video Showcase</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>Live Video</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">📹 10s Daily Chat Video Moments</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>1 Video/Day</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">🕵️ Incognito Ghost Browsing</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>Invisible</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">⚡ Direct Paid Chat Vibes</div>
-                        <div className="col-free">❌</div>
-                        <div className="col-premium">✅ <span>Skip Queue</span></div>
-                    </div>
-                    <div className="comparison-row">
-                        <div className="col-feature">📞 Unlimited HD Audio/Video Calls</div>
-                        <div className="col-free">❌ <span>(5m limit)</span></div>
-                        <div className="col-premium">✅ <span>Unlimited</span></div>
-                    </div>
-                </div>
+                <button
+                    type="button"
+                    className="top-bar-btn btn-restore"
+                    onClick={handleRestorePurchases}
+                    disabled={isRestoring}
+                >
+                    {isRestoring ? 'Checking...' : 'Restore'}
+                </button>
             </div>
 
-            {/* ── Premium Subscription Pricing ── */}
-            <div className="premium-pricing-container">
-                {isPremium && (
-                    <div className="active-subscription">
-                        <div className="active-icon">🎉</div>
-                        <h3>You are a Premium Member</h3>
-                        <p>Your subscription is active{subscription?.current_period_end ? ` until: ${new Date(subscription.current_period_end).toLocaleDateString()}` : '.'}</p>
-                        <p className="extend-sub-note" style={{ fontSize: '0.85rem', color: '#a78bfa', marginTop: '0.5rem' }}>
-                            Extend or renew your membership below with student savings:
-                        </p>
+            {/* ── Active Member Celebration Dashboard ── */}
+            {isPremium && !showManagePlans && (
+                <div className="active-elite-dashboard">
+                    <div className="active-crest-glow">
+                        <span className="active-crown-emoji">👑</span>
                     </div>
-                )}
-                <div className="pricing-box glass-panel">
-                    {currentTier.tag && <div className="ribbon-popular">{currentTier.tag}</div>}
-                    
-                    {/* ── 3-Duration Subscription Switcher ── */}
-                    <div className="subscription-tiers-grid">
-                        {SUBSCRIPTION_TIERS.map((tier) => {
-                            const isSelected = selectedTierId === tier.id;
-                            return (
-                                <button
-                                    key={tier.id}
-                                    type="button"
-                                    className={`tier-card-selector ${isSelected ? 'selected' : ''}`}
-                                    onClick={() => setSelectedTierId(tier.id)}
-                                >
-                                    {tier.savings > 0 && (
-                                        <span className="tier-savings-badge">
-                                            Save ₦{tier.savings.toLocaleString()}
-                                        </span>
-                                    )}
-                                    <span className="tier-duration-title">{tier.name}</span>
-                                    <span className="tier-rate-tag">{tier.rateLabel}</span>
-                                    <span className="tier-total-sub">{tier.totalLabel}</span>
-                                    <span className="tier-radio-icon">{isSelected ? '◉' : '○'}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
+                    <h2 className="active-title">You Have the Elite Edge</h2>
+                    <p className="active-subtitle">
+                        Your premium membership is active
+                        {subscription?.current_period_end ? (
+                            <> until <strong>{new Date(subscription.current_period_end).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong> {daysRemaining !== null && `(${daysRemaining} days remaining)`}</>
+                        ) : '.'}
+                    </p>
 
-                    <div className="pricing-header" style={{ marginTop: '1.5rem' }}>
-                        <h3>{currentTier.name} Elite Plan</h3>
-                        <p className="value-anchor">
-                            {currentTier.savings > 0 
-                                ? `Save ₦${currentTier.savings.toLocaleString()} on this plan!` 
-                                : 'Less than ₦100 a day. Cheaper than lunch.'}
-                        </p>
-                    </div>
+                    {/* Direct Value Action Shortcuts */}
+                    <div className="active-shortcuts-grid">
+                        <button
+                            type="button"
+                            className="active-shortcut-card"
+                            onClick={() => navigate('/viewers')}
+                        >
+                            <span className="shortcut-icon">👀</span>
+                            <div className="shortcut-meta">
+                                <span className="shortcut-label">Secret Admirers</span>
+                                <span className="shortcut-sub">See who viewed you</span>
+                            </div>
+                            <span className="shortcut-arrow">→</span>
+                        </button>
 
-                    <div className="price">
-                        <span className="currency">₦</span>
-                        <span className="amount">{currentTier.price.toLocaleString()}</span>
-                        <span className="period">/{currentTier.name.toLowerCase()}</span>
+                        <button
+                            type="button"
+                            className="active-shortcut-card"
+                            onClick={() => navigate('/profile/edit')}
+                        >
+                            <span className="shortcut-icon">🎬</span>
+                            <div className="shortcut-meta">
+                                <span className="shortcut-label">10s Video Profile</span>
+                                <span className="shortcut-sub">Showcase your vibe</span>
+                            </div>
+                            <span className="shortcut-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className="active-shortcut-card"
+                            onClick={() => navigate('/match')}
+                        >
+                            <span className="shortcut-icon">⚡</span>
+                            <div className="shortcut-meta">
+                                <span className="shortcut-label">Unlimited Swiping</span>
+                                <span className="shortcut-sub">No 20-swipe daily limits</span>
+                            </div>
+                            <span className="shortcut-arrow">→</span>
+                        </button>
                     </div>
-                    <p className="billing-info">{currentTier.totalLabel}. Cancel anytime.</p>
 
                     <button
-                        className="btn btn-primary btn-upgrade glow-effect"
-                        onClick={handleSubscribe}
-                        disabled={isProcessing}
+                        type="button"
+                        className="btn-toggle-manage"
+                        onClick={() => setShowManagePlans(true)}
                     >
-                        {isProcessing ? 'Activating...' : isPremium ? `Extend for ₦${currentTier.price.toLocaleString()}` : `Upgrade for ₦${currentTier.price.toLocaleString()}`}
+                        Extend or Manage Membership Plans ↓
                     </button>
+                </div>
+            )}
 
-                        {wallet?.available_balance >= currentTier.price ? (
-                            <button
-                                className="btn btn-wallet-pay"
-                                onClick={handlePayWithWallet}
-                                disabled={isProcessing}
-                            >
-                                {isProcessing ? 'Processing...' : `Pay ₦${currentTier.price.toLocaleString()} from Wallet (Bal: ₦${wallet.available_balance.toLocaleString()})`}
-                            </button>
-                        ) : (
-                            <p className="wallet-balance-note" style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)' }}>
-                                Wallet Balance: ₦{wallet?.available_balance?.toLocaleString() || 0} (Fund wallet to pay with balance)
-                            </p>
-                        )}
+            {/* ── Core Presentation (Rendered if not premium OR if user opened manage plans) ── */}
+            {(!isPremium || showManagePlans) && (
+                <>
+                    {/* Social Proof Pill */}
+                    <div className="social-proof-banner">
+                        <span className="pulse-dot"></span>
+                        <span><strong>2,500+ campus daters</strong> unlocked Elite this week</span>
+                    </div>
 
-                        <div className="trust-badges">
-                            <span className="shield">🛡️ Secure Payment via Paystack / Google Play</span>
+                    {/* Compact Hero Section */}
+                    <header className="premium-hero">
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="hero-badge-wrap"
+                        >
+                            <div className="hero-emblem-ring">
+                                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="crown-svg">
+                                    <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+                                </svg>
+                            </div>
+                        </motion.div>
+                        <h1 className="hero-title">The Ultimate Campus Dating Edge</h1>
+                        <p className="hero-subtitle">
+                            Get seen first, unlock admirers, and connect with top students across your university.
+                        </p>
+                        <ContextualTip
+                            featureId="premium_benefits"
+                            onLearnMore={() => setGuideModalOpen(true)}
+                        />
+                    </header>
+
+                    {/* Special 3-Day Free Trial Banner for Students */}
+                    {!isPremium && (
+                        <div 
+                            className="premium-trial-banner"
+                            onClick={() => {
+                                setPaywallTrigger('repeated_premium_visits');
+                                setPaywallOpen(true);
+                            }}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className="trial-banner-top">
+                                <span className="trial-banner-badge">🎁 SPECIAL STUDENT OFFER</span>
+                                <span className="trial-banner-chip">₦0.00 TODAY</span>
+                            </div>
+                            <div className="trial-banner-body">
+                                <h4>Hesitant to subscribe? Try 3 Days Free</h4>
+                                <p>Test unblurred admirers, top 10% placement, and unlimited swipes risk-free. Zero payment today.</p>
+                            </div>
+                            <div className="trial-banner-action">
+                                <button type="button" className="btn-trial-banner-cta">
+                                    Claim 3-Day Free Trial →
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── 3-Duration Membership Selector (Front & Center) ── */}
+                    <div className="plan-selection-section">
+                        <div className="section-label-row">
+                            <span className="section-label">CHOOSE YOUR MEMBERSHIP</span>
+                            <span className="section-sublabel">Safe, CBN-regulated checkout</span>
+                        </div>
+
+                        <div className="subscription-tiers-grid">
+                            {SUBSCRIPTION_TIERS.map((tier) => {
+                                const isSelected = selectedTierId === tier.id;
+                                return (
+                                    <button
+                                        key={tier.id}
+                                        type="button"
+                                        className={`tier-card-selector ${isSelected ? 'selected' : ''}`}
+                                        onClick={() => {
+                                            setSelectedTierId(tier.id);
+                                            markFeatureUsed('premium_benefits');
+                                        }}
+                                        aria-pressed={isSelected}
+                                    >
+                                        {tier.tag && (
+                                            <span className={`tier-badge-pill ${tier.isPopular ? 'popular-pill' : 'value-pill'}`}>
+                                                {tier.tag}
+                                            </span>
+                                        )}
+                                        <span className="tier-duration-heading">{tier.name}</span>
+                                        <div className="tier-rate-row">
+                                            <span className="tier-rate-value">{tier.rateLabel}</span>
+                                            <span className="tier-rate-per">{tier.perPeriod}</span>
+                                        </div>
+                                        <span className="tier-daily-anchor">{tier.dailyRate}</span>
+                                        <div className="tier-radio-indicator">
+                                            <div className="radio-dot"></div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Dynamic Explainer */}
+                        <div className="plan-summary-box">
+                            <div className="summary-calc">
+                                <span className="summary-price-badge">
+                                    ₦{currentTier.price.toLocaleString()}
+                                </span>
+                                <span className="summary-text">
+                                    {currentTier.id === 'premium_monthly' && 'Billed monthly. Cancel anytime.'}
+                                    {currentTier.id === 'premium_3month' && 'Billed quarterly at ₦7,200 (You save ₦1,500). Cancel anytime.'}
+                                    {currentTier.id === 'premium_annual' && 'Billed yearly at ₦31,800 (You save ₦3,000). Cancel anytime.'}
+                                </span>
+                            </div>
+                            <span className="summary-guarantee">🛡️ Instant activation via Card, Transfer, USSD, or Wallet</span>
                         </div>
                     </div>
-            </div>
 
-            {/* ── One-Time Boosts ── */}
-            <div className="microtransactions">
-                <h2>⚡ Power-Ups</h2>
-                <p className="boost-subtitle">Instant results. No subscription needed.</p>
+                    {/* ── Key Outcome Benefits Grid ── */}
+                    <div className="outcomes-grid">
+                        {OUTCOME_HIGHLIGHTS.map((item, idx) => (
+                            <div key={idx} className="outcome-card">
+                                <span className="outcome-icon">{item.icon}</span>
+                                <div className="outcome-copy">
+                                    <h4 className="outcome-title">{item.title}</h4>
+                                    <p className="outcome-sub">{item.outcome}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ── Interactive Feature Deep-Dive (Collapsible) ── */}
+                    <div className="preview-deepdive-toggle-wrap">
+                        <button
+                            type="button"
+                            className="btn-deepdive-toggle"
+                            onClick={() => setShowFeaturePreviews(!showFeaturePreviews)}
+                        >
+                            <span>{showFeaturePreviews ? 'Hide Interactive Previews ↑' : 'See Interactive Previews & Demos ↓'}</span>
+                        </button>
+                    </div>
+
+                    {showFeaturePreviews && (
+                        <div className="feature-preview-container animate-fade-in-up">
+                            <div className="preview-segmented-pills">
+                                {PREVIEW_TABS.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        type="button"
+                                        className={`preview-pill-btn ${activeTab === tab.id ? 'active' : ''}`}
+                                        onClick={() => setActiveTab(tab.id)}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Interactive Visual Mockup Stage */}
+                            <div className="preview-stage-card">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={activeTab}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -8 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="preview-stage-content"
+                                    >
+                                        <div className="stage-top-tag">
+                                            <span className="stage-tag-badge">{activePreview.badge}</span>
+                                            <span className="stage-tag-title">{activePreview.title}</span>
+                                        </div>
+
+                                        {/* Tab 1 Visual: Admirers Mock */}
+                                        {activeTab === 'admirers' && (
+                                            <div className="mockup-admirers-grid">
+                                                <div className="mockup-student-card">
+                                                    <div className="mockup-avatar avatar-1">
+                                                        <span className="mockup-badge-like">❤️ Liked</span>
+                                                    </div>
+                                                    <div className="mockup-info">
+                                                        <span className="mockup-name">Chidinma, 21</span>
+                                                        <span className="mockup-dept">Pharmacy • 300L</span>
+                                                    </div>
+                                                </div>
+                                                <div className="mockup-student-card">
+                                                    <div className="mockup-avatar avatar-2">
+                                                        <span className="mockup-badge-like">❤️ Liked</span>
+                                                    </div>
+                                                    <div className="mockup-info">
+                                                        <span className="mockup-name">Tolu, 22</span>
+                                                        <span className="mockup-dept">Economics • 400L</span>
+                                                    </div>
+                                                </div>
+                                                <div className="mockup-student-card">
+                                                    <div className="mockup-avatar avatar-3">
+                                                        <span className="mockup-badge-like">❤️ Liked</span>
+                                                    </div>
+                                                    <div className="mockup-info">
+                                                        <span className="mockup-name">Favour, 20</span>
+                                                        <span className="mockup-dept">Mass Comm • 200L</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Tab 2 Visual: Spotlight Mock */}
+                                        {activeTab === 'spotlight' && (
+                                            <div className="mockup-spotlight-display">
+                                                <div className="spotlight-rank-banner">
+                                                    <span className="rank-pulse"></span>
+                                                    <span>#1 In Campus Discovery Queue</span>
+                                                </div>
+                                                <div className="spotlight-card-wrapper">
+                                                    <div className="spotlight-avatar-demo">
+                                                        <div className="spotlight-crown-badge">👑 Top Pick</div>
+                                                        <div className="spotlight-views-pill">⚡ 10x Profile Views</div>
+                                                    </div>
+                                                    <div className="spotlight-meta-demo">
+                                                        <span className="spotlight-demo-title">You're at the top of the stack</span>
+                                                        <span className="spotlight-demo-sub">Visible to every active student in your university</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Tab 3 Visual: 10s Live Video Mock */}
+                                        {activeTab === 'video' && (
+                                            <div className="mockup-video-display">
+                                                <div className="video-card-demo">
+                                                    <div className="video-player-frame">
+                                                        <span className="video-play-btn">▶</span>
+                                                        <span className="video-duration-pill">0:10</span>
+                                                        <div className="video-soundwave-anim">
+                                                            <span className="bar bar-1"></span>
+                                                            <span className="bar bar-2"></span>
+                                                            <span className="bar bar-3"></span>
+                                                            <span className="bar bar-4"></span>
+                                                            <span className="bar bar-2"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="video-verified-badge">
+                                                        <span>✓ Authentic Voice & Smile Verified</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <p className="stage-outcome-text">{activePreview.description}</p>
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── FAQ Accordion ── */}
+                    <div className="faq-section">
+                        <h3 className="faq-heading">Frequently Asked Questions</h3>
+                        <div className="faq-list">
+                            {FAQS.map((faq, index) => {
+                                const isOpen = openFaqIndex === index;
+                                return (
+                                    <div key={index} className={`faq-item ${isOpen ? 'open' : ''}`}>
+                                        <button
+                                            type="button"
+                                            className="faq-question-btn"
+                                            onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                                        >
+                                            <span>{faq.question}</span>
+                                            <span className="faq-chevron">{isOpen ? '−' : '+'}</span>
+                                        </button>
+                                        {isOpen && (
+                                            <div className="faq-answer-body">
+                                                <p>{faq.answer}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* ── Sticky Action Dock (Always visible on mobile) ── */}
+                    <div className="premium-sticky-dock">
+                        <div className="dock-inner">
+                            <button
+                                type="button"
+                                className="btn-dock-upgrade glow-effect"
+                                onClick={handleSubscribe}
+                                disabled={isProcessing}
+                            >
+                                <span className="dock-btn-main">
+                                    {isProcessing
+                                        ? 'Activating Subscription...'
+                                        : isPremium
+                                            ? `Extend Membership — ${currentTier.rateLabel} ${currentTier.perPeriod}`
+                                            : `Upgrade to Elite — ${currentTier.rateLabel} ${currentTier.perPeriod}`}
+                                </span>
+                                <span className="dock-btn-sub">
+                                    Pay ₦{currentTier.price.toLocaleString()} • 100% Secure Checkout
+                                </span>
+                            </button>
+
+                            {/* Wallet Option */}
+                            {wallet?.available_balance >= currentTier.price ? (
+                                <button
+                                    type="button"
+                                    className="btn-dock-wallet"
+                                    onClick={handlePayWithWallet}
+                                    disabled={isProcessing}
+                                >
+                                    Or pay ₦{currentTier.price.toLocaleString()} from Wallet (Bal: ₦{wallet.available_balance.toLocaleString()})
+                                </button>
+                            ) : (
+                                <div className="dock-wallet-hint">
+                                    <span>Campus Wallet: ₦{wallet?.available_balance?.toLocaleString() || 0}</span>
+                                    <button
+                                        type="button"
+                                        className="dock-fund-link"
+                                        onClick={() => navigate('/wallet')}
+                                    >
+                                        + Fund Wallet
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Trust micro-strip */}
+                            <div className="dock-trust-strip">
+                                <span className="trust-item">🔒 256-bit SSL</span>
+                                <span className="trust-separator">•</span>
+                                <span className="trust-item">🛡️ CBN-Licensed Paystack</span>
+                                <span className="trust-separator">•</span>
+                                <span className="trust-item">⚡ 1-Tap Cancel</span>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* ── A-La-Carte Power-Ups (Microtransactions) ── */}
+            <div className="microtransactions-section">
+                <div className="section-label-row">
+                    <span className="section-label">⚡ INSTANT POWER-UPS</span>
+                    <span className="section-sublabel">No subscription required</span>
+                </div>
+
                 <div className="boost-grid">
-                    <div className={`boost-item ${boostData.hasBoosted ? 'boost-active' : ''}`}>
-                        <span className="boost-icon">🚀</span>
-                        <h4>24h Visibility Boost</h4>
-                        <p className="boost-desc">Jump to the top of everyone's feed for 24 hours.</p>
+                    <div className={`boost-card ${boostData.hasBoosted ? 'boost-active' : ''}`}>
+                        <div className="boost-card-header">
+                            <span className="boost-icon">🚀</span>
+                            <div className="boost-titles">
+                                <h4>24h Visibility Boost</h4>
+                                <span className="boost-price-tag">₦1,000</span>
+                            </div>
+                        </div>
+                        <p className="boost-desc">Jump straight to the top of everyone's campus feed for a full 24 hours.</p>
                         {boostData.hasBoosted && boostTimeRemaining ? (
-                            <div className="boost-active-badge">
+                            <div className="boost-active-pill">
                                 <span className="boost-pulse"></span>
-                                Active — {boostTimeRemaining} left
+                                Active — {boostTimeRemaining} remaining
                             </div>
                         ) : (
                             <button
-                                className="btn btn-outline btn-boost"
+                                type="button"
+                                className="btn-boost-action"
                                 onClick={() => handlePurchaseBoost('24h_boost')}
                                 disabled={processingBoost === '24h_boost'}
                             >
-                                {processingBoost === '24h_boost' ? 'Purchasing...' : 'Get Boost - ₦1,000'}
+                                {processingBoost === '24h_boost' ? 'Purchasing...' : 'Get 24h Boost — ₦1,000'}
                             </button>
                         )}
                     </div>
-                    <div className="boost-item">
-                        <span className="boost-icon">⭐</span>
-                        <h4>Super Swipe</h4>
-                        <p className="boost-desc">Send an instant push notification that you like them.</p>
+
+                    <div className="boost-card">
+                        <div className="boost-card-header">
+                            <span className="boost-icon">⭐</span>
+                            <div className="boost-titles">
+                                <h4>Super Swipe</h4>
+                                <span className="boost-price-tag">₦500 / credit</span>
+                            </div>
+                        </div>
+                        <p className="boost-desc">Send an instant priority notification so your crush knows you liked them.</p>
                         {boostData.superSwipeCount > 0 && (
-                            <div className="super-swipe-count">
-                                {boostData.superSwipeCount} remaining
+                            <div className="super-swipe-pill">
+                                {boostData.superSwipeCount} credits ready to use
                             </div>
                         )}
                         <button
-                            className="btn btn-outline btn-boost"
+                            type="button"
+                            className="btn-boost-action"
                             onClick={() => handlePurchaseBoost('super_swipe')}
                             disabled={processingBoost === 'super_swipe'}
                         >
-                            {processingBoost === 'super_swipe' ? 'Purchasing...' : 'Get 1 Credit - ₦500'}
+                            {processingBoost === 'super_swipe' ? 'Purchasing...' : 'Get 1 Super Swipe — ₦500'}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <footer className="support-footer">
-                <p>Questions? <a href="https://wa.me/2349160264415?text=Hi%20👋%20I%20have%20a%20question%20about%20CollegeDate%20Premium" target="_blank" rel="noopener noreferrer">Chat with us</a></p>
+            {/* Direct Human Support */}
+            <footer className="elite-support-footer">
+                <p>
+                    Questions about billing or activation?{' '}
+                    <a
+                        href="https://wa.me/2349160264415?text=Hi%20👋%20I%20have%20a%20question%20about%20CollegeDate%20Premium"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Chat with Student Support on WhatsApp →
+                    </a>
+                </p>
             </footer>
 
             <AppGuideModal
                 isOpen={guideModalOpen}
                 onClose={() => setGuideModalOpen(false)}
                 initialFeatureId="premium_benefits"
+            />
+
+            {/* Contextual 3-Day Trial Bottom Sheet */}
+            <ContextualPaywallSheet
+                isOpen={paywallOpen}
+                onClose={() => setPaywallOpen(false)}
+                triggerSource={paywallTrigger}
+                onSuccess={() => {
+                    loadSubscription(true);
+                    if (currentUser?.id && fetchProfile) fetchProfile(currentUser.id);
+                }}
             />
         </div>
     );

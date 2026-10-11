@@ -1,16 +1,47 @@
-/* ContextualTip - Inline Dismissible Banner */
+/* ContextualTip - Modern Compact Pill & Expandable Banner */
 .contextual-tip-card {
-    background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(139, 92, 246, 0.16) 100%);
-    border: 1px solid rgba(236, 72, 153, 0.3);
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.14) 0%, rgba(139, 92, 246, 0.18) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.35);
     border-radius: 14px;
     padding: 0.85rem 1rem;
     margin: 0.6rem 0 1rem 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     animation: tipSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
-    z-index: 5;
+    z-index: 60;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+}
+
+/* Smooth intuitive slide-away when auto-dismissed, scrolled, or closed */
+.contextual-tip-card.is-dismissing {
+    max-height: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-width: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(-8px) scale(0.98);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Compact Collapsed State (Default - never covers student face) */
+.contextual-tip-card.is-collapsed {
+    max-height: 38px;
+    height: 38px;
+    padding: 0 0.5rem 0 0.75rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
 .match-contextual-tip {
@@ -23,6 +54,157 @@
     background: rgba(18, 18, 30, 0.88);
     border: 1px solid rgba(236, 72, 153, 0.45);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.match-contextual-tip.is-collapsed {
+    max-height: 38px;
+    height: 38px;
+}
+
+@media (max-width: 768px) {
+    .contextual-tip-card.is-collapsed,
+    .match-contextual-tip.is-collapsed {
+        max-height: 38px !important;
+        height: 38px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .match-contextual-tip {
+        top: 58px;
+        left: 10px;
+        right: 10px;
+    }
+}
+
+/* Collapsed Pill Inner Elements */
+.contextual-tip-collapsed {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    gap: 8px;
+    user-select: none;
+}
+
+.tip-collapsed-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.tip-collapsed-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.tip-collapsed-prefix {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #f472b6;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.tip-collapsed-text {
+    font-size: 0.78rem;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+[data-theme="light"] .tip-collapsed-text,
+html.theme-light .tip-collapsed-text,
+body.theme-light .tip-collapsed-text {
+    color: #1e293b !important;
+    font-weight: 500;
+}
+
+.tip-collapsed-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.tip-collapsed-expand-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+}
+
+[data-theme="light"] .tip-collapsed-expand-btn,
+html.theme-light .tip-collapsed-expand-btn,
+body.theme-light .tip-collapsed-expand-btn {
+    background: rgba(15, 23, 42, 0.08) !important;
+    border: 1px solid rgba(15, 23, 42, 0.15) !important;
+    color: #0f172a !important;
+}
+
+.tip-collapsed-expand-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.tip-collapsed-close {
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .tip-collapsed-close,
+html.theme-light .tip-collapsed-close,
+body.theme-light .tip-collapsed-close {
+    color: #64748b !important;
+}
+
+/* Expanded Card State */
+.contextual-tip-card.is-expanded {
+    max-height: 320px;
+    padding: 0.85rem 1rem;
+    border-radius: 16px;
+}
+
+.tip-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tip-collapse-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #94a3b8;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tip-collapse-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 @keyframes tipSlideIn {

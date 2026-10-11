@@ -114,11 +114,13 @@ export default function Navbar() {
                     <Link to="/premium" className={`nav-link premium-nav-link ${location.pathname === '/premium' ? 'active' : ''}`}>
                         👑 Get Premium
                     </Link>
-                    {userProfile?.role === 'Female' && (
-                        <Link to="/requests" className={`nav-link ${location.pathname === '/requests' ? 'active' : ''}`}>
-                            Requests
-                        </Link>
-                    )}
+                    <Link
+                        to="/requests"
+                        onMouseEnter={() => prefetch('/requests')}
+                        className={`nav-link ${location.pathname === '/requests' ? 'active' : ''}`}
+                    >
+                        Requests
+                    </Link>
                 </div>
 
                 {/* User Menu & Notifications */}

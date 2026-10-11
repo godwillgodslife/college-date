@@ -81,3 +81,10 @@ uidump*.xml
 window_dump.xml
 tour_dump.xml
 tmp/
+
+scratch/
+bin/
+cleanup-backups/
+compliance_documents/
+output/
+test_query.mjs

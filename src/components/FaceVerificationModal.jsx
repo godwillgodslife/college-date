@@ -49,7 +49,7 @@ const LIVENESS_STAGES = [
 ];
 
 export default function FaceVerificationModal({ isOpen, onClose, onVerified, candidatePhotoUrl }) {
-    const { currentUser, userProfile, updateUserProfile } = useAuth();
+    const { currentUser, userProfile, fetchProfile } = useAuth();
     const { success, error: showError } = useToast();
 
     const [step, setStep] = useState('intro'); // 'intro' | 'camera' | 'analyzing' | 'success' | 'failed' | 'denied'
@@ -262,13 +262,8 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
 
             if (data.verified) {
                 setStep('success');
-                if (updateUserProfile) {
-                    updateUserProfile({
-                        photo_verified: true,
-                        ai_verification_status: 'verified',
-                        is_verified: true,
-                        ai_verification_score: data.review?.score || 90
-                    });
+                if (fetchProfile && currentUser?.id) {
+                    await fetchProfile(currentUser.id).catch(() => null);
                 }
                 success('Face & Photo Verification successful! Green badge active ✓');
                 if (onVerified) onVerified();

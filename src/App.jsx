@@ -187,7 +187,7 @@ function SmartHomeRoute() {
     isManuallyComplete
   });
 
-  return isProfileComplete ? <Navigate to="/dashboard" replace /> : <Navigate to="/mini-profile-setup" replace />;
+  return isProfileComplete ? <Navigate to="/match" replace /> : <Navigate to="/mini-profile-setup" replace />;
 }
 
 function ProfiledRoute({ id, children }) {
@@ -342,6 +342,7 @@ function AppRoutes() {
         <Route path="/notification-preview-lab" element={<NotificationPreviewLab />} />
         <Route path="/push-preview" element={<NotificationPreviewLab />} />
         <Route path="/push-lab" element={<NotificationPreviewLab />} />
+        <Route path="/premium-preview" element={<PremiumUpgrade />} />
         <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/ask/:username" element={<AnonymousAskPage />} />

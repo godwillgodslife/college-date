@@ -10,6 +10,8 @@ const nativeOnlyRemovals = [
   join(androidPublic, 'evidence_baseline'),
   join(androidPublic, 'evidence_hardening'),
   join(androidPublic, 'evidence_sprint'),
+  join(androidPublic, 'evidence_audit'),
+  join(androidPublic, 'evidence_qa'),
   join(androidPublic, 'pitch-deck-printable.html'),
   join(androidPublic, 'pitch-deck.html'),
   join(androidPublic, 'TheCollegeDate-Investor-Pitch-Deck.pdf'),

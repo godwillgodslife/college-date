@@ -257,3 +257,73 @@ export function countUnreadByCategory(notifications) {
         return counts;
     }, { total: 0 });
 }
+
+/**
+ * Partitions notifications into chronological groups ("Today", "Yesterday", "Earlier")
+ * based on local calendar midnight boundaries.
+ */
+export function groupNotificationsChronologically(items = []) {
+    if (!Array.isArray(items) || items.length === 0) return [];
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
+
+    const today = [];
+    const yesterday = [];
+    const earlier = [];
+
+    for (const item of items) {
+        const itemTime = item?.created_at ? new Date(item.created_at).getTime() : NaN;
+        if (isNaN(itemTime)) {
+            earlier.push(item);
+        } else if (itemTime >= startOfToday) {
+            today.push(item);
+        } else if (itemTime >= startOfYesterday) {
+            yesterday.push(item);
+        } else {
+            earlier.push(item);
+        }
+    }
+
+    const groups = [];
+    if (today.length > 0) groups.push({ id: 'today', title: 'Today', items: today });
+    if (yesterday.length > 0) groups.push({ id: 'yesterday', title: 'Yesterday', items: yesterday });
+    if (earlier.length > 0) groups.push({ id: 'earlier', title: 'Earlier', items: earlier });
+    return groups;
+}
+
+
+export function groupNotificationsByDate(items = []) {
+    if (!Array.isArray(items) || items.length === 0) return [];
+
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const yesterdayMidnight = todayMidnight - 86400000;
+
+    const groups = {
+        today: { id: 'today', label: 'Today', items: [], unreadCount: 0 },
+        yesterday: { id: 'yesterday', label: 'Yesterday', items: [], unreadCount: 0 },
+        earlier: { id: 'earlier', label: 'Earlier', items: [], unreadCount: 0 }
+    };
+
+    for (const item of items) {
+        if (!item) continue;
+        const rawDate = item.created_at || item.createdAt || Date.now();
+        const itemTime = new Date(rawDate).getTime();
+
+        let groupKey = 'earlier';
+        if (itemTime >= todayMidnight) {
+            groupKey = 'today';
+        } else if (itemTime >= yesterdayMidnight) {
+            groupKey = 'yesterday';
+        }
+
+        groups[groupKey].items.push(item);
+        if (!item.is_read) {
+            groups[groupKey].unreadCount += 1;
+        }
+    }
+
+    return [groups.today, groups.yesterday, groups.earlier].filter(g => g.items.length > 0);
+}

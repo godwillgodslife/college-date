@@ -227,7 +227,10 @@
     margin-bottom: 3.5rem;
 }
 
-.incentive-card {
+.incentive-card,
+html[data-theme="light"] .incentive-card,
+html.is-native-app .incentive-card,
+html.is-native-app[data-theme="light"] .incentive-card {
     padding: 2.5rem 1.25rem;
     border-radius: 36px;
     text-align: center;
@@ -245,7 +248,10 @@
     transform: translateY(-8px);
 }
 
-.incentive-card h3 {
+.incentive-card h3,
+html[data-theme="light"] .incentive-card h3,
+html.is-native-app .incentive-card h3,
+html.is-native-app[data-theme="light"] .incentive-card h3 {
     color: #ffffff !important;
     font-size: 1.3rem !important;
     font-weight: 900 !important;
@@ -253,7 +259,10 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.incentive-card p {
+.incentive-card p,
+html[data-theme="light"] .incentive-card p,
+html.is-native-app .incentive-card p,
+html.is-native-app[data-theme="light"] .incentive-card p {
     color: #ffffff !important;
     opacity: 0.9 !important;
     font-size: 0.95rem !important;
@@ -269,17 +278,30 @@
 }
 
 /* ⚡ Swipes Gradient (Indigo) */
-.incentive-card:nth-of-type(1) {
+.incentive-card:nth-of-type(1),
+html[data-theme="light"] .incentive-card:nth-of-type(1),
+html.is-native-app .incentive-card:nth-of-type(1),
+html.is-native-app[data-theme="light"] .incentive-card:nth-of-type(1) {
     background: linear-gradient(135deg, #4f46e5, #312e81) !important;
 }
 
 /* 🎁 Gift Gradient (Rose/Pink) */
-.incentive-card:nth-of-type(3) {
+.incentive-card:nth-of-type(3),
+html[data-theme="light"] .incentive-card:nth-of-type(3),
+html.is-native-app .incentive-card:nth-of-type(3),
+html.is-native-app[data-theme="light"] .incentive-card:nth-of-type(3) {
     background: linear-gradient(135deg, #e11d48, #881337) !important;
 }
 
 /* 💰 THE CASH REWARD (Middle Card) - Bold Gold Highlight */
-.incentive-card.highlight {
+.incentive-card:nth-of-type(2),
+.incentive-card.highlight,
+html[data-theme="light"] .incentive-card:nth-of-type(2),
+html[data-theme="light"] .incentive-card.highlight,
+html.is-native-app .incentive-card:nth-of-type(2),
+html.is-native-app .incentive-card.highlight,
+html.is-native-app[data-theme="light"] .incentive-card:nth-of-type(2),
+html.is-native-app[data-theme="light"] .incentive-card.highlight {
     background: linear-gradient(135deg, #1e1b4b, #2e1065) !important;
     /* Deep Dark Context */
     border: 4px solid #fcd34d !important;
@@ -290,7 +312,13 @@
 }
 
 .incentive-card.highlight h3,
-.incentive-card.highlight p {
+html[data-theme="light"] .incentive-card.highlight h3,
+html.is-native-app .incentive-card.highlight h3,
+html.is-native-app[data-theme="light"] .incentive-card.highlight h3,
+.incentive-card.highlight p,
+html[data-theme="light"] .incentive-card.highlight p,
+html.is-native-app .incentive-card.highlight p,
+html.is-native-app[data-theme="light"] .incentive-card.highlight p {
     color: #ffffff !important;
     opacity: 1 !important;
 }

@@ -1,5 +1,5 @@
 import useSWR, { mutate } from 'swr';
-import { useState, useRef, memo, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, memo, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
@@ -12,15 +12,16 @@ import {
     getAnonymousMessages,
     getConfessionById,
     recordConfessionView,
-    REACTION_EMOJIS
+    REACTION_EMOJIS,
+    getCampusDailyPrompt
 } from '../services/confessionService';
 import { useConfessions } from '../hooks/useSWRData';
 import { motion, AnimatePresence } from 'framer-motion';
-import ConfessionDrawer from '../components/ConfessionDrawer';
-import AnonymousInboxModal from '../components/AnonymousInboxModal';
-import ConfessionMediaEditorModal from '../components/ConfessionMediaEditorModal';
-import ConfessionShareModal from '../components/ConfessionShareModal';
-import ConfessionStoryModal from '../components/ConfessionStoryModal';
+const ConfessionDrawer = lazy(() => import('../components/ConfessionDrawer'));
+const AnonymousInboxModal = lazy(() => import('../components/AnonymousInboxModal'));
+const ConfessionMediaEditorModal = lazy(() => import('../components/ConfessionMediaEditorModal'));
+const ConfessionShareModal = lazy(() => import('../components/ConfessionShareModal'));
+const ConfessionStoryModal = lazy(() => import('../components/ConfessionStoryModal'));
 import { recordFeedImpressions } from '../services/feedImpressionService';
 import { supabase } from '../lib/supabase';
 import { getPublicAppUrl } from '../utils/appUrl';
@@ -327,6 +328,7 @@ export default function Confessions() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
     const [searchParams] = useSearchParams();
+    const dailyPrompt = useMemo(() => getCampusDailyPrompt(), []);
     const params = useParams();
     const targetConfessionId = searchParams.get('id') || params?.id;
 
@@ -678,6 +680,29 @@ export default function Confessions() {
                     </div>
                 </div>
 
+                {/* Campus Daily Question Banner */}
+                {dailyPrompt && (
+                    <div className="campus-daily-prompt-card">
+                        <div className="daily-prompt-header">
+                            <span className="daily-prompt-tag">🔥 Campus Daily Question</span>
+                            <span className="daily-prompt-category">{dailyPrompt.category?.toUpperCase()}</span>
+                        </div>
+                        <p className="daily-prompt-text">{dailyPrompt.question}</p>
+                        <button
+                            type="button"
+                            className="daily-prompt-answer-btn"
+                            onClick={() => {
+                                setNewConfession(`[Daily Prompt: ${dailyPrompt.question}]\n\n`);
+                                const textarea = document.querySelector('.confession-textarea');
+                                if (textarea) textarea.focus();
+                            }}
+                        >
+                            ✍️ Answer Prompt
+                        </button>
+                    </div>
+                )}
+
+
                 {/* Composer Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -804,6 +829,7 @@ export default function Confessions() {
                 )}
             </div>
 
+            <Suspense fallback={null}>
             {/* In-thread Comment Drawer */}
             <AnimatePresence>
                 {selectedPost && (
@@ -849,6 +875,7 @@ export default function Confessions() {
                     onClose={() => setStoryModalPost(null)}
                 />
             )}
+            </Suspense>
         </div>
     );
 }

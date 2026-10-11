@@ -1,28 +1,61 @@
-import { useEffect } from 'react';
+import { trackLandingView, trackGuestDemoStart } from '../services/telemetryService';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PublicHeader from '../components/PublicHeader';
 import PublicFooter from '../components/PublicFooter';
 import HeroCardStack from '../components/HeroCardStack';
+import CampusGuestPreview from '../components/CampusGuestPreview';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 import AndroidWelcomeBackground from '../components/AndroidWelcomeBackground';
 
-// Genuine mobile app captures, cropped to remove demo names and profile photos.
-import appChatTray from '../assets/mobile-chat-tools.jpg';
-import appLocationModal from '../assets/mobile-live-location-modal.jpg';
-import appServiceEscrow from '../assets/app-service-escrow.png';
-import appExploreControls from '../assets/mobile-explore-controls.jpg';
-
-// Pexels editorial photography (see docs/homepage-image-credits.md).
-import profilePhoto from '../assets/how-it-works-student-park.jpg';
-import discoverPhoto from '../assets/how-it-works-student-study.jpg';
-import matchPhoto from '../assets/how-it-works-campus-friends.jpg';
-import chatPhoto from '../assets/how-it-works-students-together.jpg';
-import campusConfessionsPhoto from '../assets/how-it-works-student-phone.jpg';
-import productChatPhoto from '../assets/product-chat-campus-photo-alt.jpg';
-import meetupPhoto from '../assets/how-it-works-meetup-students.jpg';
+// Keep the existing source assets, while Netlify serves responsive cached
+// WebP/AVIF variants at runtime so no extra files enter the native bundle.
+import appChatTraySource from '../assets/mobile-chat-tools.jpg';
+import appLocationModalSource from '../assets/mobile-live-location-modal.jpg';
+import appServiceEscrowSource from '../assets/app-service-escrow.png';
+import appExploreControlsSource from '../assets/mobile-explore-controls.jpg';
+import profilePhotoSource from '../assets/how-it-works-student-park.jpg';
+import discoverPhotoSource from '../assets/how-it-works-student-study.jpg';
+import matchPhotoSource from '../assets/how-it-works-campus-friends.jpg';
+import chatPhotoSource from '../assets/how-it-works-students-together.jpg';
+import campusConfessionsPhotoSource from '../assets/how-it-works-student-phone.jpg';
+import productChatPhotoSource from '../assets/product-chat-campus-photo-alt.jpg';
+import meetupPhotoSource from '../assets/how-it-works-meetup-students.jpg';
 
 import './Landing.css';
+
+const optimizedImageUrl = (source, width, quality) =>
+  `/.netlify/images?url=${encodeURIComponent(source)}&w=${width}&q=${quality}`;
+
+const responsiveImage = (source, width, height, quality = 84) => {
+  const candidates = [480, 960, 1200].filter((candidate) => candidate <= width);
+  const largestCandidate = candidates[candidates.length - 1] || width;
+
+  return {
+    src: optimizedImageUrl(source, largestCandidate, quality),
+    srcSet: candidates
+      .map((candidate) => `${optimizedImageUrl(source, candidate, quality)} ${candidate}w`)
+      .join(', '),
+    width,
+    height,
+  };
+};
+
+const HOW_STEP_IMAGE_SIZES = '(max-width: 768px) calc(100vw - 84px), (max-width: 1080px) calc(50vw - 76px), 260px';
+const BENTO_PHOTO_SIZES = '(max-width: 768px) calc(100vw - 84px), (max-width: 1080px) 204px, 420px';
+
+const appChatTray = responsiveImage(appChatTraySource, 1004, 611, 92);
+const appLocationModal = responsiveImage(appLocationModalSource, 1002, 905, 92);
+const appServiceEscrow = responsiveImage(appServiceEscrowSource, 1081, 2341, 94);
+const appExploreControls = responsiveImage(appExploreControlsSource, 1010, 265, 92);
+const profilePhoto = responsiveImage(profilePhotoSource, 1200, 800);
+const discoverPhoto = responsiveImage(discoverPhotoSource, 1200, 1800);
+const matchPhoto = responsiveImage(matchPhotoSource, 1200, 800);
+const chatPhoto = responsiveImage(chatPhotoSource, 1200, 1800);
+const campusConfessionsPhoto = responsiveImage(campusConfessionsPhotoSource, 1200, 800);
+const productChatPhoto = responsiveImage(productChatPhotoSource, 1200, 800);
+const meetupPhoto = responsiveImage(meetupPhotoSource, 1600, 1049);
 
 const HOW_IT_WORKS_STEPS = [
   {
@@ -93,10 +126,12 @@ const CAMPUS_FEATURES = [
 export default function Landing() {
   const isNative = (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
                    (import.meta.env.DEV && new URLSearchParams(window.location.search).has('native-preview'));
+  const [guestPreviewOpen, setGuestPreviewOpen] = useState(false);
 
   // Restore landing page title on mount
   useEffect(() => {
     document.title = 'The College Date — Real connections. Real you. | Campus Dating for Students';
+    trackLandingView();
   }, []);
 
   // Initialize scroll-triggered reveals
@@ -131,12 +166,24 @@ export default function Landing() {
             <Link to="/login" className="btn-large btn-secondary">
               I already have an account
             </Link>
+            <button
+              type="button"
+              className="btn-large btn-demo"
+              onClick={() => { trackGuestDemoStart(); setGuestPreviewOpen(true); }}
+            >
+              ✨ Tour Campus Demo
+            </button>
           </div>
 
           <div className="footer-note">
             <p>Designed for Africa's Universities</p>
           </div>
         </div>
+
+        <CampusGuestPreview
+          isOpen={guestPreviewOpen}
+          onClose={() => setGuestPreviewOpen(false)}
+        />
       </div>
     );
   }
@@ -174,6 +221,13 @@ export default function Landing() {
               <Link to="/login" className="landing-secondary-button">
                 Already have an account
               </Link>
+              <button
+                type="button"
+                className="landing-demo-button"
+                onClick={() => { trackGuestDemoStart(); setGuestPreviewOpen(true); }}
+              >
+                ✨ Tour Campus Demo
+              </button>
             </div>
 
             {/* Campus Trust Features Strip */}
@@ -233,6 +287,22 @@ export default function Landing() {
                     <span>Instagram</span>
                   </span>
                 </a>
+
+                <a
+                  href="https://www.tiktok.com/@thecollegedate1?_r=1&_t=ZN-9AAGLzQHv1y"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="store-badge-premium tiktok-badge"
+                  aria-label="Follow us on TikTok"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.07V2h-3.3v13.67a2.9 2.9 0 0 1-2.9 2.9 2.9 2.9 0 1 1 2.9-2.9c0-.16-.01-.32-.04-.47V11.8a6.3 6.3 0 1 0 3.34 5.57V9.1a8.08 8.08 0 0 0 4.73 1.52V7.33a4.85 4.85 0 0 1-.96-.64Z" />
+                  </svg>
+                  <span className="badge-text">
+                    <small>FOLLOW US ON</small>
+                    <span>TikTok</span>
+                  </span>
+                </a>
               </div>
               <div className="store-info-ios">
                 <span className="ios-coming-soon">Coming soon to iOS</span>
@@ -271,14 +341,28 @@ export default function Landing() {
                 </div>
 
                 <figure className={`how-step-visual how-step-visual--${item.visual}`}>
-                  <img className="how-step-photo" src={item.photo} alt={item.photoAlt} loading="lazy" />
+                  <img
+                    className="how-step-photo"
+                    {...item.photo}
+                    alt={item.photoAlt}
+                    sizes={HOW_STEP_IMAGE_SIZES}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'low' : 'auto'}
+                    decoding="async"
+                  />
                   {item.screenCapture && (
                     <div
                       className={`how-step-capture how-step-capture--${item.visual}`}
                       role="img"
                       aria-label={`Actual Android app screen: ${item.screenLabel}`}
                     >
-                      <img src={item.screenCapture} alt="" loading="lazy" />
+                      <img
+                        {...item.screenCapture}
+                        alt=""
+                        sizes={item.visual === 'discover' ? '330px' : '148px'}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                   )}
                 </figure>
@@ -320,17 +404,19 @@ export default function Landing() {
               </div>
               <div className="bento-card__image-container bento-card__image-container--chat-story">
                 <img
-                  src={productChatPhoto}
+                  {...productChatPhoto}
                   alt="Two students walking together outside a university building"
                   className="bento-img bento-img--story-photo"
                   loading="lazy"
+                  decoding="async"
+                  sizes={BENTO_PHOTO_SIZES}
                 />
                 <div
                   className="bento-app-capture"
                   role="img"
                   aria-label="Actual Android app screenshot showing chat attachments and campus tools"
                 >
-                  <img src={appChatTray} alt="" loading="lazy" />
+                  <img {...appChatTray} alt="" sizes="220px" loading="lazy" decoding="async" />
                 </div>
               </div>
             </div>
@@ -354,10 +440,12 @@ export default function Landing() {
               </div>
               <div className="bento-card__image-container">
                 <img
-                  src={campusConfessionsPhoto}
+                  {...campusConfessionsPhoto}
                   alt="Young man checking a phone outdoors beside a building"
                   className="bento-img bento-img--photo"
                   loading="lazy"
+                  decoding="async"
+                  sizes={BENTO_PHOTO_SIZES}
                 />
               </div>
             </div>
@@ -380,17 +468,19 @@ export default function Landing() {
               </div>
               <div className="bento-card__image-container bento-card__image-container--meetup-story">
                 <img
-                  src={meetupPhoto}
+                  {...meetupPhoto}
                   alt="A Black student talking with a classmate outside a campus building"
                   className="bento-img bento-img--story-photo bento-img--meetup-photo"
                   loading="lazy"
+                  decoding="async"
+                  sizes={BENTO_PHOTO_SIZES}
                 />
                 <div
                   className="bento-app-capture bento-app-capture--location"
                   role="img"
                   aria-label="Actual Android app screenshot showing live location sharing options"
                 >
-                  <img src={appLocationModal} alt="" loading="lazy" />
+                  <img {...appLocationModal} alt="" sizes="286px" loading="lazy" decoding="async" />
                 </div>
               </div>
             </div>
@@ -414,10 +504,12 @@ export default function Landing() {
               </div>
               <div className="bento-card__image-container">
                 <img
-                  src={appServiceEscrow}
+                  {...appServiceEscrow}
                   alt="College Date campus service escrow setup screen"
                   className="bento-img"
                   loading="lazy"
+                  decoding="async"
+                  sizes="180px"
                 />
               </div>
             </div>
@@ -468,6 +560,11 @@ export default function Landing() {
 
       {/* ── SHARED PUBLIC FOOTER ── */}
       <PublicFooter />
+
+      <CampusGuestPreview
+        isOpen={guestPreviewOpen}
+        onClose={() => setGuestPreviewOpen(false)}
+      />
     </main>
   );
 }

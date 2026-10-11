@@ -176,12 +176,12 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             query = query.not('id', 'in', `(${uniqueExcludeIds.join(',')})`);
         }
 
-        // Apply Gender Filter (Strict Opposite Gender by default)
+        // Apply Gender Filter
         if (filters.gender && filters.gender !== 'All') {
             const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
             query = query.eq('gender', targetGender);
-        } else if (currentUserGender) {
-            // Authoritative server-side opposite gender discovery: Male sees female, female sees male
+        } else if (!filters.gender && currentUserGender) {
+            // Default swipe deck discovery (when no explicit filter is set): opposite gender
             const norm = currentUserGender.toLowerCase();
             const oppositeGender = norm === 'male' ? 'female' : norm === 'female' ? 'male' : null;
             if (oppositeGender) {
@@ -211,7 +211,7 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         } else if (filters.category === 'Trending') {
             query = query.order('completion_score', { ascending: false });
         } else if (filters.category === 'Near Me') {
-            // Near Me defaults to same university for now
+            // Near Me defaults to same university
             if (userProfile?.university) {
                 query = query.eq('university', userProfile.university);
             }
@@ -248,9 +248,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
         if (currentUserGender) {
             const norm = (currentUserGender || '').toLowerCase();
             const oppositeGender = norm === 'male' ? 'female' : 'male';
-            if (!filters.gender || filters.gender === 'All') {
+            if (!filters.gender) {
                 results = results.filter(p => (p.gender || '').toLowerCase() === oppositeGender);
-            } else {
+            } else if (filters.gender !== 'All') {
                 const targetGender = filters.gender.toLowerCase() === 'men' ? 'male' : filters.gender.toLowerCase() === 'women' ? 'female' : filters.gender.toLowerCase();
                 results = results.filter(p => (p.gender || '').toLowerCase() === targetGender);
             }
@@ -715,53 +715,83 @@ export async function resetDiscovery(userId) {
  * Search profiles by name, username, university, faculty, or department across the entire campus.
  * Automatically excludes the current user and blocked accounts.
  */
-export async function searchProfilesByName(searchQuery, currentUserId = null, userProfile = null) {
+export async function searchProfilesByName(searchQuery, currentUserId = null, userProfile = null, options = {}) {
     if (!searchQuery || !searchQuery.trim()) return [];
-    const term = searchQuery.trim();
+    
+    // 1. Sanitize term for PostgREST .or() filter (strip special characters that break syntax)
+    const rawTerm = searchQuery.trim();
+    const cleanTerm = rawTerm.replace(/[,()"'[\]\\]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!cleanTerm) return [];
+
     try {
         let blockedIds = [];
-        let matchedIds = [];
         if (currentUserId) {
             try {
-                const [blocksRes, matchesRes] = await Promise.allSettled([
-                    supabase
-                        .from('user_blocks')
-                        .select('blocked_id, blocker_id')
-                        .or(`blocker_id.eq.${currentUserId},blocked_id.eq.${currentUserId}`),
-                    fetchMatchedProfileIds(currentUserId)
-                ]);
-                if (blocksRes.status === 'fulfilled' && blocksRes.value.data) {
-                    blockedIds = blocksRes.value.data.map(b => b.blocker_id === currentUserId ? b.blocked_id : b.blocker_id);
-                }
-                if (matchesRes.status === 'fulfilled' && Array.isArray(matchesRes.value)) {
-                    matchedIds = matchesRes.value;
+                const { data: blocks } = await supabase
+                    .from('user_blocks')
+                    .select('blocked_id, blocker_id')
+                    .or(`blocker_id.eq.${currentUserId},blocked_id.eq.${currentUserId}`);
+                if (blocks) {
+                    blockedIds = blocks.map(b => b.blocker_id === currentUserId ? b.blocked_id : b.blocker_id);
                 }
             } catch (blockErr) {
-                console.warn('[SwipeService] Error fetching blocks/matches for search:', blockErr);
+                console.warn('[SwipeService] Error fetching blocks for search:', blockErr);
             }
         }
-        const excludeList = [currentUserId, ...blockedIds, ...matchedIds].filter(Boolean);
+        
+        // Exclude only self and blocked users (do NOT exclude matches or admirers)
+        const excludeList = [currentUserId, ...blockedIds].filter(Boolean);
 
-        let query = supabase
-            .from('profiles')
-            .select('*')
-            .eq('is_shadow_banned', false)
-            .eq('is_banned', false)
-            .or(`full_name.ilike.%${term}%,username.ilike.%${term}%,university.ilike.%${term}%,faculty.ilike.%${term}%,department.ilike.%${term}%`)
-            .limit(50);
+        const buildColumnFilters = (keyword) => [
+            `full_name.ilike.%${keyword}%`,
+            `username.ilike.%${keyword}%`,
+            `university.ilike.%${keyword}%`,
+            `faculty.ilike.%${keyword}%`,
+            `department.ilike.%${keyword}%`
+        ].join(',');
 
-        if (excludeList.length > 0) {
-            query = query.not('id', 'in', `(${excludeList.join(',')})`);
-        }
+        const executeSearchQuery = async (filterString) => {
+            let q = supabase
+                .from('profiles')
+                .select('*')
+                .eq('is_shadow_banned', false)
+                .eq('is_banned', false)
+                .or(filterString)
+                .limit(50);
 
-        const currentUserGender = userProfile?.gender;
-        if (currentUserGender) {
-            const opposite = currentUserGender.toLowerCase() === 'male' ? 'female' : 'male';
-            query = query.eq('gender', opposite);
-        }
+            if (excludeList.length > 0) {
+                q = q.not('id', 'in', `(${excludeList.join(',')})`);
+            }
 
-        const { data, error } = await query;
+            // Apply explicit gender filter if provided by caller (e.g. from Explore filter drawer)
+            const genderFilter = options?.gender;
+            if (genderFilter && genderFilter !== 'All') {
+                const targetGender = genderFilter.toLowerCase() === 'men' ? 'male' : genderFilter.toLowerCase() === 'women' ? 'female' : genderFilter.toLowerCase();
+                q = q.eq('gender', targetGender);
+            }
+
+            return await q;
+        };
+
+        // Phase 1: Try clean full-phrase search
+        let { data, error } = await executeSearchQuery(buildColumnFilters(cleanTerm));
         if (error) throw error;
+
+        // Phase 2: If no matches (or compound query), execute multi-token fallback
+        const tokens = cleanTerm.split(' ').filter(w => w.length >= 2);
+        if ((!data || data.length === 0) && tokens.length > 1) {
+            const multiFilter = tokens.map(t => buildColumnFilters(t)).join(',');
+            const multiRes = await executeSearchQuery(multiFilter);
+            if (multiRes.data && multiRes.data.length > 0) {
+                // Prioritize profiles matching all tokens across profile fields
+                const allTokenMatches = multiRes.data.filter(row => {
+                    const rowText = `${row.full_name || ''} ${row.username || ''} ${row.university || ''} ${row.faculty || ''} ${row.department || ''}`.toLowerCase();
+                    return tokens.every(token => rowText.includes(token.toLowerCase()));
+                });
+                data = allTokenMatches.length > 0 ? allTokenMatches : multiRes.data;
+            }
+        }
+
         return (data || [])
             .filter(row => !row.is_shadow_banned && !row.is_banned)
             .map(row => {
@@ -771,7 +801,13 @@ export async function searchProfilesByName(searchQuery, currentUserId = null, us
                     profile_photos: getProfilePhotos(normalized)
                 };
             })
-            .filter(row => row.profile_photos && row.profile_photos.length > 0)
+            // Accept profiles that have avatar_url OR photos OR profile_photos
+            .filter(row => {
+                const hasProfilePhotos = Array.isArray(row.profile_photos) && row.profile_photos.length > 0;
+                const hasPhotos = Array.isArray(row.photos) && row.photos.length > 0;
+                const hasAvatar = Boolean(row.avatar_url && row.avatar_url.trim());
+                return hasProfilePhotos || hasPhotos || hasAvatar;
+            })
             .sort((a, b) => (hasActivePremium(b) ? 1 : 0) - (hasActivePremium(a) ? 1 : 0));
     } catch (err) {
         console.error('[SwipeService] searchProfilesByName error:', err);

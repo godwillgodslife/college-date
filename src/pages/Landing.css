@@ -308,6 +308,7 @@
 
 .store-badge-group {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
 }
@@ -1255,6 +1256,50 @@
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
+.landing-demo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(217, 70, 239, 0.12));
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme="dark"] .landing-demo-button {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(217, 70, 239, 0.2));
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.landing-demo-button:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(217, 70, 239, 0.28));
+  border-color: #6366f1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+}
+
+.btn-demo {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(217, 70, 239, 0.2));
+  border: 1px solid rgba(108, 99, 255, 0.4);
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-demo:hover {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(217, 70, 239, 0.35));
+  border-color: #6c63ff;
+}
+
 .landing-cta-banner__container .cta-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1354,7 +1399,8 @@
   }
 
   .landing-primary-button,
-  .landing-secondary-button {
+  .landing-secondary-button,
+  .landing-demo-button {
     width: 100%;
   }
 }

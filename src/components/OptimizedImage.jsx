@@ -37,7 +37,7 @@ export default function OptimizedImage({
         let objectUrl = null;
 
         async function hydrateCachedImage() {
-            if (!optimizedUrl) return;
+            if (!optimizedUrl || hasError) return;
 
             // 1. Cache-first: Render from local disk/Cache API immediately if already cached
             try {
@@ -52,7 +52,7 @@ export default function OptimizedImage({
             }
 
             // 2. If online and not yet cached, fetch and populate local media cache
-            if (typeof navigator === 'undefined' || navigator.onLine !== false) {
+            if (!cancelled && !hasError && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
                 cacheMediaSource(optimizedUrl).catch(() => {});
             }
         }
@@ -61,9 +61,15 @@ export default function OptimizedImage({
 
         return () => {
             cancelled = true;
-            if (objectUrl) window.URL.revokeObjectURL(objectUrl);
+            if (objectUrl) {
+                try {
+                    window.URL.revokeObjectURL(objectUrl);
+                } catch {
+                    // Safe cleanup guard
+                }
+            }
         };
-    }, [optimizedUrl]);
+    }, [optimizedUrl, hasError]);
 
     const handleLoad = () => {
         if (performanceMonitor.isEnabled()) {
@@ -73,9 +79,25 @@ export default function OptimizedImage({
     };
 
     const handleError = (e) => {
+        if (cachedDisplay.url && displayUrl === cachedDisplay.url) {
+            // Blob URL failed; fallback directly to network URL before marking error
+            setCachedDisplay({ source: null, url: null });
+            return;
+        }
+        if (displayUrl !== src && src) {
+            // Fallback directly to original raw src if optimized URL failed
+            setCachedDisplay({ source: src, url: src });
+            return;
+        }
         setHasError(true);
         if (onError) onError(e);
     };
+
+    const trimmedAlt = (alt || '').trim();
+    const isGenericAlt = !trimmedAlt || 
+        /^(viewer|viewers|visitor|visitors|admirer|admirers|secret\s*admirer|profile|avatar|photo|image|student|campus\s*student|user|cover)$/i.test(trimmedAlt) ||
+        /^(viewer|visitor|admirer)/i.test(trimmedAlt);
+    const fallbackText = !isGenericAlt && trimmedAlt.length > 0 ? trimmedAlt.charAt(0).toUpperCase() : '👤';
     
     // isLoaded state removed to prevent infinite blanks on cache hits
     return (
@@ -115,14 +137,16 @@ export default function OptimizedImage({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1))',
+                        background: 'var(--bg-tertiary, rgba(255, 255, 255, 0.08))',
                         color: 'var(--text-muted, #94a3b8)',
                         fontWeight: '700',
                         fontSize: width ? `${Math.max(16, Math.floor(width / 3))}px` : '1.5rem',
-                        userSelect: 'none'
+                        userSelect: 'none',
+                        borderRadius: 'inherit',
+                        overflow: 'hidden'
                     }}
                 >
-                    {alt ? alt.charAt(0).toUpperCase() : '👤'}
+                    {fallbackText}
                 </div>
             ) : null}
         </div>

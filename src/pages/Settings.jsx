@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { getUserSettings, updateUserSettings } from '../services/notificationService';
+import { getUserSettings, updateUserSettings, sendTestPushNotification } from '../services/notificationService';
 import { verifyAndRestorePremium } from '../services/paymentService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -13,6 +13,9 @@ import { setCachedData } from '../lib/persistentCache';
 import { enqueueOfflineOperation, removeOfflineOperation } from '../lib/offlineQueue';
 import { isNativePlatform } from '../lib/secureAuthStorage';
 import { supabase } from '../lib/supabase';
+import { playNotificationDing } from '../lib/audioContext';
+import { triggerLightHaptic } from '../utils/haptics';
+import { getPushDebugState } from '../services/pushNotification';
 import { getBlockedUsers, unblockUser } from '../services/blockService';
 import { updateFinderOptIn } from '../services/campusFinderService';
 import { AppGuideModal, resetAllGuides } from '../components/ContextualGuide';
@@ -72,6 +75,37 @@ export default function Settings() {
     const [loadingBlocked, setLoadingBlocked] = useState(false);
     const [showGuideModal, setShowGuideModal] = useState(false);
     const [showOfficialHub, setShowOfficialHub] = useState(false);
+    const [testPushSending, setTestPushSending] = useState(false);
+    const [pushDebugInfo, setPushDebugInfo] = useState(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        getPushDebugState().then(state => {
+            if (isMounted) setPushDebugInfo(state);
+        }).catch(() => {});
+        return () => { isMounted = false; };
+    }, []);
+
+    const handleSendLiveTestPush = async () => {
+        if (!currentUser?.id) return;
+        setTestPushSending(true);
+        try {
+            const res = await sendTestPushNotification(currentUser.id);
+            if (res.error) throw new Error(res.error);
+            addToast('Test push notification dispatched! Check your notification bar.', 'success', 5000);
+        } catch (err) {
+            console.error('Test push error:', err);
+            addToast(`Test push failed: ${err.message}`, 'error', 6000);
+        } finally {
+            setTestPushSending(false);
+        }
+    };
+
+    const handleTestSoundAndVibe = () => {
+        playNotificationDing();
+        triggerLightHaptic();
+        addToast('Played alert tone and triggered haptic vibration.', 'info', 3000);
+    };
 
     const handleResetGuides = () => {
         resetAllGuides();
@@ -108,12 +142,9 @@ export default function Settings() {
         }
     };
 
-    const showNotificationPreviewTools = import.meta.env.DEV
-        || window.Capacitor?.isNativePlatform?.()
-        || window.location.hostname === 'localhost'
-        || window.location.hostname === '127.0.0.1'
-        || window.location.hostname === 'www.thecollegedate.com'
-        || window.location.hostname.endsWith('.netlify.app');
+    const showNotificationPreviewTools = Boolean(
+        import.meta.env.DEV && (userProfile?.is_admin || userProfile?.is_staff || currentUser?.is_admin || currentUser?.is_staff)
+    );
 
     const fetchSettings = useCallback(async () => {
         if (!currentUser) return DEFAULT_SETTINGS;
@@ -667,28 +698,57 @@ export default function Settings() {
                     )}
 
                     {showNotificationPreviewTools && (
-                        <div className="settings-item notification-preview-item">
-                            <div className="item-info">
-                                <h3>Notification QA Lab</h3>
-                                <p>Preview alerts and inspect this device's push readiness.</p>
+                        <>
+                            <div className="settings-item notification-preview-item">
+                                <div className="item-info">
+                                    <h3>Notification QA Lab</h3>
+                                    <p>Preview alerts and inspect this device's push readiness.</p>
+                                </div>
+                                <div className="notification-preview-actions">
+                                    <button
+                                        type="button"
+                                        className="preview-notification-btn"
+                                        onClick={handlePreviewNotification}
+                                    >
+                                        Preview
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="preview-notification-btn secondary"
+                                        onClick={() => navigate('/notification-preview')}
+                                    >
+                                        Open lab
+                                    </button>
+                                </div>
                             </div>
-                            <div className="notification-preview-actions">
-                                <button
-                                    type="button"
-                                    className="preview-notification-btn"
-                                    onClick={handlePreviewNotification}
-                                >
-                                    Preview
-                                </button>
-                                <button
-                                    type="button"
-                                    className="preview-notification-btn secondary"
-                                    onClick={() => navigate('/notification-preview')}
-                                >
-                                    Open lab
-                                </button>
+
+                            <div className="settings-item notification-preview-item" style={{ marginTop: '0.4rem' }}>
+                                <div className="item-info">
+                                    <h3>🔔 Device Push Diagnostics</h3>
+                                    <p>
+                                        Platform: <strong>{pushDebugInfo?.platform || (window.Capacitor?.isNativePlatform?.() ? 'Android Native' : 'Web')}</strong>
+                                        {pushDebugInfo?.subscriptionId ? ` • Sub ID: ${pushDebugInfo.subscriptionId.slice(0, 8)}...` : ' • Initializing...'}
+                                    </p>
+                                </div>
+                                <div className="notification-preview-actions">
+                                    <button
+                                        type="button"
+                                        className="preview-notification-btn"
+                                        onClick={handleSendLiveTestPush}
+                                        disabled={testPushSending}
+                                    >
+                                        {testPushSending ? 'Sending...' : 'Test Push'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="preview-notification-btn secondary"
+                                        onClick={handleTestSoundAndVibe}
+                                    >
+                                        Sound & Vibe
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
 
                     <div className="settings-subsection-label">Specific Activity</div>

@@ -9,6 +9,7 @@ import PerformanceOverlay from './PerformanceOverlay';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useAuth } from '../contexts/AuthContext';
+import ErrorBoundary from './ErrorBoundary';
 import './AppLayout.css';
 
 const MotionDiv = motion.div;
@@ -90,24 +91,26 @@ export default function AppLayout() {
 
             {/* Page Content */}
             <main className={`app-main ${isFullScreenApp ? 'full-screen' : ''} ${isAdmin ? 'admin-layout' : ''}`}>
-                {isMatchRoute ? (
-                    <div className="page-transition-wrapper match-route-static" key={location.pathname}>
-                        <Outlet />
-                    </div>
-                ) : (
-                    <AnimatePresence mode="wait">
-                        <MotionDiv
-                            key={location.pathname}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.18, ease: 'easeOut' }}
-                            className="page-transition-wrapper"
-                        >
+                <ErrorBoundary pageLevel key={location.pathname}>
+                    {isMatchRoute ? (
+                        <div className="page-transition-wrapper match-route-static" key={location.pathname}>
                             <Outlet />
-                        </MotionDiv>
-                    </AnimatePresence>
-                )}
+                        </div>
+                    ) : (
+                        <AnimatePresence mode="wait">
+                            <MotionDiv
+                                key={location.pathname}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.18, ease: 'easeOut' }}
+                                className="page-transition-wrapper"
+                            >
+                                <Outlet />
+                            </MotionDiv>
+                        </AnimatePresence>
+                    )}
+                </ErrorBoundary>
             </main>
 
             {/* Bottom Nav (mobile) */}

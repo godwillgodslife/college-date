@@ -62,20 +62,25 @@ import CoinStoreModal from '../components/CoinStoreModal';
 import CreateServiceDealModal from '../components/CreateServiceDealModal';
 import ServiceDealCard from '../components/ServiceDealCard';
 import LiveLocationCard from '../components/LiveLocationCard';
-import { ContextualTip, AppGuideModal } from '../components/ContextualGuide';
+import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
 import { recordStreakActivity } from '../services/scoreStreakService';
 import { evaluateDailyQualification } from '../services/activeProgramService';
 import OfficialChannelCard from '../components/OfficialChannelCard';
 import OfficialHubModal from '../components/OfficialHubModal';
+import { triggerLightHaptic } from '../utils/haptics';
+import {
+    getCampusCommonGround as computeCampusCommonGround,
+    getCampusIcebreakers as computeCampusIcebreakers
+} from '../utils/campusCommonGround';
 import './Chat.css';
 
-const ICEBREAKERS = [
-    "What's your favorite spot on campus? 🏫",
-    "If you could have dinner with one lecturer, who would it be? 🍎",
-    "What's the best thing about your course? 📚",
-    "Early bird or night owl in the library? 🦉",
-    "What's your go-to campus snack? 🍕"
-];
+function getCampusCommonGround(otherUser, userProfile) {
+    return computeCampusCommonGround(otherUser, userProfile);
+}
+
+function getCampusIcebreakers(otherUser, userProfile) {
+    return computeCampusIcebreakers(otherUser, userProfile);
+}
 
 const CAMPUS_AI_FALLBACKS = [
     "Hey! How's your semester going so far? 📚",
@@ -260,6 +265,10 @@ export default function Chat() {
     const [officialHubOpen, setOfficialHubOpen] = useState(false);
     const [sending, setSending] = useState(false);
     const [presence, setPresence] = useState({});
+    const otherUserId = selectedConv?.other_user?.id;
+    const opponentPresences = presence[otherUserId] || [];
+    const isOtherOnline = opponentPresences.length > 0;
+    const isOtherTyping = opponentPresences.some(p => p.is_typing);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -362,6 +371,7 @@ export default function Chat() {
     // Message Action & Gesture states
     const [activeActionMessage, setActiveActionMessage] = useState(null);
     const [actionMenuPosition, setActionMenuPosition] = useState(null);
+    const [reactionBar, setReactionBar] = useState(null);
     const [deleteTargetMessage, setDeleteTargetMessage] = useState(null);
     const [infoTargetMessage, setInfoTargetMessage] = useState(null);
     const [highlightedMessageId, setHighlightedMessageId] = useState(null);
@@ -487,10 +497,12 @@ export default function Chat() {
         let cancelled = false;
         const checkBlock = async () => {
             try {
-                const { blocked } = await getBlockedUsers();
+                const targetOtherId = selectedConv?.other_user?.id;
+                if (!targetOtherId || !currentUser?.id) return;
+                const { data: blockedList } = await getBlockedUsers(currentUser.id);
                 if (cancelled) return;
-                const isBlocked = (blocked || []).some(
-                    b => b.blocked_id === selectedConv.other_user.id || b.blocked_user?.id === selectedConv.other_user.id
+                const isBlocked = (blockedList || []).some(
+                    b => b.blocked_id === targetOtherId || b.blocked_user?.id === targetOtherId
                 );
                 setIsBlockedByMe(isBlocked);
             } catch (err) {
@@ -646,8 +658,8 @@ export default function Chat() {
 
         // First attempt: Check if target exists in current list
         const target = finalChatId 
-            ? conversations.find(c => c.id === finalChatId || c.match_id === finalChatId)
-            : conversations.find(c => (c.other_user?.id || c.other_user_id) === finalTargetId);
+            ? conversations.find(c => c?.id === finalChatId || c?.match_id === finalChatId)
+            : conversations.find(c => (c?.other_user?.id || c?.other_user_id) === finalTargetId);
 
         if (target) {
             console.log('[Chat] Target found! Selecting:', target.id);
@@ -697,8 +709,8 @@ export default function Chat() {
         const { chatId, openChatWith } = pendingSelection;
         
         const target = chatId 
-            ? conversations.find(c => c.id === chatId || c.match_id === chatId)
-            : conversations.find(c => (c.other_user?.id || c.other_user_id) === openChatWith);
+            ? conversations.find(c => c?.id === chatId || c?.match_id === chatId)
+            : conversations.find(c => (c?.other_user?.id || c?.other_user_id) === openChatWith);
 
         if (target) {
             console.log('[Chat] RESOLVED: Pending target found in updated list!', target.id);
@@ -726,8 +738,8 @@ export default function Chat() {
 
         const { chatId, openChatWith } = pendingSelection;
         const target = chatId 
-            ? conversations.find(c => c.id === chatId)
-            : conversations.find(c => c.other_user?.id === openChatWith);
+            ? conversations.find(c => c?.id === chatId)
+            : conversations.find(c => c?.other_user?.id === openChatWith);
 
         if (target) {
             console.log('[Chat] Pending target found! Selecting...');
@@ -765,6 +777,9 @@ export default function Chat() {
         if (location.search || location.state?.chatId || location.state?.openChatWith) {
             navigate('/chat', { replace: true, state: {} });
         }
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tcd:active-chat-changed', { detail: { chatId: null } }));
+        }
     }, [location.search, location.state, navigate]);
 
     useEffect(() => {
@@ -799,7 +814,13 @@ export default function Chat() {
         }
         setSelectedConv(conv);
         setPendingSelection(null);
-    }, []);
+        if (conv?.id && conv.id !== 'null' && !String(conv.id).startsWith('temp-')) {
+            navigate(`/chat?chatId=${conv.id}`, { replace: true });
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('tcd:active-chat-changed', { detail: { chatId: conv.id } }));
+            }
+        }
+    }, [navigate]);
 
     useEffect(() => {
         const convId = selectedConv?.id;
@@ -836,7 +857,10 @@ export default function Chat() {
                 setMessages(prev => mergeMessageList(prev, payload));
                 if (payload.sender_id !== currentUser.id) {
                     markMessageAsRead(payload.id);
-                    playNotificationDing(); // Ding when a message arrives
+                    const isTabFocusedAndVisible = typeof document !== 'undefined' && !document.hidden && (typeof document.hasFocus === 'function' ? document.hasFocus() : true);
+                    if (!isTabFocusedAndVisible) {
+                        playNotificationDing(); // Only ding when user is backgrounded or tab unfocused
+                    }
                 }
             },
             (payload) => {
@@ -871,8 +895,12 @@ export default function Chat() {
         );
 
         return () => {
-            msgSub.unsubscribe();
-            presenceChannelRef.current?.unsubscribe();
+            try {
+                msgSub?.unsubscribe?.();
+                presenceChannelRef.current?.unsubscribe?.();
+            } catch (cleanupErr) {
+                console.warn('[Chat] cleanup error:', cleanupErr);
+            }
             isTypingRef.current = false;
             setReactionBar(null);
             if (longPressTimer.current) {
@@ -884,6 +912,7 @@ export default function Chat() {
 
     // ── Load messages (paginated) ──────────────────────────────────────
     async function loadMessages(matchId, pageNum = 0, reset = false) {
+        if (!matchId || matchId === 'null' || String(matchId).startsWith('temp-')) return;
         try {
             const { data = [], total = 0, error } = await getMessages(matchId, pageNum);
 
@@ -932,6 +961,7 @@ export default function Chat() {
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
+        markFeatureUsed('messages_chat');
         if (!newMessage.trim() || !selectedConv || sending) return;
 
         // Block sending ONLY if we truly don't have a database ID yet
@@ -981,7 +1011,13 @@ export default function Chat() {
         const optimisticId = `temp-${Date.now()}`;
         const clientNonce = createClientNonce();
         
-        const metadata = { client_nonce: clientNonce };
+        const metadata = { 
+            client_nonce: clientNonce,
+            recipientIsActive: Boolean(isOtherOnline),
+            suppressPush: Boolean(isOtherOnline),
+            suppress_push: Boolean(isOtherOnline),
+            suppress_email: Boolean(isOtherOnline)
+        };
         if (replyToMessage) {
             metadata.reply_to = {
                 id: replyToMessage.id,
@@ -1053,7 +1089,7 @@ export default function Chat() {
             const hasRecentMsgs = messages.length > 0;
             const task = hasRecentMsgs ? 'smart_reply' : 'conversation_opener';
             const { data, error } = await requestAiAssistant(task, {
-                targetProfile: selectedConv.other_user,
+                targetProfile: selectedConv?.other_user,
                 recentMessages: messages.slice(-8),
                 draft: newMessage
             });
@@ -1082,6 +1118,19 @@ export default function Chat() {
             const inputEl = document.querySelector('.chat-input');
             if (inputEl) inputEl.focus();
         }, 50);
+    };
+
+    const handleSelectIcebreaker = (promptText) => {
+        if (!promptText) return;
+        setNewMessage(promptText);
+        triggerLightHaptic();
+        setTimeout(() => {
+            if (chatInputRef.current) {
+                chatInputRef.current.focus();
+                chatInputRef.current.selectionStart = chatInputRef.current.value.length;
+                chatInputRef.current.selectionEnd = chatInputRef.current.value.length;
+            }
+        }, 60);
     };
 
 
@@ -1149,8 +1198,9 @@ export default function Chat() {
 
     // ── Call Signaling ──────────────────────────────────────────────
     const initiateCall = async (type) => {
+        if (!selectedConv?.id) return;
         setCallChoiceOpen(false);
-        const otherUser = selectedConv.other_user || {};
+        const otherUser = selectedConv?.other_user || {};
         const name = encodeURIComponent(otherUser.full_name || 'User');
         const avatar = encodeURIComponent(otherUser.avatar_url || '');
         const roomId = selectedConv.id;
@@ -1208,7 +1258,11 @@ export default function Chat() {
             const { data, error: sendError } = await sendMessage(selectedConv.id, currentUser.id, path, 'voice', {
                 client_nonce: clientNonce,
                 storage_path: path,
-                preview_url: url
+                preview_url: url,
+                recipientIsActive: Boolean(isOtherOnline),
+                suppressPush: Boolean(isOtherOnline),
+                suppress_push: Boolean(isOtherOnline),
+                suppress_email: Boolean(isOtherOnline)
             });
             if (sendError) throw new Error(sendError);
             if (data) {
@@ -1324,7 +1378,11 @@ export default function Chat() {
                         storage_path: uploadResult.path,
                         media_type: mediaType,
                         is_viewed: false,
-                        client_nonce: clientNonce
+                        client_nonce: clientNonce,
+                        recipientIsActive: Boolean(isOtherOnline),
+                        suppressPush: Boolean(isOtherOnline),
+                        suppress_push: Boolean(isOtherOnline),
+                        suppress_email: Boolean(isOtherOnline)
                     }
                 );
                 if (error) throw new Error(error);
@@ -1348,7 +1406,11 @@ export default function Chat() {
                         placeholder,
                         client_nonce: clientNonce,
                         storage_path: path,
-                        preview_url: url
+                        preview_url: url,
+                        recipientIsActive: Boolean(isOtherOnline),
+                        suppressPush: Boolean(isOtherOnline),
+                        suppress_push: Boolean(isOtherOnline),
+                        suppress_email: Boolean(isOtherOnline)
                     });
                     if (data) setMessages(prev => mergeMessageList(prev, data));
                 } else {
@@ -1365,7 +1427,11 @@ export default function Chat() {
                     const { data } = await sendMessage(selectedConv.id, currentUser.id, path, 'video', {
                         client_nonce: clientNonce,
                         storage_path: path,
-                        preview_url: url
+                        preview_url: url,
+                        recipientIsActive: Boolean(isOtherOnline),
+                        suppressPush: Boolean(isOtherOnline),
+                        suppress_push: Boolean(isOtherOnline),
+                        suppress_email: Boolean(isOtherOnline)
                     });
                     if (data) {
                         setMessages(prev => mergeMessageList(prev, data));
@@ -1416,7 +1482,9 @@ export default function Chat() {
                 filename: file.name,
                 file_size: file.size,
                 mime_type: file.type,
-                client_nonce: clientNonce
+                client_nonce: clientNonce,
+                recipientIsActive: Boolean(isOtherOnline),
+                suppress_push: Boolean(isOtherOnline)
             });
             if (sendError) throw new Error(sendError);
             if (data) setMessages(prev => mergeMessageList(prev, data));
@@ -1513,13 +1581,13 @@ export default function Chat() {
 
     const handleBlockOtherUser = async () => {
         if (!selectedConv?.other_user?.id) return;
-        const name = selectedConv.other_user.full_name || 'this user';
+        const name = selectedConv?.other_user?.full_name || 'this user';
         if (!window.confirm(`Are you sure you want to block ${name}? They will no longer be able to message you or see your profile.`)) {
             return;
         }
 
         try {
-            const { success, error } = await blockUser(selectedConv.other_user.id);
+            const { success, error } = await blockUser(selectedConv?.other_user?.id);
             if (!success) throw new Error(error);
             setIsBlockedByMe(true);
             setChatMenuOpen(false);
@@ -1531,9 +1599,9 @@ export default function Chat() {
 
     const handleUnblockOtherUser = async () => {
         if (!selectedConv?.other_user?.id) return;
-        const name = selectedConv.other_user.full_name || 'user';
+        const name = selectedConv?.other_user?.full_name || 'user';
         try {
-            const { success, error } = await unblockUser(selectedConv.other_user.id);
+            const { success, error } = await unblockUser(selectedConv?.other_user?.id);
             if (!success) throw new Error(error);
             setIsBlockedByMe(false);
             setChatMenuOpen(false);
@@ -1553,11 +1621,11 @@ export default function Chat() {
         const clientNonce = createClientNonce();
         const messageMetadata = { ...metadata, client_nonce: clientNonce };
         setMessages(prev => mergeMessageList(prev, {
-            id: optimisticId, match_id: selectedConv.id, sender_id: currentUser.id,
+            id: optimisticId, match_id: selectedConv?.id, sender_id: currentUser?.id,
             content, type, metadata: messageMetadata, created_at: new Date().toISOString(), is_read: false, _pending: true
         }));
 
-        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, type, messageMetadata);
+        const { data, error } = await sendMessage(selectedConv?.id, currentUser?.id, content, type, messageMetadata);
         if (error) { setMessages(prev => prev.filter(m => m.id !== optimisticId)); }
         else if (data) { setMessages(prev => mergeMessageList(prev, data)); }
         setSending(false);
@@ -1567,7 +1635,7 @@ export default function Chat() {
         if (!selectedConv?.other_user?.id) { addToast('Recipient ID missing', 'error'); return false; }
         setSending(true);
         try {
-            const res = await sendCoinGift(selectedConv.other_user.id, gift.id, selectedConv.id);
+            const res = await sendCoinGift(selectedConv?.other_user?.id, gift.id, selectedConv?.id);
             if (!res.success) {
                 addToast(res.error || 'Failed to send gift', 'error');
                 return false;
@@ -1587,7 +1655,7 @@ export default function Chat() {
     const handleDisappearingChange = async (seconds) => {
         if (!selectedConv?.id || disappearingSaving) return;
         setDisappearingSaving(true);
-        const previous = selectedConv.disappearing_messages_seconds || 0;
+        const previous = selectedConv?.disappearing_messages_seconds || 0;
         setSelectedConv(prev => prev ? { ...prev, disappearing_messages_seconds: seconds } : prev);
         const { error } = await updateDisappearingMessages(selectedConv.id, seconds);
         if (error) {
@@ -1598,7 +1666,7 @@ export default function Chat() {
             const durationLabel = durationObj ? durationObj.label : (seconds ? `${seconds}s` : 'Off');
             // Broadcast system message in conversation
             const systemText = `Disappearing messages set to ${durationLabel}`;
-            await sendMessage(selectedConv.id, currentUser.id, systemText, 'system');
+            await sendMessage(selectedConv.id, currentUser?.id, systemText, 'system');
 
             addToast(seconds ? `Disappearing messages set to ${durationLabel}.` : 'Disappearing messages turned off.', 'success');
             setChatMenuOpen(false);
@@ -1700,7 +1768,7 @@ export default function Chat() {
         else if (msg.type === 'gift') snippet = '🎁 Gift';
         else if (msg.type === 'sticker') snippet = '✨ Sticker';
 
-        const senderName = msg.sender_id === currentUser?.id ? 'You' : (selectedConv.other_user?.full_name || 'User');
+        const senderName = msg.sender_id === currentUser?.id ? 'You' : (selectedConv?.other_user?.full_name || 'User');
         setReplyToMessage({
             id: msg.id,
             sender: senderName,
@@ -1943,7 +2011,7 @@ export default function Chat() {
                         {isRecent && !isMe ? (
                             <button 
                                 className="btn-join-call" 
-                                onClick={() => navigate(`/call/${msg.match_id}?type=${callType}&name=${encodeURIComponent(selectedConv.other_user?.full_name || 'User')}`)}
+                                onClick={() => navigate(`/call/${msg.match_id}?type=${callType}&name=${encodeURIComponent(selectedConv?.other_user?.full_name || 'User')}`)}
                             >
                                 Join Call
                             </button>
@@ -1978,16 +2046,13 @@ export default function Chat() {
         );
     };
 
-    // ── Derived Presence State ─────────────────────────────────────────
-    const otherUserId = selectedConv?.other_user?.id;
-    const opponentPresences = presence[otherUserId] || [];
-    const isOtherOnline = opponentPresences.length > 0;
-    const isOtherTyping = opponentPresences.some(p => p.is_typing);
+    // ── Disappearing Options Label ─────────────────────────────────────
     const activeDisappearingSeconds = selectedConv?.disappearing_messages_seconds || 0;
     const activeDisappearingLabel = DISAPPEARING_OPTIONS.find(option => option.seconds === activeDisappearingSeconds)?.label || 'Custom';
 
     // Derived filtered conversations list
-    const filteredConvs = conversations.filter(conv => {
+    const filteredConvs = (conversations || []).filter(conv => {
+        if (!conv) return false;
         const matchesSearch = searchQuery.trim() === '' ||
             (conv.other_user?.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (conv.last_message || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -2279,23 +2344,23 @@ export default function Chat() {
                         )}
                         <div className="chat-header">
                             <button className="back-btn" onClick={handleCloseConversation} aria-label="Back to messages">←</button>
-                            <div className="header-info" onClick={() => navigate(`/profile/${selectedConv.other_user?.id}`)}>
+                            <div className="header-info" onClick={() => selectedConv?.other_user?.id && navigate(`/profile/${selectedConv?.other_user?.id}`)}>
                                 <div className="header-avatar-container">
-                                    <img src={getAvatarUrl(selectedConv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv.id}`} alt="" className="header-avatar" />
+                                    <img src={getAvatarUrl(selectedConv?.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv?.id || 'chat'}`} alt="" className="header-avatar" />
                                     {isOtherOnline && <span className="online-dot-large" />}
-                                    {hasActivePremium(selectedConv.other_user) && (
+                                    {hasActivePremium(selectedConv?.other_user) && (
                                         <span className="chat-header-premium-badge" title="Premium Member">👑</span>
                                     )}
                                 </div>
                                 <div className="header-text">
                                     <span className="header-name">
-                                        {selectedConv.other_user?.full_name}
-                                        {hasActivePremium(selectedConv.other_user) && <span className="premium-badge-pill-chat" title="Premium Member">👑 Premium</span>}
-                                        {(selectedConv.other_user?.is_verified || selectedConv.other_user?.photo_verified) && (
+                                        {selectedConv?.other_user?.full_name || 'Chat'}
+                                        {hasActivePremium(selectedConv?.other_user) && <span className="premium-badge-pill-chat" title="Premium Member">👑 Premium</span>}
+                                        {(selectedConv?.other_user?.is_verified || selectedConv?.other_user?.photo_verified) && (
                                             <span className="card-verified-tick" title="Photo Verified Student">✓</span>
                                         )}
                                     </span>
-                                    <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>{isOtherTyping ? 'typing...' : isOtherOnline ? 'Online' : (selectedConv.other_user?.last_seen_at ? formatChatTimestamp(selectedConv.other_user.last_seen_at) : 'Offline')}</span>
+                                    <span className={`status-text ${isOtherOnline ? 'online' : ''}`}>{isOtherTyping ? 'typing...' : isOtherOnline ? 'Online' : (selectedConv?.other_user?.last_seen_at ? formatChatTimestamp(selectedConv?.other_user?.last_seen_at) : 'Offline')}</span>
                                 </div>
                             </div>
                             <div className="chat-header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
@@ -2399,14 +2464,14 @@ export default function Chat() {
                                                     setShowReportModal(true);
                                                 }}
                                             >
-                                                <span>🚩</span> Report {selectedConv.other_user?.full_name?.split(' ')[0] || 'User'}
+                                                <span>🚩</span> Report {selectedConv?.other_user?.full_name?.split(' ')[0] || 'User'}
                                             </button>
                                             <button
                                                 type="button"
                                                 className="chat-safety-menu-item block"
                                                 onClick={isBlockedByMe ? handleUnblockOtherUser : handleBlockOtherUser}
                                             >
-                                                <span>🚫</span> {isBlockedByMe ? 'Unblock User' : `Block ${selectedConv.other_user?.full_name?.split(' ')[0] || 'User'}`}
+                                                <span>🚫</span> {isBlockedByMe ? 'Unblock User' : `Block ${selectedConv?.other_user?.full_name?.split(' ')[0] || 'User'}`}
                                             </button>
                                         </div>
                                     </div>
@@ -2420,6 +2485,60 @@ export default function Chat() {
                                     Messages in this chat disappear after {activeDisappearingLabel.toLowerCase()}.
                                 </div>
                             )}
+                            {messages.length === 0 ? (
+                                (() => {
+                                    const { highlight, badges } = getCampusCommonGround(selectedConv?.other_user, userProfile);
+                                    const icebreakers = getCampusIcebreakers(selectedConv?.other_user, userProfile);
+                                    return (
+                                        <div className="chat-empty-conversation-state">
+                                            <div className="chat-common-ground-card">
+                                                <div className="common-ground-avatar-wrap">
+                                                    <img
+                                                        src={getAvatarUrl(selectedConv?.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv?.id || 'chat'}`}
+                                                        alt={selectedConv?.other_user?.full_name || 'Match'}
+                                                        className="common-ground-avatar"
+                                                    />
+                                                    {hasActivePremium(selectedConv?.other_user) && <span className="common-ground-crown" title="Premium Member">👑</span>}
+                                                </div>
+                                                <h3 className="common-ground-title">
+                                                    Connected with {selectedConv?.other_user?.full_name?.split(' ')[0] || 'your match'}! 🎉
+                                                </h3>
+                                                <p className="common-ground-subtitle">{highlight}</p>
+                                                {badges.length > 0 && (
+                                                    <div className="common-ground-badges">
+                                                        {badges.map((badge, idx) => (
+                                                            <span key={idx} className="common-ground-badge">
+                                                                <span className="badge-icon">{badge.icon}</span>
+                                                                <span className="badge-label">{badge.label}</span>
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="chat-icebreaker-section">
+                                                <div className="chat-icebreaker-header">
+                                                    <span className="chat-icebreaker-title">⚡ 1-Tap Campus Icebreakers</span>
+                                                    <span className="chat-icebreaker-hint">Tap to start conversation</span>
+                                                </div>
+                                                <div className="chat-icebreaker-chips">
+                                                    {icebreakers.map((prompt, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            type="button"
+                                                            className="chat-icebreaker-chip"
+                                                            onClick={() => handleSelectIcebreaker(prompt)}
+                                                        >
+                                                            <span className="chip-prompt-text">{prompt}</span>
+                                                            <span className="chip-prompt-icon">💬</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })()
+                            ) : (
                             <Virtuoso
                                 ref={virtuosoRef}
                                 style={{ height: '100%' }}
@@ -2439,7 +2558,8 @@ export default function Chat() {
                                     }
                                 }}
                                 itemContent={(index, msg) => {
-                                    const isSent = msg.sender_id === currentUser.id;
+                                    if (!msg) return null;
+                                    const isSent = msg.sender_id === currentUser?.id;
                                     const isSelected = activeActionMessage?.id === msg.id;
                                     const isHighlighted = highlightedMessageId === msg.id;
                                     const isSwiping = swipingMsgId === msg.id;
@@ -2503,6 +2623,7 @@ export default function Chat() {
                                     );
                                 }}
                             />
+                            )}
                         </div>
 
                         <div className="chat-input-area">
@@ -2546,7 +2667,7 @@ export default function Chat() {
 
                             {isBlockedByMe ? (
                                 <div className="chat-blocked-notice-bar">
-                                    <span className="blocked-notice-text">🚫 You blocked {selectedConv.other_user?.full_name || 'this user'}. Unblock to send messages.</span>
+                                    <span className="blocked-notice-text">🚫 You blocked {selectedConv?.other_user?.full_name || 'this user'}. Unblock to send messages.</span>
                                     <button type="button" className="btn-unblock-bar" onClick={handleUnblockOtherUser}>
                                         Unblock
                                     </button>
@@ -2782,14 +2903,14 @@ export default function Chat() {
                         </div>
                         {conversations.length > 0 ? (
                             <div className="dashboard-sections">
-                                {conversations.some(c => !c.last_message) && (
+                                {conversations.some(c => c && !c.last_message) && (
                                     <section className="dashboard-section new-matches-section">
                                         <h3 className="section-label">✨ New Matches</h3>
                                         <div className="new-matches-row">
-                                            {conversations.filter(c => !c.last_message).slice(0, 5).map(conv => (
+                                            {conversations.filter(c => c && !c.last_message).slice(0, 5).map(conv => (
                                                 <div key={conv.id} className="new-match-avatar-card" onClick={() => setSelectedConv(conv)}>
-                                                    <div className="avatar-ring"><img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name} /></div>
-                                                    <span className="match-name">{conv.other_user?.full_name?.split(' ')[0]}</span>
+                                                    <div className="avatar-ring"><img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'Match'} /></div>
+                                                    <span className="match-name">{conv.other_user?.full_name?.split(' ')[0] || 'Match'}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -2798,10 +2919,10 @@ export default function Chat() {
                                 <section className="dashboard-section recent-chats-section">
                                     <h3 className="section-label">🕒 Recent Chats</h3>
                                     <div className="recent-chats-grid">
-                                        {conversations.filter(c => c.last_message).slice(0, 6).map(conv => (
+                                        {conversations.filter(c => c && c.last_message).slice(0, 6).map(conv => (
                                             <div key={conv.id} className="recent-chat-card glass" onClick={() => setSelectedConv(conv)}>
-                                                <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name} className="card-avatar" />
-                                                <div className="card-info"><span className="card-name">{conv.other_user?.full_name}</span><p className="card-last-msg">{conv.last_message}</p></div>
+                                                <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'User'} className="card-avatar" />
+                                                <div className="card-info"><span className="card-name">{conv.other_user?.full_name || 'User'}</span><p className="card-last-msg">{conv.last_message}</p></div>
                                                 <div className="card-arrow">→</div>
                                             </div>
                                         ))}

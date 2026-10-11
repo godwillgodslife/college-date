@@ -35,10 +35,11 @@ export function useDiscoveryProfiles(userId, filters, userProfile) {
  */
 export function useConfessions(university, userId) {
     // Prevent double-fetching by waiting until user profile data (university) is resolved
-    const key = (university !== undefined && userId) ? ['confessions', university, userId] : null;
+    const cleanUni = university?.trim() || '';
+    const key = userId ? ['confessions', cleanUni, userId] : null;
 
     return useSWR(key, async () => {
-        const { data, error } = await getConfessions(university, userId);
+        const { data, error } = await getConfessions(cleanUni || null, userId);
         if (error) throw new Error(error);
         return data;
     }, persistentSWR(key, {

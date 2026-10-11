@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
     getWallet,
@@ -32,6 +33,7 @@ const isNativeAndroid = () => {
 };
 
 export default function Wallet() {
+    const navigate = useNavigate();
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
 
@@ -49,6 +51,7 @@ export default function Wallet() {
     const [fundingAmount, setFundingAmount] = useState('1000');
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [activeActionTab, setActiveActionTab] = useState('topup');
     const [escrowBalance, setEscrowBalance] = useState(0);
     const [activeModalOpen, setActiveModalOpen] = useState(false);
     const {
@@ -291,8 +294,11 @@ export default function Wallet() {
     return (
         <div className="wallet-page animated fadeIn">
             <div className="wallet-header">
-                <h1>{isLady ? 'Earnings Dashboard' : 'My Wallet'}</h1>
-                <p>{isLady ? 'Track your swipes and request payouts.' : 'Fund your wallet and keep swiping.'}</p>
+                <button type="button" className="wallet-back-btn" onClick={() => navigate(-1)} aria-label="Go back">
+                    ←
+                </button>
+                <h1>Student Wallet & Rewards</h1>
+                <p>Top up for power-ups or withdraw campus referral and ambassador rewards.</p>
                 <a href="https://wa.me/2349160264415?text=Hi%20👋%20I%20need%20help%20with%20my%20wallet/payout"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -303,10 +309,10 @@ export default function Wallet() {
 
             <div className="payout-info-banner glass animate-fade-in">
                 <div className="banner-content">
-                    <span className="banner-icon">⏳</span>
+                    <span className="banner-icon">⚡</span>
                     <div className="banner-text">
-                        <strong>Next Payout Cycle Starts in:</strong>
-                        <span className="countdown-timer">{payoutCountdown}</span>
+                        <strong>Ambassador & Referral Settlements:</strong>
+                        <span className="countdown-timer">{payoutCountdown ? `Next settlement: ${payoutCountdown}` : 'Weekly Every Friday'}</span>
                     </div>
                 </div>
                 <div className="banner-badge">Weekly Every Friday</div>
@@ -354,7 +360,7 @@ export default function Wallet() {
 
             <div className="wallet-overview-grid">
                 <div className="balance-card">
-                    <span className="balance-label">{isLady ? 'Available for Withdrawal' : 'Available Balance'}</span>
+                    <span className="balance-label">Available Balance</span>
                     <h2 className="balance-amount">
                         ₦{parseFloat(wallet?.available_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </h2>
@@ -386,13 +392,32 @@ export default function Wallet() {
                         </div>
                     )}
 
-                    {!isLady ? (
+                    <div className="wallet-action-tabs" style={{ display: 'flex', gap: '8px', margin: '14px 0 10px' }}>
+                        <button
+                            type="button"
+                            className={`btn ${activeActionTab === 'topup' ? 'btn-primary' : 'btn-secondary'}`}
+                            style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', borderRadius: '10px' }}
+                            onClick={() => setActiveActionTab('topup')}
+                        >
+                            ⚡ Add Funds
+                        </button>
+                        <button
+                            type="button"
+                            className={`btn ${activeActionTab === 'withdraw' ? 'btn-primary' : 'btn-secondary'}`}
+                            style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', borderRadius: '10px' }}
+                            onClick={() => setActiveActionTab('withdraw')}
+                        >
+                            💸 Withdraw
+                        </button>
+                    </div>
+
+                    {activeActionTab === 'topup' ? (
                         <div className="wallet-actions">
                             <form onSubmit={handleFunding} className="funding-form">
-                                <label className="form-label">Choose a wallet top-up</label>
+                                <label className="form-label">Top up via Paystack</label>
                                 {isNativeAndroid() && (
-                                    <p style={{ margin: '0 0 0.75rem', color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.45 }}>
-                                        Instant Paystack wallet funding via card, bank transfer, or USSD.
+                                    <p style={{ margin: '0 0 0.75rem', color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.45 }}>
+                                        Instant wallet funding via card, bank transfer, or USSD.
                                     </p>
                                 )}
                                 <div className="input-group">
@@ -421,11 +446,11 @@ export default function Wallet() {
                     ) : (
                         <div className="wallet-actions">
                             <form onSubmit={handleWithdrawal} className="funding-form">
-                                <label className="form-label">Min ₦15,000</label>
+                                <label className="form-label">Min ₦15,000 Ambassador Withdrawal</label>
                                 <div className="input-group">
                                     <input
                                         type="number"
-                                        placeholder="Amount"
+                                        placeholder="Amount in NGN"
                                         value={withdrawalAmount}
                                         onChange={(e) => setWithdrawalAmount(e.target.value)}
                                         className="funding-input"
@@ -498,72 +523,42 @@ export default function Wallet() {
             </div>
 
             <section className="payout-section">
-                <h2 className="section-title">Payout Information</h2>
-                <p className="section-subtitle">Where should we send your earnings?</p>
-
-                <div className="payout-method-selector">
-                    <button
-                        type="button"
-                        className={`method-btn ${payoutDetails.preferred_method === 'bank' ? 'active' : ''}`}
-                        onClick={() => setPayoutDetails({ ...payoutDetails, preferred_method: 'bank' })}
-                    >
-                        🏦 Bank Account
-                    </button>
-                    <button
-                        type="button"
-                        className={`method-btn ${payoutDetails.preferred_method === 'paypal' ? 'active' : ''}`}
-                        onClick={() => setPayoutDetails({ ...payoutDetails, preferred_method: 'paypal' })}
-                    >
-                        🅿️ PayPal
-                    </button>
-                </div>
+                <h2 className="section-title">Bank Payout Information</h2>
+                <p className="section-subtitle">Where should we send your referral and ambassador cash earnings?</p>
 
                 <form onSubmit={handleSavePayout} className="payout-form">
-                    {payoutDetails.preferred_method === 'bank' ? (
-                        <div className="payout-info-grid">
-                            <div className="payout-form-group">
-                                <label>Bank Name</label>
-                                <input
-                                    type="text"
-                                    className="payout-input"
-                                    placeholder="e.g. GTBank"
-                                    value={payoutDetails.bank_name || ''}
-                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, bank_name: e.target.value })}
-                                />
-                            </div>
-                            <div className="payout-form-group">
-                                <label>Account Number</label>
-                                <input
-                                    type="text"
-                                    className="payout-input"
-                                    placeholder="0123456789"
-                                    value={payoutDetails.account_number || ''}
-                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, account_number: e.target.value })}
-                                />
-                            </div>
-                            <div className="payout-form-group payout-full-row">
-                                <label>Account Name</label>
-                                <input
-                                    type="text"
-                                    className="payout-input"
-                                    placeholder="Full name as seen on account"
-                                    value={payoutDetails.account_name || ''}
-                                    onChange={(e) => setPayoutDetails({ ...payoutDetails, account_name: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    ) : (
+                    <div className="payout-info-grid">
                         <div className="payout-form-group">
-                            <label>PayPal Email</label>
+                            <label>Bank Name</label>
                             <input
-                                type="email"
+                                type="text"
                                 className="payout-input"
-                                placeholder="your@paypal.com"
-                                value={payoutDetails.paypal_email || ''}
-                                onChange={(e) => setPayoutDetails({ ...payoutDetails, paypal_email: e.target.value })}
+                                placeholder="e.g. GTBank, Kuda, Access, OPay, Zenith"
+                                value={payoutDetails.bank_name || ''}
+                                onChange={(e) => setPayoutDetails({ ...payoutDetails, bank_name: e.target.value, preferred_method: 'bank' })}
                             />
                         </div>
-                    )}
+                        <div className="payout-form-group">
+                            <label>Account Number</label>
+                            <input
+                                type="text"
+                                className="payout-input"
+                                placeholder="0123456789"
+                                value={payoutDetails.account_number || ''}
+                                onChange={(e) => setPayoutDetails({ ...payoutDetails, account_number: e.target.value, preferred_method: 'bank' })}
+                            />
+                        </div>
+                        <div className="payout-form-group payout-full-row">
+                            <label>Account Name</label>
+                            <input
+                                type="text"
+                                className="payout-input"
+                                placeholder="Full name as registered on your bank account"
+                                value={payoutDetails.account_name || ''}
+                                onChange={(e) => setPayoutDetails({ ...payoutDetails, account_name: e.target.value, preferred_method: 'bank' })}
+                            />
+                        </div>
+                    </div>
 
                     <button
                         type="submit"
