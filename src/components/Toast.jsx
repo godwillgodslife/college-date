@@ -164,12 +164,13 @@ export function ToastProvider({ children }) {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            window.__showNotificationToast = (title, body, meta, type = 'info') => {
+            window.__showNotificationToast = (title, body, meta, type = 'info', extra = {}) => {
                 addToast(title, type, 10000, {
                     variant: 'notification',
                     title,
                     body,
-                    meta: meta || 'Tap to open'
+                    meta: meta || 'Tap to open',
+                    ...extra
                 });
             };
         }
@@ -195,19 +196,55 @@ export function ToastProvider({ children }) {
                             dismissActiveToast();
                         }}
                     >
-                        <span className="toast-icon">{activeToast.icon || icons[activeToast.type] || 'ℹ'}</span>
+                        {activeToast.variant === 'notification' && activeToast.avatarUrl ? (
+                            <div className="toast-notification-avatar-wrap">
+                                <img
+                                    src={activeToast.avatarUrl}
+                                    alt={activeToast.actorName || 'Student'}
+                                    className="toast-notification-avatar-img"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                                <span className="toast-notification-avatar-badge">{activeToast.badgeIcon || '💬'}</span>
+                            </div>
+                        ) : (
+                            <span className="toast-icon">{activeToast.icon || icons[activeToast.type] || 'ℹ'}</span>
+                        )}
+
                         {activeToast.variant === 'notification' ? (
                             <span className="toast-notification-copy">
                                 <span className="toast-notification-topline">
                                     <span className="toast-notification-title">{activeToast.title || activeToast.message}</span>
                                     <span className="toast-notification-time">now</span>
                                 </span>
+                                {activeToast.campusTag && (
+                                    <span className="toast-notification-campus">
+                                        🎓 {activeToast.campusTag}
+                                    </span>
+                                )}
                                 {activeToast.body && <span className="toast-notification-body">{activeToast.body}</span>}
                                 <span className="toast-notification-meta">{activeToast.meta || 'Tap to open'}</span>
                             </span>
                         ) : (
                             <span className="toast-message">{activeToast.message}</span>
                         )}
+
+                        {activeToast.variant === 'notification' && activeToast.action && (
+                            <button
+                                className="toast-notification-action-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (typeof activeToast.action.onClick === 'function') {
+                                        activeToast.action.onClick();
+                                    } else if (typeof activeToast.onClick === 'function') {
+                                        activeToast.onClick();
+                                    }
+                                    dismissActiveToast();
+                                }}
+                            >
+                                {activeToast.action.label || 'View'}
+                            </button>
+                        )}
+
                         <button
                             className="toast-close"
                             onClick={(e) => {

@@ -327,6 +327,11 @@ export function NotificationProvider({ children }) {
                             if (shouldInterrupt && typeof addToast === 'function') {
                                 const destination = getNotificationDeepLink(newNotification);
                                 const copy = getForegroundNotificationCopy(profileRef.current, newNotification);
+                                const avatarUrl = newNotification.actor_avatar || newNotification.sender_avatar || newNotification.metadata?.avatar_url || newNotification.metadata?.sender_avatar || null;
+                                const actorName = newNotification.actor_name || newNotification.sender_name || newNotification.metadata?.actor_name || null;
+                                const campusTag = newNotification.campus || newNotification.metadata?.campus || null;
+                                const actionLabel = newNotification.type === 'message' ? 'Reply' : (newNotification.type === 'match' ? 'Chat' : 'View');
+                                const badgeIcon = newNotification.type === 'message' ? '💬' : (newNotification.type === 'match' ? '💖' : '🔔');
 
                                 addToast(copy.title, 'info', 6500, {
                                     variant: 'notification',
@@ -334,6 +339,16 @@ export function NotificationProvider({ children }) {
                                     body: copy.body,
                                     icon: getForegroundNotificationIcon(newNotification),
                                     meta: getForegroundNotificationMeta(newNotification),
+                                    avatarUrl,
+                                    actorName,
+                                    campusTag,
+                                    badgeIcon,
+                                    action: {
+                                        label: actionLabel,
+                                        onClick: () => {
+                                            navigate(destination.to, destination.state ? { state: destination.state } : undefined);
+                                        }
+                                    },
                                     onClick: () => {
                                         navigate(destination.to, destination.state ? { state: destination.state } : undefined);
                                     }
