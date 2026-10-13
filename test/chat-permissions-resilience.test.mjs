@@ -64,6 +64,56 @@ test('Chat Permissions Resilience: Static Code Analysis', () => {
         migrationSql.includes('GRANT ALL ON TABLE public.messages TO service_role;'),
         'Migration must grant ALL on messages to service_role'
     );
+
+    // 9. Check UUID nonce normalization in chatService
+    assert.ok(
+        chatServiceCode.includes('UUID_V4_REGEX'),
+        'chatService must define UUID_V4_REGEX'
+    );
+    assert.ok(
+        chatServiceCode.includes('toValidUuidNonce'),
+        'chatService must export toValidUuidNonce'
+    );
+    assert.ok(
+        chatServiceCode.includes('p_client_nonce: validNonce'),
+        'chatService must pass validated UUID nonce to send_native_text_message RPC'
+    );
+});
+
+test('Chat Permissions Resilience: UUID Nonce Integrity', async () => {
+    const { createClientNonce, toValidUuidNonce, MESSAGE_UUID_REGEX } = await import('../src/utils/messageInfo.js');
+    const UUID_V4_REGEX = MESSAGE_UUID_REGEX;
+
+    assert.ok(UUID_V4_REGEX instanceof RegExp, 'UUID_V4_REGEX must be a RegExp');
+
+    for (let i = 0; i < 50; i++) {
+        const generated = createClientNonce();
+        assert.ok(
+            UUID_V4_REGEX.test(generated),
+            `Generated nonce ${generated} must conform to RFC 4122 UUID v4 regex`
+        );
+    }
+
+    // Invalid nonces must be converted to valid UUID v4
+    const fromLegacy = toValidUuidNonce('msg-1791903689-abc1234');
+    assert.ok(
+        UUID_V4_REGEX.test(fromLegacy),
+        'Legacy string nonce must be normalized to valid UUID v4'
+    );
+
+    const fromUndefined = toValidUuidNonce(undefined);
+    assert.ok(
+        UUID_V4_REGEX.test(fromUndefined),
+        'Undefined nonce must generate valid UUID v4'
+    );
+
+    // Existing valid UUID must be preserved
+    const validUuid = '12345678-1234-4234-8234-123456789abc';
+    assert.strictEqual(
+        toValidUuidNonce(validUuid),
+        validUuid,
+        'Valid UUID must be preserved unchanged'
+    );
 });
 
 test('Chat Permissions Resilience: Live Supabase Query Execution', async () => {

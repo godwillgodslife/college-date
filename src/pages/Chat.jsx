@@ -26,6 +26,8 @@ import {
     getMessageInfo,
     initiateCallSignal,
     respondCallSignal,
+    createClientNonce,
+    toValidUuidNonce,
 } from '../services/chatService';
 import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
 import { getAvatarUrl } from '../utils/profileData';
@@ -783,8 +785,6 @@ export default function Chat() {
         
         fetchActivityCounts();
     }, [currentUser]);
-
-    const createClientNonce = () => `msg-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
     const mergeMessageList = useCallback((prev, incoming) => {
         const nonce = incoming.metadata?.client_nonce;
@@ -1666,7 +1666,7 @@ export default function Chat() {
         }
 
         setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, _pending: true, _failed: false } : m));
-        const clientNonce = msg.metadata?.client_nonce || createClientNonce();
+        const clientNonce = toValidUuidNonce(msg.metadata?.client_nonce);
         const metadata = {
             ...(msg.metadata || {}),
             client_nonce: clientNonce,

@@ -41,6 +41,7 @@
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application
+        android:name=".MainApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
@@ -51,6 +52,11 @@
         android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config"
         android:hardwareAccelerated="true">
+
+        <!-- OneSignal App ID for native background push wakeups -->
+        <meta-data
+            android:name="onesignal_app_id"
+            android:value="eda29312-5e13-406f-a1bd-5c8a8e27e6c4" />
 
         <!-- OneSignal Google Project Number linking FCM Sender ID -->
         <meta-data

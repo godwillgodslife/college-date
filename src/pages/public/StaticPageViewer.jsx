@@ -9,7 +9,7 @@ import './StaticPageViewer.css';
  * Determine page category, parent backlink, and badge styling based on slug
  */
 function getPageMetadata(slug) {
-  if (['safety', 'campus-dating-safety', 'child-safety-standards', 'romance-scams-nigerian-students', 'what-not-to-share-on-dating-apps'].includes(slug)) {
+  if (['safety', 'campus-dating-safety', 'child-safety', 'child-safety-standards', 'romance-scams-nigerian-students', 'what-not-to-share-on-dating-apps'].includes(slug)) {
     return {
       category: 'Campus Safety',
       badge: '🛡️ CAMPUS SAFETY',
@@ -99,7 +99,8 @@ export default function StaticPageViewer({ explicitSlug }) {
     setLoading(true);
     setError(null);
 
-    const targetUrl = `/${slug}.html`;
+    const fileSlug = slug === 'child-safety' ? 'child-safety-standards' : slug;
+    const targetUrl = `/${fileSlug}.html`;
 
     fetch(targetUrl)
       .then((res) => {

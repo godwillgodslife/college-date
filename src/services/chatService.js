@@ -1,15 +1,17 @@
 import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
-import { getMessageInfo, isValidMessageId, isMessageDeletedForUser } from '../utils/messageInfo.js';
+import { getMessageInfo, isValidMessageId, isMessageDeletedForUser, createClientNonce, toValidUuidNonce, MESSAGE_UUID_REGEX } from '../utils/messageInfo.js';
 import { compressImage } from '../utils/imageCompressor';
 import { getAvatarUrl } from '../utils/profileData';
 import { detectOffPlatformContact, isOffPlatformBlockError, OFF_PLATFORM_BLOCK_CODE } from '../utils/offPlatformGuard.js';
 
-export { getMessageInfo, isValidMessageId, isMessageDeletedForUser };
+export { getMessageInfo, isValidMessageId, isMessageDeletedForUser, createClientNonce, toValidUuidNonce, MESSAGE_UUID_REGEX };
 
 const PAGE_SIZE = 20;
 
 const SAFE_MESSAGE_COLUMNS = 'id, match_id, sender_id, content, type, is_read, created_at, read_at, expires_at';
+
+export const UUID_V4_REGEX = MESSAGE_UUID_REGEX;
 
 /**
  * Fetch all conversations with last message preview data.
@@ -292,22 +294,7 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
     }
     try {
         const clientNonce = metadata?.client_nonce;
-        if (clientNonce) {
-            try {
-                const { data: existingMessage, error: existingError } = await supabase
-                    .from('messages')
-                    .select(SAFE_MESSAGE_COLUMNS)
-                    .eq('match_id', matchId)
-                    .eq('sender_id', senderId)
-                    .maybeSingle();
-
-                if (!existingError && existingMessage) {
-                    return { data: existingMessage, error: null };
-                }
-            } catch (_lookupErr) {
-                // Non-fatal clientNonce check
-            }
-        }
+        const validNonce = toValidUuidNonce(clientNonce);
 
         let savedMessage = null;
         let insertError = null;
@@ -320,7 +307,10 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
                     sender_id: senderId,
                     content,
                     type,
-                    metadata
+                    metadata: {
+                        ...(metadata || {}),
+                        client_nonce: validNonce
+                    }
                 })
                 .select(SAFE_MESSAGE_COLUMNS)
                 .single();
@@ -336,15 +326,26 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
 
         if (!savedMessage) {
             console.warn('Direct insert on messages failed, attempting send_native_text_message RPC fallback:', insertError?.message);
-            const nonce = clientNonce || '00000000-0000-4000-8000-' + Math.random().toString(16).substring(2, 14).padEnd(12, '0');
             const { data: rpcData, error: rpcError } = await supabase.rpc('send_native_text_message', {
                 p_match_id: matchId,
                 p_content: content,
-                p_client_nonce: nonce
+                p_client_nonce: validNonce
             });
 
             if (rpcError) throw (insertError || rpcError);
             savedMessage = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+        }
+
+        if (!savedMessage) {
+            throw new Error('Message could not be saved');
+        }
+
+        // Attach normalized metadata so client-side optimistic UI matching (client_nonce) cleanly transitions to confirmed server UUID
+        if (!savedMessage.metadata) {
+            savedMessage.metadata = {
+                ...(metadata || {}),
+                client_nonce: validNonce
+            };
         }
 
         const data = savedMessage;

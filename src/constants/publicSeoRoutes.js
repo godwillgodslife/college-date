@@ -30,6 +30,7 @@ export const PUBLIC_SEO_SLUGS = [
   'press',
   'faq',
   'campus-dating-safety',
+  'child-safety',
   'child-safety-standards',
   'privacy',
   'terms',
