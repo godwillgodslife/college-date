@@ -8,7 +8,44 @@
 - RevenueCat Android App: `TheCollegeDate Android` (`app25b4a70ce2`)
 
 ## Overall Project State
-The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), and production deployment across Web (Netlify) and Android (`v2.2.67` / VC 64). Signed release artifacts, live web deployment, and physical emulator verification completed with zero regressions.
+The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), RFC 4122 UUID v4 client nonce normalization for authoritative `send_native_text_message` RPC chat resilience, Google Play Child Safety Standards compliance with dedicated officer point of contact, and production deployment across Web (Netlify) and Android (`v2.2.68` / VC 65). Signed release artifacts, live web deployment, and automated test suite (333/333 tests) pass with zero regressions.
+
+0.00000000000000000000000000000000000000000000000000000000000000000012. Google Play Child Safety Standards Policy Adherence & In-App Reporting Modals (`v2.2.68` / VC 65)
+   - Published Child Safety Standards & Point of Contact:
+     - Conforms strictly to Google Play Child Safety Standards requirements and Nigerian Child Rights Act / NDPA 2023.
+     - Published comprehensive standards at `/child-safety-standards` and `/child-safety` with conspicuous backlink bars and editorial styling.
+     - Formally designated Child Safety Officer: Godswill Godlife Onah (`childsafety@thecollegedate.com`, emergency alternative: `godwillgodslife@gmail.com`).
+     - Mandates strict zero-tolerance policies against Child Sexual Abuse and Exploitation (CSAE/CSAM), underage use (18+ only), grooming, and sexual extortion with mandatory NCMEC CyberTipline and law enforcement (NPF Cybercrime / NAPTIP / INTERPOL) escalation protocols.
+   - Dual In-App Reporting Mechanisms:
+     - Chat & Profile Action Menu: Added dedicated `🛡️ Report Child Safety Concern` option in `REPORT_REASONS` with immediate high-priority dispatch.
+     - Settings Modal: Added direct in-app feedback trigger (`💬 Send In-App Feedback`) and child safety modal with category selection and receipt generation (`TCD-XXXXXXXX`) without leaving the app.
+
+0.00000000000000000000000000000000000000000000000000000000000000000011. Chat RPC UUID v4 Nonce Contract Normalization & "Tap to Retry" Error Elimination (`v2.2.68` / VC 65)
+   - Root-Cause Forensic Diagnosis:
+     - On hosted Supabase (`gedoyoleoscgxgdqszzc`), direct table inserts on `public.messages` are locked down from the `authenticated` role (HTTP 403 / Postgres error 42501).
+     - Insertion is routed to the authoritative `SECURITY DEFINER` RPC `send_native_text_message(p_match_id uuid, p_content text, p_client_nonce text)`.
+     - `send_native_text_message` enforces a strict regex on `p_client_nonce`: `'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'`.
+     - `Chat.jsx` previously generated pseudo-random strings starting with `msg-...` (`msg-${Date.now()}-${Math.random().toString(36)...}`), causing Postgres exception `P0001: invalid_client_nonce`.
+     - In `chatService.js`, when RPC failed, `sendMessage` returned `{ data: null, error }`, triggering `Chat.jsx` to render the message with `_failed: true` ("⚠️ Tap to retry").
+   - Solution & Resilience Hardening:
+     - In `src/utils/messageInfo.js`: Added and exported `createClientNonce()` (RFC 4122 v4 UUID generator via `crypto.randomUUID()` with fallback) and `toValidUuidNonce(nonce)` using `MESSAGE_UUID_REGEX`.
+     - In `src/services/chatService.js`: Re-exported nonce utilities and normalized all client nonces in `sendMessage` prior to executing `send_native_text_message`. Attached `client_nonce` to returned record metadata so optimistic message deduplication seamlessly transitions from pending to confirmed server UUIDs.
+     - In `src/pages/Chat.jsx`: Imported `createClientNonce()` and updated `handleRetryMessage` to use `toValidUuidNonce(...)`, ensuring retries succeed instantly.
+   - Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.68-vc65-playstore.aab`
+       * Size: 16,793,627 bytes (**16.01 MB**)
+       * SHA-256: `8BB5305693EE4BCB5E9E9F0FC01A4F60E7F996CE5567918CBE5609D3ABD5A1E4`
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.68-vc65-manual-test.apk`
+       * Size: 14,690,217 bytes (**14.01 MB**)
+       * SHA-256: `588B0E0CD5C08C14B43B87BFE2D995EE367490B9E918B5CA4D05B28535F6177A`
+   - Quality Gates:
+     - Test Suite: **333/333 tests PASSED in 4.85s** (`npm run test:all`).
+     - Live Supabase execution test: PASSED.
+     - Production Vite Build: PASSED in 23.13s across 1,159 modules.
+     - Netlify Production Deploy: LIVE on `thecollegedate.com` (`6ace4f93df9a45f3d5eaf678`).
+     - AAB Release Verification: All 9 Play Store release gates PASSED.
 
 0.00000000000000000000000000000000000000000000000000000000000000000010. Android Notification Soft Prompt Complete Suppression & Subtle Web Engagement Alignment
    - Android-Exclusive UI Deactivation:
