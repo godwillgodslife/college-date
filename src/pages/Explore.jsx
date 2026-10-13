@@ -12,8 +12,8 @@ import ChatVibeModal from '../components/ChatVibeModal';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import { isRecentlyLive, isRecentlyActive } from '../utils/presence';
 import { recordFeedImpressions } from '../services/feedImpressionService';
-import { getProfilePhotos, normalizeProfile, safeArray, formatDisplayName } from '../utils/profileData';
-import { hasActivePremium } from '../utils/premium';
+import { getProfilePhotos, getAvatarUrl, normalizeProfile, safeArray, formatDisplayName } from '../utils/profileData';
+import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import { calculateActiveFilterCount, DEFAULT_EXPLORE_FILTERS, createDefaultExploreFilters } from '../utils/exploreFilters';
 import OptimizedImage from '../components/OptimizedImage';
 import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
@@ -178,27 +178,47 @@ export default function Explore() {
         (safeArray(userProfile.profile_photos).length === 0) &&
         !userProfile.avatar_url;
 
-    // Filter profiles based on Search and Live category client-side
+    // Filter profiles based on Search and category client-side
     const filteredProfiles = profiles.filter(profile => {
         const matchesSearch = searchQuery.trim() === '' ||
             (profile.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (profile.university || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (profile.department || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (profile.faculty || '').toLowerCase().includes(searchQuery.toLowerCase());
-            
-        if (category === '🔴 Live') {
-            return matchesSearch && isRecentlyLive(profile);
-        }
-        return matchesSearch;
-    });
 
-    const displayedProfiles = (dbSearchResults !== null ? dbSearchResults : filteredProfiles).filter(profile => {
-        if (profile.is_shadow_banned || profile.is_banned) return false;
+        if (!matchesSearch) return false;
+
         if (dbSearchResults === null && category === '🔴 Live') {
             return isRecentlyLive(profile);
+        } else if (category === 'Serious') {
+            const goal = (profile.attraction_goal || '').toLowerCase();
+            return goal.includes('serious');
+        } else if (category === 'Casual') {
+            const goal = (profile.attraction_goal || '').toLowerCase();
+            return goal.includes('casual') || goal.includes('vibe');
+        } else if (category === 'Near Me') {
+            if (userProfile?.university) {
+                return profile.university === userProfile.university;
+            }
         }
         return true;
     });
+
+    const displayedProfiles = (dbSearchResults !== null ? dbSearchResults : filteredProfiles)
+        .filter(profile => !profile.is_shadow_banned && !profile.is_banned)
+        .sort((a, b) => {
+            // VIP Spotlight Placement: Elite Ultra members are prioritized at the top of the feed
+            const aUltra = isEliteUltra(a) ? 1 : 0;
+            const bUltra = isEliteUltra(b) ? 1 : 0;
+            if (bUltra !== aUltra) return bUltra - aUltra;
+
+            if (category === 'Newest') {
+                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+            } else if (category === 'Trending') {
+                return (b.completion_score || 0) - (a.completion_score || 0);
+            }
+            return 0;
+        });
 
     const handleQuickLike = async (e, profile) => {
         e.stopPropagation();
@@ -430,6 +450,7 @@ export default function Explore() {
                             const isLive = isRecentlyLive(profile);
                             const isOnline = Boolean(onlineUserIds?.has?.(profile.id));
                             const isNew = (Date.now() - new Date(profile.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000;
+                            const isUltraUser = isEliteUltra(profile);
                             const isPremiumUser = hasActivePremium(profile);
                             const isVerified = Boolean(profile.is_verified || profile.photo_verified);
                             const isTall = idx % 3 === 0;
@@ -437,12 +458,12 @@ export default function Explore() {
                             return (
                                 <div
                                     key={profile.id}
-                                    className={`explore-card animate-scale-in ${isTall ? 'tall' : ''} ${isPremiumUser ? 'premium-card' : ''}`}
+                                    className={`explore-card animate-scale-in ${isTall ? 'tall' : ''} ${isUltraUser ? 'ultra-spotlight-card' : isPremiumUser ? 'premium-card' : ''}`}
                                     onClick={() => setSelectedProfile(profile)}
                                 >
                                     <div className="card-image-wrapper">
                                         <OptimizedImage
-                                            src={profile.profile_photos?.[0] || profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`}
+                                            src={getAvatarUrl(profile) || profile.profile_photos?.[0] || profile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`}
                                             alt={profile.full_name}
                                             className="explore-card-img"
                                             width={360}
@@ -451,22 +472,34 @@ export default function Explore() {
 
                                         {/* Status overlay badges */}
                                         <div className="status-badges-overlay">
-                                            {isPremiumUser && <span className="explore-premium-tag">👑 Premium</span>}
+                                            {isUltraUser ? (
+                                                <>
+                                                    <span className="explore-ultra-tag" title="👑⭐ Elite Ultra VIP Member">👑⭐ Ultra VIP</span>
+                                                    <span className="explore-spotlight-tag" title="VIP Spotlight Placement">✨ Spotlight</span>
+                                                </>
+                                            ) : isPremiumUser ? (
+                                                <span className="explore-premium-tag">👑 Premium</span>
+                                            ) : null}
                                             {isVerified && <span className="explore-verified-tag">✓ Verified</span>}
                                             {isLive && <span className="explore-live-tag">🔴 LIVE</span>}
                                             {isOnline && !isLive && <span className="explore-online-tag">● Online</span>}
                                             {isNew && <span className="explore-new-tag">✨ New</span>}
                                         </div>
 
-                                        {/* Golden Round Logo Badge for Premium Members */}
-                                        {isPremiumUser && (
+                                        {/* Radiant Pink-Gold Crown for Ultra / Golden Round Badge for Premium */}
+                                        {isUltraUser ? (
+                                            <div className="card-ultra-radiant-badge" title="👑⭐ Elite Ultra VIP Spotlight">
+                                                <span className="ultra-crown-symbol">👑</span>
+                                                <span className="ultra-star-mini">⭐</span>
+                                            </div>
+                                        ) : isPremiumUser ? (
                                             <div className="card-golden-round-badge" title="👑 Premium Member">
                                                 <span>👑</span>
                                             </div>
-                                        )}
+                                        ) : null}
 
                                         {profile.attraction_goal && (
-                                            <div className={`intent-badge ${isPremiumUser ? 'with-premium' : ''}`}>
+                                            <div className={`intent-badge ${isUltraUser ? 'with-ultra' : isPremiumUser ? 'with-premium' : ''}`}>
                                                 {profile.attraction_goal === 'Casual' ? 'Casual 🔥' :
                                                     profile.attraction_goal === 'Serious' ? 'Serious 💍' : 'Friends 🤝'}
                                             </div>
@@ -485,7 +518,11 @@ export default function Explore() {
                                     <div className="card-info">
                                         <h3>
                                             {formatDisplayName(profile.full_name, profile.username)}, {profile.age}
-                                            {isPremiumUser && <span className="premium-crown" title="Premium Member">👑</span>}
+                                            {isUltraUser ? (
+                                                <span className="ultra-radiant-crown" title="👑⭐ Elite Ultra VIP">👑⭐</span>
+                                            ) : isPremiumUser ? (
+                                                <span className="premium-crown" title="Premium Member">👑</span>
+                                            ) : null}
                                             {isVerified && <span className="card-verified-tick" title="Verified Student">✓</span>}
                                         </h3>
                                         <p>{profile.university}</p>

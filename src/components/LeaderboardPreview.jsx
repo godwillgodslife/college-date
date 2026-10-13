@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl } from '../utils/profileData';
 import './LeaderboardPreview.css';
 
 export default function LeaderboardPreview() {
@@ -36,7 +37,7 @@ export default function LeaderboardPreview() {
                 {topUsers.map((user, index) => (
                     <div key={user.id} className="preview-user">
                         <div className="rank-badge">{index + 1}</div>
-                        <img src={user.avatar_url || 'https://via.placeholder.com/40'} alt={user.full_name} />
+                        <img src={getAvatarUrl(user) || user.avatar_url || 'https://via.placeholder.com/40'} alt={user.full_name} />
                         <span className="user-name">{user.full_name?.split(' ')[0]}</span>
                     </div>
                 ))}

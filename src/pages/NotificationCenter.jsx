@@ -7,7 +7,8 @@ import {
     getNotificationCategory,
     getNotificationDeepLink,
     getNotificationIcon,
-    groupNotificationsChronologically
+    groupNotificationsChronologically,
+    formatNotificationTime
 } from '../utils/notificationRouting';
 import { triggerLightHaptic, triggerMediumHaptic, triggerSuccessHaptic } from '../services/haptics';
 import './NotificationCenter.css';
@@ -21,23 +22,6 @@ const FILTERS = [
     { id: NOTIFICATION_CATEGORIES.SOCIAL, label: 'Social' },
     { id: NOTIFICATION_CATEGORIES.ACCOUNT, label: 'Account' },
 ];
-
-function formatNotificationTime(value) {
-    if (!value) return '';
-
-    const date = new Date(value);
-    const diffMs = Date.now() - date.getTime();
-    const minutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-}
 
 export default function NotificationCenter() {
     const navigate = useNavigate();

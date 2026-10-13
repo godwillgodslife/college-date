@@ -23,6 +23,7 @@ import {
     clearAppBadge,
     calculateLauncherBadgeCount
 } from '../services/appBadgeService';
+import { getAvatarUrl, getFreshAvatarUrl } from '../utils/profileData';
 import { 
     playNotificationDing, 
     playMatchSuccess, 
@@ -327,7 +328,8 @@ export function NotificationProvider({ children }) {
                             if (shouldInterrupt && typeof addToast === 'function') {
                                 const destination = getNotificationDeepLink(newNotification);
                                 const copy = getForegroundNotificationCopy(profileRef.current, newNotification);
-                                const avatarUrl = newNotification.actor_avatar || newNotification.sender_avatar || newNotification.metadata?.avatar_url || newNotification.metadata?.sender_avatar || null;
+                                const rawAvatar = newNotification.actor_avatar || newNotification.sender_avatar || newNotification.metadata?.avatar_url || newNotification.metadata?.sender_avatar || null;
+                                const avatarUrl = getFreshAvatarUrl(rawAvatar) || null;
                                 const actorName = newNotification.actor_name || newNotification.sender_name || newNotification.metadata?.actor_name || null;
                                 const campusTag = newNotification.campus || newNotification.metadata?.campus || null;
                                 const actionLabel = newNotification.type === 'message' ? 'Reply' : (newNotification.type === 'match' ? 'Chat' : 'View');
@@ -401,7 +403,7 @@ export function NotificationProvider({ children }) {
                         const [{ data: callerProfile }, { data: activeSession }] = await Promise.all([
                             supabase
                                 .from('profiles')
-                                .select('id, full_name, avatar_url')
+                                .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at')
                                 .eq('id', match.caller_id)
                                 .maybeSingle(),
                             supabase
@@ -418,7 +420,7 @@ export function NotificationProvider({ children }) {
                             matchId: match.id,
                             callerId: match.caller_id,
                             callerName: callerProfile?.full_name || 'Campus Match',
-                            callerAvatar: callerProfile?.avatar_url || null,
+                            callerAvatar: getAvatarUrl(callerProfile) || callerProfile?.avatar_url || null,
                             callType: activeSession?.call_type || match.call_type || 'voice'
                         });
                     } catch (err) {
@@ -470,7 +472,7 @@ export function NotificationProvider({ children }) {
                     if (session.call_state === 'calling' || session.call_state === 'ringing') {
                         const { data: callerProfile } = await supabase
                             .from('profiles')
-                            .select('id, full_name, avatar_url')
+                            .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at')
                             .eq('id', session.caller_id)
                             .maybeSingle();
 
@@ -479,7 +481,7 @@ export function NotificationProvider({ children }) {
                             matchId: session.match_id,
                             callerId: session.caller_id,
                             callerName: callerProfile?.full_name || 'Campus Match',
-                            callerAvatar: callerProfile?.avatar_url || null,
+                            callerAvatar: getAvatarUrl(callerProfile) || callerProfile?.avatar_url || null,
                             callType: session.call_type || 'voice'
                         };
                         setIncomingCall(callObj);

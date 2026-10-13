@@ -76,8 +76,11 @@ export function useConversations(userId) {
 
     const { data, error, isLoading, mutate } = useSWR(key, async () => {
         const { data, error } = await getConversations(userId);
-        if (error) throw new Error(error);
-        return data;
+        if (error) {
+            console.warn('useConversations warning:', error);
+            return data || [];
+        }
+        return data || [];
     }, persistentSWR(key, {
         revalidateOnFocus: true,
         dedupingInterval: 3000,

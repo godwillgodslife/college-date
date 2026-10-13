@@ -908,3 +908,114 @@ html[data-theme="dark"] .category-chip.active {
         padding: 0.2rem 0.4rem;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ELITE ULTRA VIP SPOTLIGHT PLACEMENT & RADIANT CROWN BADGES
+   ═══════════════════════════════════════════════════════════ */
+
+.explore-card.ultra-spotlight-card {
+    border: 1.5px solid rgba(255, 45, 85, 0.45);
+    box-shadow: 0 4px 20px rgba(255, 45, 85, 0.22), 0 2px 10px rgba(251, 191, 36, 0.28);
+    position: relative;
+}
+
+.explore-card.ultra-spotlight-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 20px;
+    padding: 1.5px;
+    background: linear-gradient(135deg, rgba(255, 45, 85, 0.8), rgba(251, 191, 36, 0.9), rgba(255, 45, 85, 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 5;
+    animation: ultraBorderGlow 4s linear infinite;
+}
+
+@keyframes ultraBorderGlow {
+    0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 6px rgba(255, 45, 85, 0.4)); }
+    50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6)); }
+}
+
+.explore-ultra-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, #FF2D55 0%, #F59E0B 100%);
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(255, 45, 85, 0.45);
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.explore-spotlight-tag {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #FBBF24;
+    background: rgba(17, 24, 39, 0.92);
+    border: 1px solid rgba(251, 191, 36, 0.65);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.card-ultra-radiant-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF2D55 0%, #F59E0B 50%, #FFD700 100%);
+    border: 2px solid rgba(255, 255, 255, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(255, 45, 85, 0.55), 0 0 8px rgba(251, 191, 36, 0.75), 0 3px 10px rgba(0, 0, 0, 0.3);
+    z-index: 12;
+    animation: ultraRadiantPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes ultraRadiantPop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.card-ultra-radiant-badge .ultra-crown-symbol {
+    font-size: 15px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.card-ultra-radiant-badge .ultra-star-mini {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 10px;
+    line-height: 1;
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.9));
+}
+
+.ultra-radiant-crown {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    font-size: 0.95rem;
+    filter: drop-shadow(0 0 6px rgba(255, 45, 85, 0.65)) drop-shadow(0 0 2px rgba(251, 191, 36, 0.8));
+    vertical-align: middle;
+}
+
+.intent-badge.with-ultra {
+    bottom: 52px;
+    border-color: rgba(251, 191, 36, 0.5);
+}

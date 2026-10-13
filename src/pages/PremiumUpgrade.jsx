@@ -18,7 +18,8 @@ import {
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { hasActivePremium } from '../utils/premium';
+import { hasActivePremium, isEliteUltra } from '../utils/premium';
+import { getUltraAllowance, consumeUltraBoost } from '../services/ultraAllowanceService';
 import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
 import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import { recordPremiumPageVisit } from '../services/trialService';
@@ -75,6 +76,53 @@ const SUBSCRIPTION_TIERS = [
         savings: 13200,
         isBestValue: true,
         dailyRate: '₦59/day'
+    }
+];
+
+const ULTRA_SUBSCRIPTION_TIERS = [
+    {
+        id: 'ultra_monthly',
+        productId: PAYSTACK_PRODUCTS.ultraMonthly,
+        name: '1 Month',
+        durationShort: '1 Mo',
+        price: 15000,
+        rateLabel: '₦15,000',
+        perPeriod: '/ mo',
+        totalLabel: '₦15,000 billed monthly',
+        durationDays: 30,
+        tag: null,
+        savings: 0,
+        dailyRate: '₦500/day'
+    },
+    {
+        id: 'ultra_2month',
+        productId: PAYSTACK_PRODUCTS.ultra2Month,
+        name: '2 Months',
+        durationShort: '2 Mo',
+        price: 30000,
+        rateLabel: '₦15,000',
+        perPeriod: '/ mo',
+        totalLabel: '₦30,000 for 2 months',
+        durationDays: 60,
+        tag: null,
+        savings: 0,
+        dailyRate: '₦500/day'
+    },
+    {
+        id: 'ultra_3month',
+        productId: PAYSTACK_PRODUCTS.ultra3Month,
+        name: '3 Months',
+        durationShort: '3 Mo',
+        price: 35000,
+        rateLabel: '₦11,667',
+        perPeriod: '/ mo',
+        totalLabel: '₦35,000 for 3 months',
+        durationDays: 90,
+        tag: 'Save ₦10,000',
+        savings: 10000,
+        isPopular: true,
+        isBestValue: true,
+        dailyRate: '₦389/day'
     }
 ];
 
@@ -167,7 +215,22 @@ export default function PremiumUpgrade() {
     const [boostData, setBoostData] = useState({ hasBoosted: false, activeBoost: null, superSwipeCount: 0 });
     const [processingBoost, setProcessingBoost] = useState(null);
     const [rcPackages, setRcPackages] = useState([]);
-    const [selectedTierId, setSelectedTierId] = useState('premium_3month');
+    const [tierCategory, setTierCategory] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tier') === 'ultra') return 'ultra';
+        }
+        return 'premium';
+    });
+    const [selectedTierId, setSelectedTierId] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sel = urlParams.get('selected');
+            if (sel) return sel;
+            if (urlParams.get('tier') === 'ultra') return 'ultra_3month';
+        }
+        return 'premium_3month';
+    });
     const [activeTab, setActiveTab] = useState('admirers');
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
     const [showManagePlans, setShowManagePlans] = useState(false);
@@ -175,8 +238,31 @@ export default function PremiumUpgrade() {
     const [paywallOpen, setPaywallOpen] = useState(false);
     const [paywallTrigger, setPaywallTrigger] = useState('repeated_premium_visits');
 
-    const currentTier = SUBSCRIPTION_TIERS.find(t => t.id === selectedTierId) || SUBSCRIPTION_TIERS[1];
+    const isUltraUser = isEliteUltra(userProfile) || isEliteUltra(subscription);
     const isPremium = hasActivePremium(userProfile) || hasActivePremium(subscription);
+    const [ultraAllowance, setUltraAllowance] = useState(() => getUltraAllowance(currentUser?.id, subscription));
+
+    const activeTiers = tierCategory === 'ultra' ? ULTRA_SUBSCRIPTION_TIERS : SUBSCRIPTION_TIERS;
+    const currentTier = activeTiers.find(t => t.id === selectedTierId) || activeTiers[1] || activeTiers[0];
+
+    useEffect(() => {
+        if (currentUser?.id) {
+            setUltraAllowance(getUltraAllowance(currentUser.id, subscription));
+            if (isUltraUser && tierCategory === 'premium') {
+                setTierCategory('ultra');
+            }
+        }
+    }, [currentUser?.id, subscription, isUltraUser]);
+
+    useEffect(() => {
+        const handleAllowanceUpdate = () => {
+            if (currentUser?.id) {
+                setUltraAllowance(getUltraAllowance(currentUser.id, subscription));
+            }
+        };
+        window.addEventListener('cd:allowance-updated', handleAllowanceUpdate);
+        return () => window.removeEventListener('cd:allowance-updated', handleAllowanceUpdate);
+    }, [currentUser?.id, subscription]);
 
     useEffect(() => {
         if (!currentUser) {
@@ -274,10 +360,39 @@ export default function PremiumUpgrade() {
     }
 
     const handleSubscribe = async () => {
-        if (isNative()) {
+        if (isNative() && tierCategory !== 'ultra') {
             await handleNativeSubscribe(currentTier);
         } else {
             await handleWebSubscribe(currentTier);
+        }
+    };
+
+    const handleActivateUltraBoost = async () => {
+        if (!currentUser?.id) return;
+        setIsProcessing(true);
+        try {
+            const res = await consumeUltraBoost(currentUser.id, subscription);
+            if (res.success) {
+                addToast('24h Visibility Boost activated! 🚀 Jumped to top of campus feed.', 'success');
+                try {
+                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+                } catch {
+                    // Confetti fallback
+                }
+                await loadBoosts();
+                setUltraAllowance(getUltraAllowance(currentUser.id, subscription));
+            } else if (res.reason === 'boost_already_active') {
+                addToast('You already have an active 24h boost running!', 'info');
+            } else if (res.reason === 'allowance_exhausted') {
+                addToast('You have used all 10 visibility boosts for this cycle.', 'warning');
+            } else {
+                addToast('Could not activate boost. Please try again.', 'error');
+            }
+        } catch (err) {
+            console.error('Error activating Ultra boost:', err);
+            addToast('Error activating boost.', 'error');
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -367,13 +482,13 @@ export default function PremiumUpgrade() {
                 currentUser.id,
                 tier.price,
                 'subscription',
-                `College Date Premium (${tier.name})`,
+                `College Date ${tierCategory === 'ultra' ? 'Elite Ultra' : 'Premium'} (${tier.name})`,
                 tier.productId
             );
 
             if (error) throw error;
 
-            addToast(`Welcome to Elite! Paid ₦${tier.price.toLocaleString()} via wallet balance.`, 'success');
+            addToast(`Welcome to ${tierCategory === 'ultra' ? 'Elite Ultra' : 'Elite'}! Paid ₦${tier.price.toLocaleString()} via wallet balance.`, 'success');
             try {
                 confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
             } catch {
@@ -533,15 +648,117 @@ export default function PremiumUpgrade() {
             {isPremium && !showManagePlans && (
                 <div className="active-elite-dashboard">
                     <div className="active-crest-glow">
-                        <span className="active-crown-emoji">👑</span>
+                        <span className="active-crown-emoji">{isUltraUser ? '👑⭐' : '👑'}</span>
                     </div>
-                    <h2 className="active-title">You Have the Elite Edge</h2>
+                    <h2 className="active-title">{isUltraUser ? 'You Have the Elite Ultra VIP Edge' : 'You Have the Elite Edge'}</h2>
                     <p className="active-subtitle">
-                        Your premium membership is active
+                        Your {isUltraUser ? 'Elite Ultra' : 'premium'} membership is active
                         {subscription?.current_period_end ? (
                             <> until <strong>{new Date(subscription.current_period_end).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong> {daysRemaining !== null && `(${daysRemaining} days remaining)`}</>
                         ) : '.'}
                     </p>
+
+                    {/* Elite Ultra Included Allowances Tracker (Realtime) */}
+                    {isUltraUser && (
+                        <div className="ultra-allowance-dashboard-card">
+                            <div className="allowance-card-header">
+                                <div className="allowance-badge-group">
+                                    <span className="allowance-crown-pill">👑⭐ ELITE ULTRA VIP</span>
+                                    <span className="allowance-cycle-pill">
+                                        {subscription?.current_period_end
+                                            ? `Cycle ends ${new Date(subscription.current_period_end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                                            : 'Active Billing Cycle'}
+                                    </span>
+                                </div>
+                                <h3 className="allowance-card-title">Included Monthly Allowances</h3>
+                                <p className="allowance-card-sub">
+                                    Finite allowances for this billing cycle. Usage never depletes your campus wallet or coin balance.
+                                </p>
+                            </div>
+
+                            <div className="allowance-meters-grid">
+                                <div className="allowance-meter-item">
+                                    <div className="meter-top-row">
+                                        <span className="meter-icon-label">⭐ Super Swipes</span>
+                                        <span className="meter-count-badge">
+                                            <strong>{ultraAllowance.superSwipes.remaining}</strong> / 30 left
+                                        </span>
+                                    </div>
+                                    <div className="meter-track">
+                                        <div
+                                            className="meter-bar super-swipe-bar"
+                                            style={{ width: `${Math.min(100, Math.max(0, (ultraAllowance.superSwipes.remaining / 30) * 100))}%` }}
+                                        />
+                                    </div>
+                                    <span className="meter-caption">Priority crush notification alert. Refills each billing cycle.</span>
+                                </div>
+
+                                <div className="allowance-meter-item">
+                                    <div className="meter-top-row">
+                                        <span className="meter-icon-label">🚀 24h Visibility Boosts</span>
+                                        <span className="meter-count-badge">
+                                            <strong>{ultraAllowance.boosts.remaining}</strong> / 10 left
+                                        </span>
+                                    </div>
+                                    <div className="meter-track">
+                                        <div
+                                            className="meter-bar boost-bar"
+                                            style={{ width: `${Math.min(100, Math.max(0, (ultraAllowance.boosts.remaining / 10) * 100))}%` }}
+                                        />
+                                    </div>
+                                    {boostData.hasBoosted && boostTimeRemaining ? (
+                                        <div className="ultra-active-boost-status">
+                                            <span className="boost-pulse-dot" />
+                                            <span>24h Boost Active — {boostTimeRemaining} remaining</span>
+                                        </div>
+                                    ) : ultraAllowance.boosts.remaining > 0 ? (
+                                        <button
+                                            type="button"
+                                            className="btn-activate-ultra-boost"
+                                            onClick={handleActivateUltraBoost}
+                                            disabled={isProcessing}
+                                        >
+                                            🚀 Activate Included 24h Boost Now
+                                        </button>
+                                    ) : (
+                                        <span className="meter-caption exhausted">All 10 boosts consumed for this cycle.</span>
+                                    )}
+                                </div>
+
+                                <div className="allowance-meter-item showcase-item">
+                                    <div className="meter-top-row">
+                                        <span className="meter-icon-label">📸 Match Showcase Photos</span>
+                                        <span className="meter-showcase-badge">Up to 6 Photos Active</span>
+                                    </div>
+                                    <span className="meter-caption">Students browse up to 6 of your photos in Match (regular accounts capped at 3).</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Standard Premium User Upsell to Ultra */}
+                    {!isUltraUser && (
+                        <div className="upgrade-to-ultra-banner">
+                            <div className="ultra-banner-left">
+                                <span className="ultra-banner-icon">👑⭐</span>
+                                <div>
+                                    <h4>Upgrade to Elite Ultra VIP</h4>
+                                    <p>Unlock 30 Super Swipes/mo, 10 24h Boosts/mo & up to 6 Match photos.</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn-ultra-banner-upgrade"
+                                onClick={() => {
+                                    setShowManagePlans(true);
+                                    setTierCategory('ultra');
+                                    setSelectedTierId('ultra_3month');
+                                }}
+                            >
+                                View Ultra Plans →
+                            </button>
+                        </div>
+                    )}
 
                     {/* Direct Value Action Shortcuts */}
                     <div className="active-shortcuts-grid">
@@ -660,14 +877,95 @@ export default function PremiumUpgrade() {
                             <span className="section-sublabel">Safe, CBN-regulated checkout</span>
                         </div>
 
+                        {/* Tier Category Segmented Switcher */}
+                        <div className="tier-category-toggle" role="tablist" aria-label="Membership Tiers">
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={tierCategory === 'premium'}
+                                className={`tier-toggle-pill ${tierCategory === 'premium' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setTierCategory('premium');
+                                    setSelectedTierId('premium_3month');
+                                }}
+                            >
+                                👑 Elite Premium
+                                <span className="toggle-price-chip">from ₦2,900/mo</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={tierCategory === 'ultra'}
+                                className={`tier-toggle-pill ultra-pill ${tierCategory === 'ultra' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setTierCategory('ultra');
+                                    setSelectedTierId('ultra_3month');
+                                }}
+                            >
+                                👑⭐ Elite Ultra
+                                <span className="toggle-price-chip ultra-chip">VIP • ₦15k/mo</span>
+                            </button>
+                        </div>
+
+                        {/* Ultra Perks Summary Highlight */}
+                        {tierCategory === 'ultra' && (
+                            <div className="ultra-perks-highlight-card animate-fade-in">
+                                <div className="ultra-perks-header">
+                                    <span className="ultra-badge-chip">👑⭐ THE CAMPUS CELEBRITY TIER</span>
+                                    <h4>Instant Results & VIP Dominance</h4>
+                                </div>
+                                <div className="ultra-perks-grid">
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">⭐</span>
+                                        <div>
+                                            <strong>30 Super Swipes / mo</strong>
+                                            <span>Direct crush alerts (₦15,000 value)</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">🚀</span>
+                                        <div>
+                                            <strong>10 24h Boosts / mo</strong>
+                                            <span>Dominate campus feeds (₦10,000 value)</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">📸</span>
+                                        <div>
+                                            <strong>Full 6-Photo Gallery</strong>
+                                            <span>Showcase your full gallery on Match</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">👑</span>
+                                        <div>
+                                            <strong>VIP Spotlight & Radiant Crowns</strong>
+                                            <span>Prominent crowns & top feed priority in Explore & Confessions</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">💬</span>
+                                        <div>
+                                            <strong>Unrestricted Contact Sharing</strong>
+                                            <span>Freely ask for & share WhatsApp, phone numbers & social handles without filter blocks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="ultra-allowance-isolation-note">
+                                    🛡️ <strong>Zero Wallet Depletion:</strong> Finite monthly allowances are included directly with your membership and never touch your campus wallet or coin balance.
+                                </div>
+                            </div>
+                        )}
+
                         <div className="subscription-tiers-grid">
-                            {SUBSCRIPTION_TIERS.map((tier) => {
+                            {activeTiers.map((tier) => {
                                 const isSelected = selectedTierId === tier.id;
                                 return (
                                     <button
                                         key={tier.id}
                                         type="button"
-                                        className={`tier-card-selector ${isSelected ? 'selected' : ''}`}
+                                        className={`tier-card-selector ${isSelected ? 'selected' : ''} ${tierCategory === 'ultra' ? 'ultra-tier-card' : ''}`}
                                         onClick={() => {
                                             setSelectedTierId(tier.id);
                                             markFeatureUsed('premium_benefits');
@@ -703,6 +1001,9 @@ export default function PremiumUpgrade() {
                                     {currentTier.id === 'premium_monthly' && 'Billed monthly. Cancel anytime.'}
                                     {currentTier.id === 'premium_3month' && 'Billed quarterly at ₦7,200 (You save ₦1,500). Cancel anytime.'}
                                     {currentTier.id === 'premium_annual' && 'Billed yearly at ₦21,600 (You save ₦13,200). Cancel anytime.'}
+                                    {currentTier.id === 'ultra_monthly' && 'Billed monthly at ₦15,000. 30 Super Swipes & 10 Boosts included.'}
+                                    {currentTier.id === 'ultra_2month' && 'Billed for 2 months at ₦30,000. 30 Super Swipes & 10 Boosts included each month.'}
+                                    {currentTier.id === 'ultra_3month' && '3 months for ₦35,000 (You save ₦10,000). 30 Super Swipes & 10 Boosts included each month.'}
                                 </span>
                             </div>
                             <span className="summary-guarantee">🛡️ Instant activation via Card, Transfer, USSD, or Wallet</span>
@@ -885,9 +1186,13 @@ export default function PremiumUpgrade() {
                                 <span className="dock-btn-main">
                                     {isProcessing
                                         ? 'Activating Subscription...'
-                                        : isPremium
-                                            ? `Extend Membership — ${currentTier.rateLabel} ${currentTier.perPeriod}`
-                                            : `Upgrade to Elite — ${currentTier.rateLabel} ${currentTier.perPeriod}`}
+                                        : isUltraUser && tierCategory === 'ultra'
+                                            ? `Extend Elite Ultra — ${currentTier.rateLabel} ${currentTier.perPeriod}`
+                                            : isPremium && tierCategory === 'premium'
+                                                ? `Extend Membership — ${currentTier.rateLabel} ${currentTier.perPeriod}`
+                                                : tierCategory === 'ultra'
+                                                    ? `Upgrade to Elite Ultra — ${currentTier.rateLabel} ${currentTier.perPeriod}`
+                                                    : `Upgrade to Elite — ${currentTier.rateLabel} ${currentTier.perPeriod}`}
                                 </span>
                                 <span className="dock-btn-sub">
                                     Pay ₦{currentTier.price.toLocaleString()} • 100% Secure Checkout

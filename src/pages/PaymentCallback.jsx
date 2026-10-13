@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { verifyPaystackPayment } from '../services/paymentService';
+import { saveLocalUltraSubscription } from '../services/ultraAllowanceService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 
@@ -41,9 +42,15 @@ export default function PaymentCallback() {
 
             const productType = data?.result?.product_type;
             const productId = data?.result?.product_id;
+            const isUltra = data?.result?.is_ultra || String(productId || '').includes('ultra');
 
             if (productType === 'subscription') {
-                addToast('Premium activated successfully! 🎉', 'success');
+                if (isUltra && currentUser?.id) {
+                    saveLocalUltraSubscription(currentUser.id, productId);
+                    addToast('Elite Ultra activated successfully! 👑 All Ultra VIP benefits unlocked.', 'success');
+                } else {
+                    addToast('Premium activated successfully! 🎉', 'success');
+                }
                 await fetchProfile(currentUser.id);
                 navigate('/premium', { replace: true });
             } else if (productType === 'boost') {

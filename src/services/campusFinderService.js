@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
+import { getAvatarUrl } from '../utils/profileData';
 import {
     FINDER_FREE_SEARCHES_DEFAULT,
     FINDER_RATE_LIMIT_HOURLY,
@@ -130,7 +131,7 @@ export async function searchCampusByPhoto({ searcherId, queryImageBase64, univer
         // Uses the existing secure Edge Function infrastructure with OpenRouter/GPT-4o-mini
         const candidatePhotos = candidates.map(c => ({
             id: c.id,
-            photoUrl: c.primary_photo || c.avatar_url
+            photoUrl: getAvatarUrl(c) || c.primary_photo || c.avatar_url
         })).filter(c => Boolean(c.photoUrl));
 
         let bestMatch = null;

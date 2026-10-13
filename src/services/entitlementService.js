@@ -1,4 +1,12 @@
-import { hasActivePremium } from '../utils/premium';
+import {
+    hasActivePremium,
+    isEliteUltra,
+    getSubscriptionTier,
+    getMatchPhotoLimit,
+    getProfilePhotoLimit,
+    getProfileVideoDurationLimit,
+    canUploadProfileVideo
+} from '../utils/premium.js';
 
 /**
  * Central Feature Entitlement & Permission Service
@@ -34,4 +42,13 @@ export function isUserBlocked(blockedList, targetUserId) {
     return blockedList.some(item => item.id === targetUserId || item.blocked_id === targetUserId);
 }
 
-export { hasActivePremium };
+export {
+    hasActivePremium,
+    isEliteUltra,
+    getSubscriptionTier,
+    getMatchPhotoLimit,
+    getProfilePhotoLimit,
+    getProfileVideoDurationLimit,
+    canUploadProfileVideo
+};
+

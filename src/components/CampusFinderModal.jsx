@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import { getFinderStatus, searchCampusByPhoto } from '../services/campusFinderService';
+import { getAvatarUrl } from '../utils/profileData';
 import './CampusFinderModal.css';
 
 export default function CampusFinderModal({ isOpen, onClose, onSelectProfile }) {
@@ -240,7 +241,7 @@ export default function CampusFinderModal({ isOpen, onClose, onSelectProfile }) 
                         <>
                             <div className="campus-finder-match-card">
                                 <img 
-                                    src={matchedProfile.primary_photo || matchedProfile.avatar_url || 'https://via.placeholder.com/150'} 
+                                    src={getAvatarUrl(matchedProfile) || matchedProfile.primary_photo || matchedProfile.avatar_url || 'https://via.placeholder.com/150'} 
                                     alt={matchedProfile.full_name} 
                                     className="campus-finder-match-avatar"
                                 />

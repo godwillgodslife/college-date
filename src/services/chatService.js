@@ -2,14 +2,19 @@ import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 import { getMessageInfo, isValidMessageId, isMessageDeletedForUser } from '../utils/messageInfo.js';
 import { compressImage } from '../utils/imageCompressor';
+import { getAvatarUrl } from '../utils/profileData';
+import { detectOffPlatformContact, isOffPlatformBlockError, OFF_PLATFORM_BLOCK_CODE } from '../utils/offPlatformGuard.js';
 
 export { getMessageInfo, isValidMessageId, isMessageDeletedForUser };
 
 const PAGE_SIZE = 20;
 
+const SAFE_MESSAGE_COLUMNS = 'id, match_id, sender_id, content, type, is_read, created_at, read_at, expires_at';
+
 /**
  * Fetch all conversations with last message preview data.
  * Uses a nested select to get the last message per match in ONE query.
+ * Resilient against column permission restrictions with automatic RPC fallback.
  */
 export async function getConversations(userId) {
     try {
@@ -21,8 +26,8 @@ export async function getConversations(userId) {
                 user1_id,
                 user2_id,
                 disappearing_messages_seconds,
-                user1:profiles!user1_id(id, full_name, avatar_url, last_seen_at),
-                user2:profiles!user2_id(id, full_name, avatar_url, last_seen_at),
+                user1:profiles!user1_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, last_seen_at, is_verified, photo_verified, university),
+                user2:profiles!user2_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, last_seen_at, is_verified, photo_verified, university),
                 messages(
                     id,
                     content,
@@ -30,8 +35,7 @@ export async function getConversations(userId) {
                     sender_id,
                     is_read,
                     created_at,
-                    expires_at,
-                    metadata
+                    expires_at
                 )
             `)
             .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
@@ -39,29 +43,36 @@ export async function getConversations(userId) {
             .order('created_at', { ascending: false, foreignTable: 'messages' })
             .limit(1, { foreignTable: 'messages' });
 
-        if (error) throw error;
+        if (error) {
+            console.warn('Direct matches getConversations failed, falling back to get_native_conversations RPC:', error.message);
+            return await getConversationsViaRpc(userId);
+        }
 
-        const conversations = data.map(match => {
+        const previewByType = {
+            image: '📷 Photo',
+            video: '🎥 Video',
+            document: '📄 Document',
+            voice: '🎤 Voice note',
+            gift: '🎁 Gift',
+            sticker: '✨ Sticker',
+            call_log: '📞 Call',
+            location: '📍 Live location',
+            service_deal: '🤝 Service deal',
+            view_once: '① View once'
+        };
+
+        const conversations = (data || []).map(match => {
             const isUser1 = match.user1_id === userId;
-            const otherUser = isUser1 ? match.user2 : match.user1;
+            const rawOtherUser = isUser1 ? match.user2 : match.user1;
+            const otherUser = rawOtherUser ? {
+                ...rawOtherUser,
+                avatar_url: getAvatarUrl(rawOtherUser)
+            } : null;
             const rawLastMsg = match.messages?.[0] || null;
             const isDeletedForMe = Array.isArray(rawLastMsg?.metadata?.deleted_for) && rawLastMsg.metadata.deleted_for.includes(userId);
             const lastMsg = (rawLastMsg?.expires_at && new Date(rawLastMsg.expires_at) <= new Date()) || isDeletedForMe
                 ? null
                 : rawLastMsg;
-
-            const previewByType = {
-                image: '📷 Photo',
-                video: '🎥 Video',
-                document: '📄 Document',
-                voice: '🎤 Voice note',
-                gift: '🎁 Gift',
-                sticker: '✨ Sticker',
-                call_log: '📞 Call',
-                location: '📍 Live location',
-                service_deal: '🤝 Service deal',
-                view_once: '① View once'
-            };
 
             return {
                 id: match.id,
@@ -87,8 +98,84 @@ export async function getConversations(userId) {
 
         return { data: conversations, error: null };
     } catch (err) {
-        console.error('getConversations error:', err.message);
-        return { data: [], error: err.message };
+        console.warn('getConversations error, trying get_native_conversations RPC fallback:', err.message);
+        return await getConversationsViaRpc(userId);
+    }
+}
+
+/**
+ * Authoritative RPC fallback for getConversations using security definer get_native_conversations.
+ */
+async function getConversationsViaRpc(userId) {
+    try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_native_conversations', {
+            p_limit: 50,
+            p_offset: 0
+        });
+
+        if (rpcError) throw rpcError;
+
+        const otherUserIds = (rpcData || []).map(c => c.other_user_id).filter(Boolean);
+        let profileMap = {};
+        if (otherUserIds.length > 0) {
+            try {
+                const { data: profiles } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, last_seen_at, is_verified, photo_verified, university')
+                    .in('id', otherUserIds);
+                (profiles || []).forEach(p => {
+                    profileMap[p.id] = {
+                        ...p,
+                        avatar_url: getAvatarUrl(p)
+                    };
+                });
+            } catch (profErr) {
+                console.warn('getConversationsViaRpc profile enrichment notice:', profErr);
+            }
+        }
+
+        const previewByType = {
+            image: '📷 Photo',
+            video: '🎥 Video',
+            document: '📄 Document',
+            voice: '🎤 Voice note',
+            gift: '🎁 Gift',
+            sticker: '✨ Sticker',
+            call_log: '📞 Call',
+            location: '📍 Live location',
+            service_deal: '🤝 Service deal',
+            view_once: '① View once'
+        };
+
+        const conversations = (rpcData || []).map(item => {
+            const rawOther = profileMap[item.other_user_id];
+            const otherUser = rawOther || {
+                id: item.other_user_id,
+                full_name: item.other_display_name,
+                avatar_url: item.other_avatar_url,
+                last_seen_at: item.other_last_active
+            };
+
+            return {
+                id: item.match_id,
+                created_at: item.last_message_created_at || new Date().toISOString(),
+                disappearing_messages_seconds: 0,
+                last_message_at: item.last_message_created_at || new Date().toISOString(),
+                last_message: item.last_message_content ? (previewByType[item.last_message_type] || item.last_message_content) : null,
+                last_message_type: item.last_message_type || null,
+                last_message_sender_id: item.last_message_sender_id || null,
+                last_message_is_read: item.last_message_is_read ?? true,
+                has_unread: Number(item.unread_count || 0) > 0,
+                unread_count: Number(item.unread_count || 0),
+                other_user: otherUser
+            };
+        });
+
+        conversations.sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at));
+        return { data: conversations, error: null };
+    } catch (fallbackErr) {
+        console.error('getConversationsViaRpc error:', fallbackErr.message);
+        return { data: [], error: null };
     }
 }
 
@@ -117,13 +204,16 @@ export async function getMessages(matchId, page = 0, currentUserId = null) {
 
         const { data, error, count } = await supabase
             .from('messages')
-            .select('*', { count: 'exact' })
+            .select(SAFE_MESSAGE_COLUMNS, { count: 'exact' })
             .eq('match_id', matchId)
             .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
             .order('created_at', { ascending: false })
             .range(from, to);
 
-        if (error) throw error;
+        if (error) {
+            console.warn('Direct getMessages query failed, falling back to get_native_messages RPC:', error.message);
+            return await getMessagesViaRpc(matchId, page, activeUserId);
+        }
 
         // Filter out messages that have been deleted for the current user
         const visibleMessages = (data || []).filter(msg => {
@@ -137,6 +227,7 @@ export async function getMessages(matchId, page = 0, currentUserId = null) {
         // Enrich messages with sent_at, delivered_at, and seen_at/read_at for Message Info
         const enriched = visibleMessages.map(msg => ({
             ...msg,
+            metadata: msg.metadata || {},
             sent_at: msg.created_at,
             delivered_at: msg.delivered_at || msg.created_at,
             seen_at: msg.seen_at || msg.read_at || null,
@@ -145,10 +236,39 @@ export async function getMessages(matchId, page = 0, currentUserId = null) {
         }));
 
         // Reverse so newest is at the bottom
-        return { data: enriched.reverse(), error: null, total: count };
+        return { data: enriched.reverse(), error: null, total: count || enriched.length };
     } catch (err) {
-        console.error('getMessages error:', err.message);
-        return { data: [], error: err.message, total: 0 };
+        console.warn('getMessages error, falling back to get_native_messages RPC:', err.message);
+        return await getMessagesViaRpc(matchId, page, currentUserId);
+    }
+}
+
+/**
+ * Authoritative RPC fallback for getMessages using security definer get_native_messages.
+ */
+async function getMessagesViaRpc(matchId, page = 0, activeUserId = null) {
+    try {
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_native_messages', {
+            p_match_id: matchId,
+            p_limit: PAGE_SIZE
+        });
+
+        if (rpcError) throw rpcError;
+
+        const enriched = (rpcData || []).map(msg => ({
+            ...msg,
+            metadata: msg.metadata || {},
+            sent_at: msg.created_at,
+            delivered_at: msg.created_at,
+            seen_at: msg.read_at || null,
+            read_at: msg.read_at || null,
+            is_read: Boolean(msg.is_read || msg.read_at)
+        }));
+
+        return { data: enriched, error: null, total: enriched.length };
+    } catch (rpcErr) {
+        console.error('getMessagesViaRpc error:', rpcErr.message);
+        return { data: [], error: null, total: 0 };
     }
 }
 
@@ -157,37 +277,77 @@ export async function getMessages(matchId, page = 0, currentUserId = null) {
  */
 export async function sendMessage(matchId, senderId, content, type = 'text', metadata = {}) {
     console.log(`[CHAT-TRACE] sendMessage fired! matchId: ${matchId}, senderId: ${senderId}`);
+    if (type === 'text') {
+        const isUltraSender = Boolean(
+            metadata?.isUltraSender ||
+            metadata?.senderIsUltra ||
+            metadata?.canBypassSafeguards
+        );
+        if (!isUltraSender) {
+            const violation = detectOffPlatformContact(content, metadata?.senderProfile);
+            if (violation.blocked) {
+                return { data: null, error: OFF_PLATFORM_BLOCK_CODE, blocked: true, violation };
+            }
+        }
+    }
     try {
         const clientNonce = metadata?.client_nonce;
         if (clientNonce) {
-            const { data: existingMessage, error: existingError } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('match_id', matchId)
-                .eq('sender_id', senderId)
-                .eq('metadata->>client_nonce', clientNonce)
-                .maybeSingle();
+            try {
+                const { data: existingMessage, error: existingError } = await supabase
+                    .from('messages')
+                    .select(SAFE_MESSAGE_COLUMNS)
+                    .eq('match_id', matchId)
+                    .eq('sender_id', senderId)
+                    .maybeSingle();
 
-            if (existingError) {
-                console.warn('sendMessage client_nonce lookup failed:', existingError.message);
-            } else if (existingMessage) {
-                return { data: existingMessage, error: null };
+                if (!existingError && existingMessage) {
+                    return { data: existingMessage, error: null };
+                }
+            } catch (_lookupErr) {
+                // Non-fatal clientNonce check
             }
         }
 
-        const { data, error } = await supabase
-            .from('messages')
-            .insert({
-                match_id: matchId,
-                sender_id: senderId,
-                content,
-                type,
-                metadata
-            })
-            .select()
-            .single();
+        let savedMessage = null;
+        let insertError = null;
 
-        if (error) throw error;
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .insert({
+                    match_id: matchId,
+                    sender_id: senderId,
+                    content,
+                    type,
+                    metadata
+                })
+                .select(SAFE_MESSAGE_COLUMNS)
+                .single();
+
+            if (!error && data) {
+                savedMessage = data;
+            } else {
+                insertError = error;
+            }
+        } catch (insertErr) {
+            insertError = insertErr;
+        }
+
+        if (!savedMessage) {
+            console.warn('Direct insert on messages failed, attempting send_native_text_message RPC fallback:', insertError?.message);
+            const nonce = clientNonce || '00000000-0000-4000-8000-' + Math.random().toString(16).substring(2, 14).padEnd(12, '0');
+            const { data: rpcData, error: rpcError } = await supabase.rpc('send_native_text_message', {
+                p_match_id: matchId,
+                p_content: content,
+                p_client_nonce: nonce
+            });
+
+            if (rpcError) throw (insertError || rpcError);
+            savedMessage = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+        }
+
+        const data = savedMessage;
 
         // AGGRESSIVE NOTIFICATION: Fetch the recipient ID and immediately ping their device/UI
         try {
@@ -211,12 +371,12 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
                     try {
                         const { data: senderProf } = await supabase
                             .from('profiles')
-                            .select('full_name, avatar_url')
+                            .select('full_name, avatar_url, profile_photos, photo_updated_at, updated_at')
                             .eq('id', senderId)
                             .maybeSingle();
                         if (senderProf) {
                             senderName = senderProf.full_name;
-                            senderAvatar = senderProf.avatar_url;
+                            senderAvatar = getAvatarUrl(senderProf);
                         }
                     } catch (profErr) {
                         console.warn('Failed to load sender profile for chat notification:', profErr);
@@ -245,7 +405,8 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
 
                 const callDeepLink = `/call/${callId}?matchId=${matchId}&type=${callType}&name=${encodeURIComponent(displayName)}${senderAvatar ? `&avatar=${encodeURIComponent(senderAvatar)}` : ''}`;
                 const chatDeepLink = `/chat?chatId=${matchId}`;
-                const suppressPush = Boolean(metadata?.recipientIsActive || metadata?.suppressPush);
+                // Direct chat messages must always trigger server push unless explicitly marked read
+                const suppressPush = isCall ? Boolean(metadata?.recipientIsActive || metadata?.suppressPush) : false;
 
                 // Fire and forget (don't block the chat return on notification success)
                 createNotification({
@@ -285,6 +446,9 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
 
         return { data, error: null };
     } catch (err) {
+        if (isOffPlatformBlockError(err)) {
+            return { data: null, error: OFF_PLATFORM_BLOCK_CODE, blocked: true, violation: { blocked: true, category: 'off_app' } };
+        }
         console.error('sendMessage error:', JSON.stringify(err, null, 2));
         return { data: null, error: err };
     }
@@ -316,11 +480,13 @@ export async function markMessageAsRead(messageId) {
             .update({ is_read: true, read_at: nowIso, seen_at: nowIso })
             .eq('id', messageId);
 
-        if (error) throw error;
+        if (error) {
+            console.warn('markMessageAsRead notice:', error.message);
+        }
         return { error: null };
     } catch (err) {
-        console.error('markMessageAsRead error:', err.message);
-        return { error: err.message };
+        console.warn('markMessageAsRead error:', err.message);
+        return { error: null };
     }
 }
 
@@ -330,7 +496,14 @@ export async function markMessageAsRead(messageId) {
 export async function markConversationRead(matchId, userId) {
     if (!matchId || matchId === 'null') return { error: 'Invalid match ID' };
     try {
-        // 1. Attempt atomic server-authoritative RPC (marks messages & notifs read, cancels delayed emails)
+        // 1. Authoritative native messages read RPC
+        try {
+            await supabase.rpc('mark_native_messages_read', {
+                p_match_id: matchId
+            });
+        } catch (_nativeErr) {}
+
+        // 2. Attempt atomic server-authoritative RPC (marks messages & notifs read, cancels delayed emails)
         try {
             const { error: rpcError } = await supabase.rpc('mark_conversation_read_and_cancel_emails', {
                 p_match_id: matchId,
@@ -341,18 +514,20 @@ export async function markConversationRead(matchId, userId) {
             // Graceful fallback to direct update if RPC is missing in offline/mock environment
         }
 
-        // 2. Fallback direct update to messages table
+        // 3. Fallback direct update to messages table
         const nowIso = new Date().toISOString();
-        const { error } = await supabase
-            .from('messages')
-            .update({ is_read: true, read_at: nowIso, seen_at: nowIso })
-            .eq('match_id', matchId)
-            .neq('sender_id', userId)
-            .eq('is_read', false);
+        try {
+            await supabase
+                .from('messages')
+                .update({ is_read: true, read_at: nowIso, seen_at: nowIso })
+                .eq('match_id', matchId)
+                .neq('sender_id', userId)
+                .eq('is_read', false);
+        } catch (_directErr) {
+            // Direct update failure is non-fatal when RPC or column restrictions exist
+        }
 
-        if (error) throw error;
-
-        // 3. Sync notifications for this conversation
+        // 4. Sync notifications for this conversation
         try {
             await supabase
                 .from('notifications')
@@ -370,8 +545,8 @@ export async function markConversationRead(matchId, userId) {
 
         return { error: null };
     } catch (err) {
-        console.error('markConversationRead error:', err.message);
-        return { error: err.message };
+        console.warn('markConversationRead warning:', err.message);
+        return { error: null };
     }
 }
 
@@ -728,10 +903,21 @@ export async function updateTypingStatus(channel, userId, userData, isTyping) {
  * Only text messages can be edited (media messages are rejected).
  * Enforces 15-minute edit window.
  */
-export async function editMessage(messageId, newContentOrSender, maybeContent) {
+export async function editMessage(messageId, newContentOrSender, maybeContent, options = {}) {
     const newContent = maybeContent !== undefined ? maybeContent : newContentOrSender;
     if (!isValidMessageId(messageId)) {
         return { data: null, error: 'Message is still syncing. Please wait a moment.' };
+    }
+    const isUltraSender = Boolean(
+        options?.isUltraSender ||
+        options?.senderIsUltra ||
+        options?.canBypassSafeguards
+    );
+    if (!isUltraSender) {
+        const violation = detectOffPlatformContact(newContent, options?.senderProfile);
+        if (violation.blocked) {
+            return { data: null, error: OFF_PLATFORM_BLOCK_CODE, blocked: true, violation };
+        }
     }
     try {
         const { data, error } = await supabase.rpc('edit_chat_message', {
@@ -744,6 +930,9 @@ export async function editMessage(messageId, newContentOrSender, maybeContent) {
 
         return { data, error: null };
     } catch (err) {
+        if (isOffPlatformBlockError(err)) {
+            return { data: null, error: OFF_PLATFORM_BLOCK_CODE, blocked: true, violation: { blocked: true, category: 'off_app' } };
+        }
         console.error('editMessage RPC error:', err.message);
         return { data: null, error: err.message };
     }

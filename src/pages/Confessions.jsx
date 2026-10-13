@@ -26,6 +26,9 @@ const StoryShareModal = lazy(() => import('../components/StoryShareModal'));
 import { recordFeedImpressions } from '../services/feedImpressionService';
 import { supabase } from '../lib/supabase';
 import { getPublicAppUrl } from '../utils/appUrl';
+import { getAvatarUrl, getFreshAvatarUrl } from '../utils/profileData';
+import { isEliteUltra } from '../utils/premium';
+import { detectOffPlatformContact } from '../utils/offPlatformGuard';
 import './Confessions.css';
 
 function EmojiBurst({ emoji, x, y, onComplete }) {
@@ -92,13 +95,19 @@ const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onCl
         onReact(post.id, emoji);
     };
 
+    const isUltraAuthor = Boolean(
+        post.is_ultra ||
+        (post.user_id && isEliteUltra({ id: post.user_id, is_ultra: post.is_ultra, plan_type: post.plan_type })) ||
+        (post.author_id && isEliteUltra({ id: post.author_id, is_ultra: post.is_ultra, plan_type: post.plan_type }))
+    );
+
     return (
         <motion.div
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ y: -4 }}
-            className={`confession-card-premium ${meshClass} ${post.isViral ? 'viral-hot' : ''}`}
+            className={`confession-card-premium ${meshClass} ${post.isViral ? 'viral-hot' : ''} ${isUltraAuthor ? 'confession-card-ultra-spotlight' : ''}`}
             onClick={() => onOpenThread(post)}
         >
             <AnimatePresence>
@@ -113,21 +122,34 @@ const ConfessionCard = memo(function ConfessionCard({ post, index, onReact, onCl
                 ))}
             </AnimatePresence>
 
+            {/* Elite Ultra VIP Spotlight Badge */}
+            {isUltraAuthor && (
+                <div className="badge-ultra-spotlight" title="👑⭐ Elite Ultra VIP Spotlight">
+                    <span>👑⭐ Ultra VIP Spotlight</span>
+                </div>
+            )}
+
             {/* Campus Post Author Header */}
             {!post.is_anonymous && post.author_name && (
                 <div className="confession-author-header">
+                    <div className="confession-avatar-wrap">
                     {post.author_avatar ? (
-                        <img src={post.author_avatar} alt={post.author_name} className="confession-author-avatar" />
+                        <img src={getFreshAvatarUrl(post.author_avatar, post.author_id) || post.author_avatar} alt={post.author_name} className="confession-author-avatar" />
                     ) : (
                         <div className="confession-author-avatar placeholder">
                             {post.author_name.charAt(0)}
                         </div>
                     )}
+                        {isUltraAuthor && <span className="confession-avatar-ultra-beacon" title="👑 Elite Ultra">👑</span>}
+                    </div>
                     <div className="confession-author-meta">
                         <span className="confession-author-name">{post.author_name}</span>
+                        {isUltraAuthor && <span className="confession-ultra-crown" title="👑⭐ Elite Ultra VIP">👑⭐</span>}
                         {post.author_username && <span className="confession-author-handle">@{post.author_username}</span>}
                     </div>
-                    <span className="confession-campus-badge">Campus Post</span>
+                    <span className={`confession-campus-badge ${isUltraAuthor ? 'ultra' : ''}`}>
+                        {isUltraAuthor ? '👑 Ultra VIP' : 'Campus Post'}
+                    </span>
                 </div>
             )}
 
@@ -337,6 +359,7 @@ export default function Confessions() {
     const [newConfession, setNewConfession] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('General 🙊');
     const [selectedPost, setSelectedPost] = useState(null);
+    const isUserUltra = isEliteUltra(userProfile) || isEliteUltra(currentUser);
 
     // Share & Story modals
     const [shareModalPost, setShareModalPost] = useState(null);
@@ -379,7 +402,11 @@ export default function Confessions() {
     useEffect(() => {
         if (!visibleConfessions?.length) return;
         visibleConfessions.forEach(p => {
-            recordConfessionView(p.id, currentUser?.id);
+            recordConfessionView(p.id, currentUser?.id).then(isNew => {
+                if (isNew) {
+                    mutateConfessions(current => current ? current.map(item => item.id === p.id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item) : current, false);
+                }
+            });
         });
     }, [visibleConfessions, currentUser?.id]);
 
@@ -521,7 +548,13 @@ export default function Confessions() {
 
     const handleOpenThread = useCallback((post) => {
         setSelectedPost(post);
-    }, []);
+        recordConfessionView(post.id, currentUser?.id).then(isNew => {
+            if (isNew) {
+                mutateConfessions(current => current ? current.map(item => item.id === post.id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item) : current, false);
+                setSelectedPost(prev => prev && prev.id === post.id ? { ...prev, viewCount: (prev.viewCount || 0) + 1 } : prev);
+            }
+        });
+    }, [currentUser?.id, mutateConfessions]);
 
     const handleCommentAdded = useCallback((confessionId) => {
         mutateConfessions((current) => {
@@ -558,6 +591,12 @@ export default function Confessions() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!newConfession.trim() && !selectedMediaFile) return;
+        if (newConfession.trim()) {
+            const offCheck = detectOffPlatformContact(newConfession);
+            if (offCheck.blocked) {
+                throw new Error('For campus safety, phone numbers and social handles cannot be shared in campus confessions.');
+            }
+        }
         setPosting(true);
         try {
             let uploadedImageUrl = null;
@@ -575,7 +614,7 @@ export default function Confessions() {
                 postType,
                 isAnonymous: isAnon,
                 authorName: isAnon ? null : userProfile?.full_name,
-                authorAvatar: isAnon ? null : userProfile?.avatar_url,
+                authorAvatar: isAnon ? null : getAvatarUrl(userProfile),
                 authorUsername: isAnon ? null : userProfile?.username,
                 imageUrl: uploadedImageUrl
             });
@@ -600,9 +639,10 @@ export default function Confessions() {
                     post_type: postType,
                     is_anonymous: isAnon,
                     author_name: isAnon ? null : userProfile?.full_name,
-                    author_avatar: isAnon ? null : userProfile?.avatar_url,
+                    author_avatar: isAnon ? null : getAvatarUrl(userProfile),
                     author_username: isAnon ? null : userProfile?.username,
-                    image_url: uploadedImageUrl
+                    image_url: uploadedImageUrl,
+                    is_ultra: isUserUltra
                 };
                 return [optimisticPost, ...current];
             }, false);
@@ -640,7 +680,7 @@ export default function Confessions() {
                     <div className="ngl-banner-left">
                         <span className="ngl-badge-pill">💌 Anonymous Q&A</span>
                         <h3 className="ngl-headline">Receive Anonymous Messages</h3>
-                        <span className="ngl-url-snippet">{askUrl}</span>
+
                     </div>
 
                     <div className="ngl-banner-actions">
@@ -738,6 +778,11 @@ export default function Confessions() {
                                 <span>👤 Campus Post (Public)</span>
                             </button>
                         </div>
+                        {isUserUltra && (
+                            <div className="composer-ultra-indicator" title="👑⭐ Elite Ultra VIP Spotlight Active">
+                                <span>👑⭐ <b>Ultra VIP Spotlight Active:</b> Your post appears with Radiant Pink-Gold styling!</span>
+                            </div>
+                        )}
 
                         {/* Category Selector */}
                         <div className="confession-category-selector">

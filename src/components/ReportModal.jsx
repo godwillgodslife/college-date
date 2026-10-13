@@ -5,7 +5,7 @@ import { useToast } from './Toast';
 import './ReportModal.css';
 
 export default function ReportModal({ targetUser, contextType = 'chat', contextId = null, onClose, onReportSuccess }) {
-    const [selectedReason, setSelectedReason] = useState(REPORT_REASONS[0].id);
+    const [selectedReason, setSelectedReason] = useState('harassment');
     const [description, setDescription] = useState('');
     const [alsoBlock, setAlsoBlock] = useState(true);
     const [submitting, setSubmitting] = useState(false);

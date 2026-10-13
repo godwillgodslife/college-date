@@ -5,12 +5,14 @@ const ADB_PATH = path.join(process.env.LOCALAPPDATA, 'Android/Sdk/platform-tools
 let cachedDevice = 'emulator-5554';
 
 export function adb(args, options = {}) {
-    return execFileSync(ADB_PATH, args, {
+    const res = execFileSync(ADB_PATH, args, {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
         timeout: options.timeout || 15000,
+        maxBuffer: options.maxBuffer || 15 * 1024 * 1024,
         ...options
-    }).trim();
+    });
+    return typeof res === 'string' ? res.trim() : res;
 }
 
 export function initConnection() {

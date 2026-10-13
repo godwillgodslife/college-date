@@ -81,6 +81,7 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
     const stageStartTimeRef = useRef(0);
     const activeStageIdxRef = useRef(0);
     const motionDetectedCountRef = useRef(0);
+    const isSubmittingRef = useRef(false);
 
     const triggerHaptic = (ms = 35) => {
         try {
@@ -93,6 +94,7 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
     };
 
     const stopCamera = useCallback(() => {
+        isSubmittingRef.current = false;
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.cancel();
         }
@@ -229,7 +231,8 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
     };
 
     const captureAndVerify = async () => {
-        if (!videoRef.current) return;
+        if (!videoRef.current || isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
         stopCamera();
         setStep('analyzing');
 
@@ -268,13 +271,22 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
                 success('Face & Photo Verification successful! Green badge active ✓');
                 if (onVerified) onVerified();
             } else {
-                setFailReason(data.review?.summary || 'The selfie could not be confidently matched to your profile photo. Please ensure clear lighting and try again.');
+                const summary = data.review?.summary;
+                const isQueued = data.provider_used === 'free_motion_queue' || data.review?.flags?.includes('ai_credits_exhausted_or_offline') || data.review?.status === 'needs_review';
+                setFailReason(
+                    summary ||
+                    (isQueued
+                        ? 'Automated cloud verification is temporarily queued for review. You may continue setting up your profile or retry in a few moments.'
+                        : 'The selfie could not be confidently matched to your profile photo. Please ensure clear lighting and try again.')
+                );
                 setStep('failed');
             }
         } catch (err) {
             console.error('[Face Verification] Verification error:', err);
             setFailReason(err.message || 'Verification could not complete. Please ensure good lighting and try again.');
             setStep('failed');
+        } finally {
+            isSubmittingRef.current = false;
         }
     };
 

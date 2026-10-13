@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl } from '../utils/profileData';
 
 export const SERVICE_CATEGORIES = [
     { id: 'tutoring', label: 'Academic Tutoring & Assignments', icon: '📚' },
@@ -173,13 +174,15 @@ export async function getDeal(dealId) {
             .from('service_deals')
             .select(`
                 *,
-                client:profiles!client_id(id, full_name, avatar_url),
-                provider:profiles!provider_id(id, full_name, avatar_url)
+                client:profiles!client_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at),
+                provider:profiles!provider_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at)
             `)
             .eq('id', dealId)
             .single();
 
         if (error) throw error;
+        if (data?.client) data.client.avatar_url = getAvatarUrl(data.client) || data.client.avatar_url;
+        if (data?.provider) data.provider.avatar_url = getAvatarUrl(data.provider) || data.provider.avatar_url;
         return { deal: data, error: null };
     } catch (err) {
         console.error('getDeal error:', err);
@@ -193,14 +196,19 @@ export async function getDealsForMatch(matchId) {
             .from('service_deals')
             .select(`
                 *,
-                client:profiles!client_id(id, full_name, avatar_url),
-                provider:profiles!provider_id(id, full_name, avatar_url)
+                client:profiles!client_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at),
+                provider:profiles!provider_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at)
             `)
             .eq('match_id', matchId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return { deals: data || [], error: null };
+        const mapped = (data || []).map(d => {
+            if (d.client) d.client.avatar_url = getAvatarUrl(d.client) || d.client.avatar_url;
+            if (d.provider) d.provider.avatar_url = getAvatarUrl(d.provider) || d.provider.avatar_url;
+            return d;
+        });
+        return { deals: mapped, error: null };
     } catch (err) {
         console.error('getDealsForMatch error:', err);
         return { deals: [], error: err.message };

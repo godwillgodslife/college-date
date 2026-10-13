@@ -8,13 +8,21 @@ import VoiceRecorder from '../components/VoiceRecorder';
 import { supabase } from '../lib/supabase';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { requestProfileAiReview } from '../services/aiTrustService';
-import { safeArray } from '../utils/profileData';
-import { hasActivePremium } from '../utils/premium';
+import { safeArray, registerProfilePhotoTimestamp } from '../utils/profileData';
+import {
+    hasActivePremium,
+    isEliteUltra,
+    getSubscriptionTier,
+    getProfilePhotoLimit,
+    getProfileVideoDurationLimit,
+    canUploadProfileVideo
+} from '../utils/premium';
 import { clearAppCache } from '../lib/persistentCache';
 import { clearMediaCache } from '../lib/mediaCache';
 import FaceVerificationModal from '../components/FaceVerificationModal';
 import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import { searchUniversities } from '../constants/universities';
+import { detectOffPlatformContact } from '../utils/offPlatformGuard';
 import './EditProfile.css';
 
 export default function EditProfile() {
@@ -34,7 +42,15 @@ export default function EditProfile() {
     const [showFaceVerification, setShowFaceVerification] = useState(false);
     const [showUniDropdown, setShowUniDropdown] = useState(false);
     const [paywallOpen, setPaywallOpen] = useState(false);
+    const [paywallTrigger, setPaywallTrigger] = useState('video_upload');
     const uniDropdownRef = useRef(null);
+
+    const userTier = useMemo(() => getSubscriptionTier(userProfile), [userProfile]);
+    const isUltra = useMemo(() => isEliteUltra(userProfile), [userProfile]);
+    const isPremium = useMemo(() => hasActivePremium(userProfile), [userProfile]);
+    const photoLimit = useMemo(() => getProfilePhotoLimit(userProfile), [userProfile]);
+    const videoDurationLimit = useMemo(() => getProfileVideoDurationLimit(userProfile), [userProfile]);
+    const canVideo = useMemo(() => canUploadProfileVideo(userProfile), [userProfile]);
 
     const [formData, setFormData] = useState({
         full_name: '',
@@ -60,6 +76,11 @@ export default function EditProfile() {
     const filteredUnis = useMemo(() => {
         return searchUniversities(formData.university || '', 'ALL').slice(0, 15);
     }, [formData.university]);
+
+    const bioContactCheck = useMemo(() => {
+        if (isUltra || !formData.bio) return { blocked: false };
+        return detectOffPlatformContact(formData.bio);
+    }, [isUltra, formData.bio]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -198,7 +219,8 @@ export default function EditProfile() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (!hasActivePremium(userProfile)) {
+        if (!canVideo) {
+            setPaywallTrigger('video_upload');
             setPaywallOpen(true);
             return;
         }
@@ -213,13 +235,18 @@ export default function EditProfile() {
             return;
         }
 
+        const maxDuration = videoDurationLimit > 0 ? videoDurationLimit : 10;
         const tempUrl = URL.createObjectURL(file);
         const video = document.createElement('video');
         video.preload = 'metadata';
         video.onloadedmetadata = () => {
             URL.revokeObjectURL(tempUrl);
-            if (video.duration > 10.5) {
-                addToast(`Video is ${Math.round(video.duration)}s. Maximum duration is 10 seconds.`, 'error');
+            if (video.duration > maxDuration + 0.5) {
+                if (isUltra) {
+                    addToast(`Video is ${Math.round(video.duration)}s. Maximum duration for Elite Ultra is ${maxDuration} seconds.`, 'error');
+                } else {
+                    addToast(`Video is ${Math.round(video.duration)}s. Maximum duration for Elite Premium is ${maxDuration} seconds. (Upgrade to Elite Ultra for 30s!)`, 'error');
+                }
                 return;
             }
             setVideoFile(file);
@@ -250,6 +277,14 @@ export default function EditProfile() {
             // Basic validation
             if (!formData.full_name.trim()) {
                 throw new Error('Full Name is required');
+            }
+
+            // Contact sharing safeguard (Elite Ultra VIP exclusive)
+            if (!isUltra && formData.bio) {
+                const bioCheck = detectOffPlatformContact(formData.bio);
+                if (bioCheck.blocked) {
+                    throw new Error('Contact sharing (phone numbers, WhatsApp, social handles) in bios is exclusive to Elite Ultra VIP (₦15,000/mo). Please remove contact details or upgrade to Ultra.');
+                }
             }
 
             let finalVoiceUrl = formData.voice_intro_url;
@@ -304,6 +339,10 @@ export default function EditProfile() {
             // Invalidate local client caches so fresh photos reflect across all screens immediately
             clearAppCache({ userId: currentUser.id });
             clearMediaCache();
+            registerProfilePhotoTimestamp(currentUser.id, profileData.photo_updated_at);
+            window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', {
+                detail: { userId: currentUser.id, timestamp: profileData.photo_updated_at }
+            }));
 
             await fetchProfile(currentUser.id);
             requestProfileAiReview('profile_update');
@@ -355,62 +394,143 @@ export default function EditProfile() {
                     </div>
 
                     {/* PHOTO GRID SECTION */}
-                    <section className="form-section">
-                        <h2 className="section-title">My Gallery</h2>
-                        <div className="photo-grid-2x2">
-                            {[0, 1, 2, 3].map((idx) => (
-                                <div key={idx} className={`photo-sq-slot ${safeArray(formData.profile_photos)[idx] ? 'filled' : ''}`}>
-                                    {safeArray(formData.profile_photos)[idx] ? (
-                                        <>
-                                            <img src={safeArray(formData.profile_photos)[idx]} alt={`Profile ${idx + 1}`} className="slot-img" />
-                                            <button
-                                                type="button"
-                                                className="delete-sq-btn"
-                                                onClick={() => removePhoto(idx)}
-                                            >
-                                                ×
-                                            </button>
-                                        </>
+                    <section className="form-section gallery-section">
+                        <div className="gallery-header-row">
+                            <div>
+                                <h2 className="section-title">
+                                    📸 My Gallery
+                                    {isUltra ? (
+                                        <span className="gallery-tier-badge ultra">👑✨ Elite Ultra VIP (6 Photos)</span>
+                                    ) : isPremium ? (
+                                        <span className="gallery-tier-badge premium">👑 Elite Premium (6 Photos)</span>
                                     ) : (
-                                        <label className="slot-sq-empty">
-                                            <span className="plus-icon">+</span>
-                                            <input
-                                                type="file"
-                                                onChange={(e) => handlePhotoUpload(e, idx)}
-                                                accept="image/*"
-                                                hidden
-                                            />
-                                        </label>
+                                        <span className="gallery-tier-badge free">Freemium ({photoLimit} Photos)</span>
                                     )}
-                                    {idx === 0 && <div className="main-badge">MAIN</div>}
-                                </div>
-                            ))}
+                                </h2>
+                                <p className="section-subtitle">
+                                    {isUltra ? (
+                                        'All 6 HD photo slots unlocked with VIP Spotlight priority across campus.'
+                                    ) : isPremium ? (
+                                        'All 6 photo slots unlocked. Stand out across campus with your full gallery!'
+                                    ) : (
+                                        'Free accounts can add up to 4 photos. Upgrade to Elite to unlock all 6 photo slots!'
+                                    )}
+                                </p>
+                            </div>
+                            {!isPremium && (
+                                <button
+                                    type="button"
+                                    className="btn-unlock-slots-pill"
+                                    onClick={() => {
+                                        setPaywallTrigger('photo_slots');
+                                        setPaywallOpen(true);
+                                    }}
+                                >
+                                    👑 Unlock 6 Photos
+                                </button>
+                            )}
+                        </div>
+
+                        <div className={`photo-grid-gallery ${isUltra ? 'ultra-glow' : ''}`}>
+                            {[0, 1, 2, 3, 4, 5].map((idx) => {
+                                const isSlotUnlocked = idx < photoLimit;
+                                const photoUrl = safeArray(formData.profile_photos)[idx];
+
+                                if (!isSlotUnlocked) {
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className="photo-sq-slot locked"
+                                            onClick={() => {
+                                                setPaywallTrigger('photo_slots');
+                                                setPaywallOpen(true);
+                                            }}
+                                            title="Upgrade to Elite to unlock photo slot"
+                                        >
+                                            <div className="locked-slot-content">
+                                                <span className="locked-slot-icon">🔒</span>
+                                                <span className="locked-slot-badge">👑 Elite</span>
+                                                <span className="locked-slot-text">Slot {idx + 1}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div key={idx} className={`photo-sq-slot ${photoUrl ? 'filled' : ''}`}>
+                                        {photoUrl ? (
+                                            <>
+                                                <img src={photoUrl} alt={`Profile ${idx + 1}`} className="slot-img" />
+                                                <button
+                                                    type="button"
+                                                    className="delete-sq-btn"
+                                                    onClick={() => removePhoto(idx)}
+                                                    aria-label={`Remove photo ${idx + 1}`}
+                                                >
+                                                    ×
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <label className="slot-sq-empty">
+                                                <span className="plus-icon">+</span>
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => handlePhotoUpload(e, idx)}
+                                                    accept="image/*"
+                                                    hidden
+                                                />
+                                            </label>
+                                        )}
+                                        {idx === 0 && <div className="main-badge">MAIN</div>}
+                                    </div>
+                                );
+                            })}
                         </div>
                         <p className="section-hint">The first photo is your main avatar used across the app.</p>
                     </section>
 
-                    {/* 10S VIDEO PROFILE SECTION */}
+                    {/* VIDEO PROFILE SECTION */}
                     <section className="form-section video-profile-section">
                         <div className="video-section-header">
                             <div>
-                                <h2 className="section-title">🎬 10s Video Profile</h2>
-                                <p className="section-subtitle">A dynamic 10-second video moment highlighting your campus personality.</p>
+                                <h2 className="section-title">
+                                    {isUltra ? '🎬 30s Extended Video Profile' : '🎥 10s Video Profile'}
+                                </h2>
+                                <p className="section-subtitle">
+                                    {isUltra
+                                        ? 'Showcase your full story and campus charisma with an extended 30-second video moment.'
+                                        : 'A dynamic 10-second video moment highlighting your campus personality.'}
+                                </p>
                             </div>
-                            <span className="premium-feature-tag">👑 Premium</span>
+                            {isUltra ? (
+                                <span className="premium-feature-tag ultra">👑✨ Elite Ultra VIP</span>
+                            ) : isPremium ? (
+                                <span className="premium-feature-tag premium">👑 Elite Premium</span>
+                            ) : (
+                                <span className="premium-feature-tag">👑 Elite Feature</span>
+                            )}
                         </div>
 
-                        {!hasActivePremium(userProfile) ? (
-                            <div className="video-premium-locked-card" onClick={() => setPaywallOpen(true)} style={{ cursor: 'pointer' }}>
+                        {!canVideo ? (
+                            <div
+                                className="video-premium-locked-card"
+                                onClick={() => {
+                                    setPaywallTrigger('video_upload');
+                                    setPaywallOpen(true);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <div className="locked-icon">🔒</div>
                                 <div className="locked-info">
-                                    <strong>Unlock 10s Video Profile</strong>
-                                    <p>Stand out to campus crushes with a live video introduction.</p>
+                                    <strong>Unlock Video Profile</strong>
+                                    <p>Stand out to campus crushes with a live video introduction. Elite Premium unlocks 10s clips, and Elite Ultra unlocks extended 30s HD showcases!</p>
                                 </div>
                                 <button
                                     type="button"
                                     className="btn btn-primary btn-sm"
                                     onClick={(e) => {
                                         e.stopPropagation();
+                                        setPaywallTrigger('video_upload');
                                         setPaywallOpen(true);
                                     }}
                                 >
@@ -421,6 +541,11 @@ export default function EditProfile() {
                             <div className="video-upload-container">
                                 {(videoPreviewUrl || formData.video_url) ? (
                                     <div className="video-preview-wrapper">
+                                        <div className="video-preview-badge-row">
+                                            <span className="video-active-tier-pill">
+                                                {isUltra ? '👑✨ 30s Ultra HD Video Active' : '👑 10s Elite Video Active'}
+                                            </span>
+                                        </div>
                                         <video
                                             src={videoPreviewUrl || formData.video_url}
                                             className="video-profile-preview"
@@ -449,12 +574,18 @@ export default function EditProfile() {
                                     </div>
                                 ) : (
                                     <div
-                                        className="video-upload-dropzone"
+                                        className={`video-upload-dropzone ${isUltra ? 'ultra' : ''}`}
                                         onClick={() => videoInputRef.current?.click()}
                                     >
-                                        <span className="dropzone-icon">📹</span>
-                                        <strong>Upload 10-Second Video</strong>
-                                        <p>Max 10 seconds (MP4, MOV, WebM). Show your campus vibe!</p>
+                                        <span className="dropzone-icon">{isUltra ? '🎬' : '📹'}</span>
+                                        <strong>
+                                            {isUltra ? 'Upload 30-Second Extended Video' : 'Upload 10-Second Video'}
+                                        </strong>
+                                        <p>
+                                            {isUltra
+                                                ? 'Max 30 seconds (MP4, MOV, WebM). Full extended HD campus showcase!'
+                                                : 'Max 10 seconds (MP4, MOV, WebM). Show your campus vibe!'}
+                                        </p>
                                         <button type="button" className="btn btn-secondary btn-sm">
                                             Choose Video
                                         </button>
@@ -467,6 +598,15 @@ export default function EditProfile() {
                                     onChange={handleVideoSelect}
                                     hidden
                                 />
+
+                                {isPremium && !isUltra && (
+                                    <div
+                                        className="ultra-video-upsell"
+                                        onClick={() => navigate('/premium?tier=ultra')}
+                                    >
+                                        <span>🚀 Want 30-second extended videos? <strong>Upgrade to Elite Ultra VIP →</strong></span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </section>
@@ -562,14 +702,60 @@ export default function EditProfile() {
                         </div>
 
                         <div className="form-item">
-                            <label>Bio</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <label style={{ margin: 0 }}>Bio</label>
+                                {isUltra ? (
+                                    <span style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600 }}>
+                                        👑 Ultra VIP (Contact Sharing Allowed)
+                                    </span>
+                                ) : (
+                                    <span style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.45)' }}>
+                                        Keep chats on College Date
+                                    </span>
+                                )}
+                            </div>
                             <textarea
                                 name="bio"
-                                className="modern-input modern-textarea"
+                                className={`modern-input modern-textarea ${bioContactCheck.blocked ? 'bio-has-contacts' : ''}`}
                                 value={formData.bio}
                                 onChange={handleChange}
                                 placeholder="Tell your story..."
                             />
+                            {!isUltra && bioContactCheck.blocked && (
+                                <div className="bio-contact-warning-pill animate-fade-in" style={{
+                                    marginTop: '8px',
+                                    padding: '8px 12px',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                                    borderRadius: '10px',
+                                    fontSize: '0.8rem',
+                                    color: '#f87171',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: '10px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <span>⚠️ Phone numbers & social handles in bio require Elite Ultra VIP.</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate('/premium?tier=ultra&selected=ultra_monthly')}
+                                        style={{
+                                            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            color: '#fff',
+                                            padding: '4px 10px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                    >
+                                        Unlock with Ultra (₦15k) 👑
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </section>
 
@@ -784,7 +970,7 @@ export default function EditProfile() {
             <ContextualPaywallSheet
                 isOpen={paywallOpen}
                 onClose={() => setPaywallOpen(false)}
-                triggerSource="video_upload"
+                triggerSource={paywallTrigger || 'video_upload'} // triggerSource="video_upload"
                 onSuccess={() => {
                     if (currentUser?.id) fetchProfile?.(currentUser.id);
                 }}

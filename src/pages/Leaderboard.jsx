@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getAvatarUrl } from '../utils/profileData';
 import './Leaderboard.css';
 
 // ── League Classification ─────────────────────────────────────
@@ -47,7 +48,7 @@ function useWeeklyCountdown() {
 // ── Avatar with Crown Glow for Top 3 ─────────────────────────
 const UserAvatar = ({ user, size = 'md', rank = 0 }) => {
     const navigate = useNavigate();
-    const src = user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`;
+    const src = getAvatarUrl(user) || user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=random`;
     const frameClass = rank === 1 ? 'frame-1' : rank === 2 ? 'frame-2' : rank === 3 ? 'frame-3' : 'frame-default';
     const sizeStyle = size === 'lg'
         ? { width: '100px', height: '100px' }
@@ -150,7 +151,7 @@ export default function Leaderboard() {
                                 <div className="my-standing-glow" />
                                 <div className="my-standing-rank">#{myRank}</div>
                                 <div className="my-standing-avatar">
-                                    <img src={myUserData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUserData.full_name)}&background=random`} alt="" />
+                                    <img src={getAvatarUrl(myUserData) || myUserData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(myUserData.full_name)}&background=random`} alt="" />
                                 </div>
                                 <div className="my-standing-info">
                                     <span className="my-standing-label">Your Current Standing</span>

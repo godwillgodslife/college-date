@@ -25,10 +25,30 @@ import meetupPhotoSource from '../assets/how-it-works-meetup-students.jpg';
 
 import './Landing.css';
 
-const optimizedImageUrl = (source, width, quality) =>
-  `/.netlify/images?url=${encodeURIComponent(source)}&w=${width}&q=${quality}`;
+const isNetlifyEnv =
+  typeof window !== 'undefined' &&
+  !import.meta.env?.DEV &&
+  window.location.hostname !== 'localhost' &&
+  window.location.hostname !== '127.0.0.1' &&
+  window.location.hostname !== '[::1]' &&
+  !window.location.hostname.startsWith('192.168.') &&
+  !window.location.hostname.startsWith('10.') &&
+  !window.location.hostname.endsWith('.local') &&
+  !window.Capacitor?.isNativePlatform?.();
+
+const optimizedImageUrl = (source, width, quality) => {
+  if (!isNetlifyEnv) return source;
+  return `/.netlify/images?url=${encodeURIComponent(source)}&w=${width}&q=${quality}`;
+};
 
 const responsiveImage = (source, width, height, quality = 84) => {
+  if (!isNetlifyEnv) {
+    return {
+      src: source,
+      width,
+      height,
+    };
+  }
   const candidates = [480, 960, 1200].filter((candidate) => candidate <= width);
   const largestCandidate = candidates[candidates.length - 1] || width;
 

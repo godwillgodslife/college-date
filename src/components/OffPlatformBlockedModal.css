@@ -1,0 +1,392 @@
+/* OffPlatformBlockedModal.css - "Message Protected" mini pop-up sheet */
+
+.offplatform-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000 !important;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: offplatformFade 0.2s ease-out both;
+}
+
+@keyframes offplatformFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes offplatformSlide {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.offplatform-sheet {
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1f1a30 0%, #120f1e 100%);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-bottom: none;
+    border-radius: 26px 26px 0 0;
+    padding: 0.85rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(251, 191, 36, 0.15);
+    color: #ffffff;
+    text-align: center;
+    animation: offplatformSlide 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.offplatform-handle {
+    width: 38px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 0 auto 0.75rem;
+}
+
+.offplatform-icon-wrap {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 0.5rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.18) 0%, rgba(255, 45, 85, 0.18) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.25);
+}
+
+.offplatform-icon-crown {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 6px rgba(251, 191, 36, 0.6));
+}
+
+.offplatform-eyebrow {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fbbf24;
+}
+
+.offplatform-title {
+    margin: 0.25rem 0 0.35rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.offplatform-body {
+    margin: 0 auto 0.85rem;
+    max-width: 400px;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+/* ── Elite Ultra 15k Luxury Card ── */
+.offplatform-ultra-card {
+    background: linear-gradient(145deg, rgba(30, 24, 48, 0.95) 0%, rgba(18, 14, 30, 0.98) 100%);
+    border: 1.5px solid #fbbf24;
+    border-radius: 18px;
+    padding: 0.95rem 1rem;
+    margin-bottom: 0.85rem;
+    text-align: left;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.18);
+    position: relative;
+    overflow: hidden;
+}
+
+.offplatform-ultra-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.ultra-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.45rem;
+}
+
+.ultra-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #000000;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    padding: 3px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.ultra-price {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: #fbbf24;
+}
+
+.ultra-card-headline {
+    margin: 0 0 0.35rem;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.ultra-card-desc {
+    margin: 0 0 0.65rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.ultra-card-desc strong {
+    color: #fbbf24;
+}
+
+.ultra-perks-list {
+    list-style: none;
+    margin: 0 0 0.85rem;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.ultra-perks-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.ultra-check {
+    color: #fbbf24;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.ultra-upgrade-btn {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+    color: #0b0914 !important;
+    font-size: 0.94rem !important;
+    font-weight: 800 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.75rem 1rem !important;
+    border-radius: 14px !important;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ultra-upgrade-btn:active {
+    transform: scale(0.98);
+}
+
+.btn-arrow {
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+/* ── Restricted List Card ── */
+.offplatform-list-card {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.offplatform-list-heading {
+    margin: 0 0 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.offplatform-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.offplatform-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.list-icon {
+    font-size: 0.9rem;
+}
+
+/* ── In-App Features Section ── */
+.offplatform-inapp-section {
+    margin-bottom: 0.75rem;
+}
+
+.offplatform-alt-heading {
+    margin: 0 0 0.35rem;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.offplatform-alt-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.offplatform-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    background: rgba(108, 99, 255, 0.16);
+    border: 1px solid rgba(108, 99, 255, 0.35);
+    color: #e0ddff;
+}
+
+.offplatform-warning {
+    margin: 0 0 0.75rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+/* ── Action Buttons ── */
+.offplatform-actions {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.offplatform-btn {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 13px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+}
+
+.offplatform-btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.offplatform-btn.tertiary {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    min-height: 34px;
+}
+
+/* ── Light Theme Overrides ── */
+html[data-theme='light'] .offplatform-sheet,
+body.light-mode .offplatform-sheet {
+    background: #ffffff;
+    color: #111827;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+html[data-theme='light'] .offplatform-title,
+body.light-mode .offplatform-title {
+    color: #111827;
+}
+
+html[data-theme='light'] .offplatform-body,
+body.light-mode .offplatform-body {
+    color: #4b5563;
+}
+
+html[data-theme='light'] .offplatform-ultra-card,
+body.light-mode .offplatform-ultra-card {
+    background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.2);
+}
+
+html[data-theme='light'] .ultra-card-headline,
+body.light-mode .ultra-card-headline {
+    color: #78350f;
+}
+
+html[data-theme='light'] .ultra-card-desc,
+body.light-mode .ultra-card-desc {
+    color: #92400e;
+}
+
+html[data-theme='light'] .ultra-perks-list li,
+body.light-mode .ultra-perks-list li {
+    color: #78350f;
+}
+
+html[data-theme='light'] .offplatform-list-card,
+body.light-mode .offplatform-list-card {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+html[data-theme='light'] .offplatform-list li,
+body.light-mode .offplatform-list li {
+    color: #374151;
+}
+
+html[data-theme='light'] .offplatform-list-heading,
+body.light-mode .offplatform-list-heading {
+    color: #6b7280;
+}
+
+html[data-theme='light'] .offplatform-alt-heading,
+body.light-mode .offplatform-alt-heading {
+    color: #6b7280;
+}
+
+html[data-theme='light'] .offplatform-pill,
+body.light-mode .offplatform-pill {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #4338ca;
+}
+
+html[data-theme='light'] .offplatform-btn.secondary,
+body.light-mode .offplatform-btn.secondary {
+    background: #f3f4f6;
+    color: #1f2937;
+    border-color: #e5e7eb;
+}
+
+html[data-theme='light'] .offplatform-btn.tertiary,
+body.light-mode .offplatform-btn.tertiary {
+    color: #6b7280;
+}

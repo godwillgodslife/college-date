@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { compressImage } from '../utils/imageCompressor';
-import { normalizeProfile, safeArray } from '../utils/profileData';
+import { normalizeProfile, safeArray, registerProfilePhotoTimestamp } from '../utils/profileData';
 import { clearAppCache } from '../lib/persistentCache';
 import { clearMediaCache } from '../lib/mediaCache';
 import { preValidatePhoto } from './ai/localEngine';
@@ -57,7 +57,7 @@ export async function getProfileByUsername(usernameOrId) {
 
         let query = supabase
             .from('profiles')
-            .select('id, full_name, username, avatar_url, university, is_verified, bio, video_url');
+            .select('id, full_name, username, avatar_url, profile_photos, photo_updated_at, updated_at, university, is_verified, bio, video_url');
 
         if (isUuid) {
             query = query.eq('id', clean);
@@ -128,6 +128,9 @@ export async function upsertProfile(userId, profileData) {
             profile_photos: safeArray(profileData.profile_photos),
             updated_at: new Date().toISOString()
         };
+        if (safeData.avatar_url || (Array.isArray(safeData.profile_photos) && safeData.profile_photos.length > 0)) {
+            safeData.photo_updated_at = safeData.photo_updated_at || new Date().toISOString();
+        }
 
         // 1. If completing onboarding, prioritize the resilient SECURITY DEFINER RPC
         if (safeData.is_onboarded === true) {
@@ -144,7 +147,13 @@ export async function upsertProfile(userId, profileData) {
                 });
 
                 if (!rpcError && rpcData) {
-                    return { data: normalizeProfile(rpcData), error: null };
+                    const norm = normalizeProfile(rpcData);
+                    if (norm?.id) {
+                        const ts = norm.photo_updated_at || norm.updated_at || new Date().toISOString();
+                        registerProfilePhotoTimestamp(norm.id, ts);
+                        window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId: norm.id, timestamp: ts } }));
+                    }
+                    return { data: norm, error: null };
                 }
                 if (rpcError) {
                     console.warn('[profileService] complete_user_onboarding RPC warning, falling back to direct upsert:', rpcError);
@@ -165,7 +174,13 @@ export async function upsertProfile(userId, profileData) {
             throw error;
         }
 
-        return { data: normalizeProfile(data), error: null };
+        const norm = normalizeProfile(data);
+        if (norm?.id) {
+            const ts = norm.photo_updated_at || norm.updated_at || new Date().toISOString();
+            registerProfilePhotoTimestamp(norm.id, ts);
+            window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId: norm.id, timestamp: ts } }));
+        }
+        return { data: norm, error: null };
     } catch (err) {
         console.error('upsertProfile error:', err.message);
         return { data: null, error: err.message };
@@ -214,6 +229,10 @@ export async function uploadAvatar(file, userId) {
         const { data: publicUrlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(filePath);
+
+        const nowIso = new Date().toISOString();
+        registerProfilePhotoTimestamp(userId, nowIso);
+        window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId, timestamp: nowIso } }));
 
         return { url: publicUrlData.publicUrl, error: null };
     } catch (err) {
@@ -323,6 +342,10 @@ export async function validateAndUploadProfilePhoto(file, userId, index = 0) {
         // Cache busting on client side so new photo propagates immediately
         clearAppCache({ userId });
         clearMediaCache().catch(() => {});
+
+        const nowIso = new Date().toISOString();
+        registerProfilePhotoTimestamp(userId, nowIso);
+        window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId, timestamp: nowIso } }));
 
         return {
             url: validationResult.avatarUrl,

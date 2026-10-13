@@ -9,7 +9,7 @@ export async function getReceivedSnaps(userId) {
         .from('direct_snaps')
         .select(`
             *,
-            sender:sender_id (id, full_name, avatar_url)
+            sender:sender_id (id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at)
         `)
         .eq('receiver_id', userId)
         .eq('status', 'sent') // Only fetched un-opened snaps

@@ -12,6 +12,7 @@ import {
 } from '../services/chatService';
 import { getAgoraCallToken } from '../services/agoraTokenService';
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl, getFreshAvatarUrl } from '../utils/profileData';
 import './VoiceCallRoom.css';
 
 async function loadAgoraRTC() {
@@ -25,7 +26,7 @@ export default function VoiceCallRoom() {
     const callType = searchParams.get('type') === 'video' ? 'video' : 'voice';
     const matchIdParam = searchParams.get('matchId') || null;
     const initialTargetName = searchParams.get('name') || 'Campus Match';
-    const initialTargetAvatar = searchParams.get('avatar') || null;
+    const initialTargetAvatar = getFreshAvatarUrl(searchParams.get('avatar')) || null;
 
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
@@ -265,13 +266,14 @@ export default function VoiceCallRoom() {
                 if (otherUserId) {
                     const { data: profile } = await supabase
                         .from('profiles')
-                        .select('full_name, avatar_url')
+                        .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at')
                         .eq('id', otherUserId)
                         .maybeSingle();
 
                     if (profile && isMounted) {
                         if (profile.full_name) setTargetName(profile.full_name);
-                        if (profile.avatar_url) setTargetAvatar(profile.avatar_url);
+                        const freshAvatar = getAvatarUrl(profile);
+                        if (freshAvatar) setTargetAvatar(freshAvatar);
                     }
                 }
 

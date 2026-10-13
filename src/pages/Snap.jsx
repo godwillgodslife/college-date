@@ -5,6 +5,7 @@ import { useToast } from '../components/Toast';
 import { getReceivedSnaps, sendSnap, openSnap } from '../services/snapService';
 import { getConversations } from '../services/chatService'; // To pick recipients
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getAvatarUrl } from '../utils/profileData';
 import './Snapshots.css'; // Re-use styling
 
 export default function Snap() {
@@ -117,7 +118,7 @@ export default function Snap() {
                     </div>
                     <img src={activeSnap.media_url} alt="Snap" className="snap-viewer-media" />
                     <div className="snap-sender-info">
-                        <img src={activeSnap.sender?.avatar_url} alt="Sender" />
+                        <img src={getAvatarUrl(activeSnap.sender) || activeSnap.sender?.avatar_url} alt="Sender" />
                         <span>{activeSnap.sender?.full_name}</span>
                     </div>
                 </div>
@@ -157,7 +158,7 @@ export default function Snap() {
                                 {snaps.map(snap => (
                                     <li key={snap.id} className="snap-item" onClick={() => handleOpenSnap(snap)}>
                                         <div className="snap-avatar-ring">
-                                            <img src={snap.sender?.avatar_url || 'https://via.placeholder.com/40'} alt="Sender" />
+                                            <img src={getAvatarUrl(snap.sender) || snap.sender?.avatar_url || 'https://via.placeholder.com/40'} alt="Sender" />
                                         </div>
                                         <div className="snap-info">
                                             <span className="snap-sender">{snap.sender?.full_name}</span>

@@ -6,7 +6,7 @@
     height: 100vh;
     height: calc(var(--vh, 1vh) * 100);
     background: rgba(0, 0, 0, 0.95);
-    z-index: 10000;
+    z-index: 99999 !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -81,6 +81,31 @@
     font-size: 0.8rem;
 }
 
+.status-viewer-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.viewer-ctrl-btn {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: background 0.15s ease;
+}
+
+.viewer-ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .status-media-container {
     flex: 1;
     display: flex;
@@ -93,6 +118,12 @@
 .status-media {
     max-width: 100%;
     max-height: 100%;
+    object-fit: contain;
+}
+
+.status-media-video {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 

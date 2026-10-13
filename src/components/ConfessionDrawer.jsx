@@ -7,6 +7,8 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 import { toggleCommentLike, getUserCommentLikes } from '../services/confessionService';
+import { getFreshAvatarUrl } from '../utils/profileData';
+import { isEliteUltra } from '../utils/premium';
 
 const CAMPUS_ALIASES = [
     { name: 'Engineering Lion', emoji: '🦁' },
@@ -230,7 +232,7 @@ export default function ConfessionDrawer({ post, onClose, onCommentAdded }) {
                         {!post.is_anonymous && post.author_name && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
                                 {post.author_avatar ? (
-                                    <img src={post.author_avatar} alt={post.author_name} style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ec4899' }} />
+                                    <img src={getFreshAvatarUrl(post.author_avatar, post.author_id) || post.author_avatar} alt={post.author_name} style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ec4899' }} />
                                 ) : (
                                     <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ec4899', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
                                         {post.author_name.charAt(0)}
@@ -254,6 +256,8 @@ export default function ConfessionDrawer({ post, onClose, onCommentAdded }) {
                             <span>•</span>
                             <span>🔁 {post.repostCount || 0} Reposts</span>
                             <span>•</span>
+                            <span>👁️ {post.viewCount || 0} Views</span>
+                            <span>•</span>
                             <span>{post.university}</span>
                         </div>
                     </div>
@@ -270,11 +274,15 @@ export default function ConfessionDrawer({ post, onClose, onCommentAdded }) {
                                 const alias = getAlias(c.user_id, post.id);
                                 const isLiked = likedCommentIds.has(c.id);
                                 const likeCount = c.like_count || 0;
+                                const isCommentUltra = Boolean(c.is_ultra || (c.user_id && isEliteUltra({ id: c.user_id, is_ultra: c.is_ultra })));
                                 return (
-                                    <div key={c.id} className="comment-card">
+                                    <div key={c.id} className={`comment-card ${isCommentUltra ? 'comment-card-ultra' : ''}`}>
                                         <div className="alias-avatar">{alias.emoji}</div>
                                         <div className="comment-info">
-                                            <div className="alias-name">{alias.name}</div>
+                                            <div className="alias-name">
+                                                {alias.name}
+                                                {isCommentUltra && <span className="comment-ultra-pill" title="👑⭐ Elite Ultra VIP">👑⭐ Ultra</span>}
+                                            </div>
                                             <p className="comment-text">{c.content}</p>
                                             <div className="comment-actions">
                                                 <button

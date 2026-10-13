@@ -7,7 +7,7 @@ import { hasActivePremium } from '../utils/premium';
 import { clearAppCache, getCachedData, setCachedData } from '../lib/persistentCache';
 import { clearOfflineQueue } from '../lib/offlineQueue';
 import { clearMediaCache } from '../lib/mediaCache';
-import { normalizeProfile } from '../utils/profileData';
+import { normalizeProfile, registerProfilePhotoTimestamp } from '../utils/profileData';
 import { clearSecureAuthStorage } from '../lib/secureAuthStorage';
 import {
     clearLogoutAuthPreferences,
@@ -150,7 +150,12 @@ export function AuthProvider({ children }) {
             if (profileError) {
                 console.warn('Profile fetch warning:', profileError.message);
             }
-            setUserProfile(repairProfile(data, subscription));
+            const profile = repairProfile(data, subscription);
+            if (profile?.id) {
+                const ts = profile.photo_updated_at || profile.updated_at;
+                if (ts) registerProfilePhotoTimestamp(profile.id, ts);
+            }
+            setUserProfile(profile);
         } catch (err) {
             console.error('Error fetching profile:', err);
             setUserProfile(null);
@@ -810,6 +815,13 @@ export function AuthProvider({ children }) {
 
             // 2. Update local state
             setUserProfile(data);
+            if (data?.id) {
+                const ts = data.photo_updated_at || data.updated_at || new Date().toISOString();
+                registerProfilePhotoTimestamp(data.id, ts);
+                window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', {
+                    detail: { userId: data.id, timestamp: ts }
+                }));
+            }
 
             return { data, error: null };
         } catch (err) {

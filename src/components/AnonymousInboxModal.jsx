@@ -84,7 +84,7 @@ export default function AnonymousInboxModal({ currentUser, userProfile, onClose 
                 <div className="inbox-link-strip">
                     <div className="inbox-link-info">
                         <span className="inbox-link-label">My Ask Link</span>
-                        <code className="inbox-link-text">{askUrl}</code>
+                        <span className="inbox-link-subtext">Share with friends to get questions</span>
                     </div>
                     <div className="inbox-link-btns">
                         <button type="button" className="btn-inbox-copy" onClick={handleCopyLink} title="Copy link">

@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from 'react';
 import { usePrefetch } from '../hooks/usePrefetch';
 import NotificationTray from './NotificationTray';
 import { partnerWhatsAppUrl } from '../config/contactLinks';
+import { getAvatarUrl } from '../utils/profileData';
+import { triggerLightHaptic } from '../services/haptics';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -63,7 +65,7 @@ export default function Navbar() {
         || currentUser?.email?.split('@')[0]
         || 'User';
 
-    const avatarUrl = userProfile?.avatar_url || null;
+    const avatarUrl = getAvatarUrl(userProfile) || userProfile?.avatar_url || null;
 
     return (
         <nav className="navbar">
@@ -90,8 +92,13 @@ export default function Navbar() {
                         Match
                     </Link>
                     <Link
-
-
+                        to="/explore"
+                        onMouseEnter={() => prefetch('/explore')}
+                        className={`nav-link ${location.pathname === '/explore' ? 'active' : ''}`}
+                    >
+                        Explore
+                    </Link>
+                    <Link
                         to="/chat"
                         onMouseEnter={() => prefetch('/chat')}
                         className={`nav-link ${location.pathname === '/chat' ? 'active' : ''}`}
@@ -129,8 +136,13 @@ export default function Navbar() {
                     {/* Notification Bell */}
                     <div className="nav-notif-wrapper">
                         <button 
+                            type="button"
                             className={`nav-icon-btn ${animateBell ? 'bell-animate' : ''}`} 
+                            aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+                            aria-expanded={notifOpen}
+                            aria-haspopup="dialog"
                             onClick={() => { 
+                                triggerLightHaptic();
                                 setNotifOpen(!notifOpen); 
                                 setShowIndicator(false);
                                 sessionStorage.setItem('cd_has_seen_notif_indicator', 'true');

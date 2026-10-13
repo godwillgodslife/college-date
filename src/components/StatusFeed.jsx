@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { recordStatusView, getStatusViewers } from '../services/statusService';
 import LoadingSpinner from './LoadingSpinner';
+import { getAvatarUrl } from '../utils/profileData';
 import './StatusFeed.css';
 
 export default function StatusFeed({ statuses, loading, hiddenCount = 0 }) {
@@ -60,7 +61,7 @@ export default function StatusFeed({ statuses, loading, hiddenCount = 0 }) {
                         <div className="status-header">
                             <div className="status-user-info">
                                 <img
-                                    src={status.profiles?.avatar_url || 'https://via.placeholder.com/40'}
+                                    src={getAvatarUrl(status.profiles) || status.profiles?.avatar_url || 'https://via.placeholder.com/40'}
                                     alt={status.profiles?.full_name || 'User'}
                                     className="status-avatar"
                                 />
@@ -114,7 +115,7 @@ export default function StatusFeed({ statuses, loading, hiddenCount = 0 }) {
                                     <ul className="viewer-items">
                                         {viewers.map(v => (
                                             <li key={v.viewer.id} className="viewer-item">
-                                                <img src={v.viewer.avatar_url || 'https://via.placeholder.com/20'} alt="Avatar" />
+                                                <img src={getAvatarUrl(v.viewer) || v.viewer.avatar_url || 'https://via.placeholder.com/20'} alt="Avatar" />
                                                 <span>{v.viewer.full_name}</span>
                                                 <span className="view-time">
                                                     {formatDistanceToNow(new Date(v.viewed_at), { addSuffix: true })}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { formatSidebarTimestamp, formatChatTimestamp } from '../utils/formatTimestamp';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -69,11 +69,24 @@ import { evaluateDailyQualification } from '../services/activeProgramService';
 import OfficialChannelCard from '../components/OfficialChannelCard';
 import OfficialHubModal from '../components/OfficialHubModal';
 import ChatActionModal from '../components/ChatActionModal';
+import StatusChoiceModal from '../components/StatusChoiceModal';
+import StatusViewer from '../components/StatusViewer';
+import { getLocalUserStatuses, getAllLocalStatuses } from '../services/localStatusService';
+import { getActiveUserStatuses, getRecentStatuses, getViewedStatusIds } from '../services/statusService';
 import { triggerLightHaptic } from '../utils/haptics';
 import {
     getCampusCommonGround as computeCampusCommonGround,
     getCampusIcebreakers as computeCampusIcebreakers
 } from '../utils/campusCommonGround';
+import OffPlatformBlockedModal from '../components/OffPlatformBlockedModal';
+import {
+    detectOffPlatformContact,
+    detectOffPlatformContactWithHistory,
+    isOffPlatformBlockError,
+    recordOffPlatformAttempt,
+    canBypassOffPlatformSafeguard
+} from '../utils/offPlatformGuard';
+import { isEliteUltra } from '../utils/premium';
 import './Chat.css';
 
 function getCampusCommonGround(otherUser, userProfile) {
@@ -427,6 +440,88 @@ export default function Chat() {
         }
     });
 
+    // Ephemeral Status Choice & Viewer states
+    const [statusChoiceTarget, setStatusChoiceTarget] = useState(null);
+    const [activeViewingStatus, setActiveViewingStatus] = useState(null);
+    const [usersWithStatus, setUsersWithStatus] = useState(() => new Set());
+    const [usersWithUnviewedStatus, setUsersWithUnviewedStatus] = useState(() => new Set());
+
+    useEffect(() => {
+        let isCancelled = false;
+
+        const refreshStatuses = () => {
+            Promise.all([
+                getRecentStatuses().catch(() => ({ data: [] })),
+                getAllLocalStatuses().catch(() => [])
+            ]).then(([remoteRes, localList]) => {
+                if (isCancelled) return;
+                const allStatuses = [...(remoteRes?.data || []), ...(localList || [])];
+                const userIds = new Set();
+                const unviewedUserIds = new Set();
+                const viewedIds = getViewedStatusIds(currentUser?.id);
+
+                allStatuses.forEach(s => {
+                    if (!s?.user_id) return;
+                    userIds.add(s.user_id);
+                    const statusKey = s.id || s.media_url;
+                    if (s.user_id !== currentUser?.id && !viewedIds.has(statusKey)) {
+                        unviewedUserIds.add(s.user_id);
+                    }
+                });
+
+                setUsersWithStatus(userIds);
+                setUsersWithUnviewedStatus(unviewedUserIds);
+            }).catch(() => {});
+        };
+
+        refreshStatuses();
+
+        const handleStatusCreated = (e) => {
+            if (e.detail?.user_id) {
+                setUsersWithStatus(prev => new Set([...prev, e.detail.user_id]));
+            }
+            refreshStatuses();
+        };
+
+        const handleStatusViewed = () => {
+            refreshStatuses();
+        };
+
+        window.addEventListener('cd:status-created', handleStatusCreated);
+        window.addEventListener('cd:status-viewed', handleStatusViewed);
+
+        return () => {
+            isCancelled = true;
+            window.removeEventListener('cd:status-created', handleStatusCreated);
+            window.removeEventListener('cd:status-viewed', handleStatusViewed);
+        };
+    }, [currentUser?.id]);
+
+    const handleAvatarClick = useCallback(async (user, e, convId = null) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (!user?.id) return;
+
+        const targetConvId = convId || (selectedConv?.other_user?.id === user.id ? selectedConv?.id : null);
+
+        try {
+            const statuses = await getActiveUserStatuses(user.id);
+            if (statuses && statuses.length > 0) {
+                setStatusChoiceTarget({ user, statuses, conversationId: targetConvId });
+                return;
+            }
+        } catch (err) {
+            console.warn('[Chat] Error checking active user statuses:', err);
+        }
+
+        navigate(`/profile/${user.id}`, {
+            state: {
+                conversationId: targetConvId,
+                matchId: targetConvId,
+                fromChat: true
+            }
+        });
+    }, [navigate, selectedConv]);
+
     const scrollToBottomSmooth = useCallback(() => {
         if (virtuosoRef.current && messages.length > 0) {
             virtuosoRef.current.scrollToIndex({
@@ -463,6 +558,37 @@ export default function Chat() {
     const [replyToMessage, setReplyToMessage] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
     const [showMoreActions, setShowMoreActions] = useState(false);
+    const [offPlatformViolation, setOffPlatformViolation] = useState(null);
+    const [offPlatformAttempts, setOffPlatformAttempts] = useState(1);
+
+    const isUltra = useMemo(() => isEliteUltra(userProfile), [userProfile]);
+
+    const offPlatformTypingCheck = useMemo(() => {
+        if (isUltra || !newMessage || newMessage.trim().length < 4) return { blocked: false };
+        return detectOffPlatformContact(newMessage);
+    }, [isUltra, newMessage]);
+
+    const [safetyNoticeDismissed, setSafetyNoticeDismissed] = useState(() => {
+        try {
+            return sessionStorage.getItem('cd_chat_safety_dismissed') === 'true';
+        } catch (_) {
+            return false;
+        }
+    });
+
+    const dismissSafetyNotice = useCallback(() => {
+        setSafetyNoticeDismissed(true);
+        try {
+            sessionStorage.setItem('cd_chat_safety_dismissed', 'true');
+        } catch (_) {}
+    }, []);
+
+    const showOffPlatformBlock = useCallback((violation) => {
+        triggerLightHaptic();
+        const attempts = recordOffPlatformAttempt(currentUser?.id);
+        setOffPlatformAttempts(attempts);
+        setOffPlatformViolation(violation || { blocked: true, category: 'off_app' });
+    }, [currentUser?.id]);
 
     // Sprint Features States
     const [coinBalance, setCoinBalance] = useState(0);
@@ -881,6 +1007,32 @@ export default function Chat() {
 
         setSelectedConv(conv);
         setPendingSelection(null);
+
+        // Fast background fresh-avatar check for conversation partner
+        if (conv?.other_user?.id) {
+            supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, is_verified, photo_verified')
+                .eq('id', conv.other_user.id)
+                .maybeSingle()
+                .then(({ data }) => {
+                    if (data) {
+                        const freshAvatar = getAvatarUrl(data);
+                        setSelectedConv(prev => {
+                            if (!prev || prev.id !== conv.id) return prev;
+                            return {
+                                ...prev,
+                                other_user: {
+                                    ...prev.other_user,
+                                    ...data,
+                                    avatar_url: freshAvatar
+                                }
+                            };
+                        });
+                    }
+                }).catch(() => {});
+        }
+
         if (conv?.has_unread) {
             revalidateConvs(
                 (prev) => (prev || []).map(c => c.id === conv.id ? { ...c, has_unread: false, unread_count: 0 } : c),
@@ -894,6 +1046,63 @@ export default function Chat() {
             }
         }
     }, [navigate, revalidateConvs, selectedConv?.id, newMessage]);
+
+    // Realtime subscription for conversation partner profile updates (avatar, name, verification)
+    useEffect(() => {
+        const partnerId = selectedConv?.other_user?.id;
+        if (!partnerId) return;
+
+        const channel = supabase
+            .channel(`partner_profile_sync:${partnerId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${partnerId}`
+            }, (payload) => {
+                if (payload.new) {
+                    const freshAvatar = getAvatarUrl(payload.new);
+                    setSelectedConv(prev => {
+                        if (!prev || prev.other_user?.id !== partnerId) return prev;
+                        return {
+                            ...prev,
+                            other_user: {
+                                ...prev.other_user,
+                                ...payload.new,
+                                avatar_url: freshAvatar
+                            }
+                        };
+                    });
+                    revalidateConvs();
+                }
+            })
+            .subscribe();
+
+        return () => {
+            channel.unsubscribe();
+        };
+    }, [selectedConv?.other_user?.id, revalidateConvs]);
+
+    // Revalidate conversation avatars when a profile photo update event is fired
+    useEffect(() => {
+        const handlePhotoUpdated = () => {
+            revalidateConvs();
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, [revalidateConvs]);
+
+    // Revalidate messages & conversation list when a virtual gift is sent
+    useEffect(() => {
+        const handleGiftSent = (e) => {
+            if (revalidateConvs) revalidateConvs();
+            if (e.detail?.matchId && selectedConv?.id === e.detail.matchId) {
+                loadMessages(e.detail.matchId, 0, false);
+            }
+        };
+        window.addEventListener('tcd:gift-sent', handleGiftSent);
+        return () => window.removeEventListener('tcd:gift-sent', handleGiftSent);
+    }, [revalidateConvs, selectedConv?.id]);
 
     // ── Contextual Actions for Chat List Bottom Sheet & Gestures ──
     const handleToggleConvRead = useCallback((conv) => {
@@ -920,11 +1129,11 @@ export default function Chat() {
     }, [currentUser?.id, markConversationNotificationsRead, revalidateConvs, addToast]);
 
     const handleViewProfile = useCallback((conv) => {
-        const targetUserId = conv?.other_user?.id;
-        if (targetUserId) {
-            navigate(`/profile/${targetUserId}`);
+        const targetUser = conv?.other_user;
+        if (targetUser) {
+            handleAvatarClick(targetUser, null, conv.id);
         }
-    }, [navigate]);
+    }, [handleAvatarClick]);
 
     const handleToggleConvMute = useCallback((conv) => {
         if (!conv?.id) return;
@@ -1201,6 +1410,26 @@ export default function Chat() {
 
         const content = newMessage.trim();
 
+        // Keep conversations on TheCollegeDate: block phone numbers, social handles, emails,
+        // external messaging links and "let's move to WhatsApp" requests before anything is sent.
+        // Exception: Elite Ultra VIP subscribers (₦15,000/mo) are exempt and can ask/share contacts freely without safeguards.
+        const isUltra = isEliteUltra(userProfile);
+        if (!isUltra) {
+            const recentWindowMs = 3 * 60 * 1000;
+            const nowMs = Date.now();
+            const recentOwnTexts = editingMessage ? [] : messages
+                .filter(m => m && m.sender_id === currentUser?.id && (m.type || 'text') === 'text'
+                    && typeof m.content === 'string'
+                    && nowMs - new Date(m.created_at || 0).getTime() < recentWindowMs)
+                .slice(-4)
+                .map(m => m.content);
+            const offPlatformCheck = detectOffPlatformContactWithHistory(content, recentOwnTexts, userProfile);
+            if (offPlatformCheck.blocked) {
+                showOffPlatformBlock(offPlatformCheck);
+                return;
+            }
+        }
+
         if (editingMessage) {
             let targetId = editingMessage.id;
             const isTemp = !targetId || String(targetId).startsWith('temp-');
@@ -1221,8 +1450,13 @@ export default function Chat() {
             }
 
             setSending(true);
-            const { data, error } = await editMessage(targetId, content);
-            if (error) {
+            const { data, error, blocked, violation } = await editMessage(targetId, content, undefined, {
+                isUltraSender: isUltra,
+                senderProfile: userProfile
+            });
+            if (blocked) {
+                showOffPlatformBlock(violation);
+            } else if (error) {
                 addToast(`Edit failed: ${error}`, 'error');
             } else if (data) {
                 setMessages(prev => prev.map(m => (m.id === targetId || m.id === editingMessage.id) ? { ...m, ...data, content, is_edited: true, edited_at: new Date().toISOString() } : m));
@@ -1239,6 +1473,9 @@ export default function Chat() {
         
         const metadata = { 
             client_nonce: clientNonce,
+            isUltraSender: Boolean(isUltra),
+            canBypassSafeguards: Boolean(isUltra),
+            senderProfile: userProfile,
             recipientIsActive: Boolean(isOtherOnline),
             suppressPush: Boolean(isOtherOnline),
             suppress_push: Boolean(isOtherOnline),
@@ -1288,7 +1525,14 @@ export default function Chat() {
             return;
         }
 
-        const { data, error } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', metadata);
+        const { data, error, blocked, violation } = await sendMessage(selectedConv.id, currentUser.id, content, 'text', metadata);
+        if (blocked) {
+            setMessages(prev => prev.filter(m => m.id !== optimisticId));
+            setNewMessage(content);
+            setSending(false);
+            showOffPlatformBlock(violation);
+            return;
+        }
         if (error) {
             enqueueOfflineOperation(currentUser.id, {
                 id: `send_message:${clientNonce}`,
@@ -1369,13 +1613,19 @@ export default function Chat() {
         const result = await drainOfflineQueue(currentUser.id, {
             send_message: async (operation) => {
                 const payload = operation.payload || {};
-                const { data, error } = await sendMessage(
+                const { data, error, blocked } = await sendMessage(
                     payload.matchId,
                     payload.senderId,
                     payload.content,
                     payload.type || 'text',
                     payload.metadata || {}
                 );
+
+                if (blocked) {
+                    // Never deliver off-platform contact info; drop the queued op and its optimistic bubble.
+                    if (payload.optimisticId) setMessages(prev => prev.filter(m => m.id !== payload.optimisticId));
+                    return;
+                }
 
                 if (error) throw new Error(error?.message || String(error));
 
@@ -1427,13 +1677,20 @@ export default function Chat() {
         };
 
         try {
-            const { data, error } = await sendMessage(
+            const { data, error, blocked, violation } = await sendMessage(
                 msg.match_id || selectedConv?.id,
                 currentUser.id,
                 msg.content,
                 msg.type || 'text',
                 metadata
             );
+
+            if (blocked) {
+                removeOfflineOperation(currentUser.id, `send_message:${clientNonce}`);
+                setMessages(prev => prev.filter(m => m.id !== msg.id));
+                showOffPlatformBlock(violation);
+                return;
+            }
 
             if (error) {
                 setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, _pending: true, _failed: true } : m));
@@ -1474,7 +1731,7 @@ export default function Chat() {
         setCallChoiceOpen(false);
         const otherUser = selectedConv?.other_user || {};
         const name = encodeURIComponent(otherUser.full_name || 'User');
-        const avatar = encodeURIComponent(otherUser.avatar_url || '');
+        const avatar = encodeURIComponent(getAvatarUrl(otherUser) || otherUser.avatar_url || '');
         const roomId = selectedConv.id;
         
         try {
@@ -2533,7 +2790,7 @@ export default function Chat() {
                         return (
                             <div key={req.id} className="activity-circle request-item" onClick={() => navigate('/requests')}>
                                 <div className="activity-avatar-frame">
-                                    <img src={swiper.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${swiper.id}`} alt="" />
+                                    <img src={getAvatarUrl(swiper) || swiper.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${swiper.id}`} alt="" />
                                     <span className="request-badge-dot">●</span>
                                 </div>
                                 <span className="activity-label">{swiper.full_name?.split(' ')[0]}</span>
@@ -2575,7 +2832,10 @@ export default function Chat() {
                             return (
                                 <div key={conv.id} className="conversation-row-wrapper">
                                     {/* Left swipe actions (revealed when swiped right) */}
-                                    <div className="conv-swipe-actions-left">
+                                    <div
+                                        className="conv-swipe-actions-left"
+                                        style={{ visibility: isSwiped && swipedOffset > 0 ? 'visible' : 'hidden' }}
+                                    >
                                         <button
                                             type="button"
                                             className="conv-swipe-btn read"
@@ -2593,7 +2853,10 @@ export default function Chat() {
                                     </div>
 
                                     {/* Right swipe actions (revealed when swiped left) */}
-                                    <div className="conv-swipe-actions-right">
+                                    <div
+                                        className="conv-swipe-actions-right"
+                                        style={{ visibility: isSwiped && swipedOffset < 0 ? 'visible' : 'hidden' }}
+                                    >
                                         <button
                                             type="button"
                                             className="conv-swipe-btn more"
@@ -2647,8 +2910,17 @@ export default function Chat() {
                                             }
                                         }}
                                     >
-                                        <div className="avatar-wrapper" onClick={e => { e.stopPropagation(); navigate(`/profile/${conv.other_user?.id}`); }}>
+                                        <div
+                                            className={`avatar-wrapper ${usersWithStatus.has(conv.other_user?.id) ? (usersWithUnviewedStatus.has(conv.other_user?.id) ? 'has-active-status' : 'has-viewed-status') : ''}`}
+                                            onClick={(e) => handleAvatarClick(conv.other_user, e, conv.id)}
+                                        >
                                             <img src={getAvatarUrl(conv.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt="" className="conv-avatar" />
+                                            {usersWithStatus.has(conv.other_user?.id) && (
+                                                <span
+                                                    className={`status-story-indicator ${usersWithUnviewedStatus.has(conv.other_user?.id) ? 'is-unviewed' : 'is-viewed'}`}
+                                                    title={usersWithUnviewedStatus.has(conv.other_user?.id) ? 'New Campus Story' : 'Viewed Campus Story'}
+                                                />
+                                            )}
                                             {isOnline && <span className="online-dot" />}
                                             {hasActivePremium(conv.other_user) && (
                                                 <span className="chat-avatar-premium-badge" title="Premium Member">👑</span>
@@ -2722,9 +2994,15 @@ export default function Chat() {
                         )}
                         <div className="chat-header">
                             <button className="back-btn" onClick={handleCloseConversation} aria-label="Back to messages">←</button>
-                            <div className="header-info" onClick={() => selectedConv?.other_user?.id && navigate(`/profile/${selectedConv?.other_user?.id}`)}>
-                                <div className="header-avatar-container">
+                            <div className="header-info" onClick={(e) => handleAvatarClick(selectedConv?.other_user, e, selectedConv?.id)}>
+                                <div className={`header-avatar-container ${usersWithStatus.has(selectedConv?.other_user?.id) ? (usersWithUnviewedStatus.has(selectedConv?.other_user?.id) ? 'has-active-status' : 'has-viewed-status') : ''}`}>
                                     <img src={getAvatarUrl(selectedConv?.other_user) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedConv?.id || 'chat'}`} alt="" className="header-avatar" />
+                                    {usersWithStatus.has(selectedConv?.other_user?.id) && (
+                                        <span
+                                            className={`status-story-indicator ${usersWithUnviewedStatus.has(selectedConv?.other_user?.id) ? 'is-unviewed' : 'is-viewed'}`}
+                                            title={usersWithUnviewedStatus.has(selectedConv?.other_user?.id) ? 'New Campus Story' : 'Viewed Campus Story'}
+                                        />
+                                    )}
                                     {isOtherOnline && <span className="online-dot-large" />}
                                     {hasActivePremium(selectedConv?.other_user) && (
                                         <span className="chat-header-premium-badge" title="Premium Member">👑</span>
@@ -2861,6 +3139,24 @@ export default function Chat() {
                             <div className="chat-offline-banner-pill" role="status">
                                 <span className="offline-dot" />
                                 <span>Offline Mode • Messages will send when connected</span>
+                            </div>
+                        )}
+
+                        {!safetyNoticeDismissed && !isUltra && (
+                            <div className="chat-safety-reminder-bar animate-fade-in" role="note">
+                                <span className="safety-bar-shield">🛡️</span>
+                                <span className="safety-bar-text">
+                                    <strong>Campus Safety:</strong> Keep chats on TheCollegeDate. Built-in Voice Notes & HD Video Calls protect your privacy.
+                                </span>
+                                <button
+                                    type="button"
+                                    className="safety-bar-dismiss"
+                                    onClick={dismissSafetyNotice}
+                                    title="Dismiss notice"
+                                    aria-label="Dismiss notice"
+                                >
+                                    ✕
+                                </button>
                             </div>
                         )}
 
@@ -3201,6 +3497,23 @@ export default function Chat() {
                                         </div>
                                     )}
 
+                                    {/* Real-time contact safeguard typing pill */}
+                                    {offPlatformTypingCheck.blocked && !isUltra && (
+                                        <div className="chat-composer-safeguard-hint animate-fade-in">
+                                            <span className="safeguard-hint-icon">🔒</span>
+                                            <span className="safeguard-hint-text">
+                                                Phone numbers & social handles are restricted on standard plans.
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="btn-safeguard-hint-upgrade"
+                                                onClick={() => showOffPlatformBlock(offPlatformTypingCheck)}
+                                            >
+                                                Unlock with Ultra (₦15k) 👑
+                                            </button>
+                                        </div>
+                                    )}
+
                                     <form className={`chat-input-form-wrapper ${isVoiceRecording ? 'voice-recording-active' : ''}`} onSubmit={handleSendMessage}>
 
                                         {!isVoiceRecording && (
@@ -3320,7 +3633,7 @@ export default function Chat() {
                                         <div className="new-matches-row">
                                             {conversations.filter(c => c && !c.last_message).slice(0, 5).map(conv => (
                                                 <div key={conv.id} className="new-match-avatar-card" onClick={() => handleSelectConversation(conv)}>
-                                                    <div className="avatar-ring"><img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'Match'} /></div>
+                                                    <div className="avatar-ring"><img src={getAvatarUrl(conv.other_user) || conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'Match'} /></div>
                                                     <span className="match-name">{conv.other_user?.full_name?.split(' ')[0] || 'Match'}</span>
                                                 </div>
                                             ))}
@@ -3332,7 +3645,7 @@ export default function Chat() {
                                     <div className="recent-chats-grid">
                                         {conversations.filter(c => c && c.last_message).slice(0, 6).map(conv => (
                                             <div key={conv.id} className="recent-chat-card glass" onClick={() => handleSelectConversation(conv)}>
-                                                <img src={conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'User'} className="card-avatar" />
+                                                <img src={getAvatarUrl(conv.other_user) || conv.other_user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`} alt={conv.other_user?.full_name || 'User'} className="card-avatar" />
                                                 <div className="card-info"><span className="card-name">{conv.other_user?.full_name || 'User'}</span><p className="card-last-msg">{conv.last_message}</p></div>
                                                 <div className="card-arrow">→</div>
                                             </div>
@@ -3359,6 +3672,19 @@ export default function Chat() {
                 isOpen={officialHubOpen}
                 onClose={() => setOfficialHubOpen(false)}
             />
+            <OffPlatformBlockedModal
+                violation={offPlatformViolation}
+                attemptCount={offPlatformAttempts}
+                onClose={() => setOffPlatformViolation(null)}
+                onEdit={() => {
+                    setOffPlatformViolation(null);
+                    setTimeout(() => chatInputRef.current?.focus(), 60);
+                }}
+                onUpgrade={() => {
+                    setOffPlatformViolation(null);
+                    navigate('/premium?tier=ultra&selected=ultra_monthly');
+                }}
+            />
             {contextConv && (
                 <ChatActionModal
                     conversation={contextConv}
@@ -3368,6 +3694,37 @@ export default function Chat() {
                     onViewProfile={handleViewProfile}
                     onToggleMute={handleToggleConvMute}
                     onDeleteConversation={handleDeleteConv}
+                />
+            )}
+            {statusChoiceTarget && (
+                <StatusChoiceModal
+                    isOpen={Boolean(statusChoiceTarget)}
+                    contact={statusChoiceTarget.user}
+                    onClose={() => setStatusChoiceTarget(null)}
+                    onSelectStatus={() => {
+                        if (statusChoiceTarget) {
+                            setActiveViewingStatus({ ...statusChoiceTarget });
+                        }
+                        setStatusChoiceTarget(null);
+                    }}
+                    onSelectProfile={(contact) => {
+                        const targetConvId = statusChoiceTarget?.conversationId || (selectedConv?.other_user?.id === contact.id ? selectedConv?.id : null);
+                        setStatusChoiceTarget(null);
+                        navigate(`/profile/${contact.id}`, {
+                            state: {
+                                conversationId: targetConvId,
+                                matchId: targetConvId,
+                                fromChat: true
+                            }
+                        });
+                    }}
+                />
+            )}
+            {activeViewingStatus && (
+                <StatusViewer
+                    statuses={activeViewingStatus.statuses}
+                    profile={activeViewingStatus.user}
+                    onClose={() => setActiveViewingStatus(null)}
                 />
             )}
         </div>

@@ -38,12 +38,13 @@ BEGIN
         v_edge_url := rtrim(v_edge_url, '/') || '/send-notification-push';
     END IF;
 
-    -- 3. Resolve Service Role Key for authenticated Edge Function invocation
+    -- 3. Resolve Service Role Key or Anon Key for authenticated Edge Function invocation
     v_service_key := COALESCE(
         NULLIF(current_setting('app.settings.service_role_key', true), ''),
         NULLIF(current_setting('app.supabase_service_key', true), ''),
         (SELECT value #>> '{}' FROM public.app_config WHERE key = 'supabase_service_role_key'),
-        ''
+        (SELECT value #>> '{}' FROM public.app_config WHERE key = 'supabase_anon_key'),
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlZG95b2xlb3NjZ3hnZHFzenpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MjQ4ODcsImV4cCI6MjA4NjQwMDg4N30.pVnlTBOwxYSFgC0fQ2Wo1oEsrBWak6X2FBBeNGariys'
     );
 
     -- 4. Assemble standard JSONB payload matching Supabase webhook and Edge Function parser
@@ -51,6 +52,23 @@ BEGIN
         'type', 'INSERT',
         'table', 'notifications',
         'schema', 'public',
+        'userId', COALESCE(NEW.user_id, NEW.recipient_id),
+        'externalUserIds', jsonb_build_array(COALESCE(NEW.user_id, NEW.recipient_id)),
+        'title', NEW.title,
+        'content', NEW.content,
+        'headings', jsonb_build_object('en', NEW.title),
+        'contents', jsonb_build_object('en', NEW.content),
+        'category', NEW.category,
+        'priority', NEW.priority,
+        'data', jsonb_build_object(
+            'notification_id', NEW.id,
+            'type', NEW.type,
+            'category', NEW.category,
+            'entity_id', NEW.entity_id,
+            'match_id', NEW.match_id,
+            'conversation_id', NEW.conversation_id,
+            'deep_link', NEW.deep_link
+        ),
         'record', jsonb_build_object(
             'id', NEW.id,
             'user_id', COALESCE(NEW.user_id, NEW.recipient_id),
@@ -72,7 +90,8 @@ BEGIN
 
     v_headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || v_service_key
+        'Authorization', 'Bearer ' || v_service_key,
+        'apikey', v_service_key
     );
 
     -- 5. Exception containment block: invoke net.http_post asynchronously

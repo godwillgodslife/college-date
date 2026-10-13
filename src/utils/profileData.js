@@ -34,30 +34,59 @@ export function normalizeProfile(profile) {
     };
 }
 
-export function getFreshAvatarUrl(url, timestamp) {
+const photoTimestampCache = new Map();
+
+export function registerProfilePhotoTimestamp(userId, timestamp) {
+    if (!userId) return;
+    const timeMs = typeof timestamp === 'number' ? timestamp : new Date(timestamp || Date.now()).getTime();
+    if (!isNaN(timeMs) && timeMs > 0) {
+        photoTimestampCache.set(userId, timeMs);
+    }
+}
+
+export function getFreshAvatarUrl(url, timestampOrProfile) {
     if (!url || typeof url !== 'string') return url || '';
-    if (url.startsWith('data:') || url.startsWith('blob:') || url.includes('dicebear.com')) return url;
+    if (url.startsWith('data:') || url.startsWith('blob:') || url.includes('dicebear.com') || url.includes('ui-avatars.com')) return url;
+    if (!timestampOrProfile) return url;
+
+    let timestamp = timestampOrProfile;
+    if (typeof timestampOrProfile === 'object') {
+        const p = timestampOrProfile;
+        timestamp = p.photo_updated_at || p.avatar_updated_at || p.updated_at || (p.id ? photoTimestampCache.get(p.id) : null);
+        if (p.id && timestamp) {
+            registerProfilePhotoTimestamp(p.id, timestamp);
+        }
+    }
+
     if (!timestamp) return url;
 
     const timeMs = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime();
     if (isNaN(timeMs) || timeMs <= 0) return url;
 
-    const separator = url.includes('?') ? '&' : '?';
-    if (url.includes('t=')) return url;
-    return `${url}${separator}t=${timeMs}`;
+    // Clean existing t=, v=, or ts= cache-buster query parameter to always apply the freshest timestamp
+    const cleanUrl = url.replace(/([?&])(t|v|ts)=\d+(&|$)/g, '$1').replace(/[?&]$/, '');
+    const separator = cleanUrl.includes('?') ? '&' : '?';
+    return `${cleanUrl}${separator}t=${timeMs}`;
 }
 
 export function getAvatarUrl(profile) {
     if (!profile) return '';
     const raw = profile.avatar_url || safeArray(profile.profile_photos)[0] || '';
-    return getFreshAvatarUrl(raw, profile.photo_updated_at || profile.updated_at);
+    const timestamp = profile.photo_updated_at || profile.updated_at || (profile.id ? photoTimestampCache.get(profile.id) : null);
+    if (profile.id && timestamp) {
+        registerProfilePhotoTimestamp(profile.id, timestamp);
+    }
+    return getFreshAvatarUrl(raw, timestamp);
 }
 
 export function getProfilePhotos(profile) {
     if (!profile) return [];
 
     const photos = safeArray(profile.profile_photos).filter(Boolean);
-    const timestamp = profile.photo_updated_at || profile.updated_at;
+    const timestamp = profile.photo_updated_at || profile.updated_at || (profile.id ? photoTimestampCache.get(profile.id) : null);
+    if (profile.id && timestamp) {
+        registerProfilePhotoTimestamp(profile.id, timestamp);
+    }
     if (photos.length > 0) {
         return photos.map(p => getFreshAvatarUrl(p, timestamp));
     }

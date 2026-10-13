@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl } from '../utils/profileData';
 
 let activeWatchId = null;
 let lastSentCoords = null;
@@ -68,7 +69,7 @@ export async function getActiveLiveLocation(matchId) {
                 expires_at,
                 is_active,
                 updated_at,
-                sender:profiles!sender_id(id, full_name, avatar_url)
+                sender:profiles!sender_id(id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at)
             `)
             .eq('match_id', matchId)
             .eq('is_active', true)
@@ -78,6 +79,9 @@ export async function getActiveLiveLocation(matchId) {
             .maybeSingle();
 
         if (error) throw error;
+        if (data?.sender) {
+            data.sender.avatar_url = getAvatarUrl(data.sender) || data.sender.avatar_url;
+        }
         return { data: data || null, error: null };
     } catch (err) {
         console.error('getActiveLiveLocation error:', err);

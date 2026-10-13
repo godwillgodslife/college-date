@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getProfileByUsername } from '../services/profileService';
 import { sendAnonymousMessage } from '../services/confessionService';
+import { getAvatarUrl } from '../utils/profileData';
 import './AnonymousAskPage.css';
 
 const QUICK_PROMPTS = [
@@ -107,7 +108,7 @@ export default function AnonymousAskPage() {
                         <div className="ask-avatar-wrapper">
                             {profile.avatar_url ? (
                                 <img
-                                    src={profile.avatar_url}
+                                    src={getAvatarUrl(profile) || profile.avatar_url}
                                     alt={profile.full_name || profile.username}
                                     className="ask-avatar"
                                 />

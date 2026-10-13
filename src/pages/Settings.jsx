@@ -21,6 +21,8 @@ import { updateFinderOptIn } from '../services/campusFinderService';
 import { AppGuideModal, resetAllGuides } from '../components/ContextualGuide';
 import OfficialAccountBadge from '../components/OfficialAccountBadge';
 import OfficialHubModal from '../components/OfficialHubModal';
+import InAppFeedbackModal from '../components/InAppFeedbackModal';
+import { getAvatarUrl } from '../utils/profileData';
 import './Settings.css';
 
 const DEFAULT_SETTINGS = {
@@ -77,6 +79,13 @@ export default function Settings() {
     const [showOfficialHub, setShowOfficialHub] = useState(false);
     const [testPushSending, setTestPushSending] = useState(false);
     const [pushDebugInfo, setPushDebugInfo] = useState(null);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [feedbackDefaultCategory, setFeedbackDefaultCategory] = useState('feedback_suggestion');
+
+    const handleOpenFeedback = (cat = 'feedback_suggestion') => {
+        setFeedbackDefaultCategory(cat);
+        setShowFeedbackModal(true);
+    };
 
     useEffect(() => {
         let isMounted = true;
@@ -920,8 +929,32 @@ export default function Settings() {
             </div>
 
             <div className="settings-section">
-                <h2 className="section-title">Support</h2>
+                <h2 className="section-title">Support & Feedback</h2>
                 <div className="settings-list">
+                    <div
+                        className="settings-item feature-link support-link in-app-feedback-item"
+                        onClick={() => handleOpenFeedback('feedback_suggestion')}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <div className="item-info">
+                            <h3>💬 Send In-App Feedback</h3>
+                            <p>Submit suggestions, feature requests, or report app issues without leaving the app.</p>
+                        </div>
+                        <span className="partner-chip" style={{ background: '#3b82f6', color: '#ffffff' }}>In-App</span>
+                    </div>
+
+                    <div
+                        className="settings-item feature-link support-link child-safety-report-item"
+                        onClick={() => handleOpenFeedback('child_safety')}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <div className="item-info">
+                            <h3>🛡️ Report Child Safety Concern</h3>
+                            <p>Urgent report for suspected minors under 18 or prohibited CSAE/CSAM (24/7 Priority).</p>
+                        </div>
+                        <span className="partner-chip" style={{ background: '#dc2626', color: '#ffffff' }}>Urgent</span>
+                    </div>
+
                     <a
                         href={supportWhatsAppUrl}
                         target="_blank"
@@ -1193,7 +1226,7 @@ export default function Settings() {
                                         return (
                                             <div key={item.id} className="blocked-user-row">
                                                 <img
-                                                    src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.blocked_id}`}
+                                                    src={getAvatarUrl(user) || user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.blocked_id}`}
                                                     alt=""
                                                     className="blocked-user-avatar"
                                                 />
@@ -1227,6 +1260,15 @@ export default function Settings() {
                 isOpen={showOfficialHub}
                 onClose={() => setShowOfficialHub(false)}
             />
+
+            {showFeedbackModal && (
+                <InAppFeedbackModal
+                    isOpen={showFeedbackModal}
+                    defaultCategory={feedbackDefaultCategory}
+                    onClose={() => setShowFeedbackModal(false)}
+                    onOpenStandards={() => navigate('/child-safety-standards')}
+                />
+            )}
 
             {saving && <div className="saving-indicator">Saving...</div>}
         </div>

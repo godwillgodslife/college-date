@@ -220,10 +220,12 @@ serve(async (req) => {
       try {
         const { data: devices, error: deviceError } = await supabaseAdmin
           .from("user_notification_devices")
-          .select("onesignal_subscription_id, permission_status")
+          .select("onesignal_subscription_id, permission_status, updated_at")
           .in("user_id", externalTargets)
           .is("revoked_at", null)
           .not("onesignal_subscription_id", "is", null)
+          .order("updated_at", { ascending: false })
+          .limit(5)
 
         if (!deviceError && devices && devices.length > 0) {
           for (const d of devices) {
@@ -334,11 +336,20 @@ serve(async (req) => {
     const visualIcon = safeImageUrl || DEFAULT_ICON_URL
     const groupKey = (record?.group_key || metadata?.group_key || category || notifType || "general") as string
 
-    let effectiveAndroidChannelId = (metadata?.android_channel_id as string) || "channel_activity"
-    if (category === "messages") {
-      effectiveAndroidChannelId = "channel_messages"
-    } else if (category === "matches" || category === "requests") {
-      effectiveAndroidChannelId = "channel_matches"
+    // Android Notification Channel Routing:
+    // If a dashboard UUID is not explicitly provided, route to the programmatic channels created in MainActivity.java:
+    // - channel_messages: IMPORTANCE_HIGH, vibration true, sound default, badge true
+    // - channel_matches: IMPORTANCE_HIGH, vibration true, sound default, badge true
+    // - channel_activity: social, confessions, reminders
+    const rawChannelId = (metadata?.android_channel_id as string) || undefined
+    const isChannelUuid = Boolean(rawChannelId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawChannelId))
+    const effectiveAndroidChannelId = isChannelUuid ? rawChannelId : undefined
+
+    let existingChannelId = "channel_activity"
+    if (category === "messages" || notifType === "message") {
+      existingChannelId = "channel_messages"
+    } else if (category === "matches" || category === "requests" || notifType === "match" || notifType === "like") {
+      existingChannelId = "channel_matches"
     }
 
     let effectiveCollapseId = (metadata?.collapse_id || metadata?.dedupe_key || record?.dedupe_key) as string | undefined
@@ -363,8 +374,10 @@ serve(async (req) => {
         image_url: safeImageUrl,
       },
       android_group: groupKey,
+      existing_android_channel_id: effectiveAndroidChannelId ? undefined : existingChannelId,
       android_channel_id: effectiveAndroidChannelId,
-      priority: (metadata?.priority === "critical" || record?.priority === "critical") ? 10 : undefined,
+      android_sound: "default",
+      priority: 10,
       ttl: (metadata?.ttl as number) || 259200,
       collapse_id: effectiveCollapseId,
       chrome_web_icon: visualIcon,
@@ -374,13 +387,35 @@ serve(async (req) => {
       android_accent_color: "FF6C63FF",
     }
 
+    // Unread count calculation for WhatsApp-style launcher desktop app icon badge
+    if (targetUserId && supabaseAdmin) {
+      try {
+        const { count: unreadCount } = await supabaseAdmin
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", targetUserId)
+          .eq("is_read", false)
+        const effectiveBadge = Math.max(1, (unreadCount || 0) + 1)
+        notificationPayload.badge_count = effectiveBadge
+        notificationPayload.android_badge_type = "SetTo"
+        notificationPayload.android_badge_count = effectiveBadge
+      } catch (badgeErr) {
+        console.warn("[PushFunction] Error querying unreads for badge:", badgeErr)
+        notificationPayload.android_badge_type = "Increase"
+      }
+    } else {
+      notificationPayload.android_badge_type = "Increase"
+    }
+
     if (launchUrl) {
       notificationPayload.url = launchUrl
+      delete notificationPayload.web_url
+      delete notificationPayload.app_url
     }
 
     if (subscriptionTargets.length > 0) {
       notificationPayload.include_subscription_ids = subscriptionTargets
-    } else {
+    } else if (externalTargets.length > 0) {
       notificationPayload.include_aliases = { external_id: externalTargets }
       notificationPayload.target_channel = "push"
     }

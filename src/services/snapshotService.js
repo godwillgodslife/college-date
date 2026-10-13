@@ -70,7 +70,10 @@ export async function getSnapshots() {
                 profiles:user_id (
                     id,
                     full_name,
-                    avatar_url
+                    avatar_url,
+                    profile_photos,
+                    photo_updated_at,
+                    updated_at
                 )
             `)
             .gt('created_at', twentyFourHoursAgo)

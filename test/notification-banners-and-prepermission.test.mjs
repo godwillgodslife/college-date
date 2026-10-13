@@ -69,4 +69,19 @@ describe('Option 2: High-Converting Notification Pre-Permission Bottom Sheet', (
         assert.ok(softPromptCss.includes('btn-enable-notif'), 'Must style enable CTA button');
         assert.ok(softPromptCss.includes('border-radius: 28px 28px 0 0'), 'Must have rounded bottom sheet top');
     });
+
+    test('NotificationSoftPrompt.jsx suppresses execution and UI on native Android app', () => {
+        assert.ok(softPromptJsx.includes('isNativePlatform()'), 'Must check isNativePlatform()');
+        assert.ok(softPromptJsx.includes('if (isNativePlatform()) return null;'), 'Must return null on native platform');
+        assert.ok(softPromptCss.includes('html.is-native-app .soft-prompt-overlay'), 'Must have native suppression CSS');
+        assert.ok(softPromptCss.includes('display: none !important;'), 'Must hide completely on native app');
+    });
+
+    test('NotificationSoftPrompt.jsx suppresses landing/welcome screen and unauthenticated visitors', () => {
+        assert.ok(softPromptJsx.includes("pathname === '/'"), 'Must exclude root landing path');
+        assert.ok(softPromptJsx.includes('isEligiblePath()'), 'Must validate eligible active paths');
+        assert.ok(softPromptJsx.includes('currentUser'), 'Must verify authenticated user');
+        assert.ok(softPromptJsx.includes('COOLDOWN_MS'), 'Must enforce cooldown period');
+    });
 });
+

@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getSnapshots, uploadSnapshotMedia, createSnapshot, likeSnapshot, getHiddenContentCounts } from '../services/snapshotService';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getAvatarUrl } from '../utils/profileData';
 import './Snapshots.css';
 
 export default function Snapshots() {
@@ -129,7 +130,7 @@ export default function Snapshots() {
                                 <div className="snapshot-overlay">
                                     <div className="snapshot-user">
                                         <img
-                                            src={snapshot.profiles?.avatar_url || 'https://via.placeholder.com/30'}
+                                            src={getAvatarUrl(snapshot.profiles) || snapshot.profiles?.avatar_url || 'https://via.placeholder.com/30'}
                                             alt={snapshot.profiles?.full_name}
                                         />
                                         <span>{snapshot.profiles?.full_name}</span>

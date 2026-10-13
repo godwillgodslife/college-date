@@ -1,87 +1,124 @@
-/* ── Overlay ─────────────────────────────────────────────── */
+/* ── Overlay / Floating Container (Subtle & Non-blocking) ── */
 .soft-prompt-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    right: 24px;
+    bottom: 24px;
+    z-index: 10005;
     display: flex;
     align-items: flex-end;
-    justify-content: center;
-    z-index: 10005;
+    justify-content: flex-end;
     padding: 0;
+    margin: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(20px);
 }
 
 .soft-prompt-overlay.visible {
     opacity: 1;
-    pointer-events: all;
+    transform: translateY(0);
+    pointer-events: none; /* Clicks outside the card pass through to underlying UI */
 }
 
-/* ── Card (Bottom Sheet) ─────────────────────────────────── */
+/* Android Native: Exclusively suppress and remove soft prompt UI */
+html.is-native-app .soft-prompt-overlay {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* ── Card (Subtle Floating Toast / Bottom Sheet) ─────────── */
 .soft-prompt-card {
-    background: linear-gradient(180deg, #161824 0%, #0d0e15 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, rgba(22, 24, 36, 0.96) 0%, rgba(13, 14, 21, 0.98) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 45, 85, 0.28);
     border-radius: 28px 28px 0 0;
     width: 100%;
-    max-width: 480px;
+    max-width: 380px;
     position: relative;
     overflow: hidden;
     padding: 0;
-    transform: translateY(100%);
-    transition: transform 0.38s cubic-bezier(0.18, 0.89, 0.32, 1.15);
-    box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.7);
-    padding-bottom: max(env(safe-area-inset-bottom, 16px), 20px);
-}
-
-.soft-prompt-overlay.visible .soft-prompt-card {
-    transform: translateY(0);
+    pointer-events: auto; /* Card intercepts clicks */
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(255, 45, 85, 0.12);
+    padding-bottom: 16px;
+    transition: transform 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.15);
 }
 
 .soft-prompt-drag-handle {
-    width: 40px;
+    width: 36px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 100px;
-    margin: 12px auto 6px;
+    margin: 10px auto 4px;
+}
+
+/* ── Close Button ────────────────────────────────────────── */
+.soft-prompt-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.soft-prompt-close-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    transform: scale(1.06);
 }
 
 /* ── Content ─────────────────────────────────────────────── */
 .soft-prompt-content {
     position: relative;
     z-index: 2;
-    padding: 12px 24px 24px;
+    padding: 8px 18px 16px;
     text-align: center;
 }
 
-/* ── Bell Icon Ring ──────────────────────────────────────── */
+/* ── Bell Icon Ring (Compact & Subtle) ───────────────────── */
 .soft-prompt-header-icon-wrap {
     position: relative;
     display: inline-block;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .soft-prompt-icon-ring {
-    width: 62px;
-    height: 62px;
-    background: linear-gradient(135deg, rgba(255, 45, 85, 0.22), rgba(168, 85, 247, 0.22));
-    border: 1.5px solid rgba(255, 45, 85, 0.45);
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(255, 45, 85, 0.2), rgba(168, 85, 247, 0.2));
+    border: 1.5px solid rgba(255, 45, 85, 0.4);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    box-shadow: 0 8px 24px rgba(255, 45, 85, 0.28);
+    font-size: 1.4rem;
+    box-shadow: 0 4px 16px rgba(255, 45, 85, 0.24);
 }
 
 .soft-prompt-pulse-dot {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
+    top: 1px;
+    right: 1px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: #ff2d55;
     border: 2px solid #0d0e15;
@@ -94,49 +131,49 @@
         opacity: 1;
     }
     50% {
-        transform: scale(1.3);
+        transform: scale(1.25);
         opacity: 0.75;
     }
 }
 
 /* ── Typography ──────────────────────────────────────────── */
 .soft-prompt-title {
-    font-size: 1.25rem;
-    font-weight: 850;
+    font-size: 1.05rem;
+    font-weight: 800;
     color: #ffffff;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
     line-height: 1.25;
     letter-spacing: -0.01em;
 }
 
 .soft-prompt-subtitle {
-    color: rgba(255, 255, 255, 0.68);
-    font-size: 0.86rem;
-    line-height: 1.4;
-    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    margin: 0 0 12px;
 }
 
 /* ── Benefits List ───────────────────────────────────────── */
 .soft-prompt-benefits-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 6px;
+    margin-bottom: 12px;
     text-align: left;
 }
 
 .soft-prompt-benefit-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 14px;
-    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 7px 10px;
 }
 
 .benefit-icon {
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
     line-height: 1;
 }
@@ -148,45 +185,45 @@
 .benefit-text strong {
     display: block;
     color: #ffffff;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 750;
     margin-bottom: 1px;
 }
 
 .benefit-text p {
-    font-size: 0.74rem;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.58);
     margin: 0;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
 /* ── Preview Card ────────────────────────────────────────── */
 .soft-prompt-preview-wrap {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .soft-prompt-preview-card {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(255, 45, 85, 0.08);
-    border: 1px solid rgba(255, 45, 85, 0.35);
-    border-radius: 16px;
-    padding: 10px 12px;
+    gap: 8px;
+    background: rgba(255, 45, 85, 0.07);
+    border: 1px solid rgba(255, 45, 85, 0.3);
+    border-radius: 14px;
+    padding: 8px 10px;
     text-align: left;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .preview-avatar-ring {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     background: rgba(255, 45, 85, 0.2);
     border: 1.5px solid #ff2d55;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1rem;
     flex-shrink: 0;
 }
 
@@ -199,11 +236,11 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 6px;
+    gap: 4px;
 }
 
 .preview-name {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     font-weight: 800;
     color: #ffffff;
     white-space: nowrap;
@@ -212,16 +249,16 @@
 }
 
 .preview-time {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.4);
     flex-shrink: 0;
 }
 
 .preview-msg {
-    font-size: 0.73rem;
-    color: rgba(255, 255, 255, 0.75);
-    margin: 2px 0 0;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 1px 0 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -230,37 +267,37 @@
 .preview-reply-chip {
     background: linear-gradient(135deg, #ff2d55, #ec4899);
     color: #ffffff;
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     font-weight: 800;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 100px;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(255, 45, 85, 0.35);
+    box-shadow: 0 2px 6px rgba(255, 45, 85, 0.3);
 }
 
 /* ── Actions ─────────────────────────────────────────────── */
 .soft-prompt-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-enable-notif {
     background: linear-gradient(135deg, #ff2d55, #a855f7);
     color: #ffffff;
     border: none;
-    padding: 14px;
+    padding: 11px;
     border-radius: 100px;
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 8px 24px rgba(255, 45, 85, 0.35);
+    box-shadow: 0 6px 20px rgba(255, 45, 85, 0.3);
 }
 
 .btn-enable-notif:hover {
     transform: scale(1.02);
-    box-shadow: 0 10px 30px rgba(255, 45, 85, 0.5);
+    box-shadow: 0 8px 24px rgba(255, 45, 85, 0.45);
 }
 
 .btn-enable-notif:active {
@@ -270,33 +307,36 @@
 .btn-not-now {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.78rem;
     font-weight: 600;
-    padding: 6px;
+    padding: 4px;
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .btn-not-now:hover {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* ── Desktop centering ───────────────────────────────────── */
-@media (min-width: 768px) {
+/* ── Responsive Adaptations ──────────────────────────────── */
+@media (max-width: 640px) {
     .soft-prompt-overlay {
-        align-items: center;
+        right: 12px;
+        left: 12px;
+        bottom: max(env(safe-area-inset-bottom, 12px), 12px);
+        justify-content: center;
     }
 
     .soft-prompt-card {
-        border-radius: 28px;
-        max-width: 440px;
-        padding-bottom: 24px;
-        transform: scale(0.95);
+        max-width: 100%;
+        border-radius: 20px;
     }
+}
 
-    .soft-prompt-overlay.visible .soft-prompt-card {
-        transform: scale(1);
+@media (min-width: 641px) {
+    .soft-prompt-card {
+        border-radius: 20px;
     }
 
     .soft-prompt-drag-handle {

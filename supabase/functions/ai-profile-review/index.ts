@@ -5,6 +5,7 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { routeVerificationAttempt } from './verificationRouter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -143,125 +144,31 @@ function normalizeSelfieReview(raw: Record<string, unknown>, livenessScore: numb
   };
 }
 
+// Preserved fallback contract: ensures needs_review is returned when providers fail or credits exhaust
+const FALLBACK_MOTION_REVIEW = {
+  status: 'needs_review' as const,
+  model: 'liveness-motion-pending',
+  summary: 'Live presence recorded. Cloud verification is currently queued for manual review.',
+};
+
 // 1-to-1 Biometric Face Match: compares live camera selfie with user candidate or profile photo
-async function runSelfieFaceMatch(selfieBase64: string, profilePhotoUrl?: string | null, livenessScore = 85) {
-  const apiKey = Deno.env.get('OPENROUTER_API_KEY');
-  const enabled = Deno.env.get('AI_PROFILE_REVIEW_ENABLED') !== 'false';
-  let model = Deno.env.get('OPENROUTER_PROFILE_REVIEW_MODEL') || 'openai/gpt-4o-mini';
-
-  if (!apiKey || !enabled) {
-    return {
-      provider: 'local-presence',
-      model: 'liveness-motion-pending',
-      review: {
-        status: 'needs_review' as const,
-        score: Math.min(65, Math.max(50, livenessScore)),
-        photo_origin: 'camera_likely' as const,
-        summary: 'Live presence recorded. Cloud verification is currently queued for manual review.',
-        flags: ['ai_credits_exhausted_or_offline'],
-      },
-      raw: null,
-    };
-  }
-
-  const textPrompt = [
-    'You are a biometric identity verification reviewer for a campus dating app (The College Date) used by university students across Africa.',
-    'Compare the attached images to verify student identity:',
-    'Image 1: Live camera capture from the student user during interactive liveness movements.',
-    profilePhotoUrl && (profilePhotoUrl.startsWith('http') || profilePhotoUrl.startsWith('data:image/'))
-      ? 'Image 2: The student\'s uploaded profile photo.'
-      : 'Note: Live camera capture only. Verify that Image 1 contains a genuine live human face.',
-    '',
-    'Biometric Evaluation Rules:',
-    '1. Live Human Presence: Verify that Image 1 is a real, living human face, not a printed photo, mask, or inanimate object.',
-    '2. Identity Matching: If Image 2 is provided, carefully compare facial features (eyes, nose, jawline, smile, facial bone structure). IMPORTANT: Allow for normal variations in lighting, hostel vs studio settings, phone camera quality, casual vs formal dress, makeup, or hairstyles.',
-    '3. Decision Rules:',
-    '   - If Image 1 reasonably resembles Image 2: approve with match: true, status: "verified", confidence: 85-98, summary: "Face verified. Selfie matches profile photo."',
-    '   - If Image 1 and Image 2 are clearly two completely DIFFERENT individuals: set match: false, status: "rejected", confidence: 20, summary: "The live selfie does not match the person in the profile photo."',
-    '   - If no human face is detected in Image 1: set match: false, status: "rejected", confidence: 10, summary: "No clear human face detected in live selfie."',
-    '',
-    'Output strictly a JSON object (no markdown, no backticks):',
-    '{"match": boolean, "confidence": number, "status": "verified" | "rejected", "photo_origin": "camera_likely", "summary": "Short explanation", "flags": []}'
-  ].filter(Boolean).join('\n');
-
-  const content: unknown[] = [
-    { type: 'text', text: textPrompt },
-    { type: 'image_url', image_url: { url: selfieBase64 } },
-  ];
-
-  if (profilePhotoUrl && (profilePhotoUrl.startsWith('http') || profilePhotoUrl.startsWith('data:image/'))) {
-    content.push({ type: 'image_url', image_url: { url: profilePhotoUrl } });
-  }
-
-  try {
-    let response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://www.thecollegedate.com',
-        'X-Title': 'The College Date',
-      },
-      body: JSON.stringify({
-        model,
-        response_format: { type: 'json_object' },
-        messages: [{ role: 'user', content }],
-        temperature: 0.1,
-        max_tokens: 1500,
-      }),
-    });
-
-    let raw = await response.json().catch(() => null);
-
-    if (response.status === 402 || raw?.error?.code === 402) {
-      model = 'openrouter/free';
-      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://www.thecollegedate.com',
-          'X-Title': 'The College Date',
-        },
-        body: JSON.stringify({
-          model,
-          response_format: { type: 'json_object' },
-          messages: [{ role: 'user', content }],
-          temperature: 0.1,
-          max_tokens: 1500,
-        }),
-      });
-      raw = await response.json().catch(() => null);
-    }
-
-    if (!response.ok) {
-      throw new Error(raw?.error?.message || `AI provider returned status ${response.status}`);
-    }
-
-    const text = raw?.choices?.[0]?.message?.content || '{}';
-    const parsed = extractJson(text);
-
-    return {
-      provider: 'openrouter',
-      model,
-      review: normalizeSelfieReview(parsed, livenessScore),
-      raw,
-    };
-  } catch (err) {
-    console.warn('[Face Match] AI provider fallback to liveness motion review:', err);
-    return {
-      provider: 'liveness-motion',
-      model: 'motion-liveness-pending',
-      review: {
-        status: 'needs_review' as const,
-        score: Math.min(65, Math.max(50, livenessScore)),
-        photo_origin: 'camera_likely' as const,
-        summary: 'Live presence captured, but automated verification is temporarily queued for review.',
-        flags: ['ai_service_unavailable'],
-      },
-      raw: null,
-    };
-  }
+// Credit-aware routing: OpenRouter Primary -> Liveness Fallback (LIVENESS_FALLBACK_API_KEY) -> Safe Motion Queue
+async function runSelfieFaceMatch(
+  selfieBase64: string,
+  profilePhotoUrl?: string | null,
+  livenessScore = 85,
+  userId = 'anonymous',
+  sessionId?: string,
+  sessionTimestamp?: number
+) {
+  return await routeVerificationAttempt({
+    selfieBase64,
+    profilePhotoUrl,
+    livenessScore,
+    userId,
+    sessionId,
+    sessionTimestamp,
+  });
 }
 
 async function runOpenRouterReview(profile: Record<string, unknown>, imageUrls: string[]) {
@@ -399,7 +306,7 @@ serve(async (req) => {
 
     // Handle dedicated 1-to-1 Selfie Face Verification
     if (body.action === 'verify_selfie') {
-      const { selfieBase64, profilePhotoUrl, livenessScore } = body;
+      const { selfieBase64, profilePhotoUrl, livenessScore, sessionId, sessionTimestamp } = body;
       if (!selfieBase64) {
         return jsonResponse({ error: 'Selfie capture is required' }, 400);
       }
@@ -412,7 +319,8 @@ serve(async (req) => {
 
       const photoToCompare = profilePhotoUrl || profile?.avatar_url || (Array.isArray(profile?.profile_photos) ? profile.profile_photos[0] : null);
 
-      const { provider, model, review, raw } = await runSelfieFaceMatch(selfieBase64, photoToCompare, livenessScore);
+      const routingResult = await runSelfieFaceMatch(selfieBase64, photoToCompare, livenessScore, userId, sessionId, sessionTimestamp);
+      const { provider, model, review, raw, providerUsed, routeReason } = routingResult;
 
       const now = new Date().toISOString();
       const isApproved = review.status === 'verified';
@@ -444,6 +352,8 @@ serve(async (req) => {
         success: true,
         verified: isApproved,
         review,
+        provider_used: providerUsed,
+        route_reason: routeReason,
       });
     }
 

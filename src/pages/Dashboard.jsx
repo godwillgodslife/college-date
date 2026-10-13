@@ -6,7 +6,7 @@ import FeatureCard from '../components/FeatureCard';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import ViewerTeaser from '../components/ViewerTeaser'; // NEW
 import AndroidInstallButton from '../components/AndroidInstallButton';
-import { hasActivePremium } from '../utils/premium';
+import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { useScoreStreak } from '../hooks/useScoreStreak';
@@ -182,7 +182,8 @@ export default function Dashboard() {
     );
 
     const greeting = getGreeting();
-    const isPremium = hasActivePremium(userProfile);
+    const isPremium = hasActivePremium(userProfile) || hasActivePremium(currentUser);
+    const isUltra = isEliteUltra(userProfile) || isEliteUltra(currentUser);
     const role = String(userProfile?.role || userProfile?.gender || '').toLowerCase();
     const isFemale = role === 'female';
     const isMale = role === 'male';
@@ -223,10 +224,10 @@ export default function Dashboard() {
             to: '/explore'
         },
         {
-            icon: '👑',
-            title: isPremium ? 'Premium Active' : 'Upgrade Premium',
-            description: isPremium ? 'Your premium benefits are active' : 'Unlock unlimited swipes and priority features',
-            to: '/premium'
+            icon: isUltra ? '👑⭐' : '👑',
+            title: isUltra ? 'Elite Ultra Active' : isPremium ? 'Premium Active' : 'Upgrade Premium',
+            description: isUltra ? '30 Super Swipes & 10 Boosts active' : isPremium ? 'Your premium benefits are active' : 'Unlock unlimited swipes and priority features',
+            to: isUltra ? '/premium?tier=ultra' : '/premium'
         },
         {
             icon: '💳',

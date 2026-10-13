@@ -1,0 +1,347 @@
+/* ==========================================================================
+   THE COLLEGE DATE (CD2.0) — ELITE ULTRA DETAILS MODAL
+   ========================================================================== */
+
+.elite-ultra-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(4, 7, 15, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.elite-ultra-modal-card {
+    background: linear-gradient(175deg, #131b2e 0%, #0b0f19 100%);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 35px rgba(245, 158, 11, 0.15);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px 20px 20px;
+    position: relative;
+    color: #f8fafc;
+    box-sizing: border-box;
+}
+
+.ultra-modal-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.ultra-modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+}
+
+.ultra-modal-crest {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.ultra-crest-icon {
+    font-size: 38px;
+    filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.5));
+}
+
+.ultra-modal-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.ultra-tier-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.ultra-modal-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: #ffffff;
+    letter-spacing: -0.4px;
+}
+
+.ultra-modal-subtitle {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin: 0 auto;
+    max-width: 380px;
+}
+
+/* Pricing Selector Pills */
+.ultra-pricing-pills-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.ultra-price-pill {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    color: inherit;
+}
+
+.ultra-price-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
+.ultra-price-pill.featured {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1.5px solid #fbbf24;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+}
+
+.pill-badge {
+    position: absolute;
+    top: -8px;
+    background: #f59e0b;
+    color: #0b0f19;
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.pill-duration {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+.pill-amount {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.ultra-price-pill.featured .pill-amount {
+    color: #fbbf24;
+}
+
+.pill-rate {
+    font-size: 0.68rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Feature List */
+.ultra-features-list {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.ultra-feature-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.feature-icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.feature-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.feature-text strong {
+    color: #f1f5f9;
+    font-weight: 700;
+}
+
+.feature-text span {
+    color: #94a3b8;
+}
+
+/* Reassurance Box */
+.ultra-reassurance-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+}
+
+.reassurance-icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.reassurance-text {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: #a7f3d0;
+}
+
+.reassurance-text strong {
+    color: #34d399;
+}
+
+.reassurance-text p {
+    margin: 2px 0 0;
+    color: #cbd5e1;
+}
+
+/* Actions */
+.ultra-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-ultra-modal-cta {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    color: #0b0f19;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-ultra-modal-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.45);
+}
+
+.btn-ultra-modal-dismiss {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-ultra-modal-dismiss:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+}
+
+/* Light Theme Overrides */
+html[data-theme="light"] .elite-ultra-modal-card {
+    background: #ffffff;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15), 0 0 25px rgba(245, 158, 11, 0.15);
+    color: #0f172a;
+}
+
+html[data-theme="light"] .ultra-modal-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .ultra-price-pill {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .pill-amount {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .ultra-price-pill.featured .pill-amount {
+    color: #b45309;
+}
+
+html[data-theme="light"] .ultra-features-list {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .feature-text strong {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .feature-text span {
+    color: #475569;
+}
+
+html[data-theme="light"] .ultra-reassurance-box {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+html[data-theme="light"] .reassurance-text strong {
+    color: #047857;
+}
+
+html[data-theme="light"] .reassurance-text p {
+    color: #1e293b;
+}
+
+html[data-theme="light"] .btn-ultra-modal-dismiss {
+    border-color: #cbd5e1;
+    color: #64748b;
+}

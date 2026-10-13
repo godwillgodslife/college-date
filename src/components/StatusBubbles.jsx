@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecentStatuses } from '../services/statusService';
 import OptimizedImage from './OptimizedImage';
+import { getAvatarUrl } from '../utils/profileData';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './StatusBubbles.css';
@@ -64,7 +65,7 @@ export default function StatusBubbles() {
                     >
                         <div className="bubble-ring">
                             <OptimizedImage
-                                src={status.user?.avatar_url || 'https://via.placeholder.com/60'}
+                                src={getAvatarUrl(status.user || status.profiles) || status.user?.avatar_url || status.profiles?.avatar_url || 'https://via.placeholder.com/60'}
                                 alt={status.user?.full_name}
                                 width={60}
                             />

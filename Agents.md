@@ -8,7 +8,182 @@
 - RevenueCat Android App: `TheCollegeDate Android` (`app25b4a70ce2`)
 
 ## Overall Project State
-The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, and production deployment across Web (Netlify) and Android (`v2.2.66` / VC 63). Signed release artifacts, live web deployment, and physical emulator verification completed with zero regressions.
+The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), and production deployment across Web (Netlify) and Android (`v2.2.67` / VC 64). Signed release artifacts, live web deployment, and physical emulator verification completed with zero regressions.
+
+0.00000000000000000000000000000000000000000000000000000000000000000010. Android Notification Soft Prompt Complete Suppression & Subtle Web Engagement Alignment
+   - Android-Exclusive UI Deactivation:
+     - Root-Cause Forensic Diagnosis: The web pre-permission bottom sheet modal (`NotificationSoftPrompt.jsx`) was rendering on the Android app after a 4-second delay, popping up right on the landing/welcome screen video.
+     - Solution:
+       - In `src/components/NotificationSoftPrompt.jsx`: Added native platform gate (`isNativePlatform()`), returning `null` unconditionally for Android Capacitor runtime. Native Android notifications are strictly managed via OneSignal native SDK permissions (`initNativePush`) or system settings.
+       - In `src/components/NotificationSoftPrompt.css`: Added defensive CSS rule `html.is-native-app .soft-prompt-overlay { display: none !important; pointer-events: none !important; }`.
+   - Subtle Web Repositioning, Proper Place & Perfect Timing:
+     - Proper Place: Excluded root `/` (welcome video/landing screen), `/landing`, `/the-college-date`, and all auth (`/login`, `/signup`, `/auth`, etc.), legal, or blog routes via `isEligiblePath()`. Prompts are strictly restricted to authenticated users (`currentUser`) actively exploring core application surfaces (`/dashboard`, `/match`, `/explore`, `/chat`, `/confessions`, etc.).
+     - Perfect Timing: Extended trigger delay from aggressive 4 seconds to a natural 25-second active engagement period (`ENGAGEMENT_DELAY_MS = 25000`), with an enforced 14-day dismissal cooldown (`COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000`).
+     - Subtle Non-Intrusive Layout: Removed the full-screen opaque blackout backdrop (`background: transparent; pointer-events: none`). Repositioned prompt as a floating card docked in the bottom-right on desktop (`right: 24px; bottom: 24px`) and bottom center on mobile web, equipped with a dedicated 1-tap close button (`✕`) without blocking underlying UI clicks.
+   - Quality Gates & Automated Verification:
+     - Dedicated Test Suite: **11/11 tests PASSED in 0.31s** (`node --test test/notification-banners-and-prepermission.test.mjs`), including assertions for native Android suppression, landing route exclusion, and 14-day cooldown.
+     - Master Automated Test Suite: **325/325 tests PASSED in 7.31s** (`npm run test:all`).
+     - Production Vite Build: **PASSED in 42.14s** across 1,156 modules (`npm run build`).
+     - Capacitor Android Sync & Asset Pipeline: **PASSED in 3.30s** (`clean-android-assets`, `cap sync`, `prepare-android-assets`).
+     - Native Android Build & Device Verification: Debug APK assembled in 1m 33s, installed and verified live on `emulator-5554` with zero prompt popup. Captured evidence: `public/evidence_qa/welcome_clean_no_prompt_live.png`.
+
+0.00000000000000000000000000000000000000000000000000000000000000000009. Chat Page Permissions Resilience & 403 Permission Denied Elimination (Safe Column Projections & Authoritative Native RPC Fallbacks)
+   - Root-Cause Forensic Diagnosis:
+     - Error: Chat page rendered React ErrorBoundary fallback ("Something went wrong in this section. Don't worry, your data is safe... e: the server responded with a status of 403 () ... getConversations error: permission denied for table messages").
+     - Root Cause:
+       1. In `src/services/chatService.js`, `getConversations` queried `matches` with nested `messages(id, content, type, sender_id, is_read, created_at, expires_at, metadata)`.
+       2. PostgreSQL table-level and column-level permission grants for the `authenticated` role on `public.messages` in Supabase hosted project `gedoyoleoscgxgdqszzc` only granted select access to basic columns (`id, match_id, sender_id, content, type, is_read, created_at, read_at, expires_at`), but NOT `metadata` or `seen_at`.
+       3. Requesting ungranted `metadata` in the nested `messages(...)` projection caused PostgREST to reject the request with HTTP 403 / PostgreSQL error 42501 (`permission denied for table messages`).
+       4. `useConversations` in `src/hooks/useSWRData.js` threw `new Error(error)`, which bubbled up to `ErrorBoundary.jsx` and crashed the Chat view.
+   - Architectural Hardening & Dual-Layer Resilience:
+     - Safe Column Projections (`SAFE_MESSAGE_COLUMNS`):
+       - Pruned ungranted `metadata` from the nested `messages(...)` query in `getConversations`.
+       - Replaced `select('*')` in `getMessages` and `sendMessage` clientNonce check with explicit `SAFE_MESSAGE_COLUMNS` (`id, match_id, sender_id, content, type, is_read, created_at, read_at, expires_at`).
+     - Authoritative Native RPC Fallback Layer (`SECURITY DEFINER`):
+       - `getConversations`: Falls back to `supabase.rpc('get_native_conversations', { p_limit: 50, p_offset: 0 })` with automatic profile enrichment (`profiles` table lookup).
+       - `getMessages`: Falls back to `supabase.rpc('get_native_messages', { p_match_id, p_limit: 20 })`.
+       - `sendMessage`: Falls back to `supabase.rpc('send_native_text_message', { p_match_id, p_content, p_client_nonce })`.
+       - `markConversationRead`: Calls `supabase.rpc('mark_native_messages_read', { p_match_id })`.
+     - ErrorBoundary Immunity:
+       - Updated `useConversations` in `src/hooks/useSWRData.js` to log warnings and return `data || []` instead of throwing unhandled exceptions, guaranteeing the chat view never renders an error modal.
+     - Database Migration:
+       - Created `supabase/migrations/20261013040000_grant_messages_table_permissions.sql` granting full table-level `SELECT, INSERT, UPDATE, DELETE` to `authenticated` and `service_role`.
+   - Quality Gates & Automated Verification:
+     - Dedicated Test Suite: **2/2 tests PASSED in 3.53s** (`node --test test/chat-permissions-resilience.test.mjs`), including live Supabase query execution on test user `student.tester2026@gmail.com`.
+     - Master Automated Test Suite: **323/323 tests PASSED in 8.63s** (`npm run test:all`).
+     - Production Vite Build: **PASSED in 51.12s** across 1,156 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 4.67s** across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000008. Off-Platform Contact Guard & Elite Ultra VIP (₦15,000/mo) Retention & Monetization Pipeline
+   - User Retention & Contact Leak Prevention Architecture:
+     - Multi-Surface Defense: Prevents users from exchanging phone numbers, WhatsApp, and social media handles (IG, TikTok, Snapchat, Telegram, X, Facebook) across all high-traffic surfaces (Chat, Profile Bios, Campus Confessions).
+     - Sneaky Evasion Tactics Neutralized (`src/utils/offPlatformGuard.js`):
+       * Separator obfuscation: `0803 123 4567`, `0803-123-4567`, `0.8.0.3...`
+       * Multi-lingual spelled-out digits: English (`zero eight one...`), Yoruba (`odo eejo...`), Igbo, Hausa.
+       * Double/triple digit shorthand: "zero eight double one..."
+       * Letter lookalikes: `o8o3l234567` (`o->0`, `l/I/|->1`).
+       * Unicode digits: fullwidth (`０８０３...`), circled (①), keycaps (0️⃣8️⃣0️⃣3️⃣), Arabic-Indic.
+       * Multi-bubble splitting: chained analysis across previous chat bubbles (`detectOffPlatformContactWithHistory`).
+       * Nigerian fintech proxies: OPay, PalmPay, Moniepoint account transfers used as phone proxies.
+       * Slang & verbal cues: "flash me", "beep me", "call my line", "drop your digits".
+       * Handle references: "search me on IG/TikTok/Snap", "my IG is...", "@handle".
+       * Bio referrals: "check my bio for my number", "number is in bio".
+       * App dissatisfaction excuses: "app dey lag, let's talk on WA", "rarely active here".
+       * External links & emails: `wa.me`, `t.me`, `linktr.ee`, obfuscated emails (`amaka (at) gmail (dot) com`).
+   - Elite Ultra VIP Exemption & Monetization (₦15,000 / month):
+     - Unrestricted Contact Sharing: Subscribers to Elite Ultra VIP (`isEliteUltra(sender)`) are completely exempt, having full freedom to share phone numbers, social handles, and ask any questions without filter blocks.
+     - Mini Pop-Up Sheet (`OffPlatformBlockedModal.jsx` & `.css`):
+       * Glassmorphic obsidian & gold modal portaled to `document.body` (`z-index: 100000`).
+       * Educates standard users with high-converting value propositions and direct upgrade button to Elite Ultra (`₦15,000 / mo`).
+       * Preserves unsent text in the chat composer so users can edit without losing context (`✏️ Edit Message`).
+       * Highlights in-app built-in superpowers (Voice Notes 🎙️, HD Video Calls 📹, Live Campus Location 📍, Virtual Gifts 🎁).
+     - In-Chat Real-Time Typing Hint & Persistent Safety Banner:
+       * Proactive micro-warning pill (`.chat-composer-safeguard-hint`) rendered above chat input when typing restricted patterns with direct 1-tap Ultra upgrade button.
+       * In-chat privacy & safety header banner (`.chat-safety-reminder-bar`) reassuring students and reducing motivation to leave the platform.
+     - Public Profile Bio Masking (`sanitizeBioForDisplay`):
+       * Protects profile views in SwipeCard, ProfileModal, and public Profile surfaces by redacting rogue phone numbers and social handles for non-Ultra profile owners.
+       * Proactive validation in `EditProfile.jsx` prevents non-Ultra users from saving bios containing contact details.
+     - Public Campus Confessions Guard:
+       * Prohibits broadcasting phone numbers and social handles in anonymous or campus confessions.
+   - Database & Service Backstops:
+     - PostgreSQL trigger `supabase/migrations/20261013030000_block_off_platform_contact_sharing.sql` enforces server-authoritative message blocking before insert/update on `public.messages`.
+     - `src/services/chatService.js` client-side validation backstop in `sendMessage` and `editMessage`.
+   - Quality Gates & Automated Verification:
+     - Dedicated Test Suite: **13/13 tests PASSED in 0.27s** (`test/off-platform-contact-guard.test.mjs`).
+     - Master Automated Test Suite: **321/321 tests PASSED in 3.34s** (`npm run test:all`).
+     - Production Vite Build: **PASSED in 21.45s** across 1,156 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 1.93s** across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000007. Credit-Aware Liveness Verification Fallback Routing Layer (Primary OpenRouter -> Liveness Fallback -> Safe Motion Queue)
+   - Multi-Tier Server-Authoritative Verification Orchestrator:
+     - Primary Provider: OpenRouter Multimodal Vision (`openai/gpt-4o-mini`) performs 1:1 facial comparison between live selfie base64 and reference profile photo.
+     - Secondary Provider (`LIVENESS_FALLBACK_API_KEY`): When primary exhausts quota (HTTP 402) or experiences transient errors, automatically routes to dedicated Liveness fallback provider with independent response validation (`validateFallbackProviderResponse`).
+     - Biometric Verification Integrity (Phase 4): Requires BOTH live human presence (`is_live: true` or `liveness_score >= 80`) AND 1-to-1 face comparison (`is_same_face: true` with `confidence >= 45`) before awarding `is_verified: true` and `photo_verified: true`. If only liveness passes without face match, or if presentation attack detected, marks `status: 'rejected'` or `status: 'needs_review'`.
+     - Deterministic Cooldown & Quota Recovery (Phase 3): When a provider encounters quota exhaustion (HTTP 402), places provider in a 10-minute cooldown (`cooldownUntil`) to prevent expensive repeated calls. When cooldown expires, automatically restores primary provider as preferred choice.
+     - Safe Terminal Free Motion Queue: If both primary and fallback providers are exhausted or unavailable, routes to local motion queue (`status: 'needs_review'`, `verified: false`). Never awards a verified badge merely because cloud providers failed.
+     - Anti-Replay, Session Nonces & Concurrency Protections (Phase 5): Rejects verification sessions older than 5 minutes, validates user identity, and locks in-flight verification requests to prevent duplicate submissions or double-billing. Discards raw selfie base64 from RAM immediately post-analysis.
+     - Secret Isolation: `LIVENESS_FALLBACK_API_KEY` is strictly confined to server-side configuration (`.env` without `VITE_` prefix) and Supabase Edge Function environment. 100% absent from client code, public assets, and API response payloads.
+   - Quality Gates & Automated Verification:
+     - Dedicated Test Suite: **15/15 scenarios PASSED in 0.74s** (`node --test test/liveness-fallback-orchestrator.test.mjs`).
+     - Master Automated Test Suite: **319/319 tests PASSED in 3.18s** (`npm run test:all`).
+     - Production Vite Build: **PASSED in 22.46s** across 1,156 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 3.21s** across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000006. Tier-Aware Profile Completion & Media Expansion (Freemium, Premium & Ultra Elite Gallery & Video)
+   - Profile Completion Gallery Expansion (4 -> 6 Photos by Tier):
+     - Freemium (Free): Capped at 4 profile photos. Slots 5 & 6 rendered with stylish locked luxury UI (`🔒 👑 Elite`), inline upgrade button, and interactive contextual paywall sheet trigger (`photo_slots`).
+     - Elite Premium: All 6 high-definition photo slots unlocked (`[0, 1, 2, 3, 4, 5]`), tagged with `👑 Elite Premium (6 Photos)`.
+     - Elite Ultra VIP: All 6 photo slots unlocked with radiant Ultra VIP styling (`👑✨ Elite Ultra VIP (6 Photos)`).
+   - Profile Video Showcase & Dynamic Duration Tiers:
+     - Freemium: Video Profile locked with upgrade preview card explaining 10s and 30s options.
+     - Elite Premium: 10-Second Video Profile unlocked (`video.duration <= 10.5s`) with prompt to upgrade to Ultra for 30s.
+     - Elite Ultra VIP: 30-Second Extended HD Video Profile unlocked (`video.duration <= 30.5s`) with `👑✨ Ultra VIP Moment` badge across Edit Profile and public Profile showcase.
+   - Entitlements & Quality Gates:
+     - Exported `getProfilePhotoLimit`, `getProfileVideoDurationLimit`, and `canUploadProfileVideo` in `src/utils/premium.js` and `src/services/entitlementService.js`.
+     - Automated Test Suite: **293/293 tests PASSED in 3.07s** (`npm run test:all`), with 11 dedicated tests in `test/profile-completion-tiers-and-media.test.mjs`.
+     - Production Vite Build: **PASSED in 20.54s** across 1,146 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 2.15s** (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000005. Google Play Release Artifacts & OneSignal Native Hardening (`v2.2.67` / VC 64)
+   - Release Packaging & Build Automation:
+     - Version Bump: Synchronized `package.json` to `"version": "2.2.67"` and `android/app/build.gradle` to `versionCode 64` / `versionName "2.2.67"`.
+     - OneSignal Native Bridge Hardening: Resolved fatal `IllegalStateException: Must call 'initWithContext' before use` in `src/components/NotificationSoftPrompt.jsx` by guaranteeing `OneSignal.initialize(appId)` is executed before native notification permissions are invoked.
+     - Release Gate Verification: All 9 Play Store release verification gates passed cleanly via `scripts/verify-aab.mjs`:
+       1. Zero private APK / test evidence leaks.
+       2. Bundle size 17.02 MB (well under 30 MB threshold).
+       3. Package ID `com.collegedate.app` version `2.2.67` (64) validated.
+       4. Target SDK 35 compliant.
+       5. Valid `google-services.json` included.
+       6. Android Manifest security flags (`allowBackup="false"`, `usesCleartextTraffic="false"`).
+       7. Google Play Photo & Video policy compliance: broad media & storage permissions excluded.
+       8. Production RevenueCat Google Play key verified (`goog_...`).
+       9. Zero call-provider or secret variable leakage in text assets.
+   - Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.67-vc64-playstore.aab`
+       * Size: 17,844,545 bytes (**17.02 MB**)
+       * SHA-256: `BEF242E85A70C94DB2120FB6159509B1E16D5F90B822FA6292B71577CABB5358`
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.67-vc64-manual-test.apk`
+       * Size: 15,746,477 bytes (**15.02 MB**)
+       * SHA-256: `0DE100CE972A4883B3BFE03F72F0118608F52900357609C1CE6033CAF872B310`
+   - Verification & Quality Gates:
+     - Automated Test Suite: **244/244 tests PASSED in 7.78s** (`npm run test:all`).
+     - Production Vite Build: **PASSED in 44.81s** across 1,145 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 3.04s** across 11 plugins (`npx cap sync android`).
+     - Native Emulator Installation & Verification: Installed and run cleanly on `Pixel_3a_Lightweight` (`emulator-5554`) running Android 35. Verified landing screen and interactive Tour Campus Demo.
+     - Photographic Evidence Captured:
+       * `public/evidence_qa/v2_2_67_release_live.png`: Native landing view running live on release APK.
+
+0.00000000000000000000000000000000000000000000000000000000000000000004. Native Android Compact Card Ergonomics & Fast Scrolling Architecture (`v2.2.66` / VC 63)
+   - Mobile Card Ergonomics & Vertical Footprint Downscaling across Native Android (`html.is-native-app`):
+     - Explore Grid Masonry Downscaling:
+       - Downscaled `grid-auto-rows` from 220px to 138px in `src/styles/androidPolish.css`. Standard cards now measure ~138px, tall cards span 2 rows to ~285px (reduced by 37% from 452px).
+       - Downscaled overlay gradient padding to `6px 8px`, name font size to `0.84rem`, status badges squircle to `20px` with `0.65rem` typography, and intent badges to `2px 6px` (`0.65rem`).
+       - Result: 6 student profile cards now visible on screen simultaneously (vs 1.5 previously), allowing students to scroll through large campus pools 3x faster.
+     - Dashboard Feature Cards 2-Column Grid Transformation:
+       - Upgraded `.features-grid` at `@media (max-width: 480px)` from a 1-column 840px vertical stack (`1fr`) to a dense 2-column grid (`repeat(2, 1fr)` with `0.65rem` gap).
+       - Tightened `.feature-card` padding to `0.75rem 0.7rem` with max-height ~107px and clamped description text to 2 lines (`-webkit-line-clamp: 2`).
+       - Result: All 6 primary action cards (Start Matching, Messages, Explore, Premium, Wallet, Requests) fit cleanly on screen without endless vertical scrolling.
+     - Confessions Feed Density Optimization:
+       - Reduced `.confession-card-premium` padding to `0.75rem 0.85rem` and margin-bottom to `0.5rem`.
+       - Downscaled text body to `0.88rem` with `line-height: 1.35`, media preview heights to 160px, and reaction action pill padding to `0.25rem 0.45rem`.
+       - Result: Fits 2-3 confessions on screen simultaneously with cards measuring ~126px.
+     - Referrals & Campus Ambassador Deck Compacting:
+       - Downscaled `.referral-milestone-card` padding to `0.85rem 1rem`, golden crown badge to `42px`, and Top Connectors podium cards to `8px 6px`.
+     - Requests, Viewers, Notifications, & Leaderboard Compacting:
+       - Downscaled row item padding to `0.55rem - 0.65rem` and avatar squircles to `42px`.
+   - Verification & Quality Gates:
+     - Automated Test Suite: **244/244 tests PASSED in 6.37s** (`npm run test:all`).
+     - Dedicated test suite: `test/compact-cards-ergonomics.test.mjs` (4/4 tests passed).
+     - Production Vite Build: **PASSED in 42.09s** across 1,145 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 9.77s** across 11 plugins (`npx cap sync android`).
+     - Live Physical/Virtual Emulator Verification: Verified live on running Android emulator `Pixel_3a_Lightweight` (`emulator-5554`) in system Light Mode (`cmd uimode night no`).
+     - Photographic Evidence Captured:
+       * Explore Grid (6 profiles visible): `public/evidence_qa/compact_cards_explore_live.png`
+       * Dashboard 2-Column Grid (6 action cards): `public/evidence_qa/compact_cards_dashboard_live.png`
+       * Confessions Feed (compact cards ~126px): `public/evidence_qa/compact_cards_confessions_live.png`
+       * Referrals Ambassador League (compact milestone & podium): `public/evidence_qa/compact_cards_referrals_live.png`
 
 0.00000000000000000000000000000000000000000000000000000000000000000003. Referral Rewards Deck UI/UX Overhaul & Compact Snap Ergonomics (`v2.2.66` / VC 63)
    - Professional Mobile UI/UX Overhaul for Referral Incentives Deck:

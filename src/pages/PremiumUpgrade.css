@@ -1436,7 +1436,510 @@ html[data-theme="light"] .trial-banner-body h4 {
     color: #78350f;
 }
 
-html[data-theme="light"] .trial-banner-body p {
+/* ==========================================================================
+   THE COLLEGE DATE (CD2.0) — ELITE ULTRA UPGRADE & ALLOWANCE STYLES
+   ========================================================================== */
+
+/* ── Tier Category Toggle ── */
+.tier-category-toggle {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 14px;
+}
+
+.tier-toggle-pill {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 8px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tier-toggle-pill:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tier-toggle-pill.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.45);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+}
+
+.tier-toggle-pill.ultra-pill.active {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.15) 100%);
+    border-color: rgba(251, 191, 36, 0.6);
+    color: #fbbf24;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+}
+
+.toggle-price-chip {
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.toggle-price-chip.ultra-chip {
+    color: #fde68a;
+}
+
+/* ── Ultra Card & Perks Highlight ── */
+.ultra-tier-card.selected {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.25) !important;
+}
+
+.ultra-tier-card.selected .radio-dot {
+    background: #fbbf24 !important;
+}
+
+.ultra-perks-highlight-card {
+    background: linear-gradient(175deg, rgba(245, 158, 11, 0.08) 0%, rgba(19, 27, 46, 0.75) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.ultra-perks-header {
+    margin-bottom: 10px;
+}
+
+.ultra-badge-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+}
+
+.ultra-perks-header h4 {
+    margin: 2px 0 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.ultra-perks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.ultra-perk-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 8px 10px;
+}
+
+.ultra-perk-item .perk-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ultra-perk-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.ultra-perk-item strong {
+    font-size: 12px;
+    color: #f8fafc;
+    line-height: 1.25;
+}
+
+.ultra-perk-item span {
+    font-size: 10px;
+    color: #94a3b8;
+    line-height: 1.2;
+}
+
+.ultra-allowance-isolation-note {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: #a7f3d0;
+    line-height: 1.35;
+}
+
+.ultra-allowance-isolation-note strong {
+    color: #34d399;
+}
+
+/* ── Active Dashboard Ultra Allowance Card ── */
+.ultra-allowance-dashboard-card {
+    background: linear-gradient(175deg, rgba(245, 158, 11, 0.09) 0%, rgba(19, 27, 46, 0.95) 100%);
+    border: 1.5px solid rgba(251, 191, 36, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 25px rgba(245, 158, 11, 0.12);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.allowance-card-header {
+    margin-bottom: 12px;
+}
+
+.allowance-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.allowance-crown-pill {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    color: #fbbf24;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+}
+
+.allowance-cycle-pill {
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.allowance-card-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 4px;
+}
+
+.allowance-card-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.allowance-meters-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.allowance-meter-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 10px 12px;
+}
+
+.meter-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.meter-icon-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.meter-count-badge {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.meter-count-badge strong {
+    color: #fbbf24;
+    font-size: 13px;
+}
+
+.meter-track {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.meter-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.super-swipe-bar {
+    background: linear-gradient(90deg, #f59e0b 0%, #ec4899 100%);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.boost-bar {
+    background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.meter-caption {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.3;
+    display: block;
+}
+
+.meter-caption.exhausted {
+    color: #f87171;
+}
+
+.meter-showcase-badge {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.btn-activate-ultra-boost {
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 4px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    border-radius: 10px;
+    color: #0b0f19;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+    transition: all 0.15s ease;
+}
+
+.btn-activate-ultra-boost:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(245, 158, 11, 0.4);
+}
+
+.btn-activate-ultra-boost:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ultra-active-boost-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.boost-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: boostPulse 1.8s infinite;
+}
+
+@keyframes boostPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* ── Standard Premium User Upsell to Ultra ── */
+.upgrade-to-ultra-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(19, 27, 46, 0.9) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+.ultra-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ultra-banner-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.ultra-banner-left h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.ultra-banner-left p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.25;
+}
+
+.btn-ultra-banner-upgrade {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #f59e0b;
+    border: none;
+    color: #0b0f19;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.btn-ultra-banner-upgrade:hover {
+    background: #fbbf24;
+    transform: translateY(-1px);
+}
+
+/* ── Light Theme Overrides for Ultra ── */
+html[data-theme="light"] .tier-category-toggle {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .tier-toggle-pill {
+    color: #64748b;
+}
+
+html[data-theme="light"] .tier-toggle-pill.active {
+    background: #ffffff;
+    border-color: rgba(99, 102, 241, 0.5);
+    color: #4f46e5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .tier-toggle-pill.ultra-pill.active {
+    background: #ffffff;
+    border-color: #f59e0b;
+    color: #b45309;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
+}
+
+html[data-theme="light"] .toggle-price-chip.ultra-chip {
+    color: #b45309;
+}
+
+html[data-theme="light"] .ultra-perks-highlight-card {
+    background: #fffbeb;
+    border-color: #fcd34d;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .ultra-perks-header h4 {
+    color: #78350f;
+}
+
+html[data-theme="light"] .ultra-perk-item {
+    background: #ffffff;
+    border-color: #fef3c7;
+}
+
+html[data-theme="light"] .ultra-perk-item strong {
+    color: #78350f;
+}
+
+html[data-theme="light"] .ultra-perk-item span {
+    color: #92400e;
+}
+
+html[data-theme="light"] .ultra-allowance-isolation-note {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+html[data-theme="light"] .ultra-allowance-dashboard-card {
+    background: #ffffff;
+    border-color: #fcd34d;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .allowance-card-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .allowance-card-sub {
+    color: #475569;
+}
+
+html[data-theme="light"] .allowance-meter-item {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .meter-icon-label {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .meter-count-badge {
+    color: #64748b;
+}
+
+html[data-theme="light"] .meter-count-badge strong {
+    color: #b45309;
+}
+
+html[data-theme="light"] .upgrade-to-ultra-banner {
+    background: #fffbeb;
+    border-color: #fcd34d;
+}
+
+html[data-theme="light"] .ultra-banner-left h4 {
+    color: #78350f;
+}
+
+html[data-theme="light"] .ultra-banner-left p {
     color: #92400e;
 }
 

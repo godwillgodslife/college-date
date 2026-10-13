@@ -61,10 +61,7 @@ WITH CHECK (
     (auth.uid() IS NOT NULL AND (
         (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin', 'owner', 'content_manager') OR
         (auth.jwt() -> 'app_metadata' ->> 'is_admin')::boolean = true OR
-        EXISTS (
-            SELECT 1 FROM public.admin_access_tokens 
-            WHERE user_id = auth.uid() AND revoked_at IS NULL
-        )
+        public.admin_has_permission('content.manage')
     ))
 );
 
@@ -76,10 +73,7 @@ USING (
     (auth.uid() IS NOT NULL AND (
         (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin', 'owner', 'content_manager') OR
         (auth.jwt() -> 'app_metadata' ->> 'is_admin')::boolean = true OR
-        EXISTS (
-            SELECT 1 FROM public.admin_access_tokens 
-            WHERE user_id = auth.uid() AND revoked_at IS NULL
-        )
+        public.admin_has_permission('content.manage')
     ))
 );
 

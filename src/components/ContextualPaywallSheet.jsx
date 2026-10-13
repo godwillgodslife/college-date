@@ -33,10 +33,16 @@ const TOUCHPOINT_COPY = {
         icon: '⚡'
     },
     video_upload: {
-        pill: '🎬 10S LIVE VIDEO',
+        pill: '🎬 10S-30S LIVE VIDEO',
         title: 'Showcase Your Real Vibe',
-        subtitle: 'Static photos only show half the story. Add an authentic 10-second live video to triple your response and match rate.',
+        subtitle: 'Static photos only show half the story. Add a 10s video moment (or 30s with Elite Ultra) to triple your response and match rate.',
         icon: '🎬'
+    },
+    photo_slots: {
+        pill: '📸 UNLOCK 6 PROFILE PHOTOS',
+        title: 'Expand Your Campus Gallery',
+        subtitle: 'Free accounts are capped at 4 photos. Upgrade to Elite to unlock all 6 photo slots and get 3x more campus matches.',
+        icon: '📸'
     },
     general: {
         pill: '👑 COLLEGE DATE ELITE',

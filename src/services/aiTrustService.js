@@ -48,32 +48,50 @@ export async function requestProfileAiReview(reason = 'profile_update', options 
   }
 }
 
+let inFlightVerifyPromise = null;
+
 /**
  * 1-to-1 Biometric Selfie Face Match
  * Compares live interactive selfie capture against profile photos.
- * Server-authoritative: routes strictly via Supabase Edge Function with OpenRouter vision
- * and automated interactive motion fallback.
+ * Server-authoritative: routes strictly via Supabase Edge Function with OpenRouter vision,
+ * liveness fallback provider, and automated interactive motion fallback.
  */
-export async function verifyLiveSelfie({ selfieBase64, profilePhotoUrl, livenessScore }) {
-  try {
-    const supabase = await getSupabase();
-    if (!supabase) {
-      throw new Error('Supabase client unavailable');
-    }
-
-    const { data, error } = await supabase.functions.invoke('ai-profile-review', {
-      body: {
-        action: 'verify_selfie',
-        selfieBase64,
-        profilePhotoUrl,
-        livenessScore
-      }
-    });
-
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.warn('[AI Trust] Selfie verification failed:', error.message || error);
-    return { data: null, error: error.message || 'Selfie verification unavailable' };
+export async function verifyLiveSelfie({ selfieBase64, profilePhotoUrl, livenessScore, sessionId }) {
+  if (inFlightVerifyPromise) {
+    // Return existing in-flight verification request to prevent concurrent duplicates
+    return inFlightVerifyPromise;
   }
+
+  inFlightVerifyPromise = (async () => {
+    try {
+      const supabase = await getSupabase();
+      if (!supabase) {
+        throw new Error('Supabase client unavailable');
+      }
+
+      const activeSessionId = sessionId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
+      const sessionTimestamp = Date.now();
+
+      const { data, error } = await supabase.functions.invoke('ai-profile-review', {
+        body: {
+          action: 'verify_selfie',
+          selfieBase64,
+          profilePhotoUrl,
+          livenessScore,
+          sessionId: activeSessionId,
+          sessionTimestamp
+        }
+      });
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.warn('[AI Trust] Selfie verification failed:', error.message || error);
+      return { data: null, error: error.message || 'Selfie verification unavailable' };
+    } finally {
+      inFlightVerifyPromise = null;
+    }
+  })();
+
+  return inFlightVerifyPromise;
 }

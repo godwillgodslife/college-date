@@ -4,7 +4,7 @@ import OptimizedImage from './OptimizedImage';
 import { useAuth } from '../contexts/AuthContext';
 import { isRecentlyActive, isRecentlyLive } from '../utils/presence';
 import { formatDisplayName, getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
-import { hasActivePremium } from '../utils/premium';
+import { hasActivePremium, getMatchPhotoLimit, isEliteUltra } from '../utils/premium';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { cacheMediaSource } from '../lib/mediaCache';
 import { getOptimizedUrl } from '../lib/imageUrl';
@@ -15,6 +15,7 @@ import {
     resolveSwipeDirection
 } from '../utils/swipeLifecycle';
 import { getWhyYouMatchBadge } from '../utils/campusCommonGround';
+import { sanitizeBioForDisplay } from '../utils/offPlatformGuard';
 import './SwipeCard.css';
 
 const EXIT_TRANSITION = { type: 'tween', duration: 0.22, ease: 'easeOut' };
@@ -35,6 +36,8 @@ function SwipeCard({
     const { userProfile: myProfile } = useAuth();
     const displayProfile = useMemo(() => normalizeProfile(profile) || {}, [profile]);
     const isProfilePremium = useMemo(() => hasActivePremium(displayProfile), [displayProfile]);
+    const isProfileUltra = useMemo(() => isEliteUltra(displayProfile), [displayProfile]);
+    const photoLimit = useMemo(() => getMatchPhotoLimit(displayProfile, myProfile), [displayProfile, myProfile]);
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
     const [aiInsight, setAiInsight] = useState(null);
     const [aiInsightType, setAiInsightType] = useState('');
@@ -46,7 +49,9 @@ function SwipeCard({
     const dragStartTimeRef = useRef(0);
     const renderCountRef = useRef(0);
 
-    const photos = useMemo(() => getProfilePhotos(displayProfile), [displayProfile]);
+    const allPhotos = useMemo(() => getProfilePhotos(displayProfile), [displayProfile]);
+    const photos = useMemo(() => allPhotos.slice(0, photoLimit), [allPhotos, photoLimit]);
+
 
     const mutualInterests = useMemo(() => {
         return safeArray(myProfile?.interests).filter(interest =>
@@ -345,7 +350,7 @@ function SwipeCard({
     const displayName = formatDisplayName(displayProfile.full_name, displayProfile.username, 'Student');
     const age = displayProfile.age || '';
     const university = displayProfile.university || 'University Student';
-    const bio = displayProfile.bio || 'No bio yet';
+    const bio = sanitizeBioForDisplay(displayProfile.bio || 'No bio yet', isEliteUltra(displayProfile));
 
     const renderAiInsight = () => {
         if (!aiInsight) return null;
@@ -432,8 +437,8 @@ function SwipeCard({
                     )}
 
                     {isProfilePremium && (
-                        <div className="card-premium-golden-badge" title="👑 Premium Member">
-                            <span className="premium-crown-icon">👑</span>
+                        <div className="card-premium-golden-badge" title={isProfileUltra ? "👑 Elite Ultra VIP" : "👑 Premium Member"}>
+                            <span className="premium-crown-icon">{isProfileUltra ? "👑⭐" : "👑"}</span>
                         </div>
                     )}
 
@@ -454,9 +459,11 @@ function SwipeCard({
 
                     <div className="swipe-card-content">
                         <div className="swipe-card-tags">
-                            {isProfilePremium && (
+                            {isProfileUltra ? (
+                                <span className="swipe-tag ultra-tag-glow">👑 Ultra VIP</span>
+                            ) : isProfilePremium ? (
                                 <span className="swipe-tag premium-tag-glow">👑 Premium</span>
-                            )}
+                            ) : null}
                             {(displayProfile.is_verified || displayProfile.photo_verified) && (
                                 <span className="swipe-tag verified-tag-glow">✓ Verified</span>
                             )}
@@ -486,10 +493,11 @@ function SwipeCard({
                         <h2 className="swipe-card-name">
                             {displayName}
                             {age && <span className="swipe-card-age">, {age}</span>}
-                            {isProfilePremium && <span className="premium-crown" title="Premium Member">👑</span>}
+                            {isProfilePremium && <span className="premium-crown" title={isProfileUltra ? "Elite Ultra VIP" : "Premium Member"}>{isProfileUltra ? "👑⭐" : "👑"}</span>}
                             {(displayProfile.is_verified || displayProfile.photo_verified) && (
                                 <span className="card-verified-tick" title="Photo Verified Student">✓</span>
                             )}
+
                         </h2>
 
                         <div className={`swipe-card-bio-wrapper ${isExpanded ? 'expanded' : ''}`}>

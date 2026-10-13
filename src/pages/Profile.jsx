@@ -1,5 +1,5 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getWallet } from '../services/paymentService';
 import { getProfile } from '../services/profileService';
@@ -11,8 +11,13 @@ import './Profile.css';
 import './Profile_Earnings.css';
 import StatusInput from '../components/StatusInput';
 import StatusViewer from '../components/StatusViewer';
+import StatusUploadModal from '../components/StatusUploadModal';
+import GiftStore from '../components/GiftStore';
+import CoinStoreModal from '../components/CoinStoreModal';
+import { getCoinBalance, sendCoinGift } from '../services/coinService';
 import { useToast } from '../components/Toast';
-import { getUserStatuses } from '../services/statusService';
+import { getUserStatuses, getViewedStatusIds } from '../services/statusService';
+import { getLocalUserStatuses } from '../services/localStatusService';
 import { formatLastSeen } from '../utils/formatTimestamp';
 import { requestProfileAiReview } from '../services/aiTrustService';
 import { requestAiAssistant } from '../services/aiAssistantService';
@@ -21,15 +26,16 @@ import FaceVerificationModal from '../components/FaceVerificationModal';
 
 import useSWR from 'swr';
 import { AnimatePresence } from 'framer-motion';
-import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
+import { getProfilePhotos, normalizeProfile, safeArray, getAvatarUrl } from '../utils/profileData';
 import { recordSwipe, checkSwipeLimit } from '../services/swipeService';
-import { hasActivePremium } from '../utils/premium';
+import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import { supabase } from '../lib/supabase';
 import { getUserPostsAndReposts } from '../services/confessionService';
 import { persistentSWR } from '../lib/persistentCache';
 import { CACHE_TTL } from '../lib/cachePolicy';
+import { sanitizeBioForDisplay } from '../utils/offPlatformGuard';
 
-function ProfileVideoShowcase({ videoUrl, isOwnProfile, onEditVideo }) {
+function ProfileVideoShowcase({ videoUrl, isOwnProfile, onEditVideo, isUltra = false }) {
     const videoRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
@@ -58,9 +64,11 @@ function ProfileVideoShowcase({ videoUrl, isOwnProfile, onEditVideo }) {
             <div className="profile-video-card-header">
                 <div className="header-left">
                     <span className="showcase-icon">🎬</span>
-                    <strong>10s Video Profile</strong>
+                    <strong>{isUltra ? '30s Extended Video Profile' : '10s Video Profile'}</strong>
                 </div>
-                <span className="premium-pill">👑 Verified Moment</span>
+                <span className={`premium-pill ${isUltra ? 'ultra-pill' : ''}`}>
+                    {isUltra ? '👑✨ Ultra VIP Moment' : '👑 Verified Moment'}
+                </span>
             </div>
             <div className="profile-video-viewport" onClick={togglePlay}>
                 <video
@@ -206,9 +214,9 @@ function VoicePlayer({ src }) {
     );
 }
 
-function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer, isPremium }) {
+function ProfileCarousel({ photos, avatarUrl, displayName, isOnline, userStatuses, setShowStatusViewer, isPremium, photoUpdatedAt, updatedAt }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const photosList = getProfilePhotos({ profile_photos: photos, avatar_url: avatarUrl });
+    const photosList = getProfilePhotos({ profile_photos: photos, avatar_url: avatarUrl, photo_updated_at: photoUpdatedAt, updated_at: updatedAt });
 
     const nextPhoto = (e) => {
         e.stopPropagation();
@@ -289,7 +297,10 @@ export default function Profile() {
     const navigate = useNavigate();
     const { addToast } = useToast();
 
+    const location = useLocation();
     const [showStatusModal, setShowStatusModal] = useState(false);
+    const [showStatusUploadModal, setShowStatusUploadModal] = useState(false);
+    const [localStatuses, setLocalStatuses] = useState([]);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [checkingPush, setCheckingPush] = useState(true);
     const [showStatusViewer, setShowStatusViewer] = useState(false);
@@ -299,8 +310,61 @@ export default function Profile() {
     const [vibeLoading, setVibeLoading] = useState(false);
     const [vibeSent, setVibeSent] = useState(false);
 
+    // Gift & Coins Integration
+    const [showGiftStore, setShowGiftStore] = useState(false);
+    const [showCoinStore, setShowCoinStore] = useState(false);
+    const [coinBalance, setCoinBalance] = useState(0);
+    const [conversationId, setConversationId] = useState(
+        location.state?.conversationId || location.state?.matchId || null
+    );
+    const queryParams = new URLSearchParams(location.search);
+    const isFromChat = Boolean(location.state?.fromChat || queryParams.get('fromChat') === 'true');
+    const [showGalleryView, setShowGalleryView] = useState(false);
+
     const isOwnProfile = !userId || userId === currentUser?.id;
     const profileId = userId || currentUser?.id;
+
+    // Load coin balance for current user
+    useEffect(() => {
+        if (currentUser?.id) {
+            getCoinBalance(currentUser.id).then(({ coins }) => {
+                if (typeof coins === 'number') setCoinBalance(coins);
+            });
+        }
+    }, [currentUser?.id]);
+
+    // Resolve match / conversation ID if not passed via location state
+    useEffect(() => {
+        if (!conversationId && currentUser?.id && profileId && currentUser.id !== profileId) {
+            supabase
+                .from('matches')
+                .select('id')
+                .or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${profileId}),and(user1_id.eq.${profileId},user2_id.eq.${currentUser.id})`)
+                .maybeSingle()
+                .then(({ data }) => {
+                    if (data?.id) {
+                        setConversationId(data.id);
+                    }
+                });
+        }
+    }, [conversationId, currentUser?.id, profileId]);
+
+    // Load local statuses from IndexedDB for zero-backend storage
+    useEffect(() => {
+        if (profileId) {
+            getLocalUserStatuses(profileId).then(list => setLocalStatuses(list || []));
+        }
+    }, [profileId]);
+
+    useEffect(() => {
+        const handleStatusCreated = () => {
+            if (profileId) {
+                getLocalUserStatuses(profileId).then(list => setLocalStatuses(list || []));
+            }
+        };
+        window.addEventListener('cd:status-created', handleStatusCreated);
+        return () => window.removeEventListener('cd:status-created', handleStatusCreated);
+    }, [profileId]);
 
     // 1. Resolve Profile data
     const profileKey = (!isOwnProfile && profileId) ? ['profile', profileId] : null;
@@ -336,6 +400,36 @@ export default function Profile() {
 
     const wallet = walletResult?.data;
     const userStatuses = statusResult?.data || [];
+    const allStatuses = useMemo(() => {
+        const seen = new Set();
+        const merged = [];
+        for (const s of [...localStatuses, ...userStatuses]) {
+            if (!s) continue;
+            const key = s.id || s.media_url;
+            if (!seen.has(key)) {
+                seen.add(key);
+                merged.push(s);
+            }
+        }
+        return merged;
+    }, [localStatuses, userStatuses]);
+
+    const [viewedStatusIds, setViewedStatusIds] = useState(() => getViewedStatusIds(currentUser?.id));
+
+    useEffect(() => {
+        const handleStatusViewed = () => {
+            setViewedStatusIds(getViewedStatusIds(currentUser?.id));
+        };
+        window.addEventListener('cd:status-viewed', handleStatusViewed);
+        return () => window.removeEventListener('cd:status-viewed', handleStatusViewed);
+    }, [currentUser?.id]);
+
+    const hasUnviewedStatus = useMemo(() => {
+        if (!allStatuses || allStatuses.length === 0) return false;
+        if (isOwnProfile) return false;
+        return allStatuses.some(s => !viewedStatusIds.has(s.id || s.media_url));
+    }, [allStatuses, isOwnProfile, viewedStatusIds]);
+
     const userPosts = postsResult?.data || [];
 
     const loading = (profileLoading && !viewingProfile) || (isOwnProfile && walletLoading && !wallet);
@@ -394,10 +488,10 @@ export default function Profile() {
         || currentUser?.email?.split('@')[0]
         || 'User';
 
-    const avatarUrl = userProfile?.profile_photos?.[0] || userProfile?.avatar_url || null;
+    const avatarUrl = getAvatarUrl(userProfile);
     const email = currentUser?.email || '';
     const university = userProfile?.university || 'Not set';
-    const bio = userProfile?.bio || 'No bio yet';
+    const bio = sanitizeBioForDisplay(userProfile?.bio || 'No bio yet', isOwnProfile || isEliteUltra(userProfile));
     const canUseWebPush = !window.Capacitor?.isNativePlatform?.()
         && window.location.hostname !== 'localhost'
         && window.location.hostname !== '127.0.0.1';
@@ -473,6 +567,64 @@ export default function Profile() {
         }
     };
 
+    const handleGiftSend = async (gift) => {
+        if (!userProfile?.id) {
+            addToast('Recipient profile not found', 'error');
+            return false;
+        }
+        if (!currentUser?.id) {
+            addToast('Please login to send gifts', 'error');
+            return false;
+        }
+
+        let activeMatchId = conversationId;
+        if (!activeMatchId) {
+            const { data: matchData } = await supabase
+                .from('matches')
+                .select('id')
+                .or(`and(user1_id.eq.${currentUser.id},user2_id.eq.${userProfile.id}),and(user1_id.eq.${userProfile.id},user2_id.eq.${currentUser.id})`)
+                .maybeSingle();
+            if (matchData?.id) {
+                activeMatchId = matchData.id;
+                setConversationId(activeMatchId);
+            }
+        }
+
+        if (!activeMatchId) {
+            addToast('Connect or match first before sending gifts!', 'info');
+            return false;
+        }
+
+        try {
+            const res = await sendCoinGift(userProfile.id, gift.id, activeMatchId);
+            if (!res.success) {
+                addToast(res.error || 'Failed to send gift', 'error');
+                return false;
+            }
+
+            if (res.newCoinBalance !== undefined) {
+                setCoinBalance(res.newCoinBalance);
+            }
+            addToast(`Sent ${gift.name}! 🎁`, 'success');
+
+            // Dispatch global event so chat and conversation lists sync immediately
+            window.dispatchEvent(new CustomEvent('tcd:gift-sent', {
+                detail: {
+                    matchId: activeMatchId,
+                    receiverId: userProfile.id,
+                    giftId: gift.id,
+                    giftName: gift.name
+                }
+            }));
+
+            return true;
+        } catch (err) {
+            console.warn('Gift send error:', err);
+            addToast('Error sending gift.', 'error');
+            return false;
+        }
+    };
+
     const handleProfileCoach = async () => {
         if (aiCoachLoading) return;
         setAiCoachLoading(true);
@@ -524,9 +676,9 @@ export default function Profile() {
                     {/* 1. PRIMARY IDENTITY HEADER: AVATAR FIRST */}
                     <div className="profile-header">
                         <div
-                            className={`profile-avatar-wrapper own-avatar-frame ${userStatuses.length > 0 ? 'has-status' : ''}`}
-                            onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
-                            style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
+                            className={`profile-avatar-wrapper own-avatar-frame ${allStatuses.length > 0 ? 'has-status' : ''}`}
+                            onClick={() => allStatuses.length > 0 && setShowStatusViewer(true)}
+                            style={{ cursor: allStatuses.length > 0 ? 'pointer' : 'default' }}
                         >
                             {avatarUrl ? (
                                 <OptimizedImage
@@ -545,6 +697,20 @@ export default function Profile() {
                                 <div className="avatar-premium-badge" title="Premium Member">
                                     <span className="avatar-premium-icon">👑</span>
                                 </div>
+                            )}
+                            {isOwnProfile && (
+                                <button
+                                    type="button"
+                                    className="avatar-add-status-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowStatusUploadModal(true);
+                                    }}
+                                    title="Add Campus Status (Max 2/day)"
+                                    aria-label="Add Status"
+                                >
+                                    +
+                                </button>
                             )}
                         </div>
                         <h1 className="profile-name">
@@ -634,6 +800,7 @@ export default function Profile() {
                             videoUrl={userProfile.video_url}
                             isOwnProfile={true}
                             onEditVideo={() => navigate('/profile/edit')}
+                            isUltra={isEliteUltra(userProfile)}
                         />
                     )}
 
@@ -794,18 +961,294 @@ export default function Profile() {
 
                     <AndroidInstallButton />
                 </div>
+            ) : isFromChat && !showGalleryView ? (
+                // CHAT-OPENED PROFILE VIEW (Redesigned compact, polished, balanced view)
+                <div className="profile-card chat-opened-profile-view animate-fade-in" data-testid="chat-opened-profile-view">
+                    {/* Top Navigation Bar */}
+                    <div className="chat-profile-top-bar">
+                        <button
+                            type="button"
+                            className="chat-profile-back-btn"
+                            onClick={() => {
+                                if (conversationId) {
+                                    navigate(`/chat?chatId=${conversationId}`);
+                                } else {
+                                    navigate('/chat');
+                                }
+                            }}
+                            aria-label="Back to chat"
+                        >
+                            <span className="back-arrow">←</span>
+                            <span>Back to Chat</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className="chat-profile-gallery-toggle"
+                            onClick={() => setShowGalleryView(true)}
+                            title="View Full Photos Gallery"
+                        >
+                            <span>🖼️ Full Gallery</span>
+                        </button>
+                    </div>
+
+                    {/* Profile Hero Header */}
+                    <div className="chat-profile-hero">
+                        <div 
+                            className={`chat-profile-avatar-wrap ${allStatuses.length > 0 ? (hasUnviewedStatus ? 'has-active-status' : 'has-viewed-status') : ''}`}
+                            onClick={() => {
+                                if (allStatuses.length > 0) {
+                                    setShowStatusViewer(true);
+                                }
+                            }}
+                            role={allStatuses.length > 0 ? 'button' : undefined}
+                            tabIndex={allStatuses.length > 0 ? 0 : undefined}
+                            title={allStatuses.length > 0 ? (hasUnviewedStatus ? 'Tap to view new campus story' : 'Viewed campus story') : displayName}
+                        >
+                            <OptimizedImage
+                                src={avatarUrl}
+                                alt={displayName}
+                                className="chat-profile-avatar"
+                                width={160}
+                            />
+                            {hasActivePremium(userProfile) && (
+                                <div className="avatar-premium-badge" title="👑 Premium Member">
+                                    <span className="avatar-premium-icon">👑</span>
+                                </div>
+                            )}
+                            {isOnline && <span className="profile-online-dot chat-profile-online-dot" title="Online" />}
+                            {allStatuses.length > 0 && (
+                                <span className={`chat-profile-story-badge ${hasUnviewedStatus ? 'is-unviewed' : 'is-viewed'}`} title={hasUnviewedStatus ? 'Active Story' : 'Viewed Story'}>
+                                    ▶
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="chat-profile-header-info">
+                            <div className="chat-profile-name-row">
+                                <h2 className="chat-profile-name">
+                                    {displayName}{userProfile?.age ? `, ${userProfile.age}` : ''}
+                                </h2>
+                                {(userProfile?.photo_verified || userProfile?.is_verified) && (
+                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                )}
+                            </div>
+
+                            <p className="chat-profile-sub-uni">
+                                🎓 {university} {userProfile?.department ? `• ${userProfile.department}` : ''}
+                            </p>
+
+                            <div className="chat-profile-pills-row">
+                                {isOnline && <span className="profile-live-badge-glow">LIVE</span>}
+                                {hasActivePremium(userProfile) && <span className="premium-badge-glow">👑 Premium</span>}
+                                {(userProfile?.photo_verified || userProfile?.is_verified) && (
+                                    <span className="verified-badge-pill">✓ Verified Student</span>
+                                )}
+                                {userProfile?.location_status && (
+                                    <span className="chat-profile-loc-pill">📍 {userProfile.location_status}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Active Status Card / Banner */}
+                    {allStatuses.length > 0 ? (
+                        <div 
+                            className={`chat-profile-status-banner ${hasUnviewedStatus ? 'is-unviewed' : 'is-viewed'}`}
+                            onClick={() => setShowStatusViewer(true)}
+                            role="button"
+                            tabIndex={0}
+                        >
+                            <div className="status-banner-left">
+                                <div className="status-pulse-ring">
+                                    <span className="status-pulse-core">{hasUnviewedStatus ? '🔥' : '✓'}</span>
+                                </div>
+                                <div className="status-banner-text">
+                                    <span className="status-banner-title">{hasUnviewedStatus ? 'Active Campus Story' : 'Campus Story'}</span>
+                                    <span className="status-banner-sub">
+                                        {allStatuses.length} {allStatuses.length === 1 ? 'update' : 'updates'} • {hasUnviewedStatus ? 'Tap to watch' : 'Already viewed'}
+                                    </span>
+                                </div>
+                            </div>
+                            <button 
+                                type="button" 
+                                className="status-watch-cta-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowStatusViewer(true);
+                                }}
+                            >
+                                {hasUnviewedStatus ? 'Watch Story ▶' : 'Replay Story ↺'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="chat-profile-no-status-pill">
+                            <span>✨ No active story right now</span>
+                        </div>
+                    )}
+
+                    {/* Action Strip (4 Core Actions: Vibe, Message, Call, Gift) */}
+                    <div className="chat-profile-actions-bar">
+                        <button
+                            type="button"
+                            className={`chat-action-btn vibe-action-btn ${vibeSent ? 'sent' : ''}`}
+                            onClick={handleVibe}
+                            disabled={vibeLoading || vibeSent}
+                        >
+                            <span className="btn-icon">✨</span>
+                            <span className="btn-text">{vibeLoading ? 'Vibing...' : vibeSent ? 'Vibed ✓' : 'Vibe'}</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="chat-action-btn message-action-btn primary"
+                            onClick={() => {
+                                if (conversationId) {
+                                    navigate(`/chat?chatId=${conversationId}`);
+                                } else {
+                                    navigate('/chat', { state: { openChatWith: userProfile.id } });
+                                }
+                            }}
+                        >
+                            <span className="btn-icon">💬</span>
+                            <span className="btn-text">Message</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="chat-action-btn call-action-btn"
+                            onClick={() => navigate(`/call/${userProfile.id}?type=voice`)}
+                        >
+                            <span className="btn-icon">📞</span>
+                            <span className="btn-text">Call</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="chat-action-btn gift-action-btn"
+                            onClick={() => setShowGiftStore(true)}
+                            title="Send Campus Gift"
+                            data-action="gift"
+                        >
+                            <span className="btn-icon">🎁</span>
+                            <span className="btn-text">Gift</span>
+                        </button>
+                    </div>
+
+                    {/* Profile Details Cards */}
+                    <div className="chat-profile-body-sections">
+                        {/* Bio Section */}
+                        {bio && bio !== 'No bio yet' && (
+                            <div className="chat-profile-section-card">
+                                <h4 className="chat-section-label">About {displayName}</h4>
+                                <p className="chat-profile-bio-text">{bio}</p>
+                            </div>
+                        )}
+
+                        {/* AI Compatibility Signal Banner */}
+                        <div className="profile-compatibility-card-premium chat-profile-compat">
+                            <div className="comp-percentage-glow">{getCompatibilityScore()}%</div>
+                            <div className="comp-info-details">
+                                <strong>AI Wingmate Compatibility</strong>
+                                {mutualInterests.length > 0 ? (
+                                    <p>You both enjoy <strong>{mutualInterests.join(', ')}</strong> and share common vibes!</p>
+                                ) : (
+                                    <p>Shared academic focus and campus vibe alignment.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Student Academic & Vibe Grid */}
+                        <div className="profile-info-grid-premium chat-profile-grid">
+                            <div className="grid-item"><strong>Level</strong><span>{userProfile?.level || '—'}</span></div>
+                            <div className="grid-item"><strong>Dept</strong><span>{userProfile?.department || '—'}</span></div>
+                            <div className="grid-item"><strong>MBTI</strong><span>{userProfile?.mbti || '—'}</span></div>
+                            <div className="grid-item"><strong>Genotype</strong><span>{userProfile?.genotype || '—'}</span></div>
+                        </div>
+
+                        {/* Voice Intro Player */}
+                        {voiceIntro && (
+                            <div className="chat-profile-section-card">
+                                <span className="voice-label-glow">🎤 VOICE INTRO</span>
+                                <VoicePlayer src={voiceIntro} />
+                            </div>
+                        )}
+
+                        {/* Spotify Campus Anthem Widget */}
+                        {anthem && (
+                            <div className="spotify-anthem-widget-premium">
+                                <div className="spotify-wave-logo">🎵</div>
+                                <div className="spotify-track-details">
+                                    <span className="track-title">{anthem.split('-')[0]?.trim() || 'Anthem'}</span>
+                                    <span className="track-artist">{anthem.split('-')[1]?.trim() || 'Campus Track'} • Campus Anthem</span>
+                                </div>
+                                <span className="spotify-play-btn">▶</span>
+                            </div>
+                        )}
+
+                        {/* Interest Tags */}
+                        {safeArray(userProfile?.interests).length > 0 && (
+                            <div className="chat-profile-section-card">
+                                <h4 className="chat-section-label">Vibe Tags</h4>
+                                <div className="profile-interests-pills">
+                                    {safeArray(userProfile.interests).map((interest, idx) => (
+                                        <span key={idx} className="interest-pill">{interest}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 10s Video Profile Showcase */}
+                        {userProfile?.video_url && (
+                            <ProfileVideoShowcase
+                                videoUrl={userProfile.video_url}
+                                isOwnProfile={false}
+                                isUltra={isEliteUltra(userProfile)}
+                            />
+                        )}
+
+                        {/* Q&A Prompt Card */}
+                        {userProfile?.intro_prompt && (
+                            <div className="profile-prompt-card-premium">
+                                <span className="prompt-question">We will get along if...</span>
+                                <p className="prompt-answer">"{userProfile.intro_prompt}"</p>
+                            </div>
+                        )}
+
+                        {/* Campus Posts & Reposts Section */}
+                        {userPosts.length > 0 && (
+                            <div className="chat-profile-section-card profile-posts-wrapper">
+                                <h4 className="chat-section-label">Campus Posts & Reposts</h4>
+                                <ProfilePostsSection posts={userPosts} loading={postsLoading} navigate={navigate} />
+                            </div>
+                        )}
+                    </div>
+                </div>
             ) : (
                 // PUBLIC PROFILE VIEW
                 <div className="profile-card public-profile-view animate-fade-in">
+                    {/* Return to chat overview if from chat */}
+                    {isFromChat && (
+                        <div className="gallery-view-top-bar">
+                            <button
+                                type="button"
+                                className="chat-profile-back-btn"
+                                onClick={() => setShowGalleryView(false)}
+                            >
+                                <span className="back-arrow">←</span>
+                                <span>Back to Profile Overview</span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* Carousel image with status dots and progress bars */}
                     <ProfileCarousel
                         photos={userProfile?.profile_photos}
                         avatarUrl={avatarUrl}
                         displayName={displayName}
                         isOnline={isOnline}
-                        userStatuses={userStatuses}
+                        userStatuses={allStatuses}
                         setShowStatusViewer={setShowStatusViewer}
                         isPremium={hasActivePremium(userProfile)}
+                        photoUpdatedAt={userProfile?.photo_updated_at}
+                        updatedAt={userProfile?.updated_at}
                     />
 
                     <div className="public-profile-details">
@@ -891,6 +1334,7 @@ export default function Profile() {
                             <ProfileVideoShowcase
                                 videoUrl={userProfile.video_url}
                                 isOwnProfile={false}
+                                isUltra={isEliteUltra(userProfile)}
                             />
                         )}
 
@@ -920,7 +1364,7 @@ export default function Profile() {
                         </button>
                         <button
                             className="float-action-btn chat-btn-glow primary"
-                            onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id } })}
+                            onClick={() => navigate('/chat', { state: { openChatWith: userProfile.id, chatId: conversationId } })}
                         >
                             💬 Message
                         </button>
@@ -932,7 +1376,10 @@ export default function Profile() {
                         </button>
                         <button
                             className="float-action-btn gift-btn-glow"
-                            onClick={() => addToast('🎁 Gift feature coming soon!', 'info')}
+                            onClick={() => setShowGiftStore(true)}
+                            title="Send Campus Gift"
+                            aria-label="Send Gift"
+                            data-action="gift"
                         >
                             🎁 Gift
                         </button>
@@ -959,14 +1406,25 @@ export default function Profile() {
 
             {/* Status Viewer Overlay */}
             <AnimatePresence>
-                {showStatusViewer && userStatuses.length > 0 && (
+                {showStatusViewer && allStatuses.length > 0 && (
                     <StatusViewer
-                        statuses={userStatuses}
-                        profile={userProfile}
+                        statuses={allStatuses}
+                        profile={isOwnProfile ? userProfile : (viewingProfile || userProfile)}
                         onClose={() => setShowStatusViewer(false)}
                     />
                 )}
             </AnimatePresence>
+
+            {/* Zero-Backend Ephemeral Status Upload Modal */}
+            <StatusUploadModal
+                isOpen={showStatusUploadModal}
+                onClose={() => setShowStatusUploadModal(false)}
+                userId={currentUser?.id}
+                userProfile={userProfile}
+                onStatusAdded={(newStatus) => {
+                    setLocalStatuses(prev => [newStatus, ...prev]);
+                }}
+            />
 
             <FaceVerificationModal
                 isOpen={showFaceVerification}
@@ -976,6 +1434,26 @@ export default function Profile() {
                     setShowFaceVerification(false);
                 }}
             />
+
+            {/* Campus Virtual Gift Store Modal */}
+            {showGiftStore && (
+                <GiftStore
+                    onClose={() => setShowGiftStore(false)}
+                    onSend={handleGiftSend}
+                    coinBalance={coinBalance}
+                    onOpenCoinStore={() => setShowCoinStore(true)}
+                />
+            )}
+
+            {/* CD Coin Store Modal */}
+            {showCoinStore && (
+                <CoinStoreModal
+                    userCoins={coinBalance}
+                    walletBalance={walletBalance}
+                    onClose={() => setShowCoinStore(false)}
+                    onCoinsUpdated={(newBal) => setCoinBalance(newBal)}
+                />
+            )}
         </div>
     );
 }

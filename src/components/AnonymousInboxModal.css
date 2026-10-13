@@ -89,13 +89,12 @@
     text-transform: uppercase;
 }
 
-.inbox-link-text {
-    font-size: 0.82rem;
-    color: #f472b6;
+.inbox-link-subtext {
+    font-size: 0.8rem;
+    color: #94a3b8;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: monospace;
 }
 
 .inbox-link-btns {

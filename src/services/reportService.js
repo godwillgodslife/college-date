@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 
 export const REPORT_REASONS = [
+    { id: 'child_safety', label: 'Child Safety / Underage Account', desc: 'Suspected minor under 18, child sexual abuse material (CSAM), or child exploitation (CSAE)' },
     { id: 'harassment', label: 'Harassment or Bullying', desc: 'Threats, abusive language, unwanted stalking' },
     { id: 'spam', label: 'Spam or Financial Scams', desc: 'Promoting products, advance fee fraud, suspicious links' },
     { id: 'impersonation', label: 'Fake Profile / Impersonation', desc: 'Using another person\'s photos or identity' },

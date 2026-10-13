@@ -7,6 +7,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useCachedAsync } from '../hooks/useCachedAsync';
 import { applyReferralCode, getReferralMessage } from '../services/referralService';
 import { getCampusBadgeText, TOP_CAMPUS_CONNECTORS, getReferralMilestone } from '../utils/ambassadorLeague';
+import { getAvatarUrl } from '../utils/profileData';
 import profileTunde from '../assets/landing-profile-tunde.webp';
 import profileAmaka from '../assets/landing-profile-amaka.webp';
 import profileZainab from '../assets/landing-profile-zainab.webp';
@@ -111,9 +112,13 @@ export default function Referrals() {
             .select(`
                 *,
                 referred:referred_id (
+                    id,
                     full_name,
                     username,
-                    avatar_url
+                    avatar_url,
+                    profile_photos,
+                    photo_updated_at,
+                    updated_at
                 )
             `)
             .eq('referrer_id', currentUser.id)
@@ -146,14 +151,14 @@ export default function Referrals() {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, full_name, username, avatar_url, referral_count')
+                .select('id, full_name, username, avatar_url, profile_photos, photo_updated_at, updated_at, referral_count')
                 .order('referral_count', { ascending: false })
                 .limit(3);
             if (!error && data && data.length >= 3 && data[0]?.referral_count > 0) {
                 return [
-                    { id: data[1].id, rank: 2, name: data[1].full_name?.split(' ')[0] + ' ' + (data[1].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[1].referral_count || 35, avatar: data[1].avatar_url || profileAmaka, isLeader: false },
-                    { id: data[0].id, rank: 1, name: data[0].full_name?.split(' ')[0] + ' ' + (data[0].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[0].referral_count || 42, avatar: data[0].avatar_url || profileTunde, isLeader: true },
-                    { id: data[2].id, rank: 3, name: data[2].full_name?.split(' ')[0] + ' ' + (data[2].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[2].referral_count || 28, avatar: data[2].avatar_url || profileZainab, isLeader: false }
+                    { id: data[1].id, rank: 2, name: data[1].full_name?.split(' ')[0] + ' ' + (data[1].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[1].referral_count || 35, avatar: getAvatarUrl(data[1]) || profileAmaka, isLeader: false },
+                    { id: data[0].id, rank: 1, name: data[0].full_name?.split(' ')[0] + ' ' + (data[0].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[0].referral_count || 42, avatar: getAvatarUrl(data[0]) || profileTunde, isLeader: true },
+                    { id: data[2].id, rank: 3, name: data[2].full_name?.split(' ')[0] + ' ' + (data[2].full_name?.split(' ')[1]?.[0] || '') + '.', students: data[2].referral_count || 28, avatar: getAvatarUrl(data[2]) || profileZainab, isLeader: false }
                 ];
             }
         } catch {
@@ -350,6 +355,7 @@ export default function Referrals() {
                                     src={connector.avatar || AVATAR_MAP[connector.avatarKey] || profileTunde} 
                                     alt={connector.name} 
                                     className="connector-avatar" 
+                                    onError={(e) => { e.currentTarget.src = profileZainab; }}
                                 />
                             </div>
                             <div className="connector-name">{connector.name}</div>
@@ -514,7 +520,7 @@ export default function Referrals() {
                         {referrals.map(ref => (
                             <div key={ref.id} className="referral-item">
                                 <img
-                                    src={ref.referred?.avatar_url || 'https://via.placeholder.com/40'}
+                                    src={getAvatarUrl(ref.referred) || ref.referred?.avatar_url || 'https://via.placeholder.com/40'}
                                     alt="User"
                                     className="ref-avatar"
                                 />

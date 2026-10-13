@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { createNotification } from './notificationService';
+import { createNotification, sendEmailNotification } from './notificationService';
 import { getFeedImpressionMap, recordFeedImpression } from './feedImpressionService';
 import { compressImage } from '../utils/imageCompressor';
 
@@ -128,6 +128,75 @@ export async function getConfessions(university = null, userId = null) {
     }
 }
 
+/**
+ * Notify all mutual friends/matches when a user shares a PUBLIC campus post/confession
+ * (High-priority push notification and email)
+ */
+export async function notifyFriendsOfPublicConfession({ authorId, confessionId, content, authorName, university }) {
+    if (!authorId) return { count: 0 };
+    try {
+        const { data: matches, error } = await supabase
+            .from('matches')
+            .select('user1_id, user2_id')
+            .or(`user1_id.eq.${authorId},user2_id.eq.${authorId}`);
+
+        if (error) {
+            console.warn('[confessionService] Error finding friends for public confession alert:', error);
+            return { count: 0 };
+        }
+
+        const friendIds = [...new Set(
+            (matches || []).map(m => m.user1_id === authorId ? m.user2_id : m.user1_id).filter(Boolean)
+        )];
+
+        if (friendIds.length === 0) return { count: 0 };
+
+        const name = authorName || 'Your campus match';
+        const title = `${name} shared a public post on Campus 🎭`;
+        const snippet = content?.trim()
+            ? (content.trim().length > 90 ? `${content.trim().slice(0, 87)}...` : content.trim())
+            : 'Check out what they posted on campus confessions!';
+
+        await Promise.allSettled(friendIds.map(async (friendId) => {
+            // 1. High priority in-app + server-authoritative push
+            await createNotification({
+                userId: friendId,
+                actorId: authorId,
+                type: 'confession',
+                title,
+                content: snippet,
+                category: 'social',
+                priority: 'high',
+                deepLink: '/confessions',
+                metadata: {
+                    confession_id: confessionId,
+                    author_id: authorId,
+                    is_public: true,
+                    high_priority: true
+                }
+            });
+
+            // 2. High priority immediate email notification
+            sendEmailNotification(
+                friendId,
+                `${name} shared a public post on The College Date`,
+                snippet,
+                {
+                    title,
+                    type: 'confession',
+                    actionUrl: 'https://www.thecollegedate.com/confessions',
+                    metadata: { confession_id: confessionId, author_id: authorId }
+                }
+            ).catch(() => {});
+        }));
+
+        return { count: friendIds.length };
+    } catch (err) {
+        console.error('[confessionService] Failed to notify friends of public confession:', err);
+        return { count: 0, error: err.message };
+    }
+}
+
 export async function postConfession(content, university, userId, options = {}) {
     try {
         const cleanUni = university ? university.trim() : 'Unknown University';
@@ -159,6 +228,18 @@ export async function postConfession(content, university, userId, options = {}) 
             .single();
 
         if (error) throw error;
+
+        // If this is a public post (not anonymous), trigger high-priority notification to friends
+        if (!isAnonymous && userId && data?.id) {
+            notifyFriendsOfPublicConfession({
+                authorId: userId,
+                confessionId: data.id,
+                content,
+                authorName,
+                university: cleanUni
+            }).catch((err) => console.warn('[confessionService] friend alert error:', err));
+        }
+
         return { data, error: null };
     } catch (error) {
         console.error('Error posting confession:', error);
@@ -675,25 +756,60 @@ export async function getConfessionById(confessionId, userId = null) {
 
 const recordedConfessionViews = new Set();
 
+function getStoredViewedConfessions(userId) {
+    try {
+        const key = `tcd_viewed_confessions_${userId || 'guest'}`;
+        const raw = localStorage.getItem(key);
+        if (!raw) return new Set();
+        const parsed = JSON.parse(raw);
+        return new Set(Array.isArray(parsed) ? parsed : Object.keys(parsed));
+    } catch {
+        return new Set();
+    }
+}
+
+function markConfessionViewedInStorage(confessionId, userId) {
+    try {
+        const key = `tcd_viewed_confessions_${userId || 'guest'}`;
+        const set = getStoredViewedConfessions(userId);
+        set.add(confessionId);
+        const arr = Array.from(set).slice(-500);
+        localStorage.setItem(key, JSON.stringify(arr));
+    } catch {
+        // Ignore quota
+    }
+}
+
 /**
- * Record a non-inflating view count for a confession
+ * Record a unique view count for a confession.
+ * Enforces per-user uniqueness across sessions: 1 user viewing 5 times = 1 view.
+ * Returns true if this view was newly recorded and incremented, false if already viewed.
  */
 export async function recordConfessionView(confessionId, userId = null) {
-    if (!confessionId) return;
-    const sessionKey = `confession_view:${confessionId}`;
-    if (recordedConfessionViews.has(sessionKey)) return;
+    if (!confessionId) return false;
+    const sessionKey = `${userId || 'guest'}:${confessionId}`;
+    if (recordedConfessionViews.has(sessionKey)) return false;
+
+    const storedSet = getStoredViewedConfessions(userId);
+    if (storedSet.has(confessionId)) {
+        recordedConfessionViews.add(sessionKey);
+        return false;
+    }
+
     recordedConfessionViews.add(sessionKey);
+    markConfessionViewedInStorage(confessionId, userId);
 
     try {
         const { error } = await supabase.rpc('increment_confession_view', {
             p_confession_id: confessionId
         });
         if (error) {
-            // Resilient fallback to feed impression
             recordFeedImpression('confession', confessionId, 'confessions_feed').catch(() => {});
         }
+        return true;
     } catch (err) {
         console.warn('recordConfessionView non-blocking error:', err);
+        return false;
     }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'college-date-v2.3';
+const CACHE_NAME = 'college-date-v2.4';
 const STATIC_ASSETS = ['/favicon-64.png', '/manifest.webmanifest'];
 
 // 1. Installation: Cache the basic app shell

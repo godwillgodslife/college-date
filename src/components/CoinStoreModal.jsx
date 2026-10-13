@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { COIN_PACKAGES, purchaseCoinsWithWallet, getCoinTransactions } from '../services/coinService';
 import { useToast } from './Toast';
 import './CoinStoreModal.css';
@@ -53,7 +54,7 @@ export default function CoinStoreModal({ userCoins = 0, walletBalance = 0, onClo
         }
     };
 
-    return (
+    const modalContent = (
         <div className="coin-store-overlay">
             <div className="coin-store-modal">
                 <div className="coin-store-header">
@@ -179,4 +180,9 @@ export default function CoinStoreModal({ userCoins = 0, walletBalance = 0, onClo
             </div>
         </div>
     );
+
+    if (typeof document !== 'undefined' && document.body) {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 }

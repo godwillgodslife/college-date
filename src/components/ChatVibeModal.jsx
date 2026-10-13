@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './Toast';
 import { sendChatVibe } from '../services/swipeService';
 import { triggerLightHaptic } from '../utils/haptics';
+import { getAvatarUrl } from '../utils/profileData';
 import './ChatVibeModal.css';
 
 export default function ChatVibeModal({ isOpen, targetProfile, onClose, onSuccess }) {
@@ -67,7 +68,7 @@ export default function ChatVibeModal({ isOpen, targetProfile, onClose, onSucces
         navigate('/wallet');
     };
 
-    const targetPhoto = targetProfile.profile_photos?.[0] || targetProfile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetProfile.id}`;
+    const targetPhoto = getAvatarUrl(targetProfile) || targetProfile.profile_photos?.[0] || targetProfile.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetProfile.id}`;
 
     return createPortal(
         <AnimatePresence>

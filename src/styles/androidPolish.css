@@ -260,7 +260,7 @@ html.is-native-app .edit-profile-page {
 }
 
 html.is-native-app .referrals-page {
-    padding-top: calc(env(safe-area-inset-top, 24px) + 24px) !important;
+    padding-top: calc(env(safe-area-inset-top, 24px) + 56px) !important;
     margin-top: 0 !important;
 }
 
@@ -1133,12 +1133,60 @@ html.is-native-app .spinner-brand {
 
     html.is-native-app .explore-grid.masonry-layout {
         grid-template-columns: repeat(2, 1fr) !important;
-        grid-auto-rows: 220px !important;
-        gap: 0.75rem !important;
+        grid-auto-rows: 138px !important;
+        gap: 0.55rem !important;
     }
 
     html.is-native-app .explore-card {
-        border-radius: 20px;
+        border-radius: 16px !important;
+    }
+
+    html.is-native-app .explore-card.tall {
+        grid-row-end: span 2 !important;
+    }
+
+    html.is-native-app .card-info {
+        padding: 0.45rem 0.65rem !important;
+    }
+
+    html.is-native-app .card-info h3 {
+        font-size: 0.82rem !important;
+        line-height: 1.2 !important;
+    }
+
+    html.is-native-app .card-info p {
+        font-size: 0.68rem !important;
+        margin: 0.1rem 0 0 !important;
+    }
+
+    html.is-native-app .status-badges-overlay {
+        top: 6px !important;
+        left: 6px !important;
+        gap: 3px !important;
+    }
+
+    html.is-native-app .status-badges-overlay span {
+        font-size: 0.58rem !important;
+        padding: 0.18rem 0.38rem !important;
+        border-radius: 4px !important;
+    }
+
+    html.is-native-app .card-golden-round-badge {
+        width: 22px !important;
+        height: 22px !important;
+        top: 6px !important;
+        right: 6px !important;
+    }
+
+    html.is-native-app .card-golden-round-badge span {
+        font-size: 11px !important;
+    }
+
+    html.is-native-app .intent-badge {
+        bottom: 38px !important;
+        right: 6px !important;
+        font-size: 0.6rem !important;
+        padding: 0.15rem 0.4rem !important;
     }
 
     html.is-native-app .floating-filter-btn {
@@ -1288,6 +1336,26 @@ html.is-native-app .spinner-brand {
     box-shadow: 0 2px 10px rgba(255, 215, 0, 0.45), 0 0 16px rgba(153, 50, 204, 0.25) !important;
     text-transform: uppercase;
 }
+
+.ultra-badge-glow,
+.drawer-ultra-badge,
+.explore-ultra-tag,
+.swipe-tag.ultra-tag-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #0f172a 0%, #3b0764 45%, #eab308 100%) !important;
+    color: #fef08a !important;
+    font-weight: 800 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.04em;
+    padding: 3px 9px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(234, 179, 8, 0.7) !important;
+    box-shadow: 0 2px 12px rgba(234, 179, 8, 0.45), 0 0 18px rgba(168, 85, 247, 0.35) !important;
+    text-transform: uppercase;
+}
+
 
 .explore-card.premium-card {
     border: 1px solid rgba(255, 255, 0.35);
@@ -1935,53 +2003,77 @@ html.is-native-app[data-theme="light"] .price .currency,
 html.is-native-app[data-theme="light"] .price .amount,
 .theme-light.is-native-app .glass-panel .pricing-header h3,
 .theme-light.is-native-app .price .currency,
-.theme-light.is-native-app .price .amount {
+.theme-light.is-native-app .price .amount,
+html[data-theme="light"] .glass-panel .pricing-header h3,
+html[data-theme="light"] .price .currency,
+html[data-theme="light"] .price .amount,
+.theme-light .glass-panel .pricing-header h3,
+.theme-light .price .currency,
+.theme-light .price .amount {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .price .period,
 html.is-native-app[data-theme="light"] .billing-info,
 .theme-light.is-native-app .price .period,
-.theme-light.is-native-app .billing-info {
+.theme-light.is-native-app .billing-info,
+html[data-theme="light"] .price .period,
+html[data-theme="light"] .billing-info,
+.theme-light .price .period,
+.theme-light .billing-info {
     color: #64748b !important;
 }
 
 /* Light Theme Match Swipes Pill */
 html.is-native-app[data-theme="light"] .swipes-counter-pill,
-.theme-light.is-native-app .swipes-counter-pill {
+.theme-light.is-native-app .swipes-counter-pill,
+html[data-theme="light"] .swipes-counter-pill,
+.theme-light .swipes-counter-pill {
     background: #ffffff !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
 }
 
 html.is-native-app[data-theme="light"] .swipes-counter-pill .pill-number,
-.theme-light.is-native-app .swipes-counter-pill .pill-number {
+.theme-light.is-native-app .swipes-counter-pill .pill-number,
+html[data-theme="light"] .swipes-counter-pill .pill-number,
+.theme-light .swipes-counter-pill .pill-number {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .swipes-counter-pill .pill-label,
-.theme-light.is-native-app .swipes-counter-pill .pill-label {
+.theme-light.is-native-app .swipes-counter-pill .pill-label,
+html[data-theme="light"] .swipes-counter-pill .pill-label,
+.theme-light .swipes-counter-pill .pill-label {
     color: #64748b !important;
 }
 
 /* Light Theme Chat Unread & Documents */
 html.is-native-app[data-theme="light"] .conv-name.bold,
-.theme-light.is-native-app .conv-name.bold {
+.theme-light.is-native-app .conv-name.bold,
+html[data-theme="light"] .conv-name.bold,
+.theme-light .conv-name.bold {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .message-received .doc-name,
-.theme-light.is-native-app .message-received .doc-name {
+.theme-light.is-native-app .message-received .doc-name,
+html[data-theme="light"] .message-received .doc-name,
+.theme-light .message-received .doc-name {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .message-received .doc-meta-sub,
-.theme-light.is-native-app .message-received .doc-meta-sub {
+.theme-light.is-native-app .message-received .doc-meta-sub,
+html[data-theme="light"] .message-received .doc-meta-sub,
+.theme-light .message-received .doc-meta-sub {
     color: #64748b !important;
 }
 
 html.is-native-app[data-theme="light"] .message-received .btn-download-doc,
-.theme-light.is-native-app .message-received .btn-download-doc {
+.theme-light.is-native-app .message-received .btn-download-doc,
+html[data-theme="light"] .message-received .btn-download-doc,
+.theme-light .message-received .btn-download-doc {
     background: rgba(0, 0, 0, 0.06) !important;
     border-color: rgba(0, 0, 0, 0.1) !important;
     color: #0f172a !important;
@@ -1989,86 +2081,118 @@ html.is-native-app[data-theme="light"] .message-received .btn-download-doc,
 
 /* Light Theme Leaderboard Highlights */
 html.is-native-app[data-theme="light"] .my-standing-highlight-card,
-.theme-light.is-native-app .my-standing-highlight-card {
+.theme-light.is-native-app .my-standing-highlight-card,
+html[data-theme="light"] .my-standing-highlight-card,
+.theme-light .my-standing-highlight-card {
     background: #ffffff !important;
     border: 1.5px solid rgba(99, 91, 255, 0.25) !important;
     box-shadow: 0 4px 16px rgba(99, 91, 255, 0.08) !important;
 }
 
 html.is-native-app[data-theme="light"] .my-standing-name,
-.theme-light.is-native-app .my-standing-name {
+.theme-light.is-native-app .my-standing-name,
+html[data-theme="light"] .my-standing-name,
+.theme-light .my-standing-name {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .my-standing-label,
-.theme-light.is-native-app .my-standing-label {
+.theme-light.is-native-app .my-standing-label,
+html[data-theme="light"] .my-standing-label,
+.theme-light .my-standing-label {
     color: #64748b !important;
 }
 
 html.is-native-app[data-theme="light"] .my-standing-league,
-.theme-light.is-native-app .my-standing-league {
+.theme-light.is-native-app .my-standing-league,
+html[data-theme="light"] .my-standing-league,
+.theme-light .my-standing-league {
     color: #7c3aed !important;
 }
 
 html.is-native-app[data-theme="light"] .my-score-val,
-.theme-light.is-native-app .my-score-val {
+.theme-light.is-native-app .my-score-val,
+html[data-theme="light"] .my-score-val,
+.theme-light .my-score-val {
     color: #635bff !important;
 }
 
 html.is-native-app[data-theme="light"] .my-score-lbl,
-.theme-light.is-native-app .my-score-lbl {
+.theme-light.is-native-app .my-score-lbl,
+html[data-theme="light"] .my-score-lbl,
+.theme-light .my-score-lbl {
     color: #64748b !important;
 }
 
 /* Light Theme Profile Detail Cards */
 html.is-native-app[data-theme="light"] .public-profile-details,
-.theme-light.is-native-app .public-profile-details {
+.theme-light.is-native-app .public-profile-details,
+html[data-theme="light"] .public-profile-details,
+.theme-light .public-profile-details {
     background: #ffffff !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-title-row-premium h2,
-.theme-light.is-native-app .profile-title-row-premium h2 {
+.theme-light.is-native-app .profile-title-row-premium h2,
+html[data-theme="light"] .profile-title-row-premium h2,
+.theme-light .profile-title-row-premium h2 {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-uni-subtitle,
-.theme-light.is-native-app .profile-uni-subtitle {
+.theme-light.is-native-app .profile-uni-subtitle,
+html[data-theme="light"] .profile-uni-subtitle,
+.theme-light .profile-uni-subtitle {
     color: #475569 !important;
 }
 
 html.is-native-app[data-theme="light"] .comp-info-details strong,
-.theme-light.is-native-app .comp-info-details strong {
+.theme-light.is-native-app .comp-info-details strong,
+html[data-theme="light"] .comp-info-details strong,
+.theme-light .comp-info-details strong {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .comp-info-details p,
-.theme-light.is-native-app .comp-info-details p {
+.theme-light.is-native-app .comp-info-details p,
+html[data-theme="light"] .comp-info-details p,
+.theme-light .comp-info-details p {
     color: #475569 !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item,
-.theme-light.is-native-app .profile-info-grid-premium .grid-item {
+.theme-light.is-native-app .profile-info-grid-premium .grid-item,
+html[data-theme="light"] .profile-info-grid-premium .grid-item,
+.theme-light .profile-info-grid-premium .grid-item {
     background: #f8f9fa !important;
     border-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item strong,
-.theme-light.is-native-app .profile-info-grid-premium .grid-item strong {
+.theme-light.is-native-app .profile-info-grid-premium .grid-item strong,
+html[data-theme="light"] .profile-info-grid-premium .grid-item strong,
+.theme-light .profile-info-grid-premium .grid-item strong {
     color: #64748b !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-info-grid-premium .grid-item span,
-.theme-light.is-native-app .profile-info-grid-premium .grid-item span {
+.theme-light.is-native-app .profile-info-grid-premium .grid-item span,
+html[data-theme="light"] .profile-info-grid-premium .grid-item span,
+.theme-light .profile-info-grid-premium .grid-item span {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-section-premium-block h4,
-.theme-light.is-native-app .profile-section-premium-block h4 {
+.theme-light.is-native-app .profile-section-premium-block h4,
+html[data-theme="light"] .profile-section-premium-block h4,
+.theme-light .profile-section-premium-block h4 {
     color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .profile-bio-text,
-.theme-light.is-native-app .profile-bio-text {
+.theme-light.is-native-app .profile-bio-text,
+html[data-theme="light"] .profile-bio-text,
+.theme-light .profile-bio-text {
     color: #334155 !important;
 }
 
@@ -2113,15 +2237,736 @@ html.is-native-app .dashboard-hero {
 }
 
 /* ─── Android Profile YouTube Bridge Card Alignment ─── */
-html.is-native-app .profile-yt-bridge-wrap {
+html.is-native-app .profile-yt-bridge-wrap,
+.profile-yt-bridge-wrap {
     margin: 0.75rem 0 1rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
-html.is-native-app .profile-yt-bridge-btn {
+html.is-native-app .profile-yt-bridge-btn,
+.profile-yt-bridge-btn {
     border-radius: 16px !important;
     padding: 0.85rem 1rem !important;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Native Android Card Compact Ergonomics & Fast Scrolling
+   Eliminates excessive card footprint so users can scroll
+   through items rapidly rather than 1 card eating half the screen.
+   ═══════════════════════════════════════════════════════════ */
 
+/* ── 1. Dashboard Action & Feature Cards ───────────────────── */
+html.is-native-app .dashboard-hero {
+    margin-bottom: 0.75rem !important;
+    gap: 0.55rem !important;
+}
+
+html.is-native-app .dashboard-hero-content {
+    min-height: unset !important;
+    padding: 1rem !important;
+    border-radius: 16px !important;
+}
+
+html.is-native-app .dashboard-eyebrow {
+    margin-bottom: 0.35rem !important;
+    font-size: 0.68rem !important;
+}
+
+html.is-native-app .dashboard-greeting {
+    font-size: 1.45rem !important;
+    margin: 0 0 0.35rem !important;
+}
+
+html.is-native-app .dashboard-tagline {
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+}
+
+html.is-native-app .dashboard-hero-actions {
+    margin-top: 0.65rem !important;
+    gap: 0.5rem !important;
+}
+
+html.is-native-app .dashboard-primary-action,
+html.is-native-app .dashboard-secondary-action {
+    min-height: 36px !important;
+    padding: 0 0.85rem !important;
+    font-size: 0.8rem !important;
+}
+
+html.is-native-app .dashboard-stats {
+    gap: 0.45rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+html.is-native-app .stat-card {
+    padding: 0.6rem 0.45rem !important;
+    border-radius: 12px !important;
+}
+
+html.is-native-app .stat-value {
+    font-size: 1.35rem !important;
+    margin-bottom: 0.15rem !important;
+}
+
+html.is-native-app .stat-label {
+    font-size: 0.64rem !important;
+}
+
+html.is-native-app .dashboard-features {
+    margin-bottom: 1rem !important;
+}
+
+html.is-native-app .dashboard-section-header {
+    margin-bottom: 0.65rem !important;
+}
+
+html.is-native-app .dashboard-panel-kicker {
+    margin-bottom: 0.25rem !important;
+    font-size: 0.68rem !important;
+}
+
+html.is-native-app .section-title {
+    font-size: 1.05rem !important;
+}
+
+html.is-native-app .features-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.55rem !important;
+}
+
+html.is-native-app .feature-card {
+    padding: 0.75rem 0.7rem !important;
+    border-radius: 14px !important;
+    min-height: unset !important;
+}
+
+html.is-native-app .feature-card-icon {
+    font-size: 1.4rem !important;
+    margin-bottom: 0.35rem !important;
+}
+
+html.is-native-app .feature-card-title {
+    font-size: 0.88rem !important;
+    margin-bottom: 0.2rem !important;
+    font-weight: 700 !important;
+}
+
+html.is-native-app .feature-card-desc {
+    font-size: 0.72rem !important;
+    line-height: 1.25 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+}
+
+html.is-native-app .feature-card-arrow {
+    display: none !important;
+}
+
+/* ── 2. Confessions Feed Cards ─────────────────────────────── */
+html.is-native-app .confessions-hero {
+    margin-bottom: 0.45rem !important;
+}
+
+html.is-native-app .badge-campus {
+    margin-bottom: 0.35rem !important;
+    padding: 3px 10px !important;
+}
+
+html.is-native-app .hero-title {
+    font-size: 1.55rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+html.is-native-app .hero-subtitle {
+    font-size: 0.82rem !important;
+    line-height: 1.3 !important;
+}
+
+html.is-native-app .campus-daily-prompt-card {
+    margin: 0.45rem 0 !important;
+    padding: 0.65rem 0.85rem !important;
+    border-radius: 14px !important;
+}
+
+html.is-native-app .daily-prompt-text {
+    font-size: 0.85rem !important;
+}
+
+html.is-native-app .daily-prompt-answer-btn {
+    padding: 0.35rem 0.75rem !important;
+    font-size: 0.75rem !important;
+}
+
+html.is-native-app .input-card-ultimate {
+    padding: 0.65rem 0.85rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 0.65rem !important;
+}
+
+html.is-native-app .ultimate-textarea {
+    min-height: 60px !important;
+    font-size: 14px !important;
+}
+
+html.is-native-app .confessions-masonry {
+    margin-top: 0.85rem !important;
+}
+
+html.is-native-app .confession-card-premium {
+    padding: 0.75rem 0.85rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 0.55rem !important;
+}
+
+html.is-native-app .confession-header {
+    margin-bottom: 0.4rem !important;
+}
+
+html.is-native-app .confession-body {
+    font-size: 0.88rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.45rem !important;
+}
+
+html.is-native-app .viral-hot .confession-body {
+    font-size: 0.96rem !important;
+}
+
+html.is-native-app .confession-media-wrapper {
+    margin-bottom: 0.45rem !important;
+    border-radius: 12px !important;
+    max-height: 160px !important;
+}
+
+html.is-native-app .confession-media-img {
+    max-height: 160px !important;
+}
+
+html.is-native-app .action-bar-floating {
+    padding: 0.25rem 0.45rem !important;
+    margin-top: 0.35rem !important;
+    border-radius: 12px !important;
+}
+
+html.is-native-app .btn-social-emoji-breakdown {
+    min-height: 28px !important;
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.78rem !important;
+}
+
+html.is-native-app .btn-social {
+    min-height: 28px !important;
+    min-width: 30px !important;
+    padding: 0.2rem 0.35rem !important;
+    font-size: 0.78rem !important;
+}
+
+/* ── 3. Referrals & Campus Ambassador Cards ────────────────── */
+html.is-native-app .ambassador-header {
+    margin-bottom: 0.85rem !important;
+}
+
+html.is-native-app .ambassador-title {
+    font-size: 1.45rem !important;
+    margin-bottom: 0.35rem !important;
+}
+
+html.is-native-app .campus-identity-pill {
+    padding: 4px 12px !important;
+    font-size: 0.8rem !important;
+}
+
+html.is-native-app .referral-milestone-card {
+    padding: 0.85rem 1rem !important;
+    border-radius: 16px !important;
+    margin-bottom: 0.85rem !important;
+}
+
+html.is-native-app .milestone-card-title {
+    font-size: 0.95rem !important;
+    margin-bottom: 0.35rem !important;
+}
+
+html.is-native-app .milestone-crown-badge {
+    width: 42px !important;
+    height: 42px !important;
+}
+
+html.is-native-app .milestone-crown-badge .milestone-crown-symbol,
+html.is-native-app .milestone-crown-badge .crown-icon {
+    font-size: 1.35rem !important;
+}
+
+html.is-native-app .milestone-card-subtitle {
+    font-size: 0.78rem !important;
+    margin-top: 0.4rem !important;
+}
+
+html.is-native-app .top-connectors-section {
+    margin-bottom: 0.85rem !important;
+}
+
+html.is-native-app .top-connectors-title {
+    font-size: 0.95rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+html.is-native-app .podium-grid {
+    gap: 6px !important;
+}
+
+html.is-native-app .connector-podium-card {
+    padding: 8px 6px !important;
+    border-radius: 12px !important;
+}
+
+html.is-native-app .connector-name {
+    font-size: 0.76rem !important;
+}
+
+html.is-native-app .connector-metric {
+    font-size: 0.7rem !important;
+}
+
+html.is-native-app .ambassador-cta-container {
+    margin-bottom: 1.25rem !important;
+}
+
+html.is-native-app .ambassador-whatsapp-btn {
+    padding: 0.75rem 1rem !important;
+    border-radius: 14px !important;
+}
+
+html.is-native-app .whatsapp-btn-text {
+    font-size: 0.9rem !important;
+}
+
+html.is-native-app .referral-stats-grid {
+    gap: 0.55rem !important;
+}
+
+html.is-native-app .ref-stat {
+    padding: 0.75rem 0.6rem !important;
+    border-radius: 12px !important;
+}
+
+html.is-native-app .stat-val {
+    font-size: 1.35rem !important;
+}
+
+html.is-native-app .stat-name {
+    font-size: 0.72rem !important;
+}
+
+/* ── 4. Requests & Viewers Lists ───────────────────────────── */
+html.is-native-app .requests-grid,
+html.is-native-app .viewers-list {
+    gap: 0.45rem !important;
+}
+
+html.is-native-app .request-card,
+html.is-native-app .viewer-card {
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 14px !important;
+}
+
+html.is-native-app .user-avatar-small,
+html.is-native-app .viewer-avatar {
+    width: 42px !important;
+    height: 42px !important;
+}
+
+html.is-native-app .request-user h3,
+html.is-native-app .viewer-info h3 {
+    font-size: 0.88rem !important;
+    margin-bottom: 1px !important;
+}
+
+html.is-native-app .request-user p,
+html.is-native-app .viewer-info p {
+    font-size: 0.72rem !important;
+}
+
+html.is-native-app .btn-accept,
+html.is-native-app .btn-decline {
+    min-height: 32px !important;
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.75rem !important;
+    border-radius: 10px !important;
+}
+
+/* ── 5. Notification Center Items ──────────────────────────── */
+html.is-native-app .notification-center-header {
+    margin-bottom: 0.75rem !important;
+}
+
+html.is-native-app .notification-center-header h1 {
+    font-size: 1.55rem !important;
+}
+
+html.is-native-app .notification-center-list {
+    gap: 0.45rem !important;
+}
+
+html.is-native-app .notification-center-item {
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 12px !important;
+    gap: 0.6rem !important;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto !important;
+}
+
+html.is-native-app .notification-center-icon {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 10px !important;
+}
+
+html.is-native-app .notification-center-item h3 {
+    font-size: 0.82rem !important;
+}
+
+html.is-native-app .notification-center-item p {
+    font-size: 0.74rem !important;
+}
+
+/* ── 6. Leaderboard Rows & Podium ──────────────────────────── */
+html.is-native-app .leaderboard-header {
+    margin-bottom: 1.25rem !important;
+}
+
+html.is-native-app .leaderboard-title {
+    font-size: 2rem !important;
+}
+
+html.is-native-app .leaderboard-list {
+    gap: 0.45rem !important;
+}
+
+html.is-native-app .leaderboard-row {
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 12px !important;
+}
+
+html.is-native-app .row-name {
+    font-size: 0.85rem !important;
+}
+
+html.is-native-app .row-score {
+    font-size: 0.88rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Universal Mobile Web Compact Card Ergonomics (@media <= 480px)
+   Matches native APK fast scrolling & card density across mobile web
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+    .explore-grid.masonry-layout {
+        grid-auto-rows: 138px !important;
+        gap: 0.5rem !important;
+    }
+    .explore-card.tall {
+        grid-row-end: span 2 !important;
+    }
+    .explore-card .explore-overlay {
+        padding: 6px 8px !important;
+    }
+    .explore-card .explore-name {
+        font-size: 0.84rem !important;
+    }
+    .explore-card .status-badge {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 0.65rem !important;
+    }
+    .explore-card .intent-badge {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.55rem !important;
+    }
+    .feature-card {
+        padding: 0.75rem 0.7rem !important;
+        border-radius: 14px !important;
+        min-height: unset !important;
+    }
+    .feature-card-icon {
+        font-size: 1.4rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .feature-card-title {
+        font-size: 0.88rem !important;
+        margin-bottom: 0.2rem !important;
+        font-weight: 700 !important;
+    }
+    .feature-card-desc {
+        font-size: 0.72rem !important;
+        line-height: 1.25 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+    }
+    .feature-card-arrow {
+        display: none !important;
+    }
+
+    .confessions-hero {
+        margin-bottom: 0.45rem !important;
+    }
+    .badge-campus {
+        margin-bottom: 0.35rem !important;
+        padding: 3px 10px !important;
+    }
+    .hero-title {
+        font-size: 1.55rem !important;
+        line-height: 1.1 !important;
+        margin-bottom: 0.25rem !important;
+    }
+    .hero-subtitle {
+        font-size: 0.82rem !important;
+        line-height: 1.3 !important;
+    }
+    .campus-daily-prompt-card {
+        margin: 0.45rem 0 !important;
+        padding: 0.65rem 0.85rem !important;
+        border-radius: 14px !important;
+    }
+    .daily-prompt-text {
+        font-size: 0.85rem !important;
+    }
+    .daily-prompt-answer-btn {
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.75rem !important;
+    }
+    .input-card-ultimate {
+        padding: 0.65rem 0.85rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 0.65rem !important;
+    }
+    .ultimate-textarea {
+        min-height: 60px !important;
+        font-size: 14px !important;
+    }
+    .confessions-masonry {
+        margin-top: 0.85rem !important;
+    }
+    .confession-card-premium {
+        padding: 0.75rem 0.85rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 0.55rem !important;
+    }
+    .confession-header {
+        margin-bottom: 0.4rem !important;
+    }
+    .confession-body {
+        font-size: 0.88rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 0.45rem !important;
+    }
+    .viral-hot .confession-body {
+        font-size: 0.96rem !important;
+    }
+    .confession-media-wrapper {
+        margin-bottom: 0.45rem !important;
+        border-radius: 12px !important;
+        max-height: 160px !important;
+    }
+    .confession-media-img {
+        max-height: 160px !important;
+    }
+    .action-bar-floating {
+        padding: 0.25rem 0.45rem !important;
+        margin-top: 0.35rem !important;
+        border-radius: 12px !important;
+    }
+    .btn-social-emoji-breakdown {
+        min-height: 28px !important;
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.78rem !important;
+    }
+    .btn-social {
+        min-height: 28px !important;
+        min-width: 30px !important;
+        padding: 0.2rem 0.35rem !important;
+        font-size: 0.78rem !important;
+    }
+
+    .ambassador-header {
+        margin-bottom: 0.85rem !important;
+    }
+    .ambassador-title {
+        font-size: 1.45rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .campus-identity-pill {
+        padding: 4px 12px !important;
+        font-size: 0.8rem !important;
+    }
+    .referral-milestone-card {
+        padding: 0.85rem 1rem !important;
+        border-radius: 16px !important;
+        margin-bottom: 0.85rem !important;
+    }
+    .milestone-card-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .milestone-crown-badge {
+        width: 42px !important;
+        height: 42px !important;
+    }
+    .milestone-crown-badge .milestone-crown-symbol,
+    .milestone-crown-badge .crown-icon {
+        font-size: 1.35rem !important;
+    }
+    .milestone-card-subtitle {
+        font-size: 0.78rem !important;
+        margin-top: 0.4rem !important;
+    }
+    .top-connectors-section {
+        margin-bottom: 0.85rem !important;
+    }
+    .top-connectors-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .podium-grid {
+        gap: 6px !important;
+    }
+    .connector-podium-card {
+        padding: 8px 6px !important;
+        border-radius: 12px !important;
+    }
+    .connector-name {
+        font-size: 0.76rem !important;
+    }
+    .connector-metric {
+        font-size: 0.7rem !important;
+    }
+    .ambassador-cta-container {
+        margin-bottom: 1.25rem !important;
+    }
+    .ambassador-whatsapp-btn {
+        padding: 0.75rem 1rem !important;
+        border-radius: 14px !important;
+    }
+    .whatsapp-btn-text {
+        font-size: 0.9rem !important;
+    }
+    .referral-stats-grid {
+        gap: 0.55rem !important;
+    }
+    .ref-stat {
+        padding: 0.75rem 0.6rem !important;
+        border-radius: 12px !important;
+    }
+    .stat-val {
+        font-size: 1.35rem !important;
+    }
+    .stat-name {
+        font-size: 0.72rem !important;
+    }
+
+    .requests-grid,
+    .viewers-list {
+        gap: 0.45rem !important;
+    }
+    .request-card,
+    .viewer-card {
+        padding: 0.55rem 0.75rem !important;
+        border-radius: 14px !important;
+    }
+    .user-avatar-small,
+    .viewer-avatar {
+        width: 42px !important;
+        height: 42px !important;
+    }
+    .request-user h3,
+    .viewer-info h3 {
+        font-size: 0.88rem !important;
+        margin-bottom: 1px !important;
+    }
+    .request-user p,
+    .viewer-info p {
+        font-size: 0.72rem !important;
+    }
+    .btn-accept,
+    .btn-decline {
+        min-height: 32px !important;
+        padding: 0.35rem 0.65rem !important;
+        font-size: 0.75rem !important;
+        border-radius: 10px !important;
+    }
+
+    .notification-center-header {
+        margin-bottom: 0.75rem !important;
+    }
+    .notification-center-header h1 {
+        font-size: 1.55rem !important;
+    }
+    .notification-center-list {
+        gap: 0.45rem !important;
+    }
+    .notification-center-item {
+        padding: 0.6rem 0.75rem !important;
+        border-radius: 12px !important;
+        gap: 0.6rem !important;
+        grid-template-columns: 2.2rem minmax(0, 1fr) auto !important;
+    }
+    .notification-center-icon {
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 10px !important;
+    }
+    .notification-center-item h3 {
+        font-size: 0.82rem !important;
+    }
+    .notification-center-item p {
+        font-size: 0.74rem !important;
+    }
+
+    .leaderboard-header {
+        margin-bottom: 1.25rem !important;
+    }
+    .leaderboard-title {
+        font-size: 2rem !important;
+    }
+    .leaderboard-list {
+        gap: 0.45rem !important;
+    }
+    .leaderboard-row {
+        padding: 0.55rem 0.75rem !important;
+        border-radius: 12px !important;
+    }
+    .row-name {
+        font-size: 0.85rem !important;
+    }
+    .row-score {
+        font-size: 0.88rem !important;
+    }
+
+    /* ── 7. Off-Platform Contact Guard Modal Ergonomics ── */
+    .offplatform-sheet {
+        padding-bottom: max(1.25rem, calc(var(--safe-bottom) + 16px)) !important;
+        margin-bottom: var(--keyboard-offset, 0px);
+    }
+    .offplatform-btn {
+        min-height: 48px !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    .offplatform-ultra-card {
+        border-radius: 16px !important;
+    }
+}

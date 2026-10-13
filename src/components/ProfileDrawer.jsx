@@ -234,7 +234,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                                     onClick={() => userStatuses.length > 0 && setShowStatusViewer(true)}
                                     style={{ cursor: userStatuses.length > 0 ? 'pointer' : 'default' }}
                                 >
-                                    <img src={displayProfile.avatar_url || '/placeholder-avatar.png'} alt={displayProfile.full_name} />
+                                    <img src={getAvatarUrl(displayProfile) || displayProfile.avatar_url || '/placeholder-avatar.png'} alt={displayProfile.full_name} />
                                     {profileIsPremium && (
                                         <div className="drawer-premium-golden-badge" title="👑 Premium Member">
                                             <span>👑</span>

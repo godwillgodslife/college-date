@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { VIRTUAL_GIFTS } from '../services/coinService';
 import './GiftStore.css';
 
@@ -7,6 +8,15 @@ export default function GiftStore({ onSend, onClose, coinBalance = 0, onOpenCoin
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredGifts = VIRTUAL_GIFTS.filter(gift => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase().trim();
+        return gift.name.toLowerCase().includes(q) ||
+            (gift.desc && gift.desc.toLowerCase().includes(q)) ||
+            gift.emoji.includes(q);
+    });
 
     const handlePurchase = () => {
         if (!selectedGift) return;
@@ -25,21 +35,25 @@ export default function GiftStore({ onSend, onClose, coinBalance = 0, onOpenCoin
     };
 
     const confirmSend = async () => {
+        if (isSending) return;
         setIsConfirming(false);
         setIsSending(true);
-        const success = await onSend(selectedGift);
-        setIsSending(false);
-        if (success) {
-            setShowSuccess(true);
-            setTimeout(() => {
-                onClose();
-            }, 1800);
+        try {
+            const success = await onSend(selectedGift);
+            if (success) {
+                setShowSuccess(true);
+                setTimeout(() => {
+                    onClose();
+                }, 1800);
+            }
+        } finally {
+            setIsSending(false);
         }
     };
 
-    return (
-        <div className="gift-store-overlay">
-            <div className="gift-store-modal">
+    const modalContent = (
+        <div className="gift-store-overlay" onClick={onClose}>
+            <div className="gift-store-modal" onClick={e => e.stopPropagation()}>
                 <div className="gift-store-header">
                     <div className="gift-header-title">
                         <span className="gift-store-icon">🎁</span>
@@ -62,20 +76,50 @@ export default function GiftStore({ onSend, onClose, coinBalance = 0, onOpenCoin
                     </div>
                 </div>
 
-                <div className="gift-grid">
-                    {VIRTUAL_GIFTS.map(gift => (
-                        <div
-                            key={gift.id}
-                            className={`gift-card ${selectedGift?.id === gift.id ? 'active' : ''}`}
-                            onClick={() => setSelectedGift(gift)}
-                            style={{ '--gift-color': gift.color }}
+                <div className="gift-search-wrap">
+                    <span className="gift-search-icon">🔍</span>
+                    <input
+                        type="search"
+                        className="gift-search-input"
+                        placeholder="Search campus gifts (e.g. Rose, Zobo, Suya)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        aria-label="Search campus gifts"
+                    />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            className="gift-search-clear"
+                            onClick={() => setSearchQuery('')}
+                            aria-label="Clear search"
                         >
-                            <span className="gift-emoji">{gift.emoji}</span>
-                            <span className="gift-name">{gift.name}</span>
-                            <span className="gift-price">🪙 {gift.coins} Coins</span>
-                        </div>
-                    ))}
+                            ✕
+                        </button>
+                    )}
                 </div>
+
+                {filteredGifts.length === 0 ? (
+                    <div className="gift-empty-state">
+                        <span className="gift-empty-icon">🎁</span>
+                        <p className="gift-empty-title">No gifts found for "{searchQuery}"</p>
+                        <p className="gift-empty-subtitle">Try searching for "rose", "zobo", "suya", or "lion"</p>
+                    </div>
+                ) : (
+                    <div className="gift-grid">
+                        {filteredGifts.map(gift => (
+                            <div
+                                key={gift.id}
+                                className={`gift-card ${selectedGift?.id === gift.id ? 'active' : ''}`}
+                                onClick={() => setSelectedGift(gift)}
+                                style={{ '--gift-color': gift.color }}
+                            >
+                                <span className="gift-emoji">{gift.emoji}</span>
+                                <span className="gift-name">{gift.name}</span>
+                                <span className="gift-price">🪙 {gift.coins} Coins</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className="gift-footer">
                     {showSuccess ? (
@@ -119,4 +163,9 @@ export default function GiftStore({ onSend, onClose, coinBalance = 0, onOpenCoin
             </div>
         </div>
     );
+
+    if (typeof document !== 'undefined' && document.body) {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 }

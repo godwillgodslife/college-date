@@ -181,15 +181,22 @@ if (!isNative && 'serviceWorker' in navigator && import.meta.env.PROD) {
     navigator.serviceWorker.register('/sw-pwa.js')
       .then(reg => {
         console.log('PWA Service Worker registered');
+        // Check for updates on load
+        reg.update().catch(() => {});
+
+        // Re-check for updates whenever user returns to tab
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            reg.update().catch(() => {});
+          }
+        });
 
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
           if (installingWorker) {
             installingWorker.onstatechange = () => {
-              if (installingWorker.state === 'installed') {
-                if (navigator.serviceWorker.controller) {
-                  console.log('New content available, please refresh.');
-                }
+              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] New version ready, preparing seamless transition.');
               }
             };
           }
@@ -202,8 +209,13 @@ if (!isNative && 'serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true;
-      console.log('Service Worker controller changed. New version active.');
-      // window.location.reload(); // Removed to prevent infinite reload loops
+      const lastReload = sessionStorage.getItem('tcd_sw_last_reload');
+      const now = Date.now();
+      if (!lastReload || now - Number(lastReload) > 15000) {
+        sessionStorage.setItem('tcd_sw_last_reload', String(now));
+        console.log('[PWA] Service Worker controller updated. Refreshing to load latest build...');
+        window.location.reload();
+      }
     }
   });
 }

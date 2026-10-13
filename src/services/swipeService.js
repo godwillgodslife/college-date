@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { createNotification } from './notificationService';
 import { recordFeedImpression } from './feedImpressionService';
 import { getProfilePhotos, normalizeProfile } from '../utils/profileData';
+import { getUltraAllowance, consumeUltraSuperSwipe } from './ultraAllowanceService';
 
 const PROFILE_IMPRESSION_LOOKBACK_DAYS = 14;
 
@@ -388,9 +389,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             results.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
         } else if (filters.category === 'Trending') {
             results.sort((a, b) => (b.completion_score || 0) - (a.completion_score || 0));
+        } else {
+            results = applyDiscoveryFreshness(results, profileImpressions, userId, filters, userProfile);
         }
-
-        results = applyDiscoveryFreshness(results, profileImpressions, userId, filters, userProfile);
         results = results.slice(0, 40);
 
         return { data: results, error: null };
@@ -728,23 +729,48 @@ export async function checkMatch(userId, targetId) {
 }
 
 /**
- * Super Swipe: Consume a credit, record the swipe, and notify the target
+ * Super Swipe: Consume an allowance or credit, record the swipe, and notify the target
  */
-export async function superSwipe(swiperId, swipedProfile) {
+export async function superSwipe(swiperId, swipedProfile, options = {}) {
     try {
-        // Consume the credit and record the priority swipe atomically in the database.
-        const { data: useResult, error: rpcError } = await supabase.rpc('send_super_swipe', {
-            p_target_id: swipedProfile.id
-        });
+        const subscription = options.subscription || null;
+        let swipeId = null;
+        let consumedFromUltra = false;
 
-        if (rpcError) throw rpcError;
-        if (!useResult.success) {
-            return { data: null, error: useResult.error };
+        // 1. Check if swiper has an active Elite Ultra allowance with remaining Super Swipes
+        const ultraStatus = getUltraAllowance(swiperId, subscription);
+        if (ultraStatus.isUltra && ultraStatus.superSwipes.remaining > 0) {
+            const ultraResult = await consumeUltraSuperSwipe(swiperId, subscription);
+            if (ultraResult.success) {
+                consumedFromUltra = true;
+                // Record the swipe as an authoritative right swipe with super_swipe metadata
+                const { data: recordResult, error: recordError } = await recordSwipe(
+                    swiperId,
+                    swipedProfile.id,
+                    'right',
+                    { isSuperSwipe: true, source: 'ultra_allowance' }
+                );
+                if (recordError) throw new Error(recordError);
+                swipeId = recordResult?.id || `ultra-ss-${Date.now()}`;
+            }
+        }
+
+        // 2. If not consumed from Ultra allowance, consume from purchased boost credits via database RPC
+        if (!consumedFromUltra) {
+            const { data: useResult, error: rpcError } = await supabase.rpc('send_super_swipe', {
+                p_target_id: swipedProfile.id
+            });
+
+            if (rpcError) throw rpcError;
+            if (!useResult.success) {
+                return { data: null, error: useResult.error };
+            }
+            swipeId = useResult.swipe_id;
         }
 
         recordFeedImpression('profile', swipedProfile.id, 'super_swipe', { engaged: true }).catch(() => {});
 
-        // Send immediate notification to the swiped user.
+        // Send immediate notification to the swiped user
         await createNotification({
             userId: swipedProfile.id,
             actorId: swiperId,
@@ -753,20 +779,32 @@ export async function superSwipe(swiperId, swipedProfile) {
             content: 'Someone sent you a Super Swipe! They really want to connect with you.',
             category: 'requests',
             entityType: 'swipe',
-            entityId: useResult.swipe_id,
+            entityId: swipeId,
             deepLink: '/requests',
             priority: 'high',
             groupKey: `requests:${swipedProfile.id}`,
-            dedupeKey: `super_swipe:${useResult.swipe_id}`,
-            metadata: { swipe_id: useResult.swipe_id, swiper_id: swiperId, url: '/requests' }
+            dedupeKey: `super_swipe:${swipeId}`,
+            metadata: {
+                swipe_id: swipeId,
+                swiper_id: swiperId,
+                url: '/requests',
+                source: consumedFromUltra ? 'ultra_allowance' : 'purchased_credit'
+            }
         });
 
-        return { data: { id: useResult.swipe_id }, error: null };
+        return {
+            data: {
+                id: swipeId,
+                source: consumedFromUltra ? 'ultra_allowance' : 'purchased_credit'
+            },
+            error: null
+        };
     } catch (err) {
         console.error('superSwipe error:', err.message);
         return { data: null, error: err.message };
     }
 }
+
 
 /**
  * Reset all swipes for a user (Dev/Test only)

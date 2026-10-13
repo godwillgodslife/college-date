@@ -140,7 +140,7 @@
     position: absolute;
     top: 1px;
     right: 1px;
-    background: #ef4444;
+    background: #ff2d55;
     color: white;
     font-size: 0.65rem;
     font-weight: 800;
@@ -153,7 +153,7 @@
     align-items: center;
     justify-content: center;
     border: 2px solid var(--bg-card, #ffffff);
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 6px rgba(255, 45, 85, 0.45);
     pointer-events: none;
     z-index: 2;
 }

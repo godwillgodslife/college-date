@@ -19,7 +19,8 @@ import { playCardSwipe } from '../lib/audioContext';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import { getOptimizedUrl } from '../lib/imageUrl';
-import { hasActivePremium } from '../utils/premium';
+import { hasActivePremium, isEliteUltra } from '../utils/premium';
+import EliteUltraDetailsModal from '../components/EliteUltraDetailsModal';
 import { recordFeedImpression } from '../services/feedImpressionService';
 import { getProfilePhotos, normalizeProfile, safeArray } from '../utils/profileData';
 import { enqueueOfflineOperation, getQueuedOperations, removeOfflineOperation } from '../lib/offlineQueue';
@@ -31,6 +32,7 @@ import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import { useNotifications } from '../contexts/NotificationContext';
 import { formatBadgeCount } from '../services/appBadgeService';
+import { triggerLightHaptic } from '../services/haptics';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
@@ -129,6 +131,8 @@ export default function Match() {
     const [showGenderMenu, setShowGenderMenu] = useState(false);
     const [pendingSwipeIds, setPendingSwipeIds] = useState([]);
     const isPremium = hasActivePremium(userProfile);
+    const isUltra = isEliteUltra(userProfile);
+    const [ultraModalOpen, setUltraModalOpen] = useState(false);
 
     // Limit Reached State
     const [limitReached, setLimitReached] = useState(null);
@@ -557,10 +561,29 @@ export default function Match() {
                             <div className="discover-swipes-left-badge">
                                 ⚡ <b>{isPremium ? '∞' : freeSwipes}</b> Swipes Left
                             </div>
+                            {isUltra ? (
+                                <span className="discover-ultra-vip-badge" title="Elite Ultra VIP Member">👑⭐ Ultra</span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="discover-ultra-entry-btn"
+                                    onClick={() => {
+                                        triggerLightHaptic();
+                                        setUltraModalOpen(true);
+                                    }}
+                                    title="Explore Elite Ultra VIP"
+                                    aria-label="Explore Elite Ultra"
+                                >
+                                    👑 Ultra
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 className="discover-notif-btn"
-                                onClick={() => navigate('/notifications')}
+                                onClick={() => {
+                                    triggerLightHaptic();
+                                    navigate('/notifications');
+                                }}
                                 aria-label="Notifications"
                                 title="Notifications"
                             >
@@ -691,6 +714,7 @@ export default function Match() {
                                                 <li>✨ <strong>Free Daily Swipes</strong>: Match with classmates around your campus for free.</li>
                                                 <li>⭐ <strong>Super Swipe</strong>: Stand out and notify them immediately!</li>
                                                 <li>👑 <strong>College Date Elite</strong>: Unlimited swipes, boost your profile, and see secret admirers.</li>
+                                                <li>👑⭐ <strong>Elite Ultra</strong>: 30 Super Swipes, 10 Boosts, 6 photos & top visibility. <button type="button" className="tooltip-ultra-link" onClick={() => { setShowInfo(false); setUltraModalOpen(true); }}>Learn more →</button></li>
                                             </ul>
                                         </div>
                                     )}
@@ -922,6 +946,12 @@ export default function Match() {
                     {quickGenderMenu}
                 </>
             )}
+
+            {/* Elite Ultra Details & Benefits Modal */}
+            <EliteUltraDetailsModal
+                isOpen={ultraModalOpen}
+                onClose={() => setUltraModalOpen(false)}
+            />
         </div>
     );
 }

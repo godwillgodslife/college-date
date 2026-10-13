@@ -227,6 +227,7 @@ export default function MiniProfileSetup() {
                 is_onboarded: true, // Explicitly mark as done
                 photo_verified: isPhotoVerified,
                 is_verified: isPhotoVerified,
+                photo_updated_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
 
