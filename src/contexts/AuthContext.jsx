@@ -7,7 +7,7 @@ import { hasActivePremium } from '../utils/premium';
 import { clearAppCache, getCachedData, setCachedData } from '../lib/persistentCache';
 import { clearOfflineQueue } from '../lib/offlineQueue';
 import { clearMediaCache } from '../lib/mediaCache';
-import { normalizeProfile, registerProfilePhotoTimestamp } from '../utils/profileData';
+import { normalizeProfile, registerProfilePhotoTimestamp, calculateProfileStrength } from '../utils/profileData';
 import { clearSecureAuthStorage } from '../lib/secureAuthStorage';
 import {
     clearLogoutAuthPreferences,
@@ -117,6 +117,7 @@ export function AuthProvider({ children }) {
         if (!profile) return null;
         const normalizedProfile = normalizeProfile(profile);
         const subscriptionPremium = hasActivePremium(subscription);
+        const effectiveCompletionScore = calculateProfileStrength(normalizedProfile, normalizedProfile.completion_score);
         return {
             ...normalizedProfile,
             call_minutes_today: normalizedProfile.call_minutes_today ?? 0,
@@ -126,7 +127,7 @@ export function AuthProvider({ children }) {
             plan_type: subscriptionPremium ? 'Premium' : normalizedProfile.plan_type,
             subscription_status: subscription?.status ?? normalizedProfile.subscription_status,
             free_swipes: normalizedProfile.free_swipes ?? 20,
-            completion_score: normalizedProfile.completion_score ?? 0
+            completion_score: effectiveCompletionScore
         };
     }, []);
 
@@ -152,8 +153,9 @@ export function AuthProvider({ children }) {
             }
             const profile = repairProfile(data, subscription);
             if (profile?.id) {
-                const ts = profile.photo_updated_at || profile.updated_at;
-                if (ts) registerProfilePhotoTimestamp(profile.id, ts);
+                const ts = profile.photo_updated_at || profile.updated_at || new Date().toISOString();
+                registerProfilePhotoTimestamp(profile.id, ts);
+                setCachedData(['auth-profile', profile.id], profile);
             }
             setUserProfile(profile);
         } catch (err) {
@@ -264,7 +266,10 @@ export function AuthProvider({ children }) {
                     ]);
 
                     if (mounted) {
-                        const repairedProfile = repairProfile(profile, subscription);
+                        const repairedProfile = repairProfile({
+                            ...profile,
+                            email: user?.email || profile?.email || ''
+                        }, subscription);
                         setUserProfile(repairedProfile);
                         setWalletBalance(wallet?.available_balance || 0);
                         setCachedData(['auth-profile', user.id], repairedProfile);
@@ -524,6 +529,49 @@ export function AuthProvider({ children }) {
             clearInterval(heartbeat);
         };
     }, [currentUser, userProfile]);
+
+    // Listen for profile photo updates app-wide to refresh local user profile immediately
+    useEffect(() => {
+        const handlePhotoUpdated = (e) => {
+            const updatedUserId = e?.detail?.userId;
+            if (updatedUserId && currentUser?.id === updatedUserId) {
+                fetchProfile(currentUser.id);
+            }
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, [currentUser?.id, fetchProfile]);
+
+    // Realtime Postgres subscription for the authenticated user profile row
+    useEffect(() => {
+        if (!currentUser?.id) return;
+        const channel = supabase
+            .channel(`auth_user_profile_sync:${currentUser.id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${currentUser.id}`
+            }, (payload) => {
+                if (payload.new) {
+                    const repaired = repairProfile(payload.new, null);
+                    setUserProfile(prev => ({
+                        ...(prev || {}),
+                        ...repaired
+                    }));
+                    const ts = payload.new.photo_updated_at || payload.new.updated_at || Date.now();
+                    registerProfilePhotoTimestamp(currentUser.id, ts);
+                    setCachedData(['auth-profile', currentUser.id], repaired);
+                    clearAppCache({ userId: currentUser.id });
+                    clearMediaCache().catch(() => {});
+                }
+            })
+            .subscribe();
+
+        return () => {
+            channel.unsubscribe();
+        };
+    }, [currentUser?.id, repairProfile]);
 
     // Auth actions
     const login = async (email, password, options = {}) => {
@@ -803,27 +851,39 @@ export function AuthProvider({ children }) {
     const updateProfile = async (userId, updates) => {
         try {
             setError(null);
+            const nowIso = new Date().toISOString();
+            const safeUpdates = {
+                ...updates,
+                updated_at: nowIso
+            };
+            if (safeUpdates.avatar_url || safeUpdates.profile_photos) {
+                safeUpdates.photo_updated_at = safeUpdates.photo_updated_at || nowIso;
+            }
 
             // 1. Update Supabase (Upsert to handle new profiles)
             const { data, error: updateError } = await supabase
                 .from('profiles')
-                .upsert({ id: userId, ...updates })
+                .upsert({ id: userId, ...safeUpdates })
                 .select()
                 .single();
 
             if (updateError) throw updateError;
 
-            // 2. Update local state
-            setUserProfile(data);
-            if (data?.id) {
-                const ts = data.photo_updated_at || data.updated_at || new Date().toISOString();
-                registerProfilePhotoTimestamp(data.id, ts);
+            // 2. Update local state with repaired schema
+            const repaired = repairProfile(data, null);
+            setUserProfile(repaired);
+            if (repaired?.id) {
+                const ts = repaired.photo_updated_at || repaired.updated_at || nowIso;
+                registerProfilePhotoTimestamp(repaired.id, ts);
+                setCachedData(['auth-profile', repaired.id], repaired);
+                clearAppCache({ userId: repaired.id });
+                clearMediaCache().catch(() => {});
                 window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', {
-                    detail: { userId: data.id, timestamp: ts }
+                    detail: { userId: repaired.id, timestamp: ts }
                 }));
             }
 
-            return { data, error: null };
+            return { data: repaired, error: null };
         } catch (err) {
             console.error('Update profile error:', err);
             setError(err.message);

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import OptimizedImage from './OptimizedImage';
 import { playMatchSuccess } from '../lib/audioContext';
 import { getAvatarUrl } from '../utils/profileData';
+import { getCampusIcebreakers } from '../utils/campusCommonGround';
 import './MatchCelebration.css';
 
 export default function MatchCelebration({ isOpen, onClose, userProfile, matchedProfile, onMessage }) {
@@ -69,6 +70,8 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
         }
     };
 
+    const icebreakers = getCampusIcebreakers(matchedProfile, userProfile);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -118,13 +121,36 @@ export default function MatchCelebration({ isOpen, onClose, userProfile, matched
                             </motion.div>
                         </div>
 
+                        {icebreakers && icebreakers.length > 0 && (
+                            <motion.div
+                                className="match-icebreakers-container"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.8 }}
+                            >
+                                <p className="match-icebreakers-label">⚡ Tap an icebreaker to start chatting:</p>
+                                <div className="match-icebreakers-list">
+                                    {icebreakers.slice(0, 3).map((text, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            className="btn-icebreaker-chip"
+                                            onClick={() => onMessage(text)}
+                                        >
+                                            {text}
+                                        </button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+
                         <motion.div
                             className="match-actions-vertical"
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 1 }}
                         >
-                            <button className="btn-match-message" onClick={onMessage}>
+                            <button className="btn-match-message" onClick={() => onMessage()}>
                                 Send a Message
                             </button>
                             <button className="btn-match-continue" onClick={onClose}>

@@ -218,6 +218,14 @@ function CanonicalNotificationRouteRedirect() {
   return <Navigate to={destination} replace />;
 }
 
+function DevOrAdminRoute({ children }) {
+  const { currentUser } = useAuth();
+  if (import.meta.env.DEV || hasLocalAdminAccess(currentUser)) {
+    return children;
+  }
+  return <Navigate to="/" replace />;
+}
+
 function AppRoutes() {
   const { currentUser, userProfile } = useAuth();
   const location = useLocation();
@@ -330,20 +338,20 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
-        <Route path="/wireframes" element={<WireframeShowcase />} />
-        <Route path="/android-ux-comparison" element={<AndroidUXComparison />} />
-        <Route path="/ux-lab" element={<AndroidUXComparison />} />
-        <Route path="/ux-approval" element={<AndroidUXComparison />} />
-        <Route path="/android-ux-review" element={<AndroidUXReview />} />
-        <Route path="/ux-review" element={<AndroidUXReview />} />
-        <Route path="/android-design-review" element={<AndroidDesignReview />} />
-        <Route path="/design-review" element={<AndroidDesignReview />} />
-        <Route path="/notification-preview" element={<NotificationPreviewLab />} />
-        <Route path="/notification-preview-lab" element={<NotificationPreviewLab />} />
-        <Route path="/push-preview" element={<NotificationPreviewLab />} />
-        <Route path="/push-lab" element={<NotificationPreviewLab />} />
-        <Route path="/premium-preview" element={<PremiumUpgrade />} />
-        <Route path="/referrals-preview" element={<Referrals />} />
+        <Route path="/wireframes" element={<DevOrAdminRoute><WireframeShowcase /></DevOrAdminRoute>} />
+        <Route path="/android-ux-comparison" element={<DevOrAdminRoute><AndroidUXComparison /></DevOrAdminRoute>} />
+        <Route path="/ux-lab" element={<DevOrAdminRoute><AndroidUXComparison /></DevOrAdminRoute>} />
+        <Route path="/ux-approval" element={<DevOrAdminRoute><AndroidUXComparison /></DevOrAdminRoute>} />
+        <Route path="/android-ux-review" element={<DevOrAdminRoute><AndroidUXReview /></DevOrAdminRoute>} />
+        <Route path="/ux-review" element={<DevOrAdminRoute><AndroidUXReview /></DevOrAdminRoute>} />
+        <Route path="/android-design-review" element={<DevOrAdminRoute><AndroidDesignReview /></DevOrAdminRoute>} />
+        <Route path="/design-review" element={<DevOrAdminRoute><AndroidDesignReview /></DevOrAdminRoute>} />
+        <Route path="/notification-preview" element={<DevOrAdminRoute><NotificationPreviewLab /></DevOrAdminRoute>} />
+        <Route path="/notification-preview-lab" element={<DevOrAdminRoute><NotificationPreviewLab /></DevOrAdminRoute>} />
+        <Route path="/push-preview" element={<DevOrAdminRoute><NotificationPreviewLab /></DevOrAdminRoute>} />
+        <Route path="/push-lab" element={<DevOrAdminRoute><NotificationPreviewLab /></DevOrAdminRoute>} />
+        <Route path="/premium-preview" element={<DevOrAdminRoute><PremiumUpgrade /></DevOrAdminRoute>} />
+        <Route path="/referrals-preview" element={<DevOrAdminRoute><Referrals /></DevOrAdminRoute>} />
         <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/ask/:username" element={<AnonymousAskPage />} />
@@ -439,9 +447,9 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <SWRProvider>
-            <NotificationSoftPrompt />
-            <AppUpdatePrompt />
             <ToastProvider>
+              <NotificationSoftPrompt />
+              <AppUpdatePrompt />
               <NotificationProvider>
                 <AppRoutes />
               </NotificationProvider>

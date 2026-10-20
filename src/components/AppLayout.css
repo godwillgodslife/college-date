@@ -144,3 +144,20 @@
         overflow: hidden !important;
     }
 }
+
+
+/* Hide bottom nav when any modal or dialog is active */
+body.has-modal-open .bottom-nav,
+body:has(.status-modal-overlay) .bottom-nav,
+body:has(.modal-overlay) .bottom-nav,
+body:has(.deal-modal-overlay) .bottom-nav,
+body:has(.report-modal-overlay) .bottom-nav,
+body:has(.guide-modal-overlay) .bottom-nav,
+body:has(.inbox-modal-overlay) .bottom-nav,
+body:has(.settings-modal-overlay) .bottom-nav,
+body:has(.status-choice-overlay) .bottom-nav,
+body:has([aria-modal="true"]) .bottom-nav,
+body:has([role="dialog"]) .bottom-nav {
+    display: none !important;
+    pointer-events: none !important;
+}

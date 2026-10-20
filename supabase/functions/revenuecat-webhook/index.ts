@@ -34,7 +34,9 @@ type RevenueCatPayload = {
 };
 
 const PREMIUM_ENTITLEMENT_ID = 'Premium';
+const ULTRA_ENTITLEMENT_ID = 'Ultra';
 const PREMIUM_PRODUCT_PREFIX = 'premium_monthly';
+const ULTRA_PRODUCT_PREFIX = 'ultra_';
 const BOOST_PRODUCTS: Record<string, {
     amount: number;
     description: string;
@@ -66,11 +68,29 @@ function isUuid(value: string) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
+function constantTimeEqual(a: string, b: string): boolean {
+    if (a.length !== b.length) return false;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) {
+        diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+    return diff === 0;
+}
+
+function hasUltraEntitlement(event: RevenueCatEvent) {
+    const entitlementIds = event.entitlement_ids ?? [];
+    return entitlementIds.some((id) => typeof id === 'string' && id.toLowerCase().includes('ultra')) ||
+        Boolean(event.entitlement_id && event.entitlement_id.toLowerCase().includes('ultra')) ||
+        Boolean(event.product_id && event.product_id.toLowerCase().startsWith('ultra'));
+}
+
 function hasPremiumEntitlement(event: RevenueCatEvent) {
     const entitlementIds = event.entitlement_ids ?? [];
-    return entitlementIds.includes(PREMIUM_ENTITLEMENT_ID) ||
+    return hasUltraEntitlement(event) ||
+        entitlementIds.includes(PREMIUM_ENTITLEMENT_ID) ||
         event.entitlement_id === PREMIUM_ENTITLEMENT_ID ||
-        event.product_id?.startsWith(PREMIUM_PRODUCT_PREFIX);
+        Boolean(event.product_id?.startsWith(PREMIUM_PRODUCT_PREFIX)) ||
+        Boolean(event.product_id?.startsWith('premium_'));
 }
 
 function getExpiry(event: RevenueCatEvent) {
@@ -152,7 +172,7 @@ serve(async (req) => {
             return jsonResponse({ ok: false, message: 'Webhook auth is not configured' }, 500);
         }
 
-        if (receivedAuth !== expectedAuth) {
+        if (!receivedAuth || !constantTimeEqual(receivedAuth, expectedAuth)) {
             return jsonResponse({ ok: false, message: 'Unauthorized' }, 401);
         }
 
@@ -307,6 +327,7 @@ serve(async (req) => {
             return jsonResponse({ ok: true, ignored: true, message: 'Ignoring non-premium event' });
         }
 
+        const isUltra = hasUltraEntitlement(event);
         const premiumExpiry = getExpiry(event);
         const deactivate = shouldDeactivate(event);
 
@@ -320,7 +341,7 @@ serve(async (req) => {
             }
             : {
                 user_id: userId,
-                plan_type: 'Premium',
+                plan_type: isUltra ? 'Elite Ultra' : 'Premium',
                 status: 'active',
                 current_period_end: premiumExpiry,
                 updated_at: new Date().toISOString(),
@@ -332,12 +353,19 @@ serve(async (req) => {
 
         if (subscriptionError) throw subscriptionError;
 
+        const profileUpdate: Record<string, unknown> = {
+            is_premium: !deactivate,
+            premium_expires_at: deactivate ? null : premiumExpiry,
+        };
+        if (deactivate) {
+            profileUpdate.is_ultra = false;
+        } else if (isUltra) {
+            profileUpdate.is_ultra = true;
+        }
+
         const { error: profileError } = await supabase
             .from('profiles')
-            .update({
-                is_premium: !deactivate,
-                premium_expires_at: deactivate ? null : premiumExpiry,
-            })
+            .update(profileUpdate)
             .eq('id', userId);
 
         if (profileError) throw profileError;
@@ -368,9 +396,13 @@ serve(async (req) => {
 
             if (entitlementExpireError) throw entitlementExpireError;
         } else {
+            const resolvedProductId = isUltra
+                ? (event.product_id || 'ultra_monthly')
+                : (event.product_id?.startsWith('premium_') ? event.product_id : 'premium_monthly');
+
             const { data: entitlementResult, error: entitlementError } = await supabase.rpc('grant_paid_product_entitlements', {
                 p_user_id: userId,
-                p_product_id: 'premium_monthly',
+                p_product_id: resolvedProductId,
                 p_source: 'revenuecat',
                 p_source_reference: sourceReference,
                 p_starts_at: getPurchaseStart(event),
@@ -403,7 +435,10 @@ serve(async (req) => {
 
             if (!walletError && wallet?.id) {
                 const currentSpent = Number(wallet.total_spent || 0);
-                const subAmount = 2900; // Premium subscription price in NGN
+                const subAmount = isUltra ? 15000 : 2900; // Ultra is ₦15,000, Premium is ₦2,900
+                const subDescription = isUltra
+                    ? 'College Date Elite Ultra Subscription (Google Play)'
+                    : 'College Date Premium Subscription (Google Play)';
 
                 // Update total_spent
                 await supabase
@@ -423,15 +458,16 @@ serve(async (req) => {
                         type: 'payment',
                         amount: subAmount,
                         status: 'completed',
-                        description: 'College Date Premium Subscription (Google Play)',
+                        description: subDescription,
                         payment_method: 'google_play',
                         reference_id: event.transaction_id || `rc-sub-${Date.now()}`,
-                    metadata: {
-                        source: 'revenuecat',
-                        environment: event.environment,
+                        metadata: {
+                            source: 'revenuecat',
+                            environment: event.environment,
                             store: event.store,
                             is_sandbox: event.environment ? event.environment.toUpperCase() !== 'PRODUCTION' : null,
                             type: 'subscription',
+                            tier: isUltra ? 'ultra' : 'premium',
                             product_id: event.product_id,
                             transaction_id: event.transaction_id,
                         }
@@ -444,6 +480,7 @@ serve(async (req) => {
             ok: true,
             event_type: event.type,
             app_user_id: userId,
+            is_ultra: isUltra && !deactivate,
             premium_active: !deactivate,
             premium_expires_at: deactivate ? null : premiumExpiry,
         });

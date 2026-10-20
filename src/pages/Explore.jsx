@@ -12,7 +12,7 @@ import ChatVibeModal from '../components/ChatVibeModal';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
 import { isRecentlyLive, isRecentlyActive } from '../utils/presence';
 import { recordFeedImpressions } from '../services/feedImpressionService';
-import { getProfilePhotos, getAvatarUrl, normalizeProfile, safeArray, formatDisplayName } from '../utils/profileData';
+import { getProfilePhotos, getAvatarUrl, normalizeProfile, safeArray, formatDisplayName, sanitizeProfileForDisplay } from '../utils/profileData';
 import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import { calculateActiveFilterCount, DEFAULT_EXPLORE_FILTERS, createDefaultExploreFilters } from '../utils/exploreFilters';
 import OptimizedImage from '../components/OptimizedImage';
@@ -57,9 +57,17 @@ export default function Explore() {
     const stableFilters = JSON.stringify(filters);
 
     useEffect(() => {
+        const handlePhotoUpdated = () => {
+            if (typeof mutateProfiles === 'function') mutateProfiles();
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, [mutateProfiles]);
+
+    useEffect(() => {
         if (swrProfiles !== undefined || !profilesLoading) {
             const processedProfiles = (swrProfiles || []).map(profile => {
-                const normalizedProfile = normalizeProfile(profile);
+                const normalizedProfile = sanitizeProfileForDisplay(profile, false);
                 return { ...normalizedProfile, profile_photos: getProfilePhotos(normalizedProfile) };
             });
 
@@ -109,7 +117,8 @@ export default function Explore() {
         markFeatureUsed('explore_filters');
         try {
             const results = await searchProfilesByName(text, currentUser?.id, userProfile, filters);
-            setDbSearchResults(results || []);
+            const sanitizedResults = (results || []).map(p => sanitizeProfileForDisplay(p, false));
+            setDbSearchResults(sanitizedResults);
         } catch (err) {
             console.error('[Explore] search error:', err);
             setDbSearchResults([]);
@@ -570,14 +579,15 @@ export default function Explore() {
                 matchedProfile={matchData}
                 userProfile={userProfile}
                 onClose={() => setMatchData(null)}
-                onMessage={() => {
+                onMessage={(initialText) => {
                     const cid = matchData?.match_id;
                     const uid = matchData?.id;
                     navigate(cid ? `/chat?chatId=${cid}` : '/chat', { 
                         state: { 
                             openChatWith: uid,
                             matchData: matchData,
-                            chatId: cid
+                            chatId: cid,
+                            initialMessage: typeof initialText === 'string' ? initialText : ''
                         } 
                     });
                     setMatchData(null);

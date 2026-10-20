@@ -135,7 +135,7 @@ export default function EditProfile() {
         if (!file) return;
 
         setLoading(true);
-        addToast('Verifying photo with AI...', 'info');
+        addToast('Checking photo quality...', 'info');
         try {
             const { url, approved, reason, error } = await uploadProfilePhoto(file, currentUser.id, index);
             if (error || !approved) {
@@ -158,7 +158,12 @@ export default function EditProfile() {
                 await fetchProfile(currentUser.id);
             }
 
-            addToast(`Photo ${index + 1} verified & approved! ✓`, 'success');
+            addToast(
+                index === 0
+                    ? 'Main photo uploaded! Complete Face Verification to activate your ✓ badge.'
+                    : `Photo ${index + 1} uploaded & approved! 📸`,
+                'success'
+            );
         } catch (err) {
             console.error('Photo upload error:', err);
             addToast(err.message || 'Photo upload failed', 'error');
@@ -306,6 +311,10 @@ export default function EditProfile() {
 
             const cleanPhotos = safeArray(formData.profile_photos).filter(Boolean);
             const resolvedAvatarUrl = cleanPhotos[0] || formData.avatar_url || null;
+            const stripUrlQuery = (u) => String(u || '').split('?')[0].trim();
+            const previousAvatar = stripUrlQuery(userProfile?.avatar_url || safeArray(userProfile?.profile_photos).filter(Boolean)[0]);
+            const nextAvatar = stripUrlQuery(resolvedAvatarUrl);
+            const avatarChanged = Boolean(previousAvatar && nextAvatar !== previousAvatar);
 
             const profileData = {
                 full_name: formData.full_name,
@@ -344,8 +353,8 @@ export default function EditProfile() {
                 detail: { userId: currentUser.id, timestamp: profileData.photo_updated_at }
             }));
 
+            await requestProfileAiReview('profile_update', { avatarChanged, force: avatarChanged }).catch(() => null);
             await fetchProfile(currentUser.id);
-            requestProfileAiReview('profile_update');
             addToast('Profile updated!', 'success');
             navigate('/profile');
         } catch (err) {
@@ -709,7 +718,7 @@ export default function EditProfile() {
                                         👑 Ultra VIP (Contact Sharing Allowed)
                                     </span>
                                 ) : (
-                                    <span style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.45)' }}>
+                                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted, #64748b)' }}>
                                         Keep chats on College Date
                                     </span>
                                 )}
@@ -960,6 +969,7 @@ export default function EditProfile() {
             <FaceVerificationModal
                 isOpen={showFaceVerification}
                 onClose={() => setShowFaceVerification(false)}
+                candidatePhotoUrl={safeArray(formData.profile_photos).filter(Boolean)[0] || formData.avatar_url || userProfile?.avatar_url}
                 onVerified={() => {
                     fetchProfile?.(currentUser?.id);
                     setShowFaceVerification(false);

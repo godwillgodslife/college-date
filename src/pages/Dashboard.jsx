@@ -3,6 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import FeatureCard from '../components/FeatureCard';
+import {
+    DashboardMatchIcon,
+    DashboardChatIcon,
+    DashboardExploreIcon,
+    DashboardPremiumIcon,
+    DashboardWalletIcon,
+    DashboardRequestsIcon
+} from '../components/DashboardIcons';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import ViewerTeaser from '../components/ViewerTeaser'; // NEW
 import AndroidInstallButton from '../components/AndroidInstallButton';
@@ -11,6 +19,7 @@ import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { useScoreStreak } from '../hooks/useScoreStreak';
 import ScoreStreakModal from '../components/ScoreStreakModal';
+import CampusQuestsCard from '../components/CampusQuestsCard';
 import { useActiveProgram } from '../hooks/useActiveProgram';
 import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import { formatDisplayName } from '../utils/profileData';
@@ -205,38 +214,52 @@ export default function Dashboard() {
 
     const actionCards = [
         {
-            icon: '💕',
+            id: 'match',
+            variant: 'match',
+            icon: <DashboardMatchIcon />,
             title: 'Start Matching',
             description: 'Swipe through verified campus profiles',
             to: '/match',
             featured: true
         },
         {
-            icon: '💬',
+            id: 'chat',
+            variant: 'chat',
+            icon: <DashboardChatIcon />,
             title: 'Messages',
             description: 'Continue conversations with your matches',
             to: '/chat'
         },
         {
-            icon: '🧭',
+            id: 'explore',
+            variant: 'explore',
+            icon: <DashboardExploreIcon />,
             title: 'Explore',
             description: 'Browse campus people, activity, and discovery',
             to: '/explore'
         },
         {
-            icon: isUltra ? '👑⭐' : '👑',
+            id: 'premium',
+            variant: 'premium',
+            icon: <DashboardPremiumIcon isUltra={isUltra} />,
             title: isUltra ? 'Elite Ultra Active' : isPremium ? 'Premium Active' : 'Upgrade Premium',
             description: isUltra ? '30 Super Swipes & 10 Boosts active' : isPremium ? 'Your premium benefits are active' : 'Unlock unlimited swipes and priority features',
-            to: isUltra ? '/premium?tier=ultra' : '/premium'
+            to: isUltra ? '/premium?tier=ultra' : '/premium',
+            badge: isUltra ? 'Ultra' : isPremium ? 'Active' : null,
+            isUltra
         },
         {
-            icon: '💳',
+            id: 'wallet',
+            variant: 'wallet',
+            icon: <DashboardWalletIcon />,
             title: 'Wallet',
             description: 'Manage balance, gifts, boosts, and payouts',
             to: '/wallet'
         },
         {
-            icon: '💌',
+            id: 'requests',
+            variant: 'requests',
+            icon: <DashboardRequestsIcon />,
             title: 'Requests',
             description: 'Review attention and match requests',
             to: '/requests'
@@ -312,6 +335,9 @@ export default function Dashboard() {
                     </div>
                 )}
 
+                {/* Campus Daily Quests (Gamification Engine) */}
+                <CampusQuestsCard userId={currentUser?.id} />
+
                 {statsError && (
                     <button className="dashboard-alert" type="button" onClick={() => fetchStats(true)}>
                         {statsError} Tap to retry.
@@ -371,6 +397,10 @@ export default function Dashboard() {
                             title={card.title}
                             description={card.description}
                             to={card.to}
+                            variant={card.variant || card.id}
+                            badge={card.badge}
+                            featured={card.featured}
+                            isUltra={card.isUltra}
                         />
                     ))}
                 </div>

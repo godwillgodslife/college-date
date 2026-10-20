@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -38,6 +38,8 @@ import { CACHE_LIMITS, CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { enqueueOfflineOperation, removeOfflineOperation } from '../lib/offlineQueue';
 import IncomingCallModal from '../components/IncomingCallModal';
+import GiftCelebrationOverlay from '../components/GiftCelebrationOverlay';
+import { VIRTUAL_GIFTS } from '../services/coinService';
 import { respondCallSignal } from '../services/chatService';
 import {
     initLocalNotifications,
@@ -187,6 +189,26 @@ export function NotificationProvider({ children }) {
     const [unreadByCategory, setUnreadByCategory] = useState({ total: 0 });
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [incomingCall, setIncomingCall] = useState(null);
+    const [activeGiftCelebration, setActiveGiftCelebration] = useState(null);
+    const seenCelebrationIdsRef = useRef(new Set());
+
+    const triggerGiftCelebration = useCallback((gift, sender) => {
+        if (!gift) return;
+        setActiveGiftCelebration({
+            gift,
+            sender: sender || { name: 'Someone Special' }
+        });
+    }, []);
+
+    useEffect(() => {
+        const handleCustomGiftTrigger = (event) => {
+            const detail = event?.detail;
+            if (!detail?.gift) return;
+            triggerGiftCelebration(detail.gift, detail.sender);
+        };
+        window.addEventListener('tcd:trigger-gift-celebration', handleCustomGiftTrigger);
+        return () => window.removeEventListener('tcd:trigger-gift-celebration', handleCustomGiftTrigger);
+    }, [triggerGiftCelebration]);
 
     useEffect(() => {
         const handleChatUnreadUpdate = (event) => {
@@ -309,6 +331,36 @@ export function NotificationProvider({ children }) {
                             return nextNotifications;
                         });
 
+                        // Trigger TikTok-style Gift Celebration Overlay for incoming gifts
+                        if (newNotification.type === 'gift_received' || newNotification.type === 'gift') {
+                            const dedupeKey = newNotification.id || newNotification.metadata?.message_id || `${newNotification.type}_${Date.now()}`;
+                            if (!seenCelebrationIdsRef.current.has(dedupeKey)) {
+                                seenCelebrationIdsRef.current.add(dedupeKey);
+                                const giftMeta = newNotification.metadata || {};
+                                const giftId = giftMeta.gift_id || giftMeta.id || 'rose';
+                                const giftPreset = VIRTUAL_GIFTS.find(g => g.id === giftId) || VIRTUAL_GIFTS[0];
+                                const giftData = {
+                                    id: giftId,
+                                    name: giftMeta.gift_name || giftMeta.name || giftPreset.name,
+                                    emoji: giftMeta.gift_emoji || giftMeta.emoji || giftPreset.emoji,
+                                    coins: giftMeta.gift_coins || giftMeta.coins || giftPreset.coins,
+                                    color: giftMeta.gift_color || giftMeta.color || giftPreset.color,
+                                    desc: giftPreset.desc,
+                                    earningCreditNgn: giftMeta.earning_credit_ngn ?? giftPreset.earningCreditNgn ?? ((giftMeta.gift_coins || giftPreset.coins) * 8),
+                                    matchId: newNotification.match_id || giftMeta.match_id
+                                };
+                                const senderData = {
+                                    id: newNotification.actor_id || giftMeta.sender_id,
+                                    name: newNotification.actor_name || giftMeta.sender_name || 'Someone Special',
+                                    avatar_url: newNotification.actor_avatar || giftMeta.sender_avatar || null
+                                };
+                                setActiveGiftCelebration({
+                                    gift: giftData,
+                                    sender: senderData
+                                });
+                            }
+                        }
+
                         if (alreadyViewingDestination) {
                             markNotificationAsRead(newNotification.id).catch((error) => {
                                 console.warn('[Notifications] Auto-read failed:', error);
@@ -357,9 +409,10 @@ export function NotificationProvider({ children }) {
                                 });
                             }
 
+                            const isGift = newNotification.type === 'gift_received' || newNotification.type === 'gift';
                             const playSound = SOUND_MAP[newNotification.type] || playNotificationDing;
 
-                            if (shouldInterrupt && profileRef.current?.sound_enabled !== false) {
+                            if (shouldInterrupt && profileRef.current?.sound_enabled !== false && !isGift) {
                                 playSound();
                             }
                         }
@@ -716,9 +769,10 @@ export function NotificationProvider({ children }) {
             markRead,
             markAllRead,
             markConversationNotificationsRead,
-            dismissNotification
+            dismissNotification,
+            triggerGiftCelebration
         };
-    }, [notifications, unreadCount, unreadByCategory, chatUnreadCount]);
+    }, [notifications, unreadCount, unreadByCategory, chatUnreadCount, triggerGiftCelebration]);
 
     return (
         <NotificationContext.Provider value={value}>
@@ -728,6 +782,24 @@ export function NotificationProvider({ children }) {
                     call={incomingCall}
                     onAccept={() => handleAcceptCall(incomingCall)}
                     onDecline={() => handleDeclineCall(incomingCall)}
+                />
+            )}
+            {activeGiftCelebration && (
+                <GiftCelebrationOverlay
+                    gift={activeGiftCelebration.gift}
+                    sender={activeGiftCelebration.sender}
+                    onClose={() => setActiveGiftCelebration(null)}
+                    onSayThanks={(gift, sender) => {
+                        setActiveGiftCelebration(null);
+                        const matchId = gift?.matchId || gift?.match_id;
+                        if (matchId) {
+                            navigate(`/chat?id=${matchId}`);
+                        } else if (sender?.id) {
+                            navigate(`/chat?user=${sender.id}`);
+                        } else {
+                            navigate('/chat');
+                        }
+                    }}
                 />
             )}
         </NotificationContext.Provider>

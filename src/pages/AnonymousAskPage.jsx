@@ -117,7 +117,7 @@ export default function AnonymousAskPage() {
                                     {(profile.full_name || profile.username || 'U').charAt(0).toUpperCase()}
                                 </div>
                             )}
-                            {profile.is_verified && (
+                            {(profile.is_verified || profile.photo_verified) && (
                                 <span className="ask-verified-badge" title="Verified Student">✓</span>
                             )}
                         </div>

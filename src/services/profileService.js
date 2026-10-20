@@ -6,28 +6,80 @@ import { clearMediaCache } from '../lib/mediaCache';
 import { preValidatePhoto } from './ai/localEngine';
 
 // Helper for timeout
-const withTimeout = (promise, ms = 10000) => {
+const withTimeout = (promise, ms = 35000) => {
     return Promise.race([
         promise,
         new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), ms))
     ]);
 };
 
+export const SAFE_PUBLIC_PROFILE_FIELDS = [
+    'id',
+    'full_name',
+    'username',
+    'gender',
+    'age',
+    'university',
+    'faculty',
+    'department',
+    'level',
+    'bio',
+    'avatar_url',
+    'photos',
+    'profile_photos',
+    'interests',
+    'intro_prompt',
+    'voice_intro_url',
+    'anthem',
+    'attraction_goal',
+    'is_verified',
+    'photo_verified',
+    'completion_score',
+    'photo_updated_at',
+    'updated_at',
+    'created_at',
+    'video_url',
+    'is_ultra',
+    'is_live',
+    'last_seen',
+    'last_seen_at',
+    'last_active',
+    'location_status',
+    'current_badge',
+    'badges'
+].join(', ');
+
 /**
  * Get a user's profile by ID.
+ * Strictly enforces user email privacy: when viewing another user's profile,
+ * only safe public profile fields are queried and all sensitive PII (email, phone)
+ * is eliminated to ensure cross-user isolation.
  */
 export async function getProfile(userId) {
     try {
+        const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: {} }));
+        const currentUserId = sessionData?.session?.user?.id;
+        const isOwn = Boolean(currentUserId && currentUserId === userId);
+
+        const selectFields = isOwn ? '*' : SAFE_PUBLIC_PROFILE_FIELDS;
+
         const { data, error } = await withTimeout(
             supabase
                 .from('profiles')
-                .select('*')
+                .select(selectFields)
                 .eq('id', userId)
                 .single()
         );
 
         if (error) throw error;
-        return { data: normalizeProfile(data), error: null };
+        const normalized = normalizeProfile(data);
+        if (!isOwn && normalized) {
+            delete normalized.email;
+            delete normalized.phone;
+            delete normalized.onesignal_id;
+        }
+
+        return { data: normalized, error: null };
     } catch (err) {
         console.error('getProfile error:', err.message);
         return { data: null, error: err.message };
@@ -57,7 +109,7 @@ export async function getProfileByUsername(usernameOrId) {
 
         let query = supabase
             .from('profiles')
-            .select('id, full_name, username, avatar_url, profile_photos, photo_updated_at, updated_at, university, is_verified, bio, video_url');
+            .select('id, full_name, username, avatar_url, profile_photos, photo_updated_at, updated_at, university, is_verified, photo_verified, bio, video_url');
 
         if (isUuid) {
             query = query.eq('id', clean);
@@ -100,17 +152,39 @@ export async function createProfile(userId, profileData) {
  */
 export async function updateProfile(userId, updates) {
     try {
+        const safeUpdates = { ...updates };
+        const hasPhotoUpdate = Boolean(
+            safeUpdates.avatar_url !== undefined ||
+            safeUpdates.profile_photos !== undefined ||
+            safeUpdates.photo_updated_at !== undefined
+        );
+        const nowIso = new Date().toISOString();
+        if (hasPhotoUpdate) {
+            safeUpdates.photo_updated_at = safeUpdates.photo_updated_at || nowIso;
+            safeUpdates.updated_at = nowIso;
+        }
+
         const { data, error } = await withTimeout(
             supabase
                 .from('profiles')
-                .update(updates)
+                .update(safeUpdates)
                 .eq('id', userId)
                 .select()
                 .single()
         );
 
         if (error) throw error;
-        return { data: normalizeProfile(data), error: null };
+        const norm = normalizeProfile(data);
+        if (norm?.id && hasPhotoUpdate) {
+            const ts = norm.photo_updated_at || nowIso;
+            registerProfilePhotoTimestamp(norm.id, ts);
+            clearAppCache({ userId: norm.id });
+            clearMediaCache().catch(() => {});
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId: norm.id, timestamp: ts } }));
+            }
+        }
+        return { data: norm, error: null };
     } catch (err) {
         console.error('updateProfile error:', err.message);
         return { data: null, error: err.message };
@@ -232,6 +306,8 @@ export async function uploadAvatar(file, userId) {
 
         const nowIso = new Date().toISOString();
         registerProfilePhotoTimestamp(userId, nowIso);
+        clearAppCache({ userId });
+        clearMediaCache().catch(() => {});
         window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', { detail: { userId, timestamp: nowIso } }));
 
         return { url: publicUrlData.publicUrl, error: null };

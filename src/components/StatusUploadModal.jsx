@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { saveLocalStatus, getDailyStatusCount } from '../services/localStatusService';
 import { uploadStatusMedia, createStatus, notifyFriendsOfNewStatus } from '../services/statusService';
 import { triggerLightHaptic, triggerSuccessHaptic } from '../utils/haptics';
@@ -13,6 +14,15 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef(null);
     const { addToast } = useToast();
+
+    // Suppress bottom navigation bar and background scroll while modal is active
+    useEffect(() => {
+        if (!isOpen) return;
+        document.body.classList.add('has-modal-open');
+        return () => {
+            document.body.classList.remove('has-modal-open');
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -42,6 +52,12 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
         setFile(null);
         setPreviewUrl(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleClose = () => {
+        handleClearFile();
+        setCaption('');
+        onClose();
     };
 
     const handleSubmit = async (e) => {
@@ -97,9 +113,9 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
             const isVideo = file.type?.startsWith('video/') || file.name?.match(/\.(mp4|mov|webm|m4v)$/i);
             const coinBonus = localResult?.coinBonus || 0;
             if (isVideo && coinBonus > 0) {
-                addToast(`🎉 Status posted! +${coinBonus} CD Coins awarded for video moment!`, 'success');
+                addToast(`🎉 Status posted! +${coinBonus} CD Coins awarded!`, 'success');
             } else {
-                addToast('⚡ Campus status shared successfully!', 'success');
+                addToast('⚡ Status shared successfully!', 'success');
             }
 
             const finalStatus = remoteStatus || localResult?.status;
@@ -134,36 +150,29 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
         }
     };
 
-    return (
-        <div className="status-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+    const modalMarkup = (
+        <div className="status-modal-overlay" onClick={handleClose} role="dialog" aria-modal="true">
             <div className="status-modal-card" onClick={(e) => e.stopPropagation()}>
-                <div className="status-modal-handle" />
-
                 {/* Header */}
                 <div className="status-modal-header">
-                    <div>
-                        <h2 className="status-modal-title">Share Campus Moment ⚡</h2>
-                        <span className="status-modal-subtitle">
-                            Visible to campus friends • Disappears in 24 hours
-                        </span>
+                    <div className="status-header-title-wrap">
+                        <h2 className="status-modal-title">New Status ⚡</h2>
+                        <span className="status-daily-pill">{dailyInfo.count}/2 today</span>
                     </div>
-                    <div className="status-daily-pill" title="Daily status quota">
-                        {dailyInfo.count}/2 today
-                    </div>
+                    <button
+                        type="button"
+                        className="status-close-btn"
+                        onClick={handleClose}
+                        aria-label="Close"
+                    >
+                        ✕
+                    </button>
                 </div>
 
-                {/* Video Priority Incentive Banner */}
-                <div className="status-incentive-card">
-                    <span className="incentive-star">⭐</span>
-                    <div className="incentive-text">
-                        <strong>Video Priority:</strong> Upload a 10s–30s campus video clip to earn <strong>+10 Free CD Coins</strong> & 3x discovery boost!
-                    </div>
-                </div>
-
-                {/* Upload / Preview Area */}
+                {/* Compact Upload / Preview Area */}
                 {!previewUrl ? (
                     <div
-                        className="status-dropzone"
+                        className="status-dropzone compact"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <input
@@ -173,16 +182,12 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
                             style={{ display: 'none' }}
                             onChange={handleFileChange}
                         />
-                        <div className="dropzone-icon-ring">
-                            <span className="dropzone-icon">🎥</span>
-                        </div>
-                        <h3 className="dropzone-heading">Tap to choose video or photo</h3>
-                        <p className="dropzone-sub">
-                            Campus moments, library vibes, hangout clips, or quick selfies
-                        </p>
-                        <div className="dropzone-badges">
-                            <span className="dropzone-tag video-tag">🎥 Video (+10 Coins)</span>
-                            <span className="dropzone-tag photo-tag">📸 Photo</span>
+                        <div className="dropzone-compact-row">
+                            <span className="dropzone-compact-icon">📷 / 🎥</span>
+                            <div className="dropzone-compact-text">
+                                <h3 className="dropzone-heading">Choose Video or Photo</h3>
+                                <p className="dropzone-sub">Video earns +10 Coins • 24h story</p>
+                            </div>
                         </div>
                     </div>
                 ) : (
@@ -214,37 +219,32 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
                         )}
 
                         <span className="media-type-badge">
-                            {mediaType === 'video' ? '🎥 Video Clip' : '📸 Photo'}
+                            {mediaType === 'video' ? '🎥 Video (+10 Coins)' : '📸 Photo'}
                         </span>
                     </div>
                 )}
 
                 {/* Caption Input */}
                 <div className="status-caption-wrap">
-                    <textarea
+                    <input
+                        type="text"
                         className="status-caption-input"
-                        placeholder="Add a vibe caption... (e.g. Late night reading session at UNILAG library 📚🔥)"
+                        placeholder="Add a caption... (optional)"
                         value={caption}
                         onChange={(e) => setCaption(e.target.value)}
                         maxLength={180}
-                        rows={2}
                     />
                     <div className="status-caption-counter">
                         {caption.length}/180
                     </div>
                 </div>
 
-                {/* Ephemeral Notice */}
-                <p className="status-ephemeral-note">
-                    🔒 <strong>Zero-Backend Ephemeral:</strong> Stored locally on your device with 0 cloud storage footprint. Auto-cleans after 24h.
-                </p>
-
                 {/* Action Buttons */}
                 <div className="status-actions-row">
                     <button
                         type="button"
                         className="status-btn-cancel"
-                        onClick={onClose}
+                        onClick={handleClose}
                         disabled={loading}
                     >
                         Cancel
@@ -255,10 +255,12 @@ export default function StatusUploadModal({ isOpen, onClose, userId, userProfile
                         onClick={handleSubmit}
                         disabled={loading || !file || !dailyInfo.canUpload}
                     >
-                        {loading ? 'Posting...' : !dailyInfo.canUpload ? 'Daily Limit Reached (2/2)' : 'Post Campus Status 🚀'}
+                        {loading ? 'Posting...' : !dailyInfo.canUpload ? 'Limit Reached (2/2)' : 'Post Status 🚀'}
                     </button>
                 </div>
             </div>
         </div>
     );
+
+    return typeof document !== 'undefined' ? createPortal(modalMarkup, document.body) : modalMarkup;
 }

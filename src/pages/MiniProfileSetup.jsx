@@ -167,17 +167,21 @@ export default function MiniProfileSetup() {
         }
 
         setLoading(true);
-        addToast('Verifying photo with AI...', 'info');
+        addToast('Checking photo quality...', 'info');
         try {
             const { url, approved, reason, error } = await uploadProfilePhoto(file, targetUserId, index);
             if (error || !approved) throw new Error(reason || error || 'Photo failed validation');
+
+            if (index === 0) {
+                setIsPhotoVerified(false);
+            }
 
             setFormData(prev => {
                 const newPhotos = [...safeArray(prev.profile_photos)];
                 newPhotos[index] = url;
                 return { ...prev, profile_photos: newPhotos };
             });
-            addToast('Photo verified & approved! 📸 ✓', 'success');
+            addToast('Photo uploaded & approved! 📸', 'success');
         } catch (err) {
             addToast(err.message, 'error');
         } finally {

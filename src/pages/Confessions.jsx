@@ -28,6 +28,7 @@ import { supabase } from '../lib/supabase';
 import { getPublicAppUrl } from '../utils/appUrl';
 import { getAvatarUrl, getFreshAvatarUrl } from '../utils/profileData';
 import { isEliteUltra } from '../utils/premium';
+import { recordQuestProgress } from '../services/campusQuestService';
 import { detectOffPlatformContact } from '../utils/offPlatformGuard';
 import './Confessions.css';
 
@@ -471,6 +472,7 @@ export default function Confessions() {
 
     const handleReact = useCallback(async (confessionId, emoji) => {
         if (!currentUser) return;
+        recordQuestProgress(currentUser.id, 'quest_voice', 1);
 
         mutateConfessions((current) => {
             if (!current) return current;
@@ -610,6 +612,7 @@ export default function Confessions() {
             const finalContent = selectedCategory !== 'General 🙊' ? `[${selectedCategory}] ${newConfession.trim()}` : newConfession.trim();
             const isAnon = postType !== 'campus_post';
 
+            recordQuestProgress(currentUser.id, 'quest_voice', 1);
             const { data: newPost, error } = await postConfession(finalContent, uni, currentUser.id, {
                 postType,
                 isAnonymous: isAnon,

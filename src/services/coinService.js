@@ -138,7 +138,7 @@ export async function sendCoinGift(receiverId, giftId, matchId) {
 
         return {
             success: true,
-            newCoinBalance: data.new_coin_balance,
+            newCoinBalance: data.new_coin_balance ?? data.remaining_coins,
             messageId: data.message_id,
             giftName: data.gift_name,
             error: null

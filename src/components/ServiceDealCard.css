@@ -1,24 +1,54 @@
+/* ==========================================================================
+   College Date - Service Deal Card (In-Chat Escrow)
+   - Multi-Theme Design System (Dark Obsidian & Light Porcelain)
+   - 4-Stage Visual Escrow Stepper
+   - Contextual Role Banners & Tactile Micro-Interactions
+   ========================================================================== */
+
 .service-deal-card {
-    background: #1e1e24;
+    background: #181822;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 16px;
     margin: 8px 0;
-    max-width: min(360px, 92vw);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    max-width: min(380px, 92vw);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     display: flex;
     flex-direction: column;
     gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .service-deal-card.loading,
 .service-deal-card.error {
-    padding: 20px;
+    padding: 22px;
     font-size: 0.85rem;
-    color: #a1a1aa;
+    color: #94a3b8;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
+.deal-card-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: dealCardSpin 0.7s linear infinite;
+}
+
+@keyframes dealCardSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   Card Header
+   -------------------------------------------------------------------------- */
 .card-top-header {
     display: flex;
     align-items: center;
@@ -31,90 +61,220 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    color: #f4f4f5;
+    font-size: 0.88rem;
+    color: #f8fafc;
+}
+
+.deal-handshake-icon {
+    font-size: 1.1rem;
+    line-height: 1;
 }
 
 .deal-status-pill {
     font-size: 0.72rem;
     font-weight: 700;
-    padding: 4px 8px;
+    padding: 3px 8px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.08);
-    color: #e4e4e7;
+    color: #e2e8f0;
 }
 
 .deal-status-pill.proposed {
-    background: rgba(234, 179, 8, 0.15);
-    color: #facc15;
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    background: rgba(234, 179, 8, 0.16);
+    color: #fde047;
+    border: 1px solid rgba(234, 179, 8, 0.35);
 }
 
 .deal-status-pill.negotiating {
-    background: rgba(249, 115, 22, 0.15);
-    color: #fb923c;
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    background: rgba(249, 115, 22, 0.16);
+    color: #fdba74;
+    border: 1px solid rgba(249, 115, 22, 0.35);
 }
 
 .deal-status-pill.accepted {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.16);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.35);
 }
 
 .deal-status-pill.funded {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.16);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
 .deal-status-pill.review {
-    background: rgba(168, 85, 247, 0.15);
-    color: #c084fc;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    background: rgba(168, 85, 247, 0.16);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.35);
 }
 
 .deal-status-pill.released {
-    background: rgba(34, 197, 94, 0.2);
+    background: rgba(34, 197, 94, 0.22);
     color: #4ade80;
-    border: 1px solid rgba(34, 197, 94, 0.4);
+    border: 1px solid rgba(34, 197, 94, 0.45);
 }
 
 .deal-status-pill.disputed {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.22);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.45);
 }
 
 .deal-status-pill.cancelled,
 .deal-status-pill.refunded {
-    background: rgba(113, 113, 122, 0.2);
+    background: rgba(113, 113, 122, 0.22);
     color: #a1a1aa;
 }
 
+/* --------------------------------------------------------------------------
+   Role & Protection Strip
+   -------------------------------------------------------------------------- */
+.deal-user-role-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.deal-role-text {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #93c5fd;
+}
+
+.deal-escrow-shield {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #34d399;
+}
+
+/* --------------------------------------------------------------------------
+   4-Stage Visual Escrow Stepper
+   -------------------------------------------------------------------------- */
+.escrow-stepper-wrap {
+    padding: 4px 6px;
+}
+
+.escrow-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.stepper-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 2;
+}
+
+.stepper-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.16);
+    color: #94a3b8;
+    font-size: 0.68rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stepper-node.completed .stepper-dot {
+    background: #10b981;
+    border-color: #059669;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.stepper-node.current .stepper-dot {
+    background: #2563eb;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+}
+
+.stepper-label {
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.stepper-node.completed .stepper-label {
+    color: #34d399;
+    font-weight: 700;
+}
+
+.stepper-node.current .stepper-label {
+    color: #93c5fd;
+    font-weight: 700;
+}
+
+.stepper-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 4px -14px;
+    z-index: 1;
+    transition: background 0.2s;
+}
+
+.stepper-line.filled {
+    background: #10b981;
+}
+
+/* --------------------------------------------------------------------------
+   Amount Banner
+   -------------------------------------------------------------------------- */
 .deal-amount-banner {
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
     padding: 10px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.deal-amount-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .deal-amount-label {
-    font-size: 0.75rem;
-    color: #a1a1aa;
+    font-size: 0.7rem;
+    color: #94a3b8;
     text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.deal-escrow-note {
+    font-size: 0.68rem;
+    color: #34d399;
     font-weight: 600;
 }
 
 .deal-amount-val {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 800;
     color: #34d399;
+    letter-spacing: -0.01em;
 }
 
+/* --------------------------------------------------------------------------
+   Details Section
+   -------------------------------------------------------------------------- */
 .deal-details-section {
     display: flex;
     flex-direction: column;
@@ -123,33 +283,38 @@
 
 .deal-title-text {
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #f4f4f5;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.35;
 }
 
 .deal-desc-text {
     margin: 0;
     font-size: 0.8rem;
-    color: #a1a1aa;
-    line-height: 1.4;
+    color: #cbd5e1;
+    line-height: 1.45;
 }
 
 .deal-meta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin-top: 4px;
 }
 
 .meta-item {
     font-size: 0.72rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 3px 8px;
     border-radius: 8px;
-    color: #d4d4d8;
+    color: #e2e8f0;
 }
 
+/* --------------------------------------------------------------------------
+   Action Buttons
+   -------------------------------------------------------------------------- */
 .deal-action-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -160,100 +325,133 @@
 .btn-deal-action {
     flex: 1;
     min-width: 100px;
-    padding: 9px 12px;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 800;
     cursor: pointer;
     border: none;
-    transition: all 0.15s;
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
+    font-family: inherit;
 }
 
 .btn-deal-action.accept {
     background: #10b981;
     color: #ffffff;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.btn-deal-action.accept:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
 }
 
 .btn-deal-action.counter {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f4f4f5;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.btn-deal-action.counter:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .btn-deal-action.cancel {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+    background: rgba(239, 68, 68, 0.14);
+    color: #fca5a5;
     border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
+.btn-deal-action.cancel:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.22);
+}
+
 .btn-deal-action.fund {
+    flex: 2;
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+}
+
+.btn-deal-action.fund:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transform: translateY(-1px);
 }
 
 .btn-deal-action.complete {
+    flex: 2;
     background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
 .btn-deal-action.release {
+    flex: 2;
     background: linear-gradient(135deg, #059669, #047857);
     color: #ffffff;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
 }
 
 .btn-deal-action.dispute-btn {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.14);
     color: #fca5a5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.28);
 }
 
 .btn-deal-action:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .awaiting-funding-pill {
     width: 100%;
-    padding: 8px;
-    font-size: 0.75rem;
+    padding: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
     text-align: center;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    color: #a1a1aa;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #cbd5e1;
 }
 
 .deal-notice-bar {
     width: 100%;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.78rem;
     line-height: 1.4;
+    font-weight: 600;
 }
 
 .deal-notice-bar.dispute {
-    background: rgba(239, 68, 68, 0.12);
+    background: rgba(239, 68, 68, 0.14);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: #fca5a5;
 }
 
 .deal-notice-bar.success {
-    background: rgba(16, 185, 129, 0.12);
+    background: rgba(16, 185, 129, 0.14);
     border: 1px solid rgba(16, 185, 129, 0.3);
     color: #6ee7b7;
 }
 
 .deal-notice-bar.refunded {
-    background: rgba(148, 163, 184, 0.12);
+    background: rgba(148, 163, 184, 0.14);
     border: 1px solid rgba(148, 163, 184, 0.3);
     color: #cbd5e1;
 }
 
+/* --------------------------------------------------------------------------
+   Counter & Dispute Drawers
+   -------------------------------------------------------------------------- */
 .deal-counter-box,
 .deal-dispute-box {
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 10px;
     display: flex;
@@ -263,9 +461,9 @@
 
 .counter-label,
 .dispute-label {
-    font-size: 0.72rem;
-    color: #d4d4d8;
-    font-weight: 600;
+    font-size: 0.74rem;
+    color: #cbd5e1;
+    font-weight: 700;
 }
 
 .counter-input-row,
@@ -277,46 +475,246 @@
 .counter-input {
     flex: 1;
     background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
     color: #34d399;
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 800;
     padding: 6px 10px;
     outline: none;
+    font-family: inherit;
 }
 
 .dispute-textarea {
     width: 100%;
     background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 8px;
-    color: #f4f4f5;
+    color: #f8fafc;
     font-size: 0.8rem;
     padding: 8px;
     outline: none;
     resize: none;
+    font-family: inherit;
 }
 
 .btn-confirm-counter,
 .btn-confirm-dispute {
-    padding: 6px 12px;
+    padding: 7px 12px;
     background: #3b82f6;
-    color: #fff;
+    color: #ffffff;
     border: none;
     border-radius: 8px;
     font-size: 0.78rem;
     font-weight: 700;
     cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-confirm-counter:hover:not(:disabled),
+.btn-confirm-dispute:hover:not(:disabled) {
+    background: #2563eb;
 }
 
 .btn-cancel-counter,
 .btn-cancel-dispute {
-    padding: 6px 10px;
+    padding: 7px 10px;
     background: transparent;
-    color: #a1a1aa;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
     font-size: 0.78rem;
     cursor: pointer;
+}
+
+/* ==========================================================================
+   LIGHT THEME OVERRIDES FOR SERVICE DEAL CARD
+   - Crisp white surface with clean contrast
+   - Deep slate typography and soft borders
+   - Vibrant status badges and clean amount banner
+   ========================================================================== */
+html[data-theme="light"] .service-deal-card,
+.theme-light .service-deal-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .service-deal-card.loading,
+html[data-theme="light"] .service-deal-card.error,
+.theme-light .service-deal-card.loading,
+.theme-light .service-deal-card.error {
+    color: #64748b;
+}
+
+html[data-theme="light"] .deal-card-spinner,
+.theme-light .deal-card-spinner {
+    border-color: rgba(0, 0, 0, 0.15);
+    border-top-color: #2563eb;
+}
+
+html[data-theme="light"] .deal-brand-label,
+.theme-light .deal-brand-label {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-user-role-strip,
+.theme-light .deal-user-role-strip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .deal-role-text,
+.theme-light .deal-role-text {
+    color: #1d4ed8;
+}
+
+html[data-theme="light"] .deal-escrow-shield,
+.theme-light .deal-escrow-shield {
+    color: #059669;
+}
+
+/* Light Theme Stepper */
+html[data-theme="light"] .stepper-dot,
+.theme-light .stepper-dot {
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+    color: #64748b;
+}
+
+html[data-theme="light"] .stepper-node.completed .stepper-dot,
+.theme-light .stepper-node.completed .stepper-dot {
+    background: #10b981;
+    border-color: #059669;
+    color: #ffffff;
+}
+
+html[data-theme="light"] .stepper-node.current .stepper-dot,
+.theme-light .stepper-node.current .stepper-dot {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+html[data-theme="light"] .stepper-label,
+.theme-light .stepper-label {
+    color: #64748b;
+}
+
+html[data-theme="light"] .stepper-node.completed .stepper-label,
+.theme-light .stepper-node.completed .stepper-label {
+    color: #059669;
+}
+
+html[data-theme="light"] .stepper-node.current .stepper-label,
+.theme-light .stepper-node.current .stepper-label {
+    color: #1d4ed8;
+}
+
+html[data-theme="light"] .stepper-line,
+.theme-light .stepper-line {
+    background: #e2e8f0;
+}
+
+html[data-theme="light"] .stepper-line.filled,
+.theme-light .stepper-line.filled {
+    background: #10b981;
+}
+
+/* Light Theme Amount Banner */
+html[data-theme="light"] .deal-amount-banner,
+.theme-light .deal-amount-banner {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .deal-amount-label,
+.theme-light .deal-amount-label {
+    color: #475569;
+}
+
+html[data-theme="light"] .deal-escrow-note,
+.theme-light .deal-escrow-note {
+    color: #059669;
+}
+
+html[data-theme="light"] .deal-amount-val,
+.theme-light .deal-amount-val {
+    color: #059669;
+}
+
+/* Light Theme Details */
+html[data-theme="light"] .deal-title-text,
+.theme-light .deal-title-text {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-desc-text,
+.theme-light .deal-desc-text {
+    color: #475569;
+}
+
+html[data-theme="light"] .meta-item,
+.theme-light .meta-item {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+/* Light Theme Drawers */
+html[data-theme="light"] .deal-counter-box,
+html[data-theme="light"] .deal-dispute-box,
+.theme-light .deal-counter-box,
+.theme-light .deal-dispute-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+}
+
+html[data-theme="light"] .counter-label,
+html[data-theme="light"] .dispute-label,
+.theme-light .counter-label,
+.theme-light .dispute-label {
+    color: #1e293b;
+}
+
+html[data-theme="light"] .counter-input,
+.theme-light .counter-input {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #059669;
+}
+
+html[data-theme="light"] .dispute-textarea,
+.theme-light .dispute-textarea {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .btn-cancel-counter,
+html[data-theme="light"] .btn-cancel-dispute,
+.theme-light .btn-cancel-counter,
+.theme-light .btn-cancel-dispute {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+html[data-theme="light"] .awaiting-funding-pill,
+.theme-light .awaiting-funding-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+html[data-theme="light"] .btn-deal-action.counter,
+.theme-light .btn-deal-action.counter {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+}
+
+html[data-theme="light"] .btn-deal-action.counter:hover:not(:disabled),
+.theme-light .btn-deal-action.counter:hover:not(:disabled) {
+    background: #e2e8f0;
 }

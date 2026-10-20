@@ -33,6 +33,7 @@ import ContextualPaywallSheet from '../components/ContextualPaywallSheet';
 import { useNotifications } from '../contexts/NotificationContext';
 import { formatBadgeCount } from '../services/appBadgeService';
 import { triggerLightHaptic } from '../services/haptics';
+import { recordQuestProgress } from '../services/campusQuestService';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
@@ -355,6 +356,9 @@ export default function Match() {
             isPremium,
             clientOperationId: offlineOperationId
         });
+
+        // Gamification: Record Daily Quest Progress for Campus Explorer
+        recordQuestProgress(currentUserId, 'quest_explore', 1);
 
         if (result.error) {
             console.error('Swipe Error:', result.error);
@@ -902,7 +906,7 @@ export default function Match() {
                     console.log('[Match] Celebration closed manually');
                     setMatchData(null);
                 }}
-                onMessage={() => {
+                onMessage={(initialText) => {
                     const cid = matchData?.match_id;
                     const uid = matchData?.id;
                     
@@ -912,7 +916,8 @@ export default function Match() {
                         state: { 
                             openChatWith: uid,
                             matchData: matchData,
-                            chatId: cid
+                            chatId: cid,
+                            initialMessage: typeof initialText === 'string' ? initialText : ''
                         } 
                     });
                     setMatchData(null);

@@ -345,8 +345,8 @@ body.theme-light .tip-collapsed-close {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     width: 100%;
-    max-width: 440px;
-    max-height: calc((var(--vh, 1vh) * 100) - 40px);
+    max-width: 420px;
+    max-height: min(78dvh, 500px);
     overflow-y: auto;
     display: flex;
     flex-direction: column;

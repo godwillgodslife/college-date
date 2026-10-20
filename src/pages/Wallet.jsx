@@ -18,6 +18,7 @@ import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { useActiveProgram } from '../hooks/useActiveProgram';
 import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
+import { triggerLightHaptic } from '../services/haptics';
 import './Wallet.css';
 
 const FUNDING_OPTIONS = [
@@ -493,6 +494,44 @@ export default function Wallet() {
                         <span className="mini-label">🤝 In Escrow</span>
                         <span className="mini-value">₦{parseFloat(escrowBalance || 0).toLocaleString()}</span>
                     </div>
+                </div>
+
+                {/* Cross-Page Cohesion: Campus Ambassador League Bridge */}
+                <div 
+                    className="wallet-ambassador-boost-card"
+                    onClick={() => {
+                        triggerLightHaptic();
+                        navigate('/referrals');
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.18) 100%)',
+                        border: '1px solid rgba(16, 185, 129, 0.35)',
+                        borderRadius: '16px',
+                        padding: '1rem 1.15rem',
+                        marginTop: '0.85rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                        <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🏆</span>
+                        <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary, #f8fafc)' }}>
+                                Campus Ambassador League
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#10b981' }}>
+                                Earn up to ₦50,000 cash inviting friends from your campus
+                            </div>
+                        </div>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', whiteSpace: 'nowrap' }}>
+                        View League →
+                    </span>
                 </div>
 
                 {/* Gift Stats Section */}

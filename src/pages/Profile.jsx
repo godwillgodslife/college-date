@@ -26,7 +26,7 @@ import FaceVerificationModal from '../components/FaceVerificationModal';
 
 import useSWR from 'swr';
 import { AnimatePresence } from 'framer-motion';
-import { getProfilePhotos, normalizeProfile, safeArray, getAvatarUrl } from '../utils/profileData';
+import { getProfilePhotos, normalizeProfile, safeArray, getAvatarUrl, registerProfilePhotoTimestamp } from '../utils/profileData';
 import { recordSwipe, checkSwipeLimit } from '../services/swipeService';
 import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import { supabase } from '../lib/supabase';
@@ -368,13 +368,29 @@ export default function Profile() {
 
     // 1. Resolve Profile data
     const profileKey = (!isOwnProfile && profileId) ? ['profile', profileId] : null;
-    const { data: profileResult, isLoading: SWRProfileLoading } = useSWR(
+    const partnerFallback = location.state?.partnerProfile || location.state?.user;
+
+    const { data: profileResult, isLoading: SWRProfileLoading, mutate: mutateProfile } = useSWR(
         profileKey,
-        () => getProfile(profileId),
-        persistentSWR(profileKey, { revalidateOnFocus: false, ttlMs: CACHE_TTL.profile })
+        async () => {
+            const res = await getProfile(profileId);
+            if (res.error || !res.data) {
+                throw new Error(res.error || 'Failed to load profile');
+            }
+            return res;
+        },
+        persistentSWR(profileKey, { 
+            revalidateOnFocus: true, 
+            ttlMs: isFromChat ? 30 * 1000 : CACHE_TTL.profile,
+            fallbackData: partnerFallback ? { data: partnerFallback, error: null } : undefined
+        })
     );
 
-    const viewingProfile = normalizeProfile(isOwnProfile ? myProfile : profileResult?.data);
+    const viewingProfile = normalizeProfile(
+        isOwnProfile
+            ? myProfile
+            : (profileResult?.data || (partnerFallback?.id === profileId ? partnerFallback : null))
+    );
     const profileLoading = isOwnProfile ? false : SWRProfileLoading;
 
     const walletKey = isOwnProfile && currentUser ? ['wallet', currentUser.id] : null;
@@ -423,6 +439,53 @@ export default function Profile() {
         window.addEventListener('cd:status-viewed', handleStatusViewed);
         return () => window.removeEventListener('cd:status-viewed', handleStatusViewed);
     }, [currentUser?.id]);
+
+    // Force fresh profile data when navigating directly from chat
+    useEffect(() => {
+        if (isFromChat && profileId && !isOwnProfile && mutateProfile) {
+            mutateProfile();
+        }
+    }, [isFromChat, profileId, isOwnProfile, mutateProfile]);
+
+    // Revalidate profile immediately when profile photo update event is dispatched
+    useEffect(() => {
+        const handlePhotoUpdated = (e) => {
+            const updatedUserId = e?.detail?.userId;
+            if (updatedUserId === profileId) {
+                if (isOwnProfile && currentUser?.id) {
+                    fetchProfile?.(currentUser.id);
+                } else if (mutateProfile) {
+                    mutateProfile();
+                }
+            }
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, [profileId, isOwnProfile, currentUser?.id, fetchProfile, mutateProfile]);
+
+    // Realtime subscription for viewed partner profile updates (avatar, photos, name)
+    useEffect(() => {
+        if (isOwnProfile || !profileId) return;
+        const channel = supabase
+            .channel(`profile_realtime_sync:${profileId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${profileId}`
+            }, (payload) => {
+                if (payload.new) {
+                    const ts = payload.new.photo_updated_at || payload.new.updated_at || Date.now();
+                    registerProfilePhotoTimestamp(profileId, ts);
+                    if (mutateProfile) mutateProfile();
+                }
+            })
+            .subscribe();
+
+        return () => {
+            channel.unsubscribe();
+        };
+    }, [isOwnProfile, profileId, mutateProfile]);
 
     const hasUnviewedStatus = useMemo(() => {
         if (!allStatuses || allStatuses.length === 0) return false;
@@ -485,13 +548,13 @@ export default function Profile() {
 
     const displayName = userProfile?.full_name
         || userProfile?.username
-        || currentUser?.email?.split('@')[0]
+        || (isOwnProfile ? currentUser?.email?.split('@')[0] : 'Student')
         || 'User';
 
     const avatarUrl = getAvatarUrl(userProfile);
-    const email = currentUser?.email || '';
+    const email = isOwnProfile ? (currentUser?.email || '') : '';
     const university = userProfile?.university || 'Not set';
-    const bio = sanitizeBioForDisplay(userProfile?.bio || 'No bio yet', isOwnProfile || isEliteUltra(userProfile));
+    const bio = sanitizeBioForDisplay(userProfile?.bio || 'No bio yet', isOwnProfile);
     const canUseWebPush = !window.Capacitor?.isNativePlatform?.()
         && window.location.hostname !== 'localhost'
         && window.location.hostname !== '127.0.0.1';
@@ -765,13 +828,25 @@ export default function Profile() {
                     {!(userProfile?.photo_verified || userProfile?.is_verified) && (
                         <div className="verification-card-permanent">
                             <div className="verification-card-left">
-                                <span className="verification-status-icon">📸</span>
+                                <span className="verification-status-icon">
+                                    {aiVerificationStatus === 'needs_review' || aiVerificationStatus === 'reviewing'
+                                        ? '⏳'
+                                        : aiVerificationStatus === 'rejected'
+                                            ? '⚠️'
+                                            : '📸'}
+                                </span>
                                 <div className="verification-status-info">
                                     <div className="verification-title-row">
-                                        <strong className="verification-title">Face Verification</strong>
+                                        <strong className="verification-title">
+                                            {aiVerificationStatus === 'needs_review' || aiVerificationStatus === 'reviewing'
+                                                ? 'Face Verification Under Review'
+                                                : aiVerificationStatus === 'rejected'
+                                                    ? 'Face Verification Retry Needed'
+                                                    : 'Face Verification'}
+                                        </strong>
                                     </div>
                                     <span className="verification-subtitle-compact">
-                                        5s selfie to earn ✓ badge & 3x more matches
+                                        {userProfile?.ai_review_summary || aiVerificationCopy[aiVerificationStatus] || '5s selfie to earn ✓ badge & 3x more matches'}
                                     </span>
                                 </div>
                             </div>
@@ -780,7 +855,7 @@ export default function Profile() {
                                 className="btn verification-action-btn btn-primary verify-btn-cta"
                                 onClick={() => setShowFaceVerification(true)}
                             >
-                                Verify →
+                                {aiVerificationStatus === 'needs_review' || aiVerificationStatus === 'rejected' ? 'Retry →' : 'Verify →'}
                             </button>
                         </div>
                     )}
@@ -1429,6 +1504,7 @@ export default function Profile() {
             <FaceVerificationModal
                 isOpen={showFaceVerification}
                 onClose={() => setShowFaceVerification(false)}
+                candidatePhotoUrl={userProfile?.avatar_url || safeArray(userProfile?.profile_photos).filter(Boolean)[0] || avatarUrl}
                 onVerified={() => {
                     fetchProfile?.(currentUser?.id);
                     setShowFaceVerification(false);

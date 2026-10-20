@@ -34,7 +34,7 @@ export const supabase = createClient(
   }
 );
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.__supabase = supabase;
 }
 

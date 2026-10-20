@@ -250,20 +250,17 @@ export default function Login() {
                             </Link>
                         </div>
 
-                        {window.Capacitor?.isNativePlatform?.() && (
+                        {window.Capacitor?.isNativePlatform?.() && biometricAvailable && (
                             <div className="biometric-pref-row">
                                 <label className="remember-control biometric-control">
                                     <input
                                         type="checkbox"
                                         checked={enableBiometrics}
                                         onChange={(event) => setEnableBiometrics(event.target.checked)}
-                                        disabled={isLoading || !biometricAvailable}
+                                        disabled={isLoading}
                                     />
                                     <span>Use {biometricLabel} next time</span>
                                 </label>
-                                {!biometricAvailable && (
-                                    <span className="biometric-note" title="Configure fingerprint or face unlock in phone Settings">(Not enrolled in Settings)</span>
-                                )}
                             </div>
                         )}
 
@@ -294,22 +291,16 @@ export default function Login() {
                             Google
                         </button>
 
-                        {window.Capacitor?.isNativePlatform?.() && (
+                        {window.Capacitor?.isNativePlatform?.() && biometricAvailable && !biometricEnabled && !biometricLocked && (
                             <button
                                 type="button"
                                 className="btn btn-social btn-biometric"
                                 onClick={() => {
-                                    if (biometricAvailable && biometricEnabled) {
-                                        handleBiometricUnlock();
-                                    } else if (biometricAvailable) {
-                                        showError(`To enable ${biometricLabel} login, sign in once with your email & password and check "Use ${biometricLabel} next time".`);
-                                    } else {
-                                        showError(`${biometricLabel} is not enrolled on this phone. Please set up fingerprint or face unlock in your phone's Android Settings.`);
-                                    }
+                                    showError(`To enable ${biometricLabel} login, sign in once with your email & password and check "Use ${biometricLabel} next time".`);
                                 }}
                                 disabled={isLoading}
                             >
-                                <span style={{ fontSize: '1.2rem', marginRight: '6px' }}>🔐</span>
+                                <span style={{ fontSize: '1.1rem', marginRight: '6px' }}>🔐</span>
                                 {biometricLabel}
                             </button>
                         )}

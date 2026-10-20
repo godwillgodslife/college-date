@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './Toast';
+import { initPushNotifications } from '../services/pushNotification';
+import { updateUserSettings } from '../services/notificationService';
 import './NotificationSoftPrompt.css';
 
+const STORAGE_ACCEPTED_KEY = 'tcd_notification_prepermission_accepted';
 const STORAGE_DISMISSED_KEY = 'tcd_notification_prepermission_dismissed';
 const STORAGE_DISMISSED_AT_KEY = 'tcd_notification_prepermission_dismissed_at';
 const COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000; // 14-day dismissal cooldown
@@ -44,6 +48,40 @@ function isEligiblePath() {
     return activeAppPrefixes.some((prefix) => pathname.startsWith(prefix));
 }
 
+function isNotificationPermissionGranted() {
+    if (typeof window === 'undefined') return false;
+    if (window.Notification?.permission === 'granted') return true;
+    if (window.OneSignal?.Notifications?.permission === true) return true;
+    return false;
+}
+
+function isNotificationPermissionBlocked() {
+    if (typeof window === 'undefined') return false;
+    return window.Notification?.permission === 'denied';
+}
+
+function hasUserAcceptedNotifications(currentUser) {
+    if (typeof window === 'undefined' || !window.localStorage) return false;
+    if (window.localStorage.getItem(STORAGE_ACCEPTED_KEY) === 'true') return true;
+    if (currentUser?.id && window.localStorage.getItem(`${STORAGE_ACCEPTED_KEY}_${currentUser.id}`) === 'true') {
+        return true;
+    }
+    return false;
+}
+
+function isUserInCooldown(currentUser) {
+    if (typeof window === 'undefined' || !window.localStorage) return false;
+    const userKey = currentUser?.id ? `${STORAGE_DISMISSED_AT_KEY}_${currentUser.id}` : null;
+    const dismissedAt = (userKey && window.localStorage.getItem(userKey)) || window.localStorage.getItem(STORAGE_DISMISSED_AT_KEY);
+    if (dismissedAt) {
+        const elapsed = Date.now() - Number(dismissedAt);
+        if (!Number.isNaN(elapsed) && elapsed < COOLDOWN_MS) return true;
+    } else if (window.localStorage.getItem(STORAGE_DISMISSED_KEY) === 'true') {
+        return true;
+    }
+    return false;
+}
+
 export default function NotificationSoftPrompt() {
     let authContext = null;
     try {
@@ -53,6 +91,16 @@ export default function NotificationSoftPrompt() {
         authContext = null;
     }
     const currentUser = authContext?.currentUser;
+    const userProfile = authContext?.userProfile;
+
+    let toastContext = null;
+    try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        toastContext = useToast();
+    } catch {
+        toastContext = null;
+    }
+    const addToast = toastContext?.addToast;
 
     const [show, setShow] = useState(false);
     const [animating, setAnimating] = useState(false);
@@ -97,19 +145,37 @@ export default function NotificationSoftPrompt() {
         // Only prompt on eligible active application routes (never landing or welcome screen)
         if (!isEligiblePath()) return;
 
-        // Respect 14-day dismissal cooldown
-        const dismissedAt = localStorage.getItem(STORAGE_DISMISSED_AT_KEY);
-        if (dismissedAt) {
-            const elapsed = Date.now() - Number(dismissedAt);
-            if (!Number.isNaN(elapsed) && elapsed < COOLDOWN_MS) return;
-        } else if (localStorage.getItem(STORAGE_DISMISSED_KEY) === 'true') {
+        // If user already accepted (locally or via profile with registered device), NEVER prompt again
+        if (hasUserAcceptedNotifications(currentUser)) return;
+        if (isNotificationPermissionGranted()) {
+            try {
+                localStorage.setItem(STORAGE_ACCEPTED_KEY, 'true');
+                if (currentUser?.id) localStorage.setItem(`${STORAGE_ACCEPTED_KEY}_${currentUser.id}`, 'true');
+            } catch {
+                // Ignore storage errors
+            }
             return;
         }
 
-        // Do not prompt if already granted or permanently denied in browser
-        if (window.Notification?.permission === 'granted' || window.Notification?.permission === 'denied') {
+        // If browser permission is explicitly denied, do not nag
+        if (isNotificationPermissionBlocked()) return;
+
+        // If user has push notifications explicitly turned off in settings, respect it
+        if (userProfile && userProfile.push_notifications === false) return;
+
+        // If user already has an active onesignal subscription synced to profile
+        if (userProfile?.onesignal_id) {
+            try {
+                localStorage.setItem(STORAGE_ACCEPTED_KEY, 'true');
+                if (currentUser?.id) localStorage.setItem(`${STORAGE_ACCEPTED_KEY}_${currentUser.id}`, 'true');
+            } catch {
+                // Ignore storage errors
+            }
             return;
         }
+
+        // Respect 14-day dismissal cooldown for "Maybe later"
+        if (isUserInCooldown(currentUser)) return;
 
         // Subtle, non-intrusive timing: prompt after natural engagement delay
         const timer = setTimeout(() => {
@@ -123,14 +189,37 @@ export default function NotificationSoftPrompt() {
             delete window.__showNotificationPrePermissionSheet;
             delete window.__hideNotificationPrePermissionSheet;
         };
-    }, [openSheet, closeSheet, currentUser]);
+    }, [openSheet, closeSheet, currentUser, userProfile]);
 
     const handleEnable = async () => {
         closeSheet();
-        const now = String(Date.now());
-        localStorage.setItem(STORAGE_DISMISSED_KEY, 'true');
-        localStorage.setItem(STORAGE_DISMISSED_AT_KEY, now);
 
+        // 1. Permanently record acceptance (never expires like temporary dismissal cooldown)
+        try {
+            localStorage.setItem(STORAGE_ACCEPTED_KEY, 'true');
+            if (currentUser?.id) {
+                localStorage.setItem(`${STORAGE_ACCEPTED_KEY}_${currentUser.id}`, 'true');
+            }
+            localStorage.removeItem(STORAGE_DISMISSED_KEY);
+            localStorage.removeItem(STORAGE_DISMISSED_AT_KEY);
+            if (currentUser?.id) {
+                localStorage.removeItem(`${STORAGE_DISMISSED_KEY}_${currentUser.id}`);
+                localStorage.removeItem(`${STORAGE_DISMISSED_AT_KEY}_${currentUser.id}`);
+            }
+        } catch {
+            // Ignore storage errors
+        }
+
+        // 2. Persist to database profile settings
+        if (currentUser?.id) {
+            try {
+                await updateUserSettings(currentUser.id, { push_notifications: true });
+            } catch (profileErr) {
+                console.warn('[SoftPrompt] Could not update profile push setting:', profileErr);
+            }
+        }
+
+        // 3. Trigger authoritative push registration and permission request
         const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
 
         if (isNative) {
@@ -151,14 +240,27 @@ export default function NotificationSoftPrompt() {
             }
         } else {
             try {
+                // Request browser permission directly from user gesture
+                let browserPermission = 'default';
                 if (window.Notification?.requestPermission) {
-                    await window.Notification.requestPermission();
+                    browserPermission = await window.Notification.requestPermission();
+                }
+
+                // Call authoritative push notification initialization
+                if (currentUser?.id) {
+                    await initPushNotifications(currentUser.id);
                 } else if (window.OneSignalDeferred) {
                     window.OneSignalDeferred.push(async function (OneSignal) {
                         if (OneSignal?.Notifications) {
                             await OneSignal.Notifications.requestPermission();
                         }
                     });
+                }
+
+                if (browserPermission === 'granted' || isNotificationPermissionGranted()) {
+                    if (typeof addToast === 'function') {
+                        addToast('🔔 Notifications turned on! Instant alerts are ready.', 'success', 3500);
+                    }
                 }
             } catch (err) {
                 console.warn('[SoftPrompt] Web permission request skipped:', err?.message || err);
@@ -169,8 +271,16 @@ export default function NotificationSoftPrompt() {
     const handleDismiss = () => {
         closeSheet();
         const now = String(Date.now());
-        localStorage.setItem(STORAGE_DISMISSED_KEY, 'true');
-        localStorage.setItem(STORAGE_DISMISSED_AT_KEY, now);
+        try {
+            localStorage.setItem(STORAGE_DISMISSED_KEY, 'true');
+            localStorage.setItem(STORAGE_DISMISSED_AT_KEY, now);
+            if (currentUser?.id) {
+                localStorage.setItem(`${STORAGE_DISMISSED_KEY}_${currentUser.id}`, 'true');
+                localStorage.setItem(`${STORAGE_DISMISSED_AT_KEY}_${currentUser.id}`, now);
+            }
+        } catch {
+            // Ignore storage errors
+        }
     };
 
     // Exclusively removed from Android native app

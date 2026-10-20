@@ -159,15 +159,23 @@ async function runSelfieFaceMatch(
   livenessScore = 85,
   userId = 'anonymous',
   sessionId?: string,
-  sessionTimestamp?: number
+  sessionTimestamp?: number,
+  compactFrameBase64?: string | null,
+  stageFrames?: string[],
+  livfaceSessionId?: string,
+  readOnly = false
 ) {
   return await routeVerificationAttempt({
     selfieBase64,
+    compactFrameBase64,
+    stageFrames,
+    livfaceSessionId,
     profilePhotoUrl,
     livenessScore,
     userId,
     sessionId,
     sessionTimestamp,
+    readOnly,
   });
 }
 
@@ -304,11 +312,50 @@ serve(async (req) => {
     const userId = authData.user.id;
     const body = await req.json().catch(() => ({}));
 
-    // Handle dedicated 1-to-1 Selfie Face Verification
-    if (body.action === 'verify_selfie') {
-      const { selfieBase64, profilePhotoUrl, livenessScore, sessionId, sessionTimestamp } = body;
+    // Handle dedicated 1-to-1 Selfie Face Verification or Read-Only Face Comparison (Campus Finder)
+    if (body.action === 'verify_selfie' || body.action === 'compare_faces_readonly') {
+      const {
+        selfieBase64,
+        compactFrameBase64,
+        stageFrames,
+        livfaceSessionId,
+        profilePhotoUrl,
+        livenessScore,
+        sessionId,
+        sessionTimestamp,
+        readOnly,
+      } = body;
+
       if (!selfieBase64) {
         return jsonResponse({ error: 'Selfie capture is required' }, 400);
+      }
+
+      const isReadOnly = Boolean(readOnly || body.action === 'compare_faces_readonly');
+
+      if (isReadOnly) {
+        // Read-only 1-to-1 comparison (e.g., Campus Finder): NEVER mutate the searching user's profile or audit logs
+        const routingResult = await runSelfieFaceMatch(
+          selfieBase64,
+          profilePhotoUrl,
+          livenessScore,
+          userId,
+          sessionId,
+          sessionTimestamp,
+          compactFrameBase64,
+          stageFrames,
+          livfaceSessionId,
+          true
+        );
+        const { review, providerUsed, routeReason } = routingResult;
+        const isApproved = review.status === 'verified';
+        return jsonResponse({
+          success: true,
+          verified: isApproved,
+          review,
+          provider_used: providerUsed,
+          route_reason: routeReason,
+          read_only: true,
+        });
       }
 
       const { data: profile } = await adminClient
@@ -319,21 +366,39 @@ serve(async (req) => {
 
       const photoToCompare = profilePhotoUrl || profile?.avatar_url || (Array.isArray(profile?.profile_photos) ? profile.profile_photos[0] : null);
 
-      const routingResult = await runSelfieFaceMatch(selfieBase64, photoToCompare, livenessScore, userId, sessionId, sessionTimestamp);
+      const routingResult = await runSelfieFaceMatch(
+        selfieBase64,
+        photoToCompare,
+        livenessScore,
+        userId,
+        sessionId,
+        sessionTimestamp,
+        compactFrameBase64,
+        stageFrames,
+        livfaceSessionId,
+        false
+      );
       const { provider, model, review, raw, providerUsed, routeReason } = routingResult;
 
       const now = new Date().toISOString();
       const isApproved = review.status === 'verified';
 
-      await adminClient.from('profiles').update({
-        ai_verification_status: review.status,
-        ai_verification_score: review.score,
-        ai_photo_origin: review.photo_origin,
-        ai_review_summary: review.summary,
-        ai_reviewed_at: now,
-        is_verified: isApproved,
-        photo_verified: isApproved,
-      }).eq('id', userId);
+      const { error: updateError } = await adminClient
+        .from('profiles')
+        .update({
+          ai_verification_status: review.status,
+          ai_verification_score: review.score,
+          ai_photo_origin: review.photo_origin,
+          ai_review_summary: review.summary,
+          ai_reviewed_at: now,
+          is_verified: isApproved,
+          photo_verified: isApproved,
+        })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error('[ai-profile-review] Failed to update profile verification state:', updateError);
+      }
 
       await adminClient.from('ai_profile_reviews').insert({
         user_id: userId,
@@ -357,12 +422,10 @@ serve(async (req) => {
       });
     }
 
-    // Default: Full Profile Text & Photos Review
-    await adminClient
-      .from('profiles')
-      .update({ ai_verification_status: 'reviewing' })
-      .eq('id', userId);
-
+    // Default: Background Profile Text & Photos Moderation Review
+    // Policy: Verified Badge (is_verified / photo_verified) is granted EXCLUSIVELY by 1-to-1 live selfie
+    // verification (verify_selfie) and Admin manual verification (admin_set_user_status).
+    // Replacing the primary profile photo (avatarChanged === true) resets verification until re-verified.
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('*')
@@ -371,6 +434,25 @@ serve(async (req) => {
 
     if (profileError) throw profileError;
     if (!profile) return jsonResponse({ error: 'Profile not found' }, 404);
+
+    const avatarChanged = Boolean(body.avatarChanged);
+    const alreadyVerified = Boolean((profile.photo_verified || profile.is_verified) && !avatarChanged);
+
+    if (avatarChanged) {
+      await adminClient
+        .from('profiles')
+        .update({
+          is_verified: false,
+          photo_verified: false,
+          ai_verification_status: 'not_started',
+        })
+        .eq('id', userId);
+    } else if (!alreadyVerified) {
+      await adminClient
+        .from('profiles')
+        .update({ ai_verification_status: 'reviewing' })
+        .eq('id', userId);
+    }
 
     const imageUrls = getProfileImages(profile);
     const { provider, model, review, raw } = await runOpenRouterReview(profile, imageUrls);
@@ -393,18 +475,27 @@ serve(async (req) => {
       .from('ai_profile_reviews')
       .insert(reviewInsert);
 
-    await adminClient
-      .from('profiles')
-      .update({
-        ai_verification_status: review.status,
-        ai_verification_score: review.score,
-        ai_photo_origin: review.photo_origin,
-        ai_review_summary: review.summary,
-        ai_review_flags: review.flags,
-        ai_reviewed_at: now,
-        is_verified: review.status === 'verified',
-      })
-      .eq('id', userId);
+    if (!alreadyVerified) {
+      // Never grant or revoke is_verified / photo_verified from background text/photo review;
+      // only record moderation metadata for unverified profiles.
+      const safeStatus = avatarChanged
+        ? 'not_started'
+        : review.status === 'rejected'
+        ? 'rejected'
+        : 'not_started';
+
+      await adminClient
+        .from('profiles')
+        .update({
+          ai_verification_status: safeStatus,
+          ai_verification_score: review.score,
+          ai_photo_origin: review.photo_origin,
+          ai_review_summary: review.summary,
+          ai_review_flags: review.flags,
+          ai_reviewed_at: now,
+        })
+        .eq('id', userId);
+    }
 
     return jsonResponse({ success: true, review });
   } catch (error) {

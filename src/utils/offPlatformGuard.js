@@ -584,13 +584,21 @@ export function recordOffPlatformAttempt(userId, storage = (typeof localStorage 
  */
 export function sanitizeBioForDisplay(bio, isOwnerUltra = false) {
     if (!bio || typeof bio !== 'string') return bio;
-    const isUltra = typeof isOwnerUltra === 'object' ? canBypassOffPlatformSafeguard(isOwnerUltra) : Boolean(isOwnerUltra);
-    if (isUltra) return bio;
+    // Profile owners viewing their own bio see their unmasked text
+    const isDirectOwner = isOwnerUltra === true;
+    if (isDirectOwner) return bio;
 
-    const check = detectOffPlatformContact(bio);
-    if (!check.blocked) return bio;
+    // Zero-compromise Email Isolation Guard:
+    // Email addresses are Personally Identifiable Information (PII) and a major security risk.
+    // They must ALWAYS be masked when viewed by any other user, regardless of Ultra tier.
+    let sanitized = bio.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '[🔒 email locked]');
 
-    let sanitized = bio;
+    const isUltra = typeof isOwnerUltra === 'object' ? canBypassOffPlatformSafeguard(isOwnerUltra) : false;
+    if (isUltra) return sanitized;
+
+    const check = detectOffPlatformContact(sanitized);
+    if (!check.blocked) return sanitized;
+
     // Mask phone numbers (sequences of numbers/separators of 7+ digits)
     sanitized = sanitized.replace(/(?:\+?\d[\d\s\-().]{5,}\d)/g, '[🔒 contact locked]');
 
@@ -599,9 +607,6 @@ export function sanitizeBioForDisplay(bio, isOwnerUltra = false) {
 
     // Mask links / domains
     sanitized = sanitized.replace(/(https?:\/\/[^\s]+|wa\.me\/[^\s]+|t\.me\/[^\s]+|instagram\.com\/[^\s]+)/gi, '[🔒 link locked]');
-
-    // Mask emails
-    sanitized = sanitized.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '[🔒 email locked]');
 
     // If still blocked after replacement, replace the exact matched pattern if available
     const recheck = detectOffPlatformContact(sanitized);

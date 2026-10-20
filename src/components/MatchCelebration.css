@@ -123,3 +123,48 @@
         height: 80px;
     }
 }
+
+
+/* 1-Tap Campus Icebreakers */
+.match-icebreakers-container {
+    margin: 15px 0 10px;
+    text-align: left;
+}
+
+.match-icebreakers-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 8px 4px;
+    letter-spacing: 0.02em;
+}
+
+.match-icebreakers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.btn-icebreaker-chip {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 9px 13px;
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    line-height: 1.35;
+}
+
+.btn-icebreaker-chip:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateX(2px);
+}
+
+.btn-icebreaker-chip:active {
+    transform: scale(0.98);
+}

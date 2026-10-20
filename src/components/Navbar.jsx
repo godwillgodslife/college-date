@@ -60,6 +60,16 @@ export default function Navbar() {
         navigate('/login', { replace: true });
     };
 
+    const [, setAvatarTick] = useState(0);
+
+    useEffect(() => {
+        const handlePhotoUpdated = () => {
+            setAvatarTick(t => t + 1);
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, []);
+
     const displayName = userProfile?.full_name
         || userProfile?.username
         || currentUser?.email?.split('@')[0]

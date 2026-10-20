@@ -95,7 +95,8 @@ export function getCachedData(key, { ttlMs = DEFAULT_TTL_MS, allowStale = false 
 }
 
 export function setCachedData(key, value, metadata = {}) {
-  if (value === undefined || !key) return;
+  if (value === undefined || value === null || !key) return;
+  if (typeof value === 'object' && value.data === null && value.error) return;
 
   const serialized = {
     createdAt: Date.now(),

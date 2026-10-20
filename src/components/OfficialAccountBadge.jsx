@@ -31,9 +31,8 @@ export default function OfficialAccountBadge({ size = 'medium', showLabel = fals
             >
                 <defs>
                     <linearGradient id="officialShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#00d2ff" />
-                        <stop offset="50%" stopColor="#0072ff" />
-                        <stop offset="100%" stopColor="#eb2f96" />
+                        <stop offset="0%" stopColor="#38bdf8" />
+                        <stop offset="100%" stopColor="#2563eb" />
                     </linearGradient>
                 </defs>
                 <path
@@ -52,9 +51,7 @@ export default function OfficialAccountBadge({ size = 'medium', showLabel = fals
                         fontWeight: 700,
                         letterSpacing: '0.03em',
                         textTransform: 'uppercase',
-                        background: 'linear-gradient(90deg, #00d2ff, #eb2f96)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        color: 'var(--text-secondary, #94a3b8)',
                     }}
                 >
                     Official

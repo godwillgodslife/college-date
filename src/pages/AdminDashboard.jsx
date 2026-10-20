@@ -114,7 +114,9 @@ const userAttentionProfile = (user = {}) => {
         score += 2;
         reasons.push(`AI ${String(user.ai_verification_status).replace(/_/g, ' ')}`);
     }
-    if (user.is_premium && !user.is_banned && !user.is_shadow_banned) {
+    if (user.is_ultra || (user.plan_type && String(user.plan_type).toLowerCase().includes('ultra')) || (user.tier && String(user.tier).toLowerCase().includes('ultra'))) {
+        reasons.push('Elite Ultra');
+    } else if (user.is_premium && !user.is_banned && !user.is_shadow_banned) {
         reasons.push('Premium');
     }
     const tone = score >= 5 ? 'danger' : score >= 3 ? 'warning' : score >= 1 ? 'neutral' : 'ok';
@@ -193,10 +195,11 @@ function UserDrawer({ user, onClose, onCopy, onAudit, onStatusAction, canModerat
         return acc;
     }, { credit: 0, debit: 0, pending: 0 });
     const premiumExpiry = displayUser.premium_expires_at ? new Date(displayUser.premium_expires_at) : null;
+    const isUltraUser = Boolean(displayUser.is_ultra || (displayUser.plan_type && String(displayUser.plan_type).toLowerCase().includes('ultra')) || (displayUser.tier && String(displayUser.tier).toLowerCase().includes('ultra')));
     const accountFlags = [
         displayUser.is_banned && { tone: 'danger', label: 'Banned account', detail: 'User is blocked from normal app access.' },
         displayUser.is_shadow_banned && { tone: 'warning', label: 'Shadow banned', detail: 'User is limited without obvious feedback.' },
-        displayUser.is_premium && { tone: 'info', label: 'Premium user', detail: premiumExpiry ? `Expires ${premiumExpiry.toLocaleDateString()}` : 'Premium entitlement is active.' },
+        isUltraUser ? { tone: 'luxury', label: 'Elite Ultra VIP', detail: premiumExpiry ? `Expires ${premiumExpiry.toLocaleDateString()}` : 'Elite Ultra VIP entitlement is active.' } : (displayUser.is_premium && { tone: 'info', label: 'Premium user', detail: premiumExpiry ? `Expires ${premiumExpiry.toLocaleDateString()}` : 'Premium entitlement is active.' }),
         wallet && Number(wallet.pending_balance || 0) > 0 && { tone: 'warning', label: 'Pending wallet balance', detail: `${fmtCurrency(wallet.pending_balance)} is not yet available.` },
         txns.some(txn => String(txn.status || '').toLowerCase() === 'pending') && { tone: 'warning', label: 'Pending transactions', detail: `${recentTxnSummary.pending} recent pending row${recentTxnSummary.pending === 1 ? '' : 's'}.` },
         !displayUser.is_verified && { tone: 'neutral', label: 'Unverified profile', detail: 'Profile has no verification badge.' },
@@ -209,7 +212,7 @@ function UserDrawer({ user, onClose, onCopy, onAudit, onStatusAction, canModerat
                 <div className="drawer-avatar-row">
                     <img src={displayUser.avatar_url || '/default-avatar.png'} alt="" className="drawer-avatar" />
                     <div>
-                        <h2>{displayUser.full_name} {displayUser.is_verified && <span className="verified-mark">Verified</span>}</h2>
+                        <h2>{displayUser.full_name} {(displayUser.is_verified || displayUser.photo_verified) && <span className="verified-mark">Verified</span>}</h2>
                         <p>{displayUser.university}</p>
                         <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{displayUser.email}</p>
                         <div className="entity-meta-row">
@@ -223,23 +226,27 @@ function UserDrawer({ user, onClose, onCopy, onAudit, onStatusAction, canModerat
                 <div className="drawer-status-row">
                     {displayUser.is_banned && <span className="status-badge banned">Banned</span>}
                     {displayUser.is_shadow_banned && <span className="status-badge shadow">Shadow banned</span>}
-                    {displayUser.is_verified && <span className="status-badge active">Verified</span>}
-                    {displayUser.is_premium && <span className="status-badge premium">Premium</span>}
+                    {(displayUser.is_verified || displayUser.photo_verified) && <span className="status-badge active">Verified</span>}
+                    {isUltraUser ? (
+                        <span className="status-badge ultra">👑⭐ Elite Ultra</span>
+                    ) : (
+                        displayUser.is_premium && <span className="status-badge premium">Premium</span>
+                    )}
                     {!displayUser.is_banned && !displayUser.is_shadow_banned && <span className="status-badge active">Active</span>}
                 </div>
                 <div className={`user-attention-card ${attention.tone}`}>
                     <span>Operator attention</span>
                     <strong>{attention.label}</strong>
-                    <small>{attention.reasons.length > 0 ? attention.reasons.join(' / ') : 'No obvious account risk flags in the loaded dossier.'}</small>
+                    <small>{attention.reasons.length.toString() !== '0' ? attention.reasons.join(' / ') : 'No obvious account risk flags in the loaded dossier.'}</small>
                 </div>
                 <div className="drawer-action-strip">
                     <button
                         type="button"
-                        className={`btn-action ${displayUser.is_verified ? 'btn-unverify' : 'btn-verify'}`}
+                        className={`btn-action ${(displayUser.is_verified || displayUser.photo_verified) ? 'btn-unverify' : 'btn-verify'}`}
                         disabled={!canModerate}
-                        onClick={() => onStatusAction?.(displayUser.id, 'verify', !displayUser.is_verified)}
+                        onClick={() => onStatusAction?.(displayUser.id, 'verify', !(displayUser.is_verified || displayUser.photo_verified))}
                     >
-                        {displayUser.is_verified ? 'Remove verification' : 'Verify profile'}
+                        {(displayUser.is_verified || displayUser.photo_verified) ? 'Remove verification' : 'Verify profile'}
                     </button>
                     <button
                         type="button"
@@ -1783,10 +1790,14 @@ export default function AdminDashboard() {
         });
         if (error) throw error;
 
+        const statusPatch = actionType === 'verify'
+            ? { is_verified: newStatus, photo_verified: newStatus }
+            : { [userStatusField[actionType]]: newStatus };
+
         setUsersList(prev => prev.map(u => (
-            u.id === userId ? { ...u, [userStatusField[actionType]]: newStatus } : u
+            u.id === userId ? { ...u, ...statusPatch } : u
         )));
-        setViewUser(prev => prev?.id === userId ? { ...prev, [userStatusField[actionType]]: newStatus } : prev);
+        setViewUser(prev => prev?.id === userId ? { ...prev, ...statusPatch } : prev);
     };
 
     const toggleUserStatus = async (userId, actionType, newStatus) => {
@@ -4174,7 +4185,11 @@ export default function AdminDashboard() {
                                                                 {user.is_banned && <span className="status-badge banned">Banned</span>}
                                                                 {user.is_shadow_banned && <span className="status-badge shadow">Shadow</span>}
                                                                 {!user.is_banned && !user.is_shadow_banned && <span className="status-badge good-standing">Good standing</span>}
-                                                                {user.is_premium && <span className="status-badge premium">Premium</span>}
+                                                                {(user.is_ultra || (user.plan_type && String(user.plan_type).toLowerCase().includes('ultra')) || (user.tier && String(user.tier).toLowerCase().includes('ultra'))) ? (
+                                                                    <span className="status-badge ultra">👑⭐ Ultra</span>
+                                                                ) : (
+                                                                    user.is_premium && <span className="status-badge premium">Premium</span>
+                                                                )}
                                                             </td>
                                                             <td>
                                                                 <span className={`attention-pill ${attention.tone}`}>{attention.label}</span>

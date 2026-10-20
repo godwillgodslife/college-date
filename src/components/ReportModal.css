@@ -15,12 +15,12 @@
 }
 
 .report-modal-card {
-    background: #18181b;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--card-bg, #18181b);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
     border-radius: 20px;
     width: 100%;
-    max-width: 480px;
-    max-height: 90vh;
+    max-width: 460px;
+    max-height: 72dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -30,60 +30,60 @@
 .report-modal-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 18px 20px;
+    gap: 10px;
+    padding: 14px 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
 }
 
 .report-icon-circle {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: rgba(225, 29, 72, 0.15);
     color: #f43f5e;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     flex-shrink: 0;
 }
 
 .report-header-text h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.02rem;
     font-weight: 700;
     color: #f4f4f5;
 }
 
 .report-header-text p {
-    margin: 3px 0 0;
-    font-size: 0.78rem;
+    margin: 2px 0 0;
+    font-size: 0.74rem;
     color: #a1a1aa;
 }
 
 .btn-close-report {
     position: absolute;
-    right: 16px;
-    top: 16px;
+    right: 14px;
+    top: 14px;
     background: none;
     border: none;
     color: #a1a1aa;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     cursor: pointer;
     line-height: 1;
 }
 
 .report-form {
-    padding: 18px 20px;
+    padding: 14px 18px max(16px, env(safe-area-inset-bottom, 16px));
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
 }
 
 .report-section-label {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     font-weight: 600;
     color: #d4d4d8;
     text-transform: uppercase;
@@ -93,8 +93,8 @@
 .report-reasons-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    max-height: 220px;
+    gap: 6px;
+    max-height: 180px;
     overflow-y: auto;
     padding-right: 4px;
 }
@@ -102,9 +102,9 @@
 .report-reason-option {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 12px;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;

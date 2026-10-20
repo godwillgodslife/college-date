@@ -293,67 +293,66 @@
 }
 
 .pulse-icon {
-    font-size: 5rem;
-    margin-bottom: 1.5rem;
+    font-size: 4rem;
+    margin-bottom: 1.25rem;
     display: inline-block;
-    filter: drop-shadow(0 0 20px var(--accent-primary));
-    animation: floating 3s ease-in-out infinite;
+    filter: none;
 }
 
 .no-profiles h2 {
     font-family: 'Outfit', sans-serif;
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .no-profiles p {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .profile-nudge-mini {
-    background: rgba(108, 99, 255, 0.1);
-    border: 1px solid rgba(108, 99, 255, 0.2);
-    padding: 1.5rem;
-    border-radius: 20px;
-    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    padding: 1.15rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
     max-width: 320px;
     margin-left: auto;
     margin-right: auto;
-    backdrop-filter: blur(10px);
 }
 
 .profile-nudge-mini p {
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
 }
 
 .profile-nudge-mini .btn-link {
-    color: var(--accent-primary);
+    color: var(--text-primary);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    font-size: 0.76rem;
     text-decoration: none;
-    padding: 0.5rem 1rem;
-    background: rgba(108, 99, 255, 0.1);
+    padding: 0.45rem 0.9rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 100px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .profile-nudge-mini .btn-link:hover {
-    background: rgba(108, 99, 255, 0.2);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
 }
 
 .retry-btn {
-    box-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
-    padding: 1rem 2.5rem !important;
-    font-size: 1rem !important;
+    box-shadow: none;
+    padding: 0.9rem 2rem !important;
+    font-size: 0.95rem !important;
 }
 
 
@@ -637,10 +636,10 @@
 }
 
 .filter-opt.active {
-    background: var(--gradient-primary);
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    box-shadow: none;
 }
 
 .filter-select {
@@ -670,13 +669,13 @@
 
 .btn-apply {
     width: 100%;
-    padding: 1.25rem;
+    padding: 1.1rem;
     border-radius: 100px;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-top: 1rem;
-    background: var(--gradient-primary);
-    color: white;
+    background: #ffffff;
+    color: #0a0a0c;
     border: none;
     cursor: pointer;
 }
@@ -734,7 +733,7 @@
 }
 
 .limit-message strong {
-    color: var(--accent-secondary);
+    color: var(--text-primary);
 }
 
 .reset-timer {
@@ -928,7 +927,7 @@
 
 .gender-opt-btn {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     color: var(--text-secondary, rgba(255, 255, 255, 0.75));
     min-height: 42px;
     padding: 0.5rem 1rem;
@@ -947,8 +946,9 @@
 }
 
 .gender-opt-btn.active {
-    background: var(--gradient-primary);
-    color: white;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
 }
 
 /* Active gender filter indicator dot on the button */
@@ -1003,18 +1003,16 @@
 }
 
 .swipes-counter-pill {
-    background:
-        linear-gradient(135deg, rgba(255, 77, 184, 0.14), rgba(139, 92, 246, 0.1)),
-        rgba(15, 15, 20, 0.54);
+    background: rgba(18, 18, 24, 0.78);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     padding: 7px 13px;
     border-radius: 100px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.09);
-    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    transition: all 0.2s ease;
 }
 
 .swipes-counter-pill:hover {
@@ -1204,19 +1202,19 @@
 }
 
 .discover-rail-btn {
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(18, 17, 29, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(18, 18, 24, 0.76);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.85);
     border-radius: 100px;
-    min-height: 44px;
-    padding: 0.45rem 0.85rem;
-    font-size: 0.75rem;
+    min-height: 38px;
+    padding: 0.35rem 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
@@ -1227,25 +1225,25 @@
 }
 
 .discover-rail-btn.active {
-    background: linear-gradient(135deg, #6c63ff, #d946ef);
-    border-color: transparent;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.35);
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.32);
+    color: #ffffff;
+    box-shadow: none;
 }
 
 .discover-swipes-left-badge {
-    background: rgba(18, 17, 29, 0.7);
+    background: rgba(18, 18, 24, 0.76);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.88);
     border-radius: 100px;
-    min-height: 44px;
-    padding: 0.45rem 0.85rem;
-    font-size: 0.75rem;
+    min-height: 38px;
+    padding: 0.35rem 0.72rem;
+    font-size: 0.74rem;
     display: inline-flex;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
@@ -1259,8 +1257,16 @@
     .match-filter-strip {
         left: 8px;
         right: 8px;
+        gap: 6px;
         justify-content: flex-start;
         padding-bottom: 2px;
+    }
+
+    .discover-rail-btn,
+    .discover-swipes-left-badge {
+        min-height: 36px;
+        padding: 0.3rem 0.62rem;
+        font-size: 0.71rem;
     }
 }
 
@@ -1300,9 +1306,9 @@ html[data-theme="light"] .discover-rail-btn,
 
 html[data-theme="light"] .discover-rail-btn.active,
 .theme-light .discover-rail-btn.active {
-    background: #635bff;
+    background: #0f172a;
     color: #ffffff;
-    border-color: transparent;
+    border-color: #0f172a;
 }
 
 html[data-theme="light"] .discover-swipes-left-badge,

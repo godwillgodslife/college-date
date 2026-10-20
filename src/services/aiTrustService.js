@@ -37,7 +37,10 @@ export async function requestProfileAiReview(reason = 'profile_update', options 
     }
 
     const { data, error } = await supabase.functions.invoke('ai-profile-review', {
-      body: { reason }
+      body: {
+        reason,
+        avatarChanged: Boolean(options.avatarChanged),
+      }
     });
 
     if (error) throw error;
@@ -54,9 +57,17 @@ let inFlightVerifyPromise = null;
  * 1-to-1 Biometric Selfie Face Match
  * Compares live interactive selfie capture against profile photos.
  * Server-authoritative: routes strictly via Supabase Edge Function with OpenRouter vision,
- * liveness fallback provider, and automated interactive motion fallback.
+ * LivFace liveness fallback provider, and automated interactive motion fallback.
  */
-export async function verifyLiveSelfie({ selfieBase64, profilePhotoUrl, livenessScore, sessionId }) {
+export async function verifyLiveSelfie({
+  selfieBase64,
+  compactFrameBase64,
+  stageFrames,
+  livfaceSessionId,
+  profilePhotoUrl,
+  livenessScore,
+  sessionId,
+}) {
   if (inFlightVerifyPromise) {
     // Return existing in-flight verification request to prevent concurrent duplicates
     return inFlightVerifyPromise;
@@ -76,6 +87,9 @@ export async function verifyLiveSelfie({ selfieBase64, profilePhotoUrl, liveness
         body: {
           action: 'verify_selfie',
           selfieBase64,
+          compactFrameBase64: compactFrameBase64 || null,
+          stageFrames: Array.isArray(stageFrames) ? stageFrames : undefined,
+          livfaceSessionId: livfaceSessionId || undefined,
           profilePhotoUrl,
           livenessScore,
           sessionId: activeSessionId,

@@ -555,7 +555,7 @@ export async function syncOneSignalUserTags(userId, profile = null) {
         if (profileData.gender) tags.gender = String(profileData.gender).toLowerCase();
         if (profileData.level) tags.level = String(profileData.level);
         tags.is_premium = String(Boolean(profileData.is_premium));
-        tags.verified = String(Boolean(profileData.verified));
+        tags.verified = String(Boolean(profileData.is_verified || profileData.photo_verified || profileData.verified));
         if (typeof profileData.completion_score === 'number') {
             tags.profile_completion = String(profileData.completion_score);
         }

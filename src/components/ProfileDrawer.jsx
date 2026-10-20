@@ -12,7 +12,8 @@ import { getUserStatuses } from '../services/statusService';
 import { hasActivePremium } from '../utils/premium';
 import { triggerLightHaptic } from '../utils/haptics';
 import { isRecentlyLive } from '../utils/presence';
-import { getProfilePhotos, getAvatarUrl, normalizeProfile, safeArray } from '../utils/profileData';
+import { getProfilePhotos, getAvatarUrl, normalizeProfile, safeArray, sanitizeProfileForDisplay } from '../utils/profileData';
+import { sanitizeBioForDisplay } from '../utils/offPlatformGuard';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import './ProfileDrawer.css';
@@ -58,6 +59,24 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
             document.body.style.overflow = 'hidden';
             if (profile) {
                 setActiveProfile(profile);
+                // Fast background check for fresh profile data (avatar, photos, bio)
+                if (profile.id) {
+                    supabase
+                        .from('profiles')
+                        .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, is_verified, photo_verified, university, bio, interests')
+                        .eq('id', profile.id)
+                        .maybeSingle()
+                        .then(({ data }) => {
+                            if (data) {
+                                const ts = data.photo_updated_at || data.updated_at;
+                                if (ts) registerProfilePhotoTimestamp(data.id, ts);
+                                setActiveProfile(prev => ({
+                                    ...(prev || {}),
+                                    ...normalizeProfile(data)
+                                }));
+                            }
+                        }).catch(() => {});
+                }
                 // Fire-and-forget: record the profile view so the owner gets notified
                 if (currentUser?.id && profile.id && currentUser.id !== profile.id) {
                     trackProfileView(currentUser.id, profile.id, 'explore');
@@ -100,7 +119,32 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
         }
     }, [profile, activeProfile, isOpen]);
 
-    const displayProfile = normalizeProfile(profile || activeProfile);
+    // Live update when photo updated event is dispatched for the displayed profile
+    useEffect(() => {
+        const handlePhotoUpdated = (e) => {
+            const updatedUserId = e?.detail?.userId;
+            const targetId = profile?.id || activeProfile?.id;
+            if (isOpen && targetId && (!updatedUserId || updatedUserId === targetId)) {
+                supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, is_verified, photo_verified, university, bio, interests')
+                    .eq('id', targetId)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        if (data) {
+                            setActiveProfile(prev => ({
+                                ...(prev || {}),
+                                ...normalizeProfile(data)
+                            }));
+                        }
+                    }).catch(() => {});
+            }
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, [isOpen, profile?.id, activeProfile?.id]);
+
+    const displayProfile = sanitizeProfileForDisplay(profile || activeProfile, currentUser?.id === (profile?.id || activeProfile?.id));
 
     if (!displayProfile) return null;
 
@@ -283,7 +327,7 @@ export default function ProfileDrawer({ isOpen, profile, onClose }) {
                             {displayProfile.bio && (
                                 <div className="drawer-bio">
                                     <h3>About me</h3>
-                                    <p>{displayProfile.bio}</p>
+                                    <p>{sanitizeBioForDisplay(displayProfile.bio, currentUser?.id === displayProfile.id)}</p>
                                 </div>
                             )}
 

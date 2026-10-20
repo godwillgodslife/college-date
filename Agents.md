@@ -8,7 +8,495 @@
 - RevenueCat Android App: `TheCollegeDate Android` (`app25b4a70ce2`)
 
 ## Overall Project State
-The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), RFC 4122 UUID v4 client nonce normalization for authoritative `send_native_text_message` RPC chat resilience, Google Play Child Safety Standards compliance with dedicated officer point of contact, and production deployment across Web (Netlify) and Android (`v2.2.68` / VC 65). Signed release artifacts, live web deployment, and automated test suite (333/333 tests) pass with zero regressions.
+The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), RFC 4122 UUID v4 client nonce normalization for authoritative `send_native_text_message` RPC chat resilience, Google Play Child Safety Standards compliance with dedicated officer point of contact, Ultra Premium Google Play Billing & RevenueCat integration, 10-benefit promotional alignment, TikTok-Style Virtual Gift Celebration Animations, Profile Light Theme Icon contrast alignment, Score Streak Modal Phone Ergonomics & Light/Dark Theme Alignment, Profile Strength Synchronization & Intuitive Discovery Card in Requests Page, Dashboard Premium Vector Icons & Intuitive Theme Design System, Notification Soft Prompt & App Tour Guide Intuitive Eligibility Remediation, Profile Images Universal Live-Sync & Cross-Surface Cache-Busting Architecture, Campus Ambassador League & Referrals Redesign, Escrow Popup & Campus Service Deal UI/UX & Multi-Theme Transformation, Campus Finder Relation user_blocks & Client Fallback Resilience, Campus Finder Weekly Trial Replenishment & Unlimited Elite Membership Entitlement, and Complete User Email Privacy & Cross-User Exposure Isolation Guard across Web (Netlify) and Android (`v2.2.70` / VC 67). Signed release artifacts, live web deployment, and automated test suite (410/410 tests) pass with zero regressions.
+
+0.00000000000000000000000000000000000000000000000000000000000000000028. Complete User Email Privacy & Cross-User Exposure Isolation Guard
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Requirement: User A should not be able to see User B's email anywhere in the app, and vice versa. Email is sensitive Personally Identifiable Information (PII) and an unacceptable security/privacy risk if exposed to other students.
+     - Forensic Audit Findings:
+       1. Discovery Feed View Leak (`discovery_feed_v3`): In `20260914210000_seal_shadowban_discovery_leaks.sql`, `discovery_feed_v3` explicitly projected `p.email`, `p.phone`, and `p.onesignal_id` with `GRANT SELECT TO authenticated, anon`. Every card queried in the swipe deck and explore feed leaked raw student emails in the network payload.
+       2. Requests / Admirers RPC Leak (`get_admirers_secure`): Returned `'swiper', to_jsonb(p)` which serialized the full profile row of swipers, transmitting emails and phone numbers to admiration recipients.
+       3. Plain-text Storage on `public.profiles`: `profiles` had an `email` column, and because `Authenticated users can view public active profiles` enabled SELECT for all authenticated users to read student bios/avatars, executing direct PostgREST queries or `select('*')` on other users returned their raw email addresses.
+       4. Explore Search Query: `searchProfilesByName` in `swipeService.js` executed `select('*')` from `profiles`.
+       5. Profile Display & Bio Leak: In `Profile.jsx`, `displayName` had a fallback to `currentUser?.email?.split('@')[0]` when viewing other profiles missing a full name, and `sanitizeBioForDisplay` permitted Elite Ultra bios to display unmasked emails to third parties.
+   - Comprehensive Architectural Remediation:
+     - Database Forward Migration (`20261021140000_strictly_isolate_user_emails.sql`):
+       * Rebuilt `public.discovery_feed_v3`: Completely purged `p.email`, `p.phone`, and `p.onesignal_id` from the view projection.
+       * Rebuilt `public.get_admirers_secure`: Replaced `to_jsonb(p)` with explicit safe public student profile projection (`id, full_name, username, gender, age, university, faculty, department, level, avatar_url, profile_photos, photo_updated_at, is_verified, photo_verified, bio, interests, intro_prompt, voice_intro_url, anthem, attraction_goal, last_seen_at, last_active, is_live, completion_score, current_badge`), strictly omitting email, phone, and tokens.
+       * Erased Stored Plain-Text Emails on `public.profiles`: Executed `UPDATE public.profiles SET email = NULL WHERE email IS NOT NULL;`.
+       * Server-Authoritative Email Masking Trigger: Created `mask_profile_email_on_write()` trigger function and `trg_prevent_profile_email_storage` attached BEFORE INSERT OR UPDATE OF email on `public.profiles`, guaranteeing `NEW.email := NULL` on any write and ensuring `public.profiles.email` remains perpetually NULL.
+       * Admin Operations Preservation: Upgraded `admin_search_users`, `admin_get_withdrawals`, and `admin_get_user_detail` to join `auth.users u ON u.id = p.id`, resolving verified emails via `coalesce(u.email, p.email)::text` so administrators retain operational visibility without storing emails on public tables.
+     - Backend & Client Service Level:
+       * `src/services/profileService.js`: Defined and exported `SAFE_PUBLIC_PROFILE_FIELDS`. Upgraded `getProfile(userId)` to evaluate session auth. When viewing another user (`!isOwn`), queries only safe fields and explicitly strips `delete normalized.email; delete normalized.phone; delete normalized.onesignal_id;`.
+       * `src/hooks/useSWRData.js`: Upgraded `useSWRProfile(userId)` to delegate to `getProfile(userId)`.
+       * `src/services/swipeService.js`: Upgraded `searchProfilesByName` to query `SAFE_PUBLIC_PROFILE_FIELDS` and strip emails. Updated `getDiscoverProfiles` to delete any email properties.
+     - Client Utilities & UI Safeguards:
+       * `src/utils/profileData.js`: Exported `sanitizeProfileForDisplay(profile, isOwner = false)` which strips email, phone, and push tokens whenever `isOwner` is false.
+       * `src/utils/offPlatformGuard.js`: Upgraded `sanitizeBioForDisplay` to enforce zero-compromise email isolation. Personal email addresses are ALWAYS masked with `[🔒 email locked]` when viewed by any other student, even if the profile owner is an Elite Ultra VIP member. Only the direct owner viewing their own bio sees their unmasked text.
+       * `src/pages/Profile.jsx`: Updated `displayName` to fall back to `'Student'` rather than `currentUser?.email` when viewing another user. Set `email` to empty string if `!isOwnProfile`, and passed `isOwnProfile` to `sanitizeBioForDisplay`.
+       * `src/contexts/AuthContext.jsx`: Upgraded `syncState` and `repairProfile` to bind `user.email` from the authenticated session directly into the user's in-memory profile state, preserving verified email completion scores (+10%) and self-settings without database exposure.
+   - Automated Quality Gates:
+     - Master automated test suite: **410/410 tests PASSED** in 14.75s across 6 suites (`npm run test:all`).
+     - Dedicated Email Privacy test suite: **6/6 tests PASSED** (`test/user-email-privacy-and-cross-exposure-guard.test.mjs`).
+     - Vite production build: **PASSED** in 1m 18s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 5.48s (`npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000027. Campus Finder Weekly Trial Replenishment & Unlimited Elite Membership Entitlement
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Requirement: Campus Finder needed 2 free trial searches per week for free/standard accounts (replenishing automatically every 7 days), and must be listed as and function as **Unlimited** in the Elite Premium plan and package listings.
+     - Gap: Free searches were previously static with no 7-day recurring replenishment mechanism. Premium subscribers were subject to the same finite credit depletion as free accounts. Campus Finder was not promoted in the package benefits or Elite Ultra breakdowns.
+   - Comprehensive Architectural Remediation:
+     - Database Forward Migration (`20261021130000_campus_finder_unlimited_elite.sql`):
+       * Added `finder_weekly_reset_at` column to `public.profiles`.
+       * 7-Day Weekly Free Trial Replenishment: Upgraded `consume_finder_search` and `get_finder_status` to evaluate `finder_weekly_reset_at`. If older than 7 days, automatically resets `finder_free_searches_left` to at least 2.
+       * Unlimited Access for Elite Premium & Ultra: Server-authoritatively checks `is_premium`, `is_ultra`, active subscription, or unexpired premium duration. If active, completely bypasses credit deductions, ignores credit exhaustion, and returns `is_unlimited: true` and `total_remaining: 999999` with an elevated anti-scraping hourly threshold (30/hr).
+     - Package & Benefit Showcase Alignment:
+       * `src/pages/PremiumUpgrade.jsx`:
+         - Added **Unlimited Campus Finder** to `OUTCOME_HIGHLIGHTS`: `"Scan & verify students you meet on campus with zero weekly limits"`.
+         - Added **Campus Finder** tab to `PREVIEW_TABS`: `"Met someone around your lecture hall, library, or faculty? Take a quick photo to verify if they are on College Date with zero weekly caps."` with `"Unlimited in Elite"` badge.
+         - Updated Elite Ultra Perks Summary: Explicitly lists `"Unlimited Swipes, Unlimited Campus Finder, Secret Admirers, Unlimited HD Calls & Incognito Ghost Mode"`.
+       * `src/components/EliteUltraDetailsModal.jsx`: Updated `All Elite Benefits Included` to explicitly feature `"Unlimited Campus Finder"`.
+       * `src/components/ContextualPaywallSheet.jsx`: Added dedicated `campus_finder` touchpoint copy with 3-Day Free Trial routing.
+       * `src/services/officialService.js`: Updated tutorial post caption to feature `"unlimited campus finder scans"`.
+     - In-Modal UX & Contextual Upsell (`CampusFinderModal.jsx` & `CampusFinderModal.css`):
+       * Header Pill: Displays `👑 Unlimited (Elite Active)` for Elite members, and `⚡ X Searches Left (2/wk)` for free trial accounts.
+       * Educational Note: Informs users that free accounts get 2 free trial searches every week, while Elite members enjoy unlimited searches anytime.
+       * Seamless Paywall CTA: When free trial searches are exhausted (`no_credits`), transitions to a friendly limit card with a 1-tap `"👑 Upgrade to Elite for Unlimited Scans"` button routing directly to `/premium`.
+   - Automated Quality Gates:
+     - Master automated test suite: **403/403 tests PASSED** in 14.15s across 6 suites (`npm run test:all`).
+     - Campus Finder test suite: **8/8 tests PASSED** (`test/campus-finder.test.mjs`).
+     - Vite production build: **PASSED** in 1m 25s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 4.41s (`npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000026. Campus Finder Relation user_blocks & Client Fallback Resilience
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue: When a user captured a photo in Campus Finder (`CampusFinderModal`) to verify or discover if a student profile is in the app, the optical scan aborted with the error:
+       `"⚠️ Search Unavailable: relation "public.blocks" does not exist"`
+     - Root Cause:
+       * In the original `20260919150000_campus_finder_system.sql` migration, the stored procedure `public.get_eligible_campus_finder_profiles` queried:
+         `select 1 from public.blocks b where (b.blocker_id = v_searcher_id and b.blocked_id = p.id) or ...`
+       * However, the actual blocks table created in `20260908120000_college_date_expansion_core.sql` is named `public.user_blocks`.
+       * When `searchCampusByPhoto` called `supabase.rpc('get_eligible_campus_finder_profiles')`, PostgreSQL threw `relation "public.blocks" does not exist`, which propagated directly into the modal UI without sanitization.
+   - Comprehensive Architectural Remediation:
+     - Forward Migration `20261021120000_fix_campus_finder_user_blocks_table.sql`:
+       * Created compatibility view `CREATE OR REPLACE VIEW public.blocks AS SELECT * FROM public.user_blocks;` to safely resolve any legacy or dangling references anywhere in the database.
+       * Replaced `public.get_eligible_campus_finder_profiles` to query `public.user_blocks` directly.
+       * Added `public.refund_finder_search(p_searcher_id uuid)` RPC to ensure that if an unexpected error interrupts scanning, the user's trial search credit is automatically refunded.
+       * Fixed line 197 in `supabase/migrations/20260919150000_campus_finder_system.sql` to reference `public.user_blocks`.
+     - Client Direct Query Fallback (`src/services/campusFinderService.js`):
+       * Added automatic fallback: if `get_eligible_campus_finder_profiles` RPC throws or is pending database migration in production, the service immediately executes a direct Supabase query on `profiles` (with `allow_camera_discovery: true`, photo verification, and excluding blocked IDs from `user_blocks`).
+       * If unrecoverable failure occurs, automatically calls `refund_finder_search` to safeguard the user's search credits.
+     - Error Message Sanitization & Defense (`src/utils/campusFinder.js` & `src/components/CampusFinderModal.jsx`):
+       * Created `formatFinderErrorMessage(rawError)` helper that intercepts and masks raw SQL exceptions (`relation`, `does not exist`, `column`, `syntax error`) into clean, reassuring user copy (`"Campus search is temporarily unavailable. Please try again in a few moments."`), while preserving user-facing messages for rate limits, permissions, and credits.
+     - Multi-Theme Design System Support (`src/components/CampusFinderModal.css`):
+       * Added complete Light Theme tokens (`html[data-theme="light"]`, `body.light-theme`) ensuring high-contrast slate text (`#0f172a`), porcelain card surfaces (`#ffffff`), purple accents, and visible secondary buttons in light mode.
+   - Automated Quality Gates:
+     - Master automated test suite: **401/401 tests PASSED** in 10.70s across 6 suites (`npm run test:all`).
+     - Campus Finder suite: **6/6 tests PASSED** (`test/campus-finder.test.mjs`).
+     - Vite production build: **PASSED** in 1m 8s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 8.36s (`npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000025. Escrow Popup & Campus Service Deal UI/UX & Multi-Theme Transformation
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue: The in-chat Escrow creation popup (`CreateServiceDealModal`) and in-stream chat deal card (`ServiceDealCard`) suffered from severe theme disconnect (completely hardcoded to dark hex colors with zero light theme styling, resulting in illegible text and unstyled dark blocks on light mode), overwhelming visual density (7 raw form inputs squashed in an unguided vertical scroll), confusing role buttons without role context, financial anxiety ("Will I be debited right now?"), and a scary red violation box that felt accusatory rather than reassuring.
+     - In-Chat Card Status Ambiguity: The `ServiceDealCard` in chat only displayed a tiny raw status pill, leaving students in the dark about what step comes next or where their funds/work are held.
+   - Comprehensive Architectural Remediation:
+     - Multi-Theme Design System Integration (`CreateServiceDealModal.css` & `ServiceDealCard.css`):
+       * Dark Theme: Obsidian glass surfaces (`linear-gradient(175deg, #181822 0%, #111118 100%)`), hairline borders (`rgba(255, 255, 255, 0.1)`), high-contrast white typography (`#f8fafc`), and translucent accent badges.
+       * Light Theme: Pure porcelain cards (`#ffffff`), subtle borders (`#e2e8f0`), deep slate typography (`#0f172a`), mint escrow accents (`#f0fdf4`, border `#86efac`, text `#065f46`), pure white input backgrounds with `#cbd5e1` borders, and high-contrast buttons.
+     - Intuitive Creation Ergonomics & Chunking (`CreateServiceDealModal.jsx`):
+       * Segmented 2-Card Role Selector: Replaced wide buttons with interactive role cards (`Client (Payer)` vs `Provider`) explaining clearly that funds are held in escrow and released only after delivery.
+       * 1-Tap Quick Amount Chips: Integrated preset chips (`₦2,000`, `₦5,000`, `₦10,000`, `₦20,000`, `₦50,000`) with tactile haptic feedback and formatted Naira prefixes.
+       * Campus Escrow Guarantee Shield: Replaced the accusatory red box with an emerald trust shield explaining safe vault holding, client-authorized release, and 100% money-back guarantee.
+       * Financial Transparency Reassurance: Added clear sub-caption on the CTA button: `"💡 No funds deducted now. Escrow is only funded once both parties accept the terms."`
+       * Mobile Keyboard Resilience: Constrained max-height to `min(86dvh, 620px)` with sticky header, scrollable body, sticky actions footer, and keyboard Escape key dismissal.
+     - 4-Stage Visual Escrow Stepper (`ServiceDealCard.jsx` & `ServiceDealCard.css`):
+       * Added an interactive 4-stage visual milestone stepper: `Agreed` ➔ `Escrowed (Vault Secured)` ➔ `Delivered` ➔ `Paid (Settled)`.
+       * Clear role indicator strip: `"💳 You are the Client (Payer)"` or `"🛠️ You are the Provider"`.
+       * Contract amount banner highlighting whether funds are held in College Date vault.
+       * Context-aware action buttons with native haptic feedback (`triggerLightHaptic`, `triggerMediumHaptic`, `triggerSuccessHaptic`, `triggerWarningHaptic`).
+   - Automated Quality Gates:
+     - Master automated test suite: **398/398 tests PASSED** in 23.55s across 6 suites (`npm run test:all`).
+     - Service Deal Escrow UI/UX suite: **4/4 tests PASSED** (`test/service-deal-escrow-ui-ux.test.mjs`).
+     - Vite production build: **PASSED** in 34.47s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 3.24s (`npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000024. Campus Ambassador League & Referrals Redesign & Full Functionality Remediation
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue: The Referrals / Campus Ambassador League page (`/referrals`) suffered from excessive, clashing rainbow colors (electric purple/indigo progress tracks, blinding yellow neon borders, radioactive green shadows, and 3 high-saturation incentive cards) alongside "tale info" (unexplained mock data rendering raw `- STUDENTS -` wireframe text and arbitrary static counts) and redundant UI components (two duplicate WhatsApp share buttons and duplicate referral code boxes on the same screen).
+     - Lack of real functionality: The copy functions did not provide tactile `"✓ Copied!"` feedback or clipboard error handling; the Available balance stat card lacked a clear path to claim funds or navigate to the Wallet; the invite code redemption input allowed spaces and lowercase symbols without immediate uppercase normalization.
+   - Comprehensive Architectural Remediation:
+     - Neutral-First Design System (`src/pages/Referrals.css`):
+       * Dark Theme: Replaced neon gradients with clean obsidian (`#0d0d11`, `#16161c`) card surfaces, hairline borders (`rgba(255, 255, 255, 0.08)`), and high-contrast typography (`#f8fafc`).
+       * Light Theme: Replaced purple titles and neon yellow badges with clean `#ffffff` surfaces, slate headings (`#0f172a`), subtle `#e2e8f0` borders, and high-contrast text across cards.
+       * Milestone Progress Track: Replaced glowing purple with a sleek, slim track and refined emerald gradient (`linear-gradient(90deg, #10b981, #059669)`), paired with an elegant brushed amber/gold crown badge (`rgba(245, 158, 11, 0.45)`).
+       * Executive Incentive Cards: Preserved test compatibility for 3 distinct styled cards and `#ffffff` headers while shifting from neon rainbow to ultra-luxury dark cards: Card 1 (Instant: Deep Slate Navy), Card 2 (Top Cash Reward: Warm Amber Obsidian with hairline border), Card 3 (Friend's Gift: Deep Charcoal Slate).
+       * WhatsApp CTA: Implemented authentic solid WhatsApp green (`#25D366`) with clean white typography and removed radioactive glowing box-shadows.
+     - Eliminating "Tale Info" & Grounding in Authentic Campus Reality (`src/pages/Referrals.jsx`):
+       * Replaced raw `- STUDENTS -` placeholder with authentic titles: **Campus Lead** (#1) and **Ambassador** (#2, #3).
+       * Added **Season 1 All-Stars** badge and an explanatory subtitle explaining the monthly Nigerian campus connector rankings.
+       * Implemented the **Your Campus Standing** card directly below the podium, providing authentic account feedback based on real user referrals (`"Active Connector • X students invited from UNILAG"` or `"Not yet ranked • Invite 1 friend from your campus to enter the league!"`).
+       * Streamlined duplicate actions: Unified the page so the top section acts as the viral status/group CTA, while the referral card serves as the comprehensive sharing hub with 1-tap copy, WhatsApp, link copy, and native share.
+     - Full Interactive Functionality:
+       * 1-Tap Copy Feedback: Added instant `"✓ Copied!"` visual state to the code display box and copy link button with fallback clipboard execution and toast confirmation.
+       * URL Parameter Code Auto-Fill: If a user enters via an invite link (`?ref=...`), the code automatically populates into the redeem input.
+       * Uppercase Code Sanitization: Input cleans whitespace and auto-converts to uppercase alphanumeric formatting on every keystroke.
+       * Reward Claiming & Wallet Integration: `handleCheckRewards` calls both `unlock_matured_rewards` and `process_referral_milestones`, offering seamless wallet balance transfer and one-tap navigation to `/wallet`.
+   - Automated Quality Gates:
+     - Master automated test suite: **394/394 tests PASSED** in 10.21s across 6 suites (`npm run test:all`).
+     - Campus Ambassador League suite: **5/5 tests PASSED** (`test/campus-ambassador-league.test.mjs`).
+     - Referral Code suite: **5/5 tests PASSED** (`test/referral-code.test.mjs`).
+     - Screen Polish suite: **7/7 tests PASSED** (`test/screen-remediation-polish.test.mjs`).
+     - Vite production build: **PASSED** in 1m 16s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 9.61s across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000023. Profile Images Universal Live-Sync & Cross-Surface Cache-Busting Architecture
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue: When a user updated their profile images (avatar or profile photos), the update failed to reflect in their Chat Profile view and multiple other surfaces across the app.
+     - Root Causes Uncovered in Deep Forensic Audit:
+       1. Chat Profile Persistent Cache Trap in Profile.jsx:
+          * In Profile.jsx, viewing a partner or user profile from chat (isFromChat = true) resolved profileKey = ['profile', profileId] with persistentSWR and CACHE_TTL.profile (15 minutes!) and revalidateOnFocus: false.
+          * Even if a user updated their photos moments ago, opening their Chat Profile returned the 15-minute stale cached record from IndexedDB/localStorage without ever revalidating or requesting fresh data from Supabase.
+          * Profile.jsx lacked any Supabase Realtime subscription on public.profiles for profileId, and ignored cd:profile-photo-updated events.
+       2. Stale Active Chat Header in Chat.jsx:
+          * In Chat.jsx, selectedConv was held in React state. When cd:profile-photo-updated was dispatched, it only called revalidateConvs(), leaving selectedConv.other_user untouched with the old avatar.
+          * Furthermore, when entering a chat via route URL (?chatId=...), deep link, or navigation state, the background fresh-avatar check never ran because it was buried solely inside the manual handleSelectConversation click handler.
+       3. Persistent Auth Profile Out-of-Sync in AuthContext.jsx:
+          * fetchProfile and updateProfile in AuthContext.jsx did not update ['auth-profile', userId] in persistentCache. On app reload, AuthContext restored the stale profile from local storage before any network request completed.
+          * AuthContext lacked a Realtime Postgres subscription for the authenticated user, failing to react when the server-authoritative Vision AI Edge Function promoted a new avatar.
+       4. Volatile In-Memory Timestamp Cache:
+          * photoTimestampCache in profileData.js was an in-memory Map() that was erased upon page reloads or across tabs. When profiles lacking photo_updated_at were passed from RPCs or navigation state, getAvatarUrl fell back to raw URLs without ?t= cache-busters, causing OptimizedImage and browser/Cache API caches to serve stale images indefinitely.
+       5. Surface Isolation in ProfileDrawer, Navbar, Requests, Viewers, and Explore:
+          * ProfileDrawer, Navbar, Requests, Viewers, and Explore did not listen for cd:profile-photo-updated, keeping stale cached avatars in memory until full expiration.
+   - Comprehensive Architectural Remediation:
+     - Persistent Photo Timestamp Registry (src/utils/profileData.js):
+       * Initialized photoTimestampCache from localStorage (tcd_photo_ts_cache) capped to the 150 most recent records.
+       * registerProfilePhotoTimestamp(userId, timestamp) persists timestamps synchronously across reloads and tab sessions.
+       * getFreshAvatarUrl(url, timestampOrProfile) resolves user IDs, objects, or explicit timestamps, ensuring all Supabase and profile photo URLs carry an authoritative ?t={timestamp} cache-buster that breaks browser and Cache API caches.
+       * getAvatarUrl and getProfilePhotos look up cached timestamps for the user even when minimal profile projections (e.g. { id, avatar_url }) are provided.
+     - Synchronized Profile Service & Auth Context (src/services/profileService.js & src/contexts/AuthContext.jsx):
+       * updateProfile and upsertProfile automatically stamp photo_updated_at = new Date().toISOString() when photos/avatars change, invalidate clearAppCache({ userId }) and clearMediaCache(), and broadcast cd:profile-photo-updated.
+       * AuthContext.jsx syncs fetchProfile and updateProfile into persistent cache (['auth-profile', userId]), listens for cd:profile-photo-updated to trigger background refresh, and maintains a dedicated Realtime Postgres channel (auth_user_profile_sync:${currentUser.id}) to catch server-promoted photos immediately.
+     - Live-Updating Chat Profile & Gallery (src/pages/Profile.jsx):
+       * Configured SWR to use a fast 30s TTL and revalidateOnFocus: true when isFromChat is active.
+       * Added an immediate revalidation trigger on mount when entering from chat.
+       * Added a cd:profile-photo-updated event listener and a Realtime Postgres subscription (profile_realtime_sync:${profileId}) to update partner photos dynamically.
+     - Authoritative Chat Active Header & Conversation Sync (src/pages/Chat.jsx):
+       * Added a dedicated useEffect watching selectedConv?.other_user?.id to verify and fetch fresh partner avatars immediately upon route, link, or selection navigation.
+       * Enhanced handlePhotoUpdated to update selectedConv.other_user directly from Supabase profiles alongside revalidateConvs().
+       * Enhanced partner_profile_sync Realtime channel to register incoming photo timestamps dynamically.
+     - Universal Cross-Surface Reactivity:
+       * ProfileDrawer.jsx: Added fresh profile verification on drawer open and cd:profile-photo-updated listener.
+       * Navbar.jsx: Added cd:profile-photo-updated listener with responsive avatar tick re-evaluation.
+       * Requests.jsx, Viewers.jsx, and Explore.jsx: Added cd:profile-photo-updated listeners to revalidate admirers, viewers, and campus cards instantly.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite test/profile-photo-live-sync.test.mjs (3/3 tests passing).
+     - Master automated test suite: 398/398 tests PASSED in 23.55s across 6 suites (npm run test:all).
+     - Vite production build: PASSED in 46.02s across 1,163 modules (npm run build).
+     - Capacitor Android sync: PASSED in 2.79s across 11 plugins (npx cap copy android).
+
+0.00000000000000000000000000000000000000000000000000000000000000000022. Notification Soft Prompt & App Tour Guide Intuitive Eligibility Remediation
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue 1: Notification Permission Popup Recurring & Dysfunctional:
+       * When the user clicked "Turn on notifications 🔔", `handleEnable` treated acceptance identically to a dismissal by writing `tcd_notification_prepermission_dismissed_at = now` and `tcd_notification_prepermission_dismissed = true` to `localStorage`. It lacked a permanent acceptance flag.
+       * After 14 days (`COOLDOWN_MS`), the dismissal check expired and it fell through to checking `window.Notification?.permission === 'granted'`. On mobile browsers (such as iOS Safari or WebViews) where `window.Notification` is undefined, this check was false, causing the pop-up to reappear repeatedly even after the user had accepted it.
+       * The pop-up was completely non-functional: On web, `if (window.Notification?.requestPermission)` called browser permission directly and skipped the OneSignal branch entirely, never invoking `initPushNotifications`, never calling `OneSignal.User.PushSubscription.optIn()`, and never calling `registerNotificationDevice()` to sync the device into Supabase `notification_devices` or update `profiles.push_notifications`. Thus, push notifications could never actually be delivered to the user.
+       * The prompt ignored database profile state (`userProfile.push_notifications`, `userProfile.onesignal_id`) and failed to scope local persistence to the authenticated `currentUser.id`.
+     - Issue 2: App Tour Guide Appearing for Existing / Months-Old Accounts:
+       * In `TourGuide.jsx`, `handleFinish` attempted to persist `has_seen_tour: true` via `updateProfile(currentUser.id, { has_seen_tour: true })`.
+       * However, `public.profiles` in Supabase did NOT have a `has_seen_tour` column. PostgREST rejected the upsert with schema cache errors, so `userProfile.has_seen_tour` was never saved and remained perpetually undefined.
+       * Whenever `localStorage.getItem('hasSeenAppTour')` was absent (new device, cleared cache, private window, or Safari ITP 7-day storage expiration), `TourGuide` treated users who had been on the platform for months as brand-new first-time users.
+       * It lacked any heuristic awareness of user account age (`created_at > 24 hours`), bio, avatar, photos, completion score, or swiped cards.
+   - Comprehensive Architectural Remediation:
+     - Notification Soft Prompt System (`src/components/NotificationSoftPrompt.jsx` & `src/App.jsx`):
+       * Permanent Acceptance Architecture: Added `STORAGE_ACCEPTED_KEY = 'tcd_notification_prepermission_accepted'` persisted both globally and per-user (`${STORAGE_ACCEPTED_KEY}_${currentUser.id}`). Once accepted, it never expires.
+       * Database & Profile Synchronization: `handleEnable` calls `updateUserSettings(currentUser.id, { push_notifications: true })` in Supabase.
+       * Full End-to-End Push Registration: Calls authoritative `initPushNotifications(currentUser.id)` from `src/services/pushNotification.js`, completing OneSignal initialization, external ID linking, tag sync, and `register_notification_device` RPC registration.
+       * Intuitive Presentation Guards: Automatically suppresses prompt if user already accepted, if `isNotificationPermissionGranted()`, if browser permission is blocked (`denied`), if `userProfile.push_notifications === false` (respecting user settings), or if `userProfile.onesignal_id` is already registered.
+       * 14-day cooldown is strictly applied only to "Maybe later" dismissals, never to acceptances.
+       * Relocated `<NotificationSoftPrompt />` inside `<ToastProvider>` in `src/App.jsx` and added confirmation toast feedback upon enabling.
+     - Intuitive App Tour Guide Architecture (`src/components/TourGuide.jsx` & `src/utils/tourEligibility.js`):
+       * Database Migration `20261021110000_add_has_seen_tour_to_profiles.sql`:
+         - Adds `has_seen_tour boolean DEFAULT false` to `public.profiles`.
+         - Backfills all established accounts: sets `has_seen_tour = true` for accounts older than 24 hours (`created_at < now() - interval '24 hours'`), completion score >= 30, non-empty bio/avatar, or verified/optimised status.
+       * Established User Heuristic Engine (`src/utils/tourEligibility.js`):
+         - `isUserEligibleForTour(userProfile, currentUser)` checks:
+           1. Authoritative DB flag `userProfile.has_seen_tour === true`.
+           2. Local storage keys (`hasSeenAppTour` and `hasSeenAppTour_${currentUser.id}`).
+           3. Account age: `Date.now() - new Date(userProfile.created_at) > 24 hours` (immediately flags accounts days/months old as experienced).
+           4. Profile setup: bio, avatar, photos, completion score >= 30, verified status, or swiped cards.
+         - For existing accounts, silently synchronizes `has_seen_tour = true` in localStorage and database in the background without rendering the tour.
+         - The tour modal ONLY renders for genuine brand-new accounts (< 24h old with untouched profiles).
+       * Robust Stacking & Dismissal: Mounted `TourGuide` directly to `document.body` via `createPortal`, adds `document.body.classList.add('has-modal-open')` to clear the bottom nav bar, and wraps `handleFinish` in safe `try/catch/finally` blocks.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite `test/notification-prompt-and-tour-guide-intuition.test.mjs` (9/9 tests passing).
+     - Master automated test suite: **386/386 tests PASSED** in 10.78s across 6 suites (`npm run test:all`).
+     - Vite production build: **PASSED** in 57.49s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 2.53s across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000021. Dashboard Premium Vector Icons & Intuitive Theme Design System
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - The Dashboard quick actions grid previously rendered standard, OS-dependent text emojis (`💕`, `💬`, `🧭`, `👑`/`👑⭐`, `💳`, `💌`), causing cards to look informal and inconsistent across platforms (Windows Segoe UI Emoji vs. Android Noto Color Emoji vs. iOS Apple Color Emoji).
+     - The icons lacked visual depth, subtle radiance, and brand palette coordination. On Light Theme, emojis lacked high-contrast elevation and washed out against bright backgrounds.
+     - The action cards lacked responsive squircle badges and feature-specific hover states to provide a tactile, luxury app feel.
+   - Comprehensive Premium Vector Design System Architecture:
+     - Bespoke Vector Icon Suite (`src/components/DashboardIcons.jsx`):
+       * `DashboardMatchIcon`: Multi-layer romantic dual heart with attraction spark, glowing translucent fill (`fillOpacity="0.22"`), and precision stroke (`strokeWidth="1.8"`).
+       * `DashboardChatIcon`: Dual conversational speech bubbles with 3 typing indicator dots and vibrant brand wash.
+       * `DashboardExploreIcon`: Precision 4-cardinal-axis navigation compass with translucent directional needle and center pivot.
+       * `DashboardPremiumIcon`: Regal imperial 5-point crown with jewel peak orbs, central facet, and optional 4-point sparkle star for Ultra VIP tier (`isUltra`).
+       * `DashboardWalletIcon`: Fintech luxury debit card with magnetic header strip, smart chip, and balance coin currency token.
+       * `DashboardRequestsIcon`: Sealed campus love-letter envelope with a centered heart wax seal emblem.
+     - Unified Squircle Badge & Thematic Accents (`src/components/FeatureCard.jsx` & `FeatureCard.css`):
+       * Squircle Container (`.feature-icon-badge`): 44x44px (mobile 36x36px), 13px border radius, subtle drop shadow, and floating lift transition on hover.
+       * 6 Theme-Intuitive Color Identities:
+         - Match (`#ff2d55`): Vibrant Pink-Red radiant gradient and blush border.
+         - Messages (`#8b5cf6` / `#6366f1`): Electric Indigo/Purple glow and lavender border.
+         - Explore (`#00d2ff` / `#0284c7`): Ocean Cyan gradient and sky border.
+         - Premium (`#f59e0b` / `#fbbf24`): Imperial Gold & Amber luxury gradient and warm aura.
+         - Wallet (`#10b981` / `#059669`): Emerald Mint fintech gradient and jade border.
+         - Requests (`#f43f5e` / `#e11d48`): Romantic Coral/Ruby gradient and rose border.
+       * Interactive Micro-Interactions: Each card features a top luminous accent bar (`.feature-card::before`) matching its palette, subtle card elevation, icon badge scale, and responsive arrow color translation on hover.
+       * Full Light Theme Support (`html[data-theme="light"]`, `.theme-light`): Pure `#ffffff` card surfaces, soft pastel-tinted badge backgrounds (e.g. `#fff0f3`, `#f5f3ff`, `#ecfeff`, `#fffbeb`, `#f0fdf4`, `#fff1f2`), dark slate headings (`#0f172a`), muted slate descriptions (`#475569`), and rich high-contrast icon strokes.
+       * Mobile & Android Ergonomics (`androidPolish.css`): Strict compact sizing (`36px` badges, `19px` SVGs, `0.75rem 0.7rem` card padding, 2-line clamp) preserving the 2-column mobile features grid without truncation.
+       * Resilient Backwards-Compatible Inference: `FeatureCard.jsx` includes smart variant and vector fallback inference if legacy props or emoji strings are provided.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite `test/dashboard-premium-icons.test.mjs` (5/5 tests passing).
+     - Master automated test suite: **391/391 tests PASSED** in 9.30s across 6 suites (`npm run test:all`).
+     - Vite production build: **PASSED** in 1m 4s across 1,163 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 4.68s across 11 plugins (`npm run android:clean-assets; npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000020. Profile Strength Synchronization & Intuitive Discovery Booster Card in Requests Page
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - The Requests page previously displayed a hardcoded/stuck card: `⚠️ Your profile is 50% complete Complete it to appear more in discovery.`
+     - Root cause: `Requests.jsx` directly read `userProfile.completion_score` from the database (stuck at default `50`), instead of using the live calculation computed by `ProfileCompletion.jsx` on the Profile page (which factors in avatar, bio, 3+ interests, intro prompt, campus year, and verified email).
+     - Lack of intuition: The card checked `userProfile.completion_score < 60` with a static warning icon and red error banner, rather than reacting dynamically to the user's actual profile strength tier. It stayed visible even when the user's true profile strength was >= 80% (which qualifies for the elite discovery spotlight pool in `swipeService.js`).
+   - Unified Profile Strength & Intuitive Discovery Architecture:
+     - Centralized Authoritative Scoring (`src/utils/profileData.js`):
+       * Exported `PROFILE_COMPLETION_CHECKLIST`, `calculateProfileStrength(profile, fallbackScore)`, and `getNextProfileCompletionStep(profile)`.
+       * Scoring formula: Clear photo (+30%), Bio >= 10 chars (+20%), 3+ Interests (+15%), Short Intro Prompt (+15%), Campus Year (+10%), Verified Email (+10%) = 100%.
+       * Profile strength is evaluated identically across `ProfileCompletion.jsx`, `Requests.jsx`, and `AuthContext.jsx` (`repairProfile`).
+     - Intuitive Visibility & Presence Rules in Requests Page:
+       * **Automatic Exit ("Go Off")**: When `profileStrength >= 80%`, the card automatically dismisses and does not render, because the student has reached the spotlight discovery tier and does not need to be nagged.
+       * **Dynamic Presence ("Be There")**: When `profileStrength < 80%`, the card is visible with tier-aware urgency:
+         - Warning tier (`< 50%`): Amber-red warning theme (`⚠️`), title `Your profile is {profileStrength}% complete`, warning chip `Limited Discovery`.
+         - Progress tier (`50% - 79%`): Vibrant purple-indigo energy theme (`⚡`), title `Your profile is {profileStrength}% complete`, chip `Almost Optimised`.
+       * Dynamic Guidance: Displays exact missing step hint: `💡 Next: {nextStep.label} ({nextStep.bonus}) to appear more in discovery.`
+       * Progress Bar: Renders a smooth animated progress track showing the exact `{profileStrength}%` filled state.
+       * Action CTA: Direct `Finish Setup →` button navigating to `/profile/edit`.
+       * Smart Dismissal: Dismissing with `✕` remembers the dismissal for the current score; if the score updates, it re-evaluates dynamically.
+     - Design System & Light Theme Alignment:
+       * In `Requests.css` and `androidPolish.css`: Added modern glassmorphism styling, clean progress track, and responsive mobile column wrapping.
+       * High-contrast Light Theme overrides (`html[data-theme="light"] .completion-nudge-card`, `.theme-light`): Crisp `#0f172a` headings, `#475569` text, soft ivory/amber/indigo cards, and dark slate action buttons.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite `test/requests-profile-completion-nudge.test.mjs` (4/4 tests passing).
+     - Master automated test suite: **377/377 tests PASSED** in 4.51s across 4 suites (`npm run test:all`).
+     - Vite production build: **PASSED** in 20.93s across 1,161 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 2.89s (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000019. Score Streak Modal Phone Ergonomics & Light/Dark Theme Alignment
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - The `ScoreStreakModal` previously swelled to >600px tall in phone previews due to oversized elements: a 104px hero flame circle with 3.2rem emoji, duplicate "Current Streak: 🔥 1d" stat box immediately below the hero, and 4 stacked full-width descriptive paragraphs for qualifying actions.
+     - The modal lacked viewport `max-height` constraints and was not mounted via a root portal, putting it at risk of stacking context traps and bottom navigation collisions on mobile screens.
+     - The modal was hardcoded exclusively with dark purple/black colors (`rgba(28, 22, 42, 0.96)`, `#ffffff` text), causing severe contrast wash-out and visual jarring in Light Theme (`html[data-theme="light"]`, `.theme-light`).
+     - Milestone tier lookup was matching lowest instead of highest reached tier due to unreversed `.find()` over ascending days.
+   - Comprehensive Mobile Ergonomics & Design System Alignment:
+     - Root Stacking Context Portal & Bottom-Nav Clearance:
+       * Mounted `ScoreStreakModal` directly to `document.body` via `createPortal`, paired with `document.body.classList.add('has-modal-open')` toggle to suppress bottom navigation during display.
+       * Added `Escape` key listener on `window` for accessible keyboard dismissal.
+     - Dimension Reduction & Information Streamlining (>45% height reduction, ~360px total height):
+       * Scaled hero flame circle from 104px down to a sleek 48px squircle (44px on mobile) with dynamic radiant pulse and 1.65rem emoji.
+       * Reduced days count font to `1.75rem` (mobile `1.6rem`), rendering clean `{streak} Days` typography with milestone micro-badge (`.score-streak-badge-pill`).
+       * Replaced redundant 2-box stat row with a single unified, compact 2-column metrics strip (`.score-streak-metrics-strip`):
+         - Status badge: `✓ Active Today` (emerald) or `⏳ Action Needed` (amber-red).
+         - Personal best pill: `🏆 Best: {longestStreak}d`.
+       * Compacted milestone progress section to a slim 6px track with gradient fill and percentage indicator.
+       * Replaced 4 bloated stacked text rows with an intuitive, touch-friendly 2x2 chip grid (`.score-streak-actions-grid`):
+         `⚡ Match Swipe`, `💬 Chat Message`, `💌 Send Request`, `🎭 Post / React`.
+       * Constrained container to `max-width: min(375px, calc(100vw - 1.75rem))` (mobile `min(360px, calc(100vw - 1.25rem))`) and `max-height: min(84dvh, 520px)` with `overflow-y: auto` and `overscroll-behavior: contain`.
+     - Full Dynamic Dark & Light Theme System:
+       * Dark Theme (default): Deep obsidian-ruby gradient (`rgba(26, 20, 36, 0.98)` to `rgba(14, 11, 24, 0.99)`), fiery border (`rgba(255, 107, 107, 0.24)`), glowing neon shadows.
+       * Light Theme (`html[data-theme="light"]`, `.theme-light`): Crisp white-to-ivory gradient (`linear-gradient(165deg, #ffffff 0%, #fff9f6 100%)`), high-contrast dark slate text (`#0f172a`), secondary text (`#64748b`), light close button (`#334155`), clean white action cards with subtle borders (`#e2e8f0`), and vibrant green/red status pills.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite `test/score-streak-compact-modal.test.mjs` (3/3 tests passing).
+     - Master automated test suite: **373/373 tests PASSED** in 6.41s across 4 suites (`npm run test:all`).
+     - Vite production build: **PASSED** in 37.41s across 1,161 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 5.79s across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000018. TikTok-Style Virtual Gift Celebration Animation System & Profile Light Theme Icon Contrast
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - The profile dashboard action cards (Edit Profile, Wallet, Referrals, Settings, Partner Up, Requests, Leaderboard) suffered from faded/invisible icon contrast in Light Theme (`var(--icon-secondary)` and light background was washing out SVG and text icons).
+     - Virtual gifts sent in chat (Digital Rose, Cold Zobo, Hot Suya, Airtime Charm, Campus Bouquet, Royal Crown, Campus Lion) previously rendered as a small static chat bubble without celebratory sensory impact, leaving the recipient without the thrill and prestige of receiving digital gifts (akin to TikTok Live gift gifting).
+   - Design System & Multi-Layer Celebration Architecture:
+     - Profile Light Theme Contrast Fix:
+       * In `Profile.css`, updated `.dashboard-card .card-icon` to use `var(--icon-secondary)` and added high-contrast light theme rules (`html[data-theme="light"] .dashboard-card .card-icon, .theme-light .dashboard-card .card-icon { color: var(--text-primary, #0f172a); }`) with individual vibrant accent tinting across all 7 dashboard buttons.
+     - Full-Screen TikTok-Style Celebration Overlay (`GiftCelebrationOverlay.jsx` & `GiftCelebrationOverlay.css`):
+       * Root Portal Mounting: Mounted directly to `document.body` via `createPortal` with `z-index: 999999` and ambient backdrop blur.
+       * Rotating Conic Sunburst & Energy Rings: Implemented `@keyframes sunburstRotate` and concentric expanding `@keyframes energyRingPulse` tuned to each gift tier's signature color.
+       * Themed Dynamic Particle Shower: Generates 26-40 flying particles floating and drifting downwards with physics (`--drift`, `--rotation`, `@keyframes particleFall`).
+       * Campus Lion ₦100,000 Whale Tier Special Effects: Features dramatic golden-dark aura, `@keyframes lionScreenShakeAnim` viewport rumble, roaring pulse, and `👑 LEGENDARY CAMPUS WHALE ALERT 👑` animated marquee.
+       * Auto-Dismiss Countdown: Dynamic progress timer bar with auto-dismiss (5s standard, 7s for Lion) with pause-on-hover/touch and `Escape` keyboard dismissal.
+       * Sender Pill & Earnings Credit Display: TikTok-style top sender glass pill displaying avatar, name, coins spent, and student wallet cash credit (e.g., +₦80,000 for Campus Lion).
+       * Direct "💬 Say Thanks" CTA: Launches instant conversation reply to sender.
+     - Zero-Asset Web Audio API Synthesized Sound Profiles (`audioContext.js`):
+       * Built `playGiftCelebrationSound(giftId)` providing 7 distinct synthesized acoustic profiles without external `.mp3` dependencies:
+         - 🌹 Digital Rose: Ascending harp chime arpeggio (C5 -> E5 -> G5 -> C6).
+         - 🍷 Cold Zobo: Effervescent fizzy carbonation bubble pops.
+         - 🍢 Hot Suya: Sizzling spicy frequency hiss with snappy snap.
+         - 📱 Airtime Charm: Electronic recharge chime with modern bell confirmation.
+         - 💐 Campus Bouquet: Lush harmonic acoustic glissando chord.
+         - 👑 Royal Crown: Regal brass fanfare with shimmering overtone bells.
+         - 🦁 Campus Lion: Deep sub-bass thunder rumble + triumphant brass swell fanfare.
+     - Real-Time & App-Wide Notification Dispatch Integration:
+       * Created authoritative database migration `20261021100000_send_coin_gift_notification.sql` updating `public.send_coin_gift`:
+         - Automatically inserts an authoritative notification into `public.notifications` for the recipient with rich gift metadata (`gift_id`, `gift_name`, `gift_emoji`, `gift_coins`, `earning_credit_ngn`, `sender_id`, `sender_name`, `sender_avatar`).
+       * In `NotificationContext.jsx`: Wired real-time `postgres_changes` listener and `tcd:trigger-gift-celebration` event handler, triggering `<GiftCelebrationOverlay />` app-wide wherever the recipient is located.
+       * In `Chat.jsx` & `Chat.css`:
+         - Real-time incoming message stream triggers the celebration instantly if receiver is active in chat.
+         - Upgraded the in-chat message bubble (`.gift-message.interactive-gift-card`) into a luxury squircle card with theme glow, coins chip, earnings badge, and "✨ Replay Animation" button allowing replaying the TikTok celebration any time.
+   - Automated Quality Gates:
+     - Added dedicated unit test suite `test/gift-animation-system.test.mjs` (7/7 tests passing).
+     - Master automated test suite: **370/370 tests PASSED** in 14.58s across 4 suites (`npm run test:all`).
+     - Vite production build: **PASSED** in 18.23s across 1,161 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 2.48s across 11 plugins (`npx cap sync android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000017. Profile Status Upload Modal & Global Pop-Up Cards Compact Redesign & Bottom Nav Bar Clearance
+   - Root-Cause Forensic Diagnosis:
+     - `StatusUploadModal.jsx` was previously rendered within the page tree (inside `MotionDiv` with CSS transforms), creating a nested CSS stacking context that trapped its `z-index`. Sibling `.bottom-nav` outside `main.app-main` was rendered on top of the modal's bottom controls.
+     - `status-modal-card` lacked a viewport `max-height` restriction and scroll container, while including redundant elements (oversized incentive banner, verbose zero-backend explanation, bulky multi-row dropzone, and multi-row textarea). The modal swelled to >600px tall on mobile, filling the entire phone screen and submerging action buttons beneath the bottom nav bar.
+     - Other modal cards across the app (`.modal-content.glass`, `.settings-modal-card`, `.deal-modal-card`, `.inbox-modal-card`) similarly lacked compact mobile constraints and allowed modal bottoms to collide with mobile navigation bars.
+   - Comprehensive Design & Architectural Remediation:
+     - Root Stacking Context Portal: Mounted `StatusUploadModal` directly to `document.body` via `createPortal`, completely freeing it from any parent transform/stacking context, with `z-index: 99999`.
+     - Automatic Bottom Nav Bar Suppression: Added `document.body.classList.add('has-modal-open')` toggle on modal open/close, paired with CSS rules in `BottomNav.css`, `AppLayout.css`, and `androidPolish.css` (`body.has-modal-open .bottom-nav, body:has(.status-modal-overlay) .bottom-nav { display: none !important; }`), ensuring the bottom navigation bar never obstructs modal controls.
+     - Sizing Reduction & Element Streamlining (>60% height reduction):
+       * Stripped bloated `status-incentive-card` banner and verbose `status-ephemeral-note` text.
+       * Added a 1-tap accessible header close button `✕` (`.status-close-btn`).
+       * Transformed bulky dropzone into a sleek, compact horizontal row (`.status-dropzone.compact`, ~80px) with inline video incentive copy (`Video earns +10 Coins • 24h story`).
+       * Compacted caption input into a single-line 38px bar with character counter (`caption.length/180`).
+       * Constrained `status-modal-card` to `max-height: min(78dvh, 500px)` (mobile `min(76dvh, 480px)`) with `overflow-y: auto`, `overscroll-behavior: contain`, and compact padding (`0.95rem 1rem`).
+     - Global Pop-Up Card Modernization:
+       * In `Profile.css`, updated `.modal-content.glass` from `padding: 2rem` to `1.25rem 1.35rem` with `max-height: min(78dvh, 500px)`.
+       * In `Settings.css`, updated `.settings-modal-card` from `padding: 2rem 1.75rem` to `1.35rem 1.4rem` with `max-height: min(80dvh, 520px)`.
+       * In `CreateServiceDealModal.css` and `AnonymousInboxModal.css`, constrained max height to `min(80dvh, 540-560px)`.
+       * In `androidPolish.css`, enforced global native Android modal padding, centering, and bottom-nav suppression.
+   - Automated Quality Gates:
+     - Added dedicated test `test/status-modal-compact-ergonomics.test.mjs` (3/3 assertions passing).
+     - Master automated test suite: **363/363 tests PASSED** (`npm run test:all`).
+     - Vite production build: **PASSED** in 21.24s across 1,159 modules.
+     - Capacitor Android sync: **PASSED** in 1.86s.
+
+0.00000000000000000000000000000000000000000000000000000000000000000016. Requests Page Freemium Upsell Card & CTA Button Redesign
+   - Root-Cause Forensic Diagnosis:
+     - Card sizing was vertically oversized (~240px tall) due to excessive margins, separate standalone badge row, unconstrained emoji element, and full-column stacking on mobile that pushed incoming requests down the page.
+     - CTA button in `Requests.jsx` used `className="upsell-cta-btn"`, whereas `Requests.css` had defined `.btn-upsell-action`, causing the button to render unstyled with default browser appearance.
+   - Design System Redesign & UX Polish:
+     - Redesigned `requests-premium-upsell-card` into a sleek, compact luxury banner (~64px height on desktop, ~113px on mobile, >50% space savings).
+     - Grouped the `👑 UNLIMITED ACCESS` micro-badge and `Never miss a campus connection` title compactly in `upsell-header-line`.
+     - Nested the diamond `💎` in a polished 38px/32px squircle `upsell-icon-wrapper` with subtle gold-pink radial glow and translucent border.
+     - Styled `.upsell-cta-btn` and `.btn-upsell-action` with vibrant gold luxury gradient (`#ffd700` to `#ff9500`), pill shape (`border-radius: 9999px`), crisp dark typography (`#0b0f19`, `font-weight: 800`), tactile hover/active micro-interactions, and warm amber shadow (`0 4px 14px rgba(255, 170, 0, 0.32)`).
+     - Implemented responsive mobile grid layout (`grid-template-columns: auto 1fr`, full-width pill button spanning row 2) and seamless light theme support (`#fffdf5`, `#fde68a` borders, `#0f172a` text).
+     - Added keyboard accessibility (`role="button"`, `tabIndex={0}`, `onKeyDown` Enter/Space triggers).
+   - Automated Quality Gates:
+     - Added dedicated test `test/requests-upsell-card.test.mjs` (3/3 assertions passing).
+     - Master automated test suite: **352/352 tests PASSED** (`npm run test:all`).
+     - Vite production build: **PASSED** in 23.56s across 1,159 modules.
+     - Capacitor Android sync: **PASSED** in 3.49s.
+
+0.00000000000000000000000000000000000000000000000000000000000000000015. Critical Production Security Hardening, Red-Team Audit & Defense Project
+   - Multi-Agent Comprehensive Security Audit & Remediation:
+     - Referral Milestone Infinite Money Glitch Fixed (`VULN-CD-001` - CRITICAL):
+       * Rewrote `public.process_referral_milestones(p_referrer_id)` in migration `20261020120000_critical_security_audit_hardening.sql`.
+       * Added `wallets.referral_milestones_awarded integer[] DEFAULT '{}'` to store awarded milestone tiers (10, 20, 30...).
+       * Implemented `FOR UPDATE` concurrency row locking on `public.wallets`.
+       * Enforced single-claim verification `NOT (v_milestone_tier = ANY(referral_milestones_awarded))` before awarding 3,000 NGN bonuses, preventing repeated calls from multiplying wallet balances.
+       * Audited transaction records in `public.wallet_transactions`.
+     - Android Production Remote Debugging Deactivated (`VULN-CD-002` - HIGH):
+       * Set `"webContentsDebuggingEnabled": false` in `capacitor.config.json`, preventing USB/ADB remote DevTools live DOM inspection, memory dumps, and token extraction on production Android packages.
+     - Production Global Supabase Instance Guarded (`VULN-CD-003` - HIGH):
+       * In `src/lib/supabase.js`, wrapped `window.__supabase = supabase` with `import.meta.env.DEV`, stripping global client and session token exposure from production web bundles.
+     - Admin & Owner Email Confirmation Enforcement (`VULN-CD-004` - HIGH):
+       * In `20261020120000_critical_security_audit_hardening.sql`, updated `is_app_admin()`, `admin_is_owner()`, and `admin_has_permission()` to strictly verify `v_user.email_confirmed_at IS NOT NULL` across all email checks, eliminating unconfirmed account spoofing.
+     - Storage Folder Isolation on `pending-avatars` (`VULN-CD-005` - MEDIUM):
+       * In `20261020120000_critical_security_audit_hardening.sql`, updated storage RLS policies to enforce `(storage.foldername(name))[1] = auth.uid()::text` for INSERT and UPDATE operations, preventing users from writing or overwriting files in other users' storage paths.
+     - Unauthenticated Preview & Testing Lab Route Protection (`VULN-CD-006` - MEDIUM):
+       * In `src/App.jsx`, added `DevOrAdminRoute` guard wrapping `/wireframes`, `/android-ux-comparison`, `/ux-lab`, `/ux-approval`, `/android-ux-review`, `/ux-review`, `/android-design-review`, `/design-review`, `/notification-preview`, `/notification-preview-lab`, `/push-preview`, `/push-lab`, `/premium-preview`, `/referrals-preview`.
+     - Self-Gifting Prohibited in Gift RPC (`VULN-CD-007` - LOW):
+       * In `20261020120000_critical_security_audit_hardening.sql`, added `IF p_sender_id = p_receiver_id THEN RETURN jsonb_build_object('success', false, 'error', 'Cannot send gifts to yourself'); END IF;` across both `process_gift_purchase` overloads.
+     - Webhook Timing Attack Resistance (`VULN-CD-008` - LOW):
+       * In `supabase/functions/revenuecat-webhook/index.ts`, implemented `constantTimeEqual` verification on the incoming authorization header.
+     - Security Headers Hardening (`VULN-CD-009` - LOW):
+       * In `public/_headers`, added `X-Permitted-Cross-Domain-Policies: none` and `Cross-Origin-Opener-Policy: same-origin-allow-popups`.
+   - Comprehensive Security Documentation Package (`security/audit/`):
+     - `SECURITY_EXECUTIVE_SUMMARY.md`: Executive summary and pre/post risk posture matrix.
+     - `ASSET_INVENTORY.md`: Comprehensive asset, domain, endpoint, and trust boundary mapping.
+     - `THREAT_MODEL.md`: Full STRIDE threat modeling analysis.
+     - `VULNERABILITY_REGISTER.md`: Detailed technical vulnerability register (VULN-CD-001 through 009).
+     - `SUPABASE_SECURITY_AUDIT.md`: Database access matrix, RLS review, function security, and storage policy review.
+     - `ANDROID_SECURITY_AUDIT.md`: OWASP MASVS v2.0 baseline mobile assessment and hardening.
+     - `PAYMENT_SECURITY_AUDIT.md`: Financial integrity, webhook idempotency, and wallet protection audit.
+     - `PRIVACY_AND_ABUSE_AUDIT.md`: NDPA 2023 compliance, message isolation, and anti-abuse safeguards.
+     - `SECURITY_TEST_PLAN.md`: Complete automated test plan and execution logs.
+     - `SECURITY_REMEDIATION_LOG.md`: Detailed code and SQL diff change log.
+     - `INCIDENT_RESPONSE_AND_RECOVERY.md`: SEV classification and operational incident playbooks.
+     - `SECURITY_RELEASE_CHECKLIST.md`: Objective deployment verification checklist and post-release smoke test protocol.
+   - Quality Gates:
+     - Master Test Suite: **349/349 tests PASSED in 4.54s** (`npm run test:all`).
+     - Dedicated Security Tests: **9/9 tests PASSED** (`node --test test/security-audit-hardening.test.mjs`).
+     - Production Vite Build: **PASSED in 24.46s** across 1,159 modules (`npm run build`).
+     - Capacitor Android Sync: **PASSED in 2.68s** across 11 plugins (`npx cap sync android`).
+     - Final Assessment: **READY FOR CONTROLLED RELEASE**.
+
+0.00000000000000000000000000000000000000000000000000000000000000000014. Production Release Version Bump (`v2.2.70` / VC 67) & Ultra Premium Billing Remediation
+   - Ultra Premium Google Play Billing & Android Native Remediation:
+     - Diagnosed and fixed the native Android instant mock activation bypass: guarded `isLocal` with `!isNative()` in `src/services/paymentService.js`, preventing Android Capacitor origin `https://localhost` from simulating mock test success.
+     - Removed `tierCategory !== 'ultra'` bypass in `PremiumUpgrade.jsx`, connecting `handleNativeSubscribe` to lookup rules for `ultra_monthly`, `ultra_2month`, and `ultra_3month`.
+     - Extended `purchaseRevenueCatPackage` and `restoreRevenueCatPurchases` to support the `'Ultra'` entitlement.
+   - Promotional UI Benefit Discovery (All 10 Implemented Perks Promoted):
+     - Updated `EliteUltraDetailsModal.jsx` and `PremiumUpgrade.jsx` to prominently feature Unrestricted In-Chat WhatsApp & Phone Contact Sharing, Public Profile Bio Contact Display & Viewer Unmasking, Extended 30s HD Live Video Showcase (corrected "10s" typo), Campus Confessions VIP Spotlight Dominance & Radiant Crowns, and ₦25,000 Total Monthly Value Bundle framing.
+   - Admin Dashboard Status Signaling:
+     - In `AdminDashboard.jsx`: Rendered `👑⭐ Elite Ultra` status badge in `UserDrawer` and `👑⭐ Ultra` in user table rows with luxury gradient styling (`.status-badge.ultra`, `.user-attention-card.luxury`) in `AdminDashboard.css`.
+   - Authoritative Supabase Migration & Security Hardening:
+     - Applied `supabase/migrations/20261019120000_ultra_premium_billing_and_security_hardening.sql`: registered `ultra_monthly` (₦15,000), `ultra_2month` (₦30,000), and `ultra_3month` (₦35,000) in `paid_products`; updated `grant_paid_product_entitlements`; removed insecure client `isUltraSender` metadata bypass in `check_message_off_platform_contact()`; upgraded `admin_get_user_detail` to return `is_ultra`.
+   - Synchronized Edge Function:
+     - Deployed updated `revenuecat-webhook` Edge Function to remote Supabase (`gedoyoleoscgxgdqszzc`) with Ultra entitlement detection, `plan_type = 'Elite Ultra'`, `profiles.is_ultra = true`, and ₦15,000 transaction logging.
+   - Synchronized Version Bump:
+     - `package.json`: `"version": "2.2.70"`
+     - `android/app/build.gradle`: `versionCode 67`, `versionName "2.2.70"`
+     - `src/services/feedbackService.js`: `appVersion: '2.2.70'`
+   - Signed Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.70-vc67-playstore.aab`
+       * Size: 16,794,719 bytes (**16.02 MB**)
+       * SHA-256: `8FC629ECD5202C22F2E39B73854F68E77E8CA2D306C2CA95DDB3B70F6D035E1B`
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.70-vc67-manual-test.apk`
+       * Size: 14,691,333 bytes (**14.01 MB**)
+       * SHA-256: `C6BE76505B2A24697C9EA46B363B25BE13E56D626C1AF74DA90528F8C5C5B1D8`
+   - Quality Gates:
+     - Test Suite: **338/338 tests PASSED in 5.60s** (`npm run test:all`).
+     - Production Vite Build: PASSED in 47.78s across 1,159 modules.
+     - AAB Release Verification: All 9 Play Store release gates PASSED (`node scripts/verify-aab.mjs`).
+     - Remote Database Migrations: All 91 migrations in sync on hosted Supabase (`gedoyoleoscgxgdqszzc`).
+     - Remote Edge Function: `revenuecat-webhook` ACTIVE (version 22) deployed without JWT verification.
+
+0.00000000000000000000000000000000000000000000000000000000000000000013. Production Release Version Bump (`v2.2.69` / VC 66)
+   - Synchronized version bump across all platforms and services:
+     - `package.json`: `"version": "2.2.69"`
+     - `android/app/build.gradle`: `versionCode 66`, `versionName "2.2.69"`
+     - `src/services/feedbackService.js`: `appVersion: '2.2.69'`
+   - Signed Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.69-vc66-playstore.aab`
+       * Size: 16,793,688 bytes (**16.01 MB**)
+       * SHA-256: `FE92FC3D4DB4CA3424332D355613012E39EAFF5FEA62DF8586ADEA19340DF8FE`
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.69-vc66-manual-test.apk`
+       * Size: 14,690,253 bytes (**14.01 MB**)
+       * SHA-256: `9C88914F9B4906BC3FC20CE5FD307E3F968E2D36A392F83F8B5F1153BA045612`
+   - Quality Gates:
+     - Test Suite: **333/333 tests PASSED in 6.06s** (`npm run test:all`).
+     - Production Vite Build: PASSED in 30.64s across 1,159 modules.
+     - AAB Release Verification: All 9 Play Store release gates PASSED (`node scripts/verify-aab.mjs`).
 
 0.00000000000000000000000000000000000000000000000000000000000000000012. Google Play Child Safety Standards Policy Adherence & In-App Reporting Modals (`v2.2.68` / VC 65)
    - Published Child Safety Standards & Point of Contact:

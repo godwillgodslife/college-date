@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
@@ -32,33 +32,52 @@ function createReferralCode(user, profile) {
 
 async function copyToClipboard(text) {
     if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return;
+        try {
+            await navigator.clipboard.writeText(text);
+            return;
+        } catch {
+            // fall through to execCommand
+        }
     }
 
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
+    try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    } catch (err) {
+        console.warn('Fallback copy failed:', err);
+    }
 }
 
 export default function Referrals() {
     const { currentUser, userProfile, fetchProfile } = useAuth();
     const { addToast } = useToast();
+    const navigate = useNavigate();
 
     const [searchParams] = useSearchParams();
     const isPreview = searchParams.get('preview') === 'true' || searchParams.get('demo') === 'true' || (typeof window !== 'undefined' && window.location.pathname.includes('preview'));
 
     const [copying, setCopying] = useState(false);
+    const [copiedCode, setCopiedCode] = useState(false);
+    const [copiedLink, setCopiedLink] = useState(false);
     const [checkingRewards, setCheckingRewards] = useState(false);
     const [referralCode, setReferralCode] = useState(userProfile?.referral_code || '');
     const [inputCode, setInputCode] = useState('');
     const [redeeming, setRedeeming] = useState(false);
+
+    // Auto-fill code from URL query param if user arrived via an invite link
+    useEffect(() => {
+        const urlRef = searchParams.get('ref') || searchParams.get('code');
+        if (urlRef && !inputCode) {
+            setInputCode(urlRef.toUpperCase().trim());
+        }
+    }, [searchParams]);
 
     const handleRedeemCode = async (e) => {
         e?.preventDefault();
@@ -207,7 +226,7 @@ export default function Referrals() {
     }
 
     const handleShareWhatsApp = async () => {
-        const code = referralCode || await ensureReferralCode();
+        const code = referralCode || (isPreview ? 'CD-ALEX' : await ensureReferralCode());
         if (!code) return;
         const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
         const campus = userProfile?.university || userProfile?.campus || '';
@@ -228,18 +247,22 @@ export default function Referrals() {
     };
 
     const handleCopyLink = async () => {
-        const code = referralCode || await ensureReferralCode();
+        const code = referralCode || (isPreview ? 'CD-ALEX' : await ensureReferralCode());
         if (!code) return;
         const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
 
         await copyToClipboard(referralLink);
         setCopying(true);
+        setCopiedLink(true);
         addToast('Referral link copied to clipboard!', 'success');
-        setTimeout(() => setCopying(false), 2000);
+        setTimeout(() => {
+            setCopying(false);
+            setCopiedLink(false);
+        }, 2200);
     };
 
     const handleNativeShare = async () => {
-        const code = referralCode || await ensureReferralCode();
+        const code = referralCode || (isPreview ? 'CD-ALEX' : await ensureReferralCode());
         if (!code) return;
         const referralLink = `${PUBLIC_APP_URL}/signup?ref=${encodeURIComponent(code)}`;
         const campus = userProfile?.university || userProfile?.campus || '';
@@ -261,15 +284,33 @@ export default function Referrals() {
     };
 
     const handleCopyCode = async () => {
-        const code = referralCode || await ensureReferralCode();
+        const code = referralCode || (isPreview ? 'CD-ALEX' : await ensureReferralCode());
         if (!code) return;
         await copyToClipboard(code);
-        addToast('Referral code copied!', 'success');
+        setCopiedCode(true);
+        addToast('Referral code copied to clipboard!', 'success');
+        setTimeout(() => setCopiedCode(false), 2200);
     };
 
     const handleCheckRewards = async () => {
+        if (!currentUser?.id) {
+            if (isPreview) {
+                addToast('Preview mode: Reward balance is simulated.', 'info');
+            }
+            return;
+        }
+
         setCheckingRewards(true);
         try {
+            // Check milestone rewards first if eligible
+            try {
+                await supabase.rpc('process_referral_milestones', {
+                    p_referrer_id: currentUser.id
+                });
+            } catch {
+                // RPC optional fallback
+            }
+
             const { data, error } = await supabase.rpc('unlock_matured_rewards', {
                 p_user_id: currentUser.id
             });
@@ -277,11 +318,14 @@ export default function Referrals() {
             if (error) throw error;
 
             if (data?.unlocked_amount > 0) {
-                addToast(`₦${data.unlocked_amount} moved to your wallet! 💰`, 'success');
+                addToast(`₦${Number(data.unlocked_amount).toLocaleString()} moved to your available balance! 💰`, 'success');
                 refreshWallet();
                 refreshReferrals();
+            } else if (Number(wallet?.available_balance || 0) > 0) {
+                addToast(`₦${Number(wallet.available_balance).toLocaleString()} available! Opening your Wallet...`, 'info');
+                navigate('/wallet');
             } else {
-                addToast('No new rewards to unlock yet.', 'info');
+                addToast('No new rewards to unlock yet. Invite more friends to earn cash!', 'info');
             }
         } catch (err) {
             console.error('Error unlocking rewards:', err);
@@ -299,6 +343,7 @@ export default function Referrals() {
     const remainingInvites = Math.max(0, MILESTONE_GOAL - referralCount);
     const isMilestoneUnlocked = referralCount >= MILESTONE_GOAL;
     const campusBadgeText = getCampusBadgeText(userProfile);
+    const effectiveCode = referralCode || (isPreview ? 'CD-ALEX' : '');
 
     return (
         <div className="referrals-page animated fadeIn">
@@ -339,7 +384,14 @@ export default function Referrals() {
 
             {/* Top Campus Connectors Section */}
             <section className="top-connectors-section">
-                <h2 className="top-connectors-title">Top Campus Connectors</h2>
+                <div className="top-connectors-header">
+                    <h2 className="top-connectors-title">Top Campus Connectors</h2>
+                    <span className="league-season-badge">Season 1 All-Stars</span>
+                </div>
+                <p className="top-connectors-subtitle">
+                    Leading campus connectors across Nigeria • Invite classmates to join the leaderboard
+                </p>
+
                 <div className="connectors-podium-row">
                     {connectors.map(connector => (
                         <div 
@@ -349,7 +401,7 @@ export default function Referrals() {
                             {connector.isLeader && (
                                 <div className="leader-floating-crown" aria-hidden="true">👑</div>
                             )}
-                            <span className="connector-rank-num">{connector.rank}</span>
+                            <span className="connector-rank-num">#{connector.rank}</span>
                             <div className="connector-avatar-wrapper">
                                 <img 
                                     src={connector.avatar || AVATAR_MAP[connector.avatarKey] || profileTunde} 
@@ -359,10 +411,28 @@ export default function Referrals() {
                                 />
                             </div>
                             <div className="connector-name">{connector.name}</div>
-                            <div className="connector-subtext">- Students -</div>
+                            <div className="connector-subtext">{connector.isLeader ? 'Campus Lead' : 'Ambassador'}</div>
                             <div className="connector-metric">{connector.students} Students</div>
                         </div>
                     ))}
+                </div>
+
+                {/* User's Authentic Campus Standing Card */}
+                <div className="user-campus-standing-card">
+                    <div className="standing-icon-wrap">
+                        <span className="standing-icon" aria-hidden="true">🎯</span>
+                    </div>
+                    <div className="standing-details">
+                        <div className="standing-title">Your Campus Standing</div>
+                        <div className="standing-desc">
+                            {referralCount > 0 
+                                ? `Active Connector • ${referralCount} ${referralCount === 1 ? 'student' : 'students'} invited from ${campusBadgeText.split('•')[0]?.trim() || 'your campus'}` 
+                                : `Not yet ranked • Invite 1 friend from ${campusBadgeText.split('•')[0]?.trim() || 'your campus'} to enter the league!`}
+                        </div>
+                    </div>
+                    {referralCount > 0 && (
+                        <span className="standing-status-pill">Active</span>
+                    )}
                 </div>
             </section>
 
@@ -377,7 +447,7 @@ export default function Referrals() {
                         <span className="share-icon">💬</span>
                         <span className="whatsapp-btn-text">Share on WhatsApp Status & Groups</span>
                     </div>
-                    <span className="whatsapp-code-pill">{referralCode || 'CD-ALEX'}</span>
+                    <span className="whatsapp-code-pill">{effectiveCode || 'CD-ALEX'}</span>
                 </button>
             </div>
 
@@ -425,8 +495,17 @@ export default function Referrals() {
                 <div className="referral-main-card">
                     <div className="referral-code-section">
                         <span className="label">Your Referral Code</span>
-                        <div className="code-display" onClick={handleCopyCode}>
-                            {referralCode || 'Preparing...'}
+                        <div 
+                            className="code-display" 
+                            onClick={handleCopyCode}
+                            role="button"
+                            tabIndex={0}
+                            title="Click to copy code"
+                        >
+                            <span className="code-text">{effectiveCode || 'Preparing...'}</span>
+                            <span className="code-copy-hint">
+                                {copiedCode ? '✓ Copied!' : 'Tap to copy'}
+                            </span>
                         </div>
                     </div>
 
@@ -443,7 +522,7 @@ export default function Referrals() {
                             className="btn btn-primary share-btn"
                             onClick={handleCopyLink}
                         >
-                            <span className="share-icon">📋</span> {copying ? 'Copied!' : 'Copy Link'}
+                            <span className="share-icon">📋</span> {copiedLink ? '✓ Copied!' : 'Copy Link'}
                         </button>
                         {typeof navigator !== 'undefined' && Boolean(navigator.share) && (
                             <button
@@ -469,7 +548,13 @@ export default function Referrals() {
                         </span>
                         <span className="stat-name">Pending</span>
                     </div>
-                    <div className="ref-stat clickable" onClick={handleCheckRewards}>
+                    <div 
+                        className={`ref-stat clickable ${Number(wallet?.available_balance || 0) > 0 ? 'has-funds' : ''}`} 
+                        onClick={handleCheckRewards}
+                        role="button"
+                        tabIndex={0}
+                        title="Click to check or claim rewards"
+                    >
                         <span className="stat-val">
                             {checkingRewards ? '...' : (
                                 <>
@@ -477,7 +562,9 @@ export default function Referrals() {
                                 </>
                             )}
                         </span>
-                        <span className="stat-name">Available</span>
+                        <span className="stat-name">
+                            {Number(wallet?.available_balance || 0) > 0 ? 'Available (Claim ↗)' : 'Available'}
+                        </span>
                     </div>
                 </div>
 
@@ -496,7 +583,7 @@ export default function Referrals() {
                             className="redeem-input"
                             placeholder="e.g. CD-ABC12"
                             value={inputCode}
-                            onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                            onChange={(e) => setInputCode(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))}
                             maxLength={20}
                             disabled={redeeming}
                         />
@@ -537,7 +624,7 @@ export default function Referrals() {
                 ) : (
                     <div className="no-referrals">
                         <div className="empty-icon">🤝</div>
-                        <p>No referrals yet. Start inviting friends!</p>
+                        <p>No referrals yet. Share your code with campus friends on WhatsApp to unlock free swipes & cash rewards!</p>
                     </div>
                 )}
             </section>

@@ -5,8 +5,8 @@
     --android-stroke-strong: rgba(255, 255, 255, 0.18);
     --android-shadow-soft: 0 12px 36px rgba(0, 0, 0, 0.28);
     --android-shadow-lifted: 0 18px 52px rgba(0, 0, 0, 0.42);
-    --android-glow-primary: 0 0 26px rgba(108, 99, 255, 0.28);
-    --android-glow-warm: 0 0 30px rgba(255, 107, 157, 0.22);
+    --android-glow-primary: none;
+    --android-glow-warm: none;
     --android-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     --android-ease-pop: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -52,8 +52,7 @@ html.is-native-app body {
     min-height: calc(var(--vh, 1vh) * 100);
     overflow-x: clip;
     overscroll-behavior: none;
-    background:
-        linear-gradient(180deg, #07070d 0%, #0b0b13 42%, #08080e 100%);
+    background: var(--bg-primary, #0a0a0c);
 }
 
 html.is-native-app body {
@@ -99,10 +98,7 @@ html.is-native-app [contenteditable="true"] {
 }
 
 html.is-native-app .app-layout {
-    background:
-        linear-gradient(160deg, rgba(108, 99, 255, 0.08), transparent 32%),
-        linear-gradient(20deg, rgba(255, 107, 157, 0.06), transparent 34%),
-        var(--bg-primary);
+    background: var(--bg-primary);
 }
 
 /* Hardware-accelerated smooth transitions */
@@ -217,7 +213,7 @@ html.is-native-app .navbar-brand {
 
 html.is-native-app .navbar-title {
     font-size: 1.05rem;
-    filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.18));
+    filter: none;
 }
 
 html.is-native-app .nav-icon-btn {
@@ -285,16 +281,16 @@ html.is-native-app .bottom-nav {
     left: 12px;
     right: 12px;
     bottom: max(10px, var(--safe-bottom));
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 28px;
     padding: 0.35rem 0.35rem;
     min-height: var(--bottom-nav-height);
-    background: rgba(12, 12, 20, 0.90);
+    background: rgba(12, 12, 18, 0.94);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     box-shadow:
-        0 20px 55px rgba(0, 0, 0, 0.60),
-        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+        0 18px 44px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     z-index: 1000;
 }
 
@@ -314,14 +310,14 @@ html.is-native-app .bottom-nav-item {
 }
 
 html.is-native-app .bottom-nav-item.active {
-    color: white;
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.26), rgba(255, 107, 157, 0.18));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), var(--android-glow-primary);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 
 html.is-native-app .bottom-nav-item.active .bottom-nav-icon {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 12px rgba(255, 107, 157, 0.40));
+    transform: scale(1.05);
+    filter: none;
 }
 
 html.is-native-app .bottom-nav-label {
@@ -447,16 +443,7 @@ html.is-native-app .swipe-card {
 }
 
 html.is-native-app .swipe-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 18%),
-        linear-gradient(90deg, rgba(108, 99, 255, 0.12), transparent 28%, transparent 72%, rgba(255, 107, 157, 0.12));
-    mix-blend-mode: screen;
-    opacity: 0.54;
+    display: none;
 }
 
 html.is-native-app .swipe-card-image {
@@ -468,12 +455,11 @@ html.is-native-app .swipe-card:active .swipe-card-image {
 }
 
 html.is-native-app .swipe-card-gradient {
-    height: 62%;
+    height: 46%;
     background: linear-gradient(
         to top,
-        rgba(0, 0, 0, 0.98) 0%,
-        rgba(0, 0, 0, 0.72) 36%,
-        rgba(0, 0, 0, 0.12) 78%,
+        rgba(8, 8, 12, 0.94) 0%,
+        rgba(8, 8, 12, 0.62) 45%,
         transparent 100%
     );
 }
@@ -502,7 +488,7 @@ html.is-native-app .ai-wingman-btn,
 html.is-native-app .btn-boost {
     position: relative;
     overflow: hidden;
-    box-shadow: 0 12px 30px rgba(108, 99, 255, 0.26), var(--android-glow-warm);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 html.is-native-app .premium-btn::before,
@@ -536,8 +522,8 @@ html.is-native-app .btn-boost:active::before {
 
 html.is-native-app .ai-wingman-btn,
 html.is-native-app .ai-chat-btn {
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.28), rgba(255, 107, 157, 0.18));
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(18, 18, 24, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     color: #fff;
 }
 
@@ -546,9 +532,7 @@ html.is-native-app .ai-wingman-group {
 }
 
 html.is-native-app .ai-detail-tools {
-    background:
-        linear-gradient(135deg, rgba(108, 99, 255, 0.14), rgba(255, 107, 157, 0.08)),
-        rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
 }
@@ -560,10 +544,8 @@ html.is-native-app .ai-wingman-btn.compact {
 html.is-native-app .ai-card-insight,
 html.is-native-app .ai-coach-result,
 html.is-native-app .ai-reply-strip {
-    background:
-        linear-gradient(135deg, rgba(108, 99, 255, 0.18), rgba(255, 107, 157, 0.09)),
-        rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(18, 18, 24, 0.84);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
@@ -673,14 +655,16 @@ html.is-native-app.keyboard-open .chat-input-area,
 
 
 html.is-native-app .message-bubble {
-    border-radius: 20px;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
-    animation: androidLiftIn 260ms var(--android-ease-pop) both;
+    border-radius: 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+    animation: androidLiftIn 220ms var(--android-ease-pop) both;
 }
 
 html.is-native-app .message-sent {
-    background: linear-gradient(135deg, #7068ff 0%, #ff6b9d 100%);
-    border-bottom-right-radius: 7px;
+    background: var(--msg-outgoing-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.26) 0%, rgba(255, 45, 85, 0.22) 100%), #181322);
+    border: 1px solid var(--msg-outgoing-border, rgba(255, 45, 85, 0.32));
+    color: var(--msg-outgoing-text, #f8f8fa);
+    border-bottom-right-radius: 6px;
 }
 
 @keyframes androidAiReveal {
@@ -696,9 +680,26 @@ html.is-native-app .message-sent {
 }
 
 html.is-native-app .message-received {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.09);
-    border-bottom-left-radius: 7px;
+    background: var(--msg-incoming-bg, #1e1e26);
+    border: 1px solid var(--msg-incoming-border, rgba(255, 255, 255, 0.08));
+    color: var(--msg-incoming-text, #f4f4f8);
+    border-bottom-left-radius: 6px;
+}
+
+html.is-native-app[data-theme="light"] .message-sent,
+.theme-light.is-native-app .message-sent {
+    background: var(--msg-outgoing-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(255, 45, 85, 0.13) 100%), #fcf9ff) !important;
+    border: 1px solid var(--msg-outgoing-border, rgba(255, 45, 85, 0.26)) !important;
+    color: var(--msg-outgoing-text, #181224) !important;
+    box-shadow: 0 1px 3px rgba(24, 18, 36, 0.06) !important;
+}
+
+html.is-native-app[data-theme="light"] .message-received,
+.theme-light.is-native-app .message-received {
+    background: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    color: #0f172a !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 html.is-native-app .chat-input-form,
@@ -1058,7 +1059,7 @@ html.is-native-app .spinner-brand {
 
     html.is-native-app .edit-profile-page {
         justify-content: flex-start;
-        background: linear-gradient(135deg, #f8faff 0%, #eef2f7 100%);
+        background: var(--bg-primary, #0a0a0c);
     }
 
     html.is-native-app .edit-profile-container,
@@ -1364,8 +1365,18 @@ html.is-native-app .spinner-brand {
 
 /* High Contrast Requests & Nudge Overrides (Dark Default) */
 html.is-native-app .completion-nudge-card {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(220, 38, 38, 0.12) 100%), var(--android-surface) !important;
-    border: 1.5px solid rgba(239, 68, 68, 0.55) !important;
+    background: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.16) 0%, rgba(15, 23, 42, 0.85) 100%), var(--android-surface) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+html.is-native-app .completion-nudge-card.is-warning {
+    background: radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.2) 0%, rgba(15, 23, 42, 0.85) 100%), var(--android-surface) !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.5) !important;
+}
+
+html.is-native-app .completion-nudge-card.is-progress {
+    background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.2) 0%, rgba(15, 23, 42, 0.85) 100%), var(--android-surface) !important;
+    border: 1.5px solid rgba(139, 92, 246, 0.45) !important;
 }
 
 html.is-native-app .completion-nudge-card .nudge-content h3 {
@@ -1374,13 +1385,17 @@ html.is-native-app .completion-nudge-card .nudge-content h3 {
 }
 
 html.is-native-app .completion-nudge-card .nudge-content p {
-    color: #fca5a5 !important;
+    color: rgba(255, 255, 255, 0.85) !important;
     font-weight: 500 !important;
 }
 
 html.is-native-app .requests-premium-upsell-card {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(238, 43, 105, 0.12) 100%), var(--android-surface) !important;
-    border: 1.5px solid rgba(255, 215, 0, 0.45) !important;
+    margin-top: 0.6rem !important;
+    margin-bottom: 0.95rem !important;
+    padding: 0.75rem 0.85rem !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(238, 43, 105, 0.08) 100%), var(--android-surface) !important;
+    border: 1px solid rgba(255, 215, 0, 0.35) !important;
 }
 
 html.is-native-app .requests-premium-upsell-card .upsell-text h3 {
@@ -1388,30 +1403,48 @@ html.is-native-app .requests-premium-upsell-card .upsell-text h3 {
 }
 
 html.is-native-app .requests-premium-upsell-card .upsell-text p {
-    color: #e2e8f0 !important;
+    color: #cbd5e1 !important;
 }
 
 /* Light Theme overrides for Requests & Nudge */
 html.is-native-app[data-theme="light"] .completion-nudge-card,
 .theme-light.is-native-app .completion-nudge-card {
-    background: #fef2f2 !important;
-    border: 1.5px solid #fecaca !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+}
+
+html.is-native-app[data-theme="light"] .completion-nudge-card.is-warning,
+.theme-light.is-native-app .completion-nudge-card.is-warning {
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+
+html.is-native-app[data-theme="light"] .completion-nudge-card.is-progress,
+.theme-light.is-native-app .completion-nudge-card.is-progress {
+    background: #fbfbfe !important;
+    border-color: #e0e7ff !important;
 }
 
 html.is-native-app[data-theme="light"] .completion-nudge-card .nudge-content h3,
 .theme-light.is-native-app .completion-nudge-card .nudge-content h3 {
-    color: #991b1b !important;
+    color: #0f172a !important;
 }
 
 html.is-native-app[data-theme="light"] .completion-nudge-card .nudge-content p,
 .theme-light.is-native-app .completion-nudge-card .nudge-content p {
-    color: #b91c1c !important;
+    color: #475569 !important;
 }
 
 html.is-native-app[data-theme="light"] .requests-premium-upsell-card,
 .theme-light.is-native-app .requests-premium-upsell-card {
-    background: #fffbeb !important;
-    border: 1.5px solid #fde68a !important;
+    background: #fffdf5 !important;
+    border: 1px solid #fde68a !important;
+}
+
+html.is-native-app[data-theme="light"] .requests-premium-upsell-card .upsell-icon-wrapper,
+.theme-light.is-native-app .requests-premium-upsell-card .upsell-icon-wrapper {
+    background: #fef3c7 !important;
+    border-color: #fde68a !important;
 }
 
 html.is-native-app[data-theme="light"] .requests-premium-upsell-card .upsell-text h3,
@@ -1481,9 +1514,9 @@ html.is-native-app[data-theme="light"] .bottom-nav-item,
 
 html.is-native-app[data-theme="light"] .bottom-nav-item.active,
 .theme-light.is-native-app .bottom-nav-item.active {
-    color: var(--color-primary, #635bff) !important;
-    background: rgba(99, 91, 255, 0.10) !important;
-    box-shadow: inset 0 0 0 1px rgba(99, 91, 255, 0.20) !important;
+    color: #0f172a !important;
+    background: rgba(15, 23, 42, 0.08) !important;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.14) !important;
 }
 
 html.is-native-app[data-theme="light"] .bottom-nav-item.active .bottom-nav-icon,
@@ -1771,6 +1804,19 @@ html.is-native-app[data-theme="light"] textarea::placeholder,
     color: #94a3b8 !important;
 }
 
+html.is-native-app[data-theme="light"] .chat-search-input,
+html.is-native-app[data-theme="light"] .chat-input,
+html.is-native-app[data-theme="light"] .chat-textarea,
+html.is-native-app[data-theme="light"] .explore-search-input,
+.theme-light.is-native-app .chat-search-input,
+.theme-light.is-native-app .chat-input,
+.theme-light.is-native-app .chat-textarea,
+.theme-light.is-native-app .explore-search-input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
 /* ─── Filter Chips & Category Pills in Light Mode ────────────── */
 html[data-theme="light"] .notification-filter,
 html[data-theme="light"] .chat-filter-chip,
@@ -1870,6 +1916,56 @@ html.is-native-app[data-theme="light"] .active-filter-chip.active,
     color: #ffffff !important;
     border-color: transparent !important;
     box-shadow: 0 4px 14px rgba(99, 91, 255, 0.25) !important;
+}
+
+html[data-theme="light"] .notification-filter.active,
+html[data-theme="light"] .chat-filter-chip.active,
+html[data-theme="light"] .match-tab.active,
+html[data-theme="light"] .nav-tab-btn.active,
+html[data-theme="light"] .discover-rail-btn.active,
+html[data-theme="light"] .gender-opt-btn.active,
+html[data-theme="light"] .filter-opt.active,
+html[data-theme="light"] .category-chip.active,
+html[data-theme="light"] .official-category-pill.active,
+html[data-theme="light"] .filter-pill-chip.active,
+html[data-theme="light"] .active-filter-chip.active,
+html.is-native-app[data-theme="light"] .notification-filter.active,
+html.is-native-app[data-theme="light"] .chat-filter-chip.active,
+html.is-native-app[data-theme="light"] .match-tab.active,
+html.is-native-app[data-theme="light"] .nav-tab-btn.active,
+html.is-native-app[data-theme="light"] .discover-rail-btn.active,
+html.is-native-app[data-theme="light"] .gender-opt-btn.active,
+html.is-native-app[data-theme="light"] .filter-opt.active,
+html.is-native-app[data-theme="light"] .category-chip.active,
+html.is-native-app[data-theme="light"] .official-category-pill.active,
+html.is-native-app[data-theme="light"] .filter-pill-chip.active,
+html.is-native-app[data-theme="light"] .active-filter-chip.active,
+.theme-light .notification-filter.active,
+.theme-light .chat-filter-chip.active,
+.theme-light .match-tab.active,
+.theme-light .nav-tab-btn.active,
+.theme-light .discover-rail-btn.active,
+.theme-light .gender-opt-btn.active,
+.theme-light .filter-opt.active,
+.theme-light .category-chip.active,
+.theme-light .official-category-pill.active,
+.theme-light .filter-pill-chip.active,
+.theme-light .active-filter-chip.active,
+.theme-light.is-native-app .notification-filter.active,
+.theme-light.is-native-app .chat-filter-chip.active,
+.theme-light.is-native-app .match-tab.active,
+.theme-light.is-native-app .nav-tab-btn.active,
+.theme-light.is-native-app .discover-rail-btn.active,
+.theme-light.is-native-app .gender-opt-btn.active,
+.theme-light.is-native-app .filter-opt.active,
+.theme-light.is-native-app .category-chip.active,
+.theme-light.is-native-app .official-category-pill.active,
+.theme-light.is-native-app .filter-pill-chip.active,
+.theme-light.is-native-app .active-filter-chip.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    box-shadow: none !important;
 }
 
 html[data-theme="light"] .notification-filter:hover:not(.active),
@@ -2347,6 +2443,18 @@ html.is-native-app .feature-card-icon {
     margin-bottom: 0.35rem !important;
 }
 
+html.is-native-app .feature-icon-badge {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+}
+
+html.is-native-app .feature-icon-badge svg,
+html.is-native-app .feature-svg {
+    width: 19px !important;
+    height: 19px !important;
+}
+
 html.is-native-app .feature-card-title {
     font-size: 0.88rem !important;
     margin-bottom: 0.2rem !important;
@@ -2703,6 +2811,16 @@ html.is-native-app .row-score {
         font-size: 1.4rem !important;
         margin-bottom: 0.35rem !important;
     }
+    .feature-icon-badge {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+    }
+    .feature-icon-badge svg,
+    .feature-svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
     .feature-card-title {
         font-size: 0.88rem !important;
         margin-bottom: 0.2rem !important;
@@ -2800,6 +2918,15 @@ html.is-native-app .row-score {
         min-width: 30px !important;
         padding: 0.2rem 0.35rem !important;
         font-size: 0.78rem !important;
+    }
+    .auth-page .btn-social,
+    .social-buttons .btn-social,
+    html.is-native-app .auth-page .btn-social,
+    html.is-native-app .social-buttons .btn-social {
+        min-height: 48px !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem !important;
+        border-radius: 14px !important;
     }
 
     .ambassador-header {
@@ -2968,5 +3095,41 @@ html.is-native-app .row-score {
     }
     .offplatform-ultra-card {
         border-radius: 16px !important;
+    }
+
+    /* ── 8. Mobile & Native Android Modal Sizing & Bottom Nav Clearance ── */
+    html.is-native-app .modal-card,
+    html.is-native-app .modal-content.glass,
+    html.is-native-app .status-modal-card,
+    html.is-native-app .deal-modal-card,
+    html.is-native-app .report-modal-card,
+    html.is-native-app .settings-modal-card,
+    html.is-native-app .inbox-modal-card {
+        max-height: min(78dvh, 500px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin: auto !important;
+        overscroll-behavior: contain !important;
+    }
+
+    html.is-native-app .status-modal-overlay,
+    html.is-native-app .modal-overlay,
+    html.is-native-app .deal-modal-overlay,
+    html.is-native-app .report-modal-overlay,
+    html.is-native-app .settings-modal-overlay {
+        padding: 0.75rem 0.75rem calc(max(0.75rem, env(safe-area-inset-bottom, 0px))) 0.75rem !important;
+        align-items: center !important;
+    }
+
+    html.is-native-app.has-modal-open .bottom-nav,
+    html.is-native-app:has(.status-modal-overlay) .bottom-nav,
+    html.is-native-app:has(.modal-overlay) .bottom-nav,
+    html.is-native-app:has(.deal-modal-overlay) .bottom-nav,
+    html.is-native-app:has(.report-modal-overlay) .bottom-nav,
+    html.is-native-app:has(.guide-modal-overlay) .bottom-nav,
+    html.is-native-app:has(.inbox-modal-overlay) .bottom-nav,
+    html.is-native-app:has([aria-modal="true"]) .bottom-nav {
+        display: none !important;
+        pointer-events: none !important;
     }
 }

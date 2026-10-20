@@ -20,6 +20,12 @@ import confetti from 'canvas-confetti';
 import './ContextualPaywallSheet.css';
 
 const TOUCHPOINT_COPY = {
+    campus_finder: {
+        pill: '🔍 UNLIMITED CAMPUS FINDER',
+        title: 'Find Anyone on Campus',
+        subtitle: 'You\'ve reached your 2 free weekly scans. Upgrade to College Date Elite to unlock unlimited visual search and verify campus crushes.',
+        icon: '🔍'
+    },
     viewers_list: {
         pill: '👀 SECRET ADMIRERS',
         title: 'See Who Checked You Out',

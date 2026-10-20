@@ -120,6 +120,16 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-spring: 400ms cubic-bezier(0.21, 1.02, 0.73, 1);
+
+  /* Chat Message Bubble Tokens (Dark Theme — Subtle Brand Purple/Pink Wash) */
+  --msg-outgoing-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.26) 0%, rgba(255, 45, 85, 0.22) 100%), #181322;
+  --msg-outgoing-border: rgba(255, 45, 85, 0.32);
+  --msg-outgoing-text: #f8f8fa;
+  --msg-outgoing-meta: rgba(248, 248, 250, 0.65);
+  --msg-incoming-bg: #1e1e26;
+  --msg-incoming-border: rgba(255, 255, 255, 0.08);
+  --msg-incoming-text: #f4f4f8;
+  --msg-incoming-meta: #8e8e9a;
 }
 
 /* ─── Light Theme Tokens ─────────────────────────────────── */
@@ -193,6 +203,16 @@ html.theme-light,
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
   --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.09);
   --shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.12);
+
+  /* Chat Message Bubble Tokens (Light Theme — Soft Brand Blush & Lavender Wash) */
+  --msg-outgoing-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(255, 45, 85, 0.13) 100%), #fcf9ff;
+  --msg-outgoing-border: rgba(255, 45, 85, 0.26);
+  --msg-outgoing-text: #181224;
+  --msg-outgoing-meta: #6e5d7a;
+  --msg-incoming-bg: #ffffff;
+  --msg-incoming-border: rgba(15, 23, 42, 0.08);
+  --msg-incoming-text: #0f172a;
+  --msg-incoming-meta: #64748b;
 }
 
 /* Fallback for OS Light mode when no explicit preference is set */
@@ -251,6 +271,15 @@ html.theme-light,
     --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.07);
     --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.09);
     --shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.12);
+
+    --msg-outgoing-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(255, 45, 85, 0.13) 100%), #fcf9ff;
+    --msg-outgoing-border: rgba(255, 45, 85, 0.26);
+    --msg-outgoing-text: #181224;
+    --msg-outgoing-meta: #6e5d7a;
+    --msg-incoming-bg: #ffffff;
+    --msg-incoming-border: rgba(15, 23, 42, 0.08);
+    --msg-incoming-text: #0f172a;
+    --msg-incoming-meta: #64748b;
   }
 }
 
@@ -542,14 +571,12 @@ a:focus:not(:focus-visible) {
 }
 
 .btn-gradient {
-  background: linear-gradient(90deg, #6C63FF, #FF6B9D, #00D2FF, #6C63FF);
-  background-size: 300% 100%;
+  background: var(--gradient-primary);
   color: white;
   border: none;
   position: relative;
   overflow: hidden;
-  animation: premiumShimmer 5s linear infinite, premiumPulse 3s ease-in-out infinite;
-  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.25);
 }
 
 @keyframes premiumShimmer {
@@ -567,18 +594,18 @@ a:focus:not(:focus-visible) {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.25);
   }
 
   50% {
-    transform: scale(1.02);
-    box-shadow: 0 8px 25px rgba(108, 99, 255, 0.5);
+    transform: scale(1.01);
+    box-shadow: 0 6px 18px rgba(108, 99, 255, 0.35);
   }
 }
 
 .btn-gradient:hover:not(:disabled) {
-  filter: brightness(1.2);
-  transform: translateY(-3px) scale(1.04) !important;
+  filter: brightness(1.08);
+  transform: translateY(-1px) !important;
 }
 
 .btn-block {
@@ -633,7 +660,7 @@ a:focus:not(:focus-visible) {
   font-weight: 900;
   border-radius: 50%;
   margin-left: 5px;
-  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.45);
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.35);
   vertical-align: middle;
   flex-shrink: 0;
   line-height: 1;
@@ -644,8 +671,8 @@ a:focus:not(:focus-visible) {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.35);
   color: #4ade80;
   font-size: 0.72rem;
   font-weight: 700;
@@ -655,16 +682,15 @@ a:focus:not(:focus-visible) {
 }
 
 .premium-crown {
-  margin-left: 5px;
-  font-size: 1.1em;
+  margin-left: 4px;
+  font-size: 1.02em;
   display: inline-block;
-  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+  filter: drop-shadow(0 1px 3px rgba(245, 158, 11, 0.35));
   vertical-align: middle;
-  animation: gentlePulse 2.5s ease-in-out infinite;
 }
 
 @keyframes gentlePulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  50% { transform: scale(1.06); }
 }
 

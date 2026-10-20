@@ -285,7 +285,7 @@ export default function OfficialVideoPlayer({
                             style={{
                                 width: `${progressPct}%`,
                                 height: '100%',
-                                background: 'linear-gradient(90deg, #00d2ff, #eb2f96)',
+                                background: '#ffffff',
                                 borderRadius: '2px',
                                 position: 'relative',
                             }}
@@ -299,7 +299,7 @@ export default function OfficialVideoPlayer({
                                     height: '10px',
                                     borderRadius: '50%',
                                     backgroundColor: '#fff',
-                                    boxShadow: '0 0 6px rgba(0, 210, 255, 0.8)',
+                                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.5)',
                                 }}
                             />
                         </div>

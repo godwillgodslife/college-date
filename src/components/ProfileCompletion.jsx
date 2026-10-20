@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { calculateProfileStrength, getNextProfileCompletionStep } from '../utils/profileData';
 import './ProfileCompletion.css';
 
 const ProfileCompletion = ({
@@ -15,20 +16,9 @@ const ProfileCompletion = ({
         return window.localStorage.getItem('tcd_dismissed_profile_completion') === 'true';
     });
 
-    // Scoring Logic (matching DB trigger)
-    const checklist = [
-        { label: 'Add clear photo', bonus: '+30%', done: Boolean(profile?.avatar_url || profile?.profile_photos?.[0]), value: 30 },
-        { label: 'Add bio', bonus: '+20%', done: (profile?.bio?.trim().length || 0) >= 10, value: 20 },
-        { label: '3+ Interests', bonus: '+15%', done: (profile?.interests?.length || 0) >= 3, value: 15 },
-        { label: 'Short Intro Prompt', bonus: '+15%', done: (profile?.intro_prompt?.trim().length || 0) >= 5, value: 15 },
-        { label: 'Campus Year', bonus: '+10%', done: Boolean(profile?.level), value: 10 },
-        { label: 'Verify Email', bonus: '+10%', done: Boolean(profile?.email), value: 10 },
-    ];
-
-    const computedScore = checklist.reduce((acc, item) => item.done ? acc + item.value : acc, 0);
-    const effectiveScore = Math.min(100, Math.max(computedScore, typeof score === 'number' && score > 0 ? score : 0));
+    const effectiveScore = calculateProfileStrength(profile, score);
     const isComplete = effectiveScore >= 100;
-    const nextMissing = checklist.find(item => !item.done);
+    const nextMissing = getNextProfileCompletionStep(profile);
 
     const handleToggleCoach = (e) => {
         e.stopPropagation();

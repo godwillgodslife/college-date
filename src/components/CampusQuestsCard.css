@@ -1,0 +1,355 @@
+/* --------------------------------------------------------------------------
+   Campus Daily Quests Card (Design System Compliant)
+   Obsidian Glass on Dark Theme / Pure Porcelain on Light Theme
+   -------------------------------------------------------------------------- */
+
+.campus-quests-card {
+    background: linear-gradient(175deg, #181822 0%, #111118 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    margin: 0.85rem 0;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.campus-quests-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.campus-quests-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.campus-quests-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.campus-quests-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 8px rgba(236, 72, 153, 0.35));
+}
+
+.campus-quests-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.campus-quests-subhead {
+    font-size: 0.76rem;
+    color: #94a3b8;
+    margin: 0.15rem 0 0;
+}
+
+.campus-quests-reward-badge {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    padding: 0.3rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+/* Quest List */
+.campus-quests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.campus-quest-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.campus-quest-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.campus-quest-item.is-completed {
+    background: rgba(16, 185, 129, 0.06);
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.campus-quest-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.campus-quest-type-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.campus-quest-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.campus-quest-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.campus-quest-name {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.campus-quest-xp {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.12);
+    padding: 0.1rem 0.35rem;
+    border-radius: 6px;
+}
+
+.campus-quest-desc {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    margin: 0.15rem 0 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.campus-quest-progress-track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.09);
+    border-radius: 9999px;
+    overflow: hidden;
+    max-width: 140px;
+}
+
+.campus-quest-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ec4899, #8b5cf6);
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+}
+
+.campus-quest-item.is-completed .campus-quest-progress-fill {
+    background: #10b981;
+}
+
+.campus-quest-right {
+    flex-shrink: 0;
+}
+
+.campus-quest-action-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.4rem 0.75rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.campus-quest-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.campus-quest-action-btn:active {
+    transform: scale(0.96);
+}
+
+.campus-quest-check-pill {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+
+/* Footer / Claim Section */
+.campus-quests-footer {
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    text-align: center;
+}
+
+.campus-quests-claim-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem 1rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.campus-quests-claim-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+}
+
+.campus-quests-claim-btn:active {
+    transform: scale(0.98);
+}
+
+.campus-quests-claimed-badge {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+    padding: 0.45rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Light Theme Design Tokens
+   -------------------------------------------------------------------------- */
+html[data-theme="light"] .campus-quests-card,
+.theme-light .campus-quests-card,
+[data-theme="light"] .campus-quests-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="light"] .campus-quests-header,
+.theme-light .campus-quests-header,
+[data-theme="light"] .campus-quests-header {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+html[data-theme="light"] .campus-quests-title,
+.theme-light .campus-quests-title,
+[data-theme="light"] .campus-quests-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .campus-quests-subhead,
+.theme-light .campus-quests-subhead,
+[data-theme="light"] .campus-quests-subhead {
+    color: #64748b;
+}
+
+html[data-theme="light"] .campus-quests-reward-badge,
+.theme-light .campus-quests-reward-badge,
+[data-theme="light"] .campus-quests-reward-badge {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+}
+
+html[data-theme="light"] .campus-quest-item,
+.theme-light .campus-quest-item,
+[data-theme="light"] .campus-quest-item {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .campus-quest-item:hover,
+.theme-light .campus-quest-item:hover,
+[data-theme="light"] .campus-quest-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .campus-quest-item.is-completed,
+.theme-light .campus-quest-item.is-completed,
+[data-theme="light"] .campus-quest-item.is-completed {
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+html[data-theme="light"] .campus-quest-name,
+.theme-light .campus-quest-name,
+[data-theme="light"] .campus-quest-name {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .campus-quest-desc,
+.theme-light .campus-quest-desc,
+[data-theme="light"] .campus-quest-desc {
+    color: #64748b;
+}
+
+html[data-theme="light"] .campus-quest-progress-track,
+.theme-light .campus-quest-progress-track,
+[data-theme="light"] .campus-quest-progress-track {
+    background: #e2e8f0;
+}
+
+html[data-theme="light"] .campus-quest-action-btn,
+.theme-light .campus-quest-action-btn,
+[data-theme="light"] .campus-quest-action-btn {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .campus-quest-action-btn:hover,
+.theme-light .campus-quest-action-btn:hover,
+[data-theme="light"] .campus-quest-action-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+html[data-theme="light"] .campus-quest-check-pill,
+.theme-light .campus-quest-check-pill,
+[data-theme="light"] .campus-quest-check-pill {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #15803d;
+}
+
+html[data-theme="light"] .campus-quests-footer,
+.theme-light .campus-quests-footer,
+[data-theme="light"] .campus-quests-footer {
+    border-top: 1px solid #f1f5f9;
+}
+
+html[data-theme="light"] .campus-quests-claimed-badge,
+.theme-light .campus-quests-claimed-badge,
+[data-theme="light"] .campus-quests-claimed-badge {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}

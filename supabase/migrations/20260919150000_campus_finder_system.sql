@@ -194,11 +194,11 @@ begin
       and (p.university = p_university or p_university is null or p_university = 'All')
       and (p.is_verified = true or p.photo_verified = true)
       and not exists (
-          select 1 from public.blocks b
+          select 1 from public.user_blocks b
           where (b.blocker_id = v_searcher_id and b.blocked_id = p.id)
              or (b.blocker_id = p.id and b.blocked_id = v_searcher_id)
       )
-      and coalesce(p.is_shadowbanned, false) = false
+      and coalesce(p.is_shadow_banned, false) = false
       and (p.avatar_url is not null or array_length(p.profile_photos, 1) > 0)
     order by p.last_seen_at desc nulls last
     limit 25;

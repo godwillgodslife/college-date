@@ -42,6 +42,14 @@ export default function Viewers() {
         }
     }, [currentUser, userProfile]);
 
+    useEffect(() => {
+        const handlePhotoUpdated = () => {
+            fetchViewers();
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+        return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+    }, []);
+
     async function fetchViewers() {
         try {
             if (!viewers.length) setLoading(true);

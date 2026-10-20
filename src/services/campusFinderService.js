@@ -5,14 +5,16 @@ import {
     FINDER_FREE_SEARCHES_DEFAULT,
     FINDER_RATE_LIMIT_HOURLY,
     getFinderStatusCacheKey,
-    getFinderFallbackMessage
+    getFinderFallbackMessage,
+    formatFinderErrorMessage
 } from '../utils/campusFinder';
 
 export {
     FINDER_FREE_SEARCHES_DEFAULT,
     FINDER_RATE_LIMIT_HOURLY,
     getFinderStatusCacheKey,
-    getFinderFallbackMessage
+    getFinderFallbackMessage,
+    formatFinderErrorMessage
 };
 
 const FINDER_STATUS_CACHE_TTL = 3 * 60 * 1000; // 3 minutes
@@ -104,13 +106,86 @@ export async function searchCampusByPhoto({ searcherId, queryImageBase64, univer
             };
         }
 
-        // 2. Fetch eligible opted-in candidate profiles from same campus
-        const { data: candidates, error: candidateError } = await supabase.rpc('get_eligible_campus_finder_profiles', {
+        // 2. Fetch eligible candidate profiles from same campus
+        let candidates = null;
+        const { data: rpcCandidates, error: candidateError } = await supabase.rpc('get_eligible_campus_finder_profiles', {
             p_university: university || null,
-            p_exclude_user_id: searcherId
+            p_exclude_user_id: null // Allow matching searcher if they test with their own selfie
         });
 
-        if (candidateError) throw candidateError;
+        if (candidateError) {
+            console.warn('[CampusFinder] RPC candidate fetch failed, attempting direct query fallback:', candidateError.message || candidateError);
+            try {
+                // Fetch blocked user IDs for current searcher (both blocker and blocked)
+                const blockedIds = new Set();
+                try {
+                    const { data: blocks } = await supabase
+                        .from('user_blocks')
+                        .select('blocker_id, blocked_id')
+                        .or(`blocker_id.eq.${searcherId},blocked_id.eq.${searcherId}`);
+
+                    if (Array.isArray(blocks)) {
+                        blocks.forEach(b => {
+                            if (b.blocker_id === searcherId) blockedIds.add(b.blocked_id);
+                            if (b.blocked_id === searcherId) blockedIds.add(b.blocker_id);
+                        });
+                    }
+                } catch (bErr) {
+                    console.warn('[CampusFinder] Block check warning:', bErr);
+                }
+
+                let directProfiles = null;
+                try {
+                    let query = supabase
+                        .from('profiles')
+                        .select('id, full_name, avatar_url, profile_photos, university, department, level, is_verified, photo_verified, allow_camera_discovery, is_shadow_banned, last_seen_at');
+
+                    if (university && university !== 'All') {
+                        query = query.eq('university', university);
+                    }
+
+                    const { data, error: qErr } = await query
+                        .order('last_seen_at', { ascending: false, nullsFirst: false })
+                        .limit(50);
+
+                    if (qErr) throw qErr;
+                    directProfiles = data;
+                } catch (qErr) {
+                    console.warn('[CampusFinder] Primary fallback query failed, retrying with core columns:', qErr.message || qErr);
+                    let safeQuery = supabase
+                        .from('profiles')
+                        .select('id, full_name, avatar_url, profile_photos, university, department, level');
+
+                    if (university && university !== 'All') {
+                        safeQuery = safeQuery.eq('university', university);
+                    }
+
+                    const { data: safeData, error: safeErr } = await safeQuery.limit(50);
+                    if (safeErr) throw safeErr;
+                    directProfiles = safeData;
+                }
+
+                candidates = (directProfiles || []).filter(p => {
+                    if (blockedIds.has(p.id)) return false;
+                    if (p.is_shadow_banned === true) return false;
+                    if (p.allow_camera_discovery === false) return false;
+                    const hasPhoto = Boolean(p.avatar_url || (Array.isArray(p.profile_photos) && p.profile_photos.length > 0));
+                    return hasPhoto;
+                }).slice(0, 25).map(p => ({
+                    ...p,
+                    primary_photo: p.avatar_url || (Array.isArray(p.profile_photos) ? p.profile_photos[0] : null)
+                }));
+            } catch (fallbackErr) {
+                console.error('[CampusFinder] Direct query fallback failed:', fallbackErr);
+                // Safe refund attempt so user never loses credits due to infrastructure glitch
+                try {
+                    await supabase.rpc('refund_finder_search', { p_searcher_id: searcherId });
+                } catch (_) {}
+                throw new Error('Campus discovery candidate search is temporarily unavailable. Please try again shortly.');
+            }
+        } else {
+            candidates = rpcCandidates;
+        }
 
         if (!candidates || candidates.length === 0) {
             // Log audit record
@@ -140,6 +215,7 @@ export async function searchCampusByPhoto({ searcherId, queryImageBase64, univer
                 const { data: aiResult } = await supabase.functions.invoke('ai-profile-review', {
                     body: {
                         action: 'verify_selfie',
+                        readOnly: true,
                         selfieBase64: queryImageBase64,
                         profilePhotoUrl: candidate.photoUrl,
                         livenessScore: 88
@@ -168,9 +244,10 @@ export async function searchCampusByPhoto({ searcherId, queryImageBase64, univer
         if (cached) {
             setCachedData(cacheKey, {
                 ...cached,
+                is_unlimited: Boolean(creditResult.is_unlimited || cached.is_unlimited),
                 free_searches_left: creditResult.free_searches_left,
                 paid_credits: creditResult.paid_credits,
-                total_remaining: creditResult.total_remaining
+                total_remaining: creditResult.is_unlimited ? 999999 : creditResult.total_remaining
             });
         }
 
@@ -184,6 +261,6 @@ export async function searchCampusByPhoto({ searcherId, queryImageBase64, univer
         };
     } catch (err) {
         console.error('[CampusFinder] Search execution failed:', err.message || err);
-        return { data: null, error: err.message || 'Campus search could not be completed' };
+        return { data: null, error: formatFinderErrorMessage(err.message || 'Campus search could not be completed') };
     }
 }

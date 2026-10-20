@@ -1,12 +1,26 @@
 export const STREAK_MILESTONES = [7, 14, 30, 60, 100];
 
 export const STREAK_BADGES = [
-    { days: 7, label: 'Campus Spark ✨', description: '7 consecutive days on campus' },
-    { days: 14, label: 'Chemistry Starter 💫', description: '14 consecutive days on campus' },
-    { days: 30, label: 'Campus Connector 🌟', description: '30 consecutive days on campus' },
-    { days: 60, label: 'Campus Icon 👑', description: '60 consecutive days on campus' },
-    { days: 100, label: 'College Legend 🏆', description: '100 consecutive days on campus' }
+    { days: 7, label: 'Campus Spark ✨', description: '7 consecutive days on campus', perk: '1 Free Super Swipe 💌' },
+    { days: 14, label: 'Chemistry Starter 💫', description: '14 consecutive days on campus', perk: '30-Min Spotlight Boost 🚀' },
+    { days: 30, label: 'Campus Connector 🌟', description: '30 consecutive days on campus', perk: 'Gold VIP Frame + 50 Coins 👑' },
+    { days: 60, label: 'Campus Icon 👑', description: '60 consecutive days on campus', perk: 'Campus Icon + 100 Coins ⭐' },
+    { days: 100, label: 'College Legend 🏆', description: '100 consecutive days on campus', perk: 'Hall of Fame Legend Trophy 🏆' }
 ];
+
+export const STREAK_PERKS = [
+    { days: 3, perk: '+10 Free Swipes', icon: '⚡', description: 'Instant swipe refill' },
+    { days: 7, perk: '1 Free Super Swipe', icon: '💌', description: 'Direct connection request' },
+    { days: 14, perk: '30-Min Spotlight Boost', icon: '🚀', description: 'Top visibility on campus' },
+    { days: 30, perk: 'Gold VIP Avatar Ring', icon: '👑', description: 'Exclusive profile frame + 50 coins' },
+    { days: 60, perk: 'Campus Icon Status', icon: '⭐', description: 'Priority badge + 100 coins' },
+    { days: 100, perk: 'College Legend Trophy', icon: '🏆', description: 'Permanent Hall of Fame crown' }
+];
+
+export function getStreakMilestonePerk(days) {
+    const badge = STREAK_BADGES.find(b => b.days === days);
+    return badge?.perk || null;
+}
 
 export const MAX_MONTHLY_FREEZE_TOKENS = 1;
 

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import OfficialAccountBadge from './OfficialAccountBadge';
 import OfficialVideoPlayer from './OfficialVideoPlayer';
+import brandIcon from '../assets/landing-brand-icon.webp';
 import {
     OFFICIAL_CATEGORIES,
     getOfficialPosts,
@@ -220,7 +221,13 @@ export default function OfficialHubModal({
                     <>
                         <div className="official-hub-header">
                             <div className="official-hub-brand">
-                                <div className="official-hub-avatar">🎓</div>
+                                <div className="official-hub-avatar">
+                                    <img
+                                        src={brandIcon}
+                                        alt="The College Date"
+                                        className="official-hub-logo-img"
+                                    />
+                                </div>
                                 <div className="official-hub-titles">
                                     <div className="official-hub-title-row">
                                         <h2 className="official-hub-title">The College Date</h2>
@@ -280,9 +287,9 @@ export default function OfficialHubModal({
                                                 className="official-post-thumb"
                                                 loading="lazy"
                                                 onError={(e) => {
-                                                    // High-contrast gradient fallback if local asset missing
+                                                    // Neutral fallback if local asset missing
                                                     e.currentTarget.style.display = 'none';
-                                                    e.currentTarget.parentElement.style.background = 'linear-gradient(135deg, #09122c, #192a56)';
+                                                    e.currentTarget.parentElement.style.background = 'var(--bg-tertiary, #18181f)';
                                                 }}
                                             />
                                             <div className="official-post-play-badge">

@@ -41,10 +41,10 @@ export default function EliteUltraDetailsModal({ isOpen, onClose, onSelectPlan }
                     </div>
 
                     <div className="ultra-modal-header">
-                        <span className="ultra-tier-pill">TOP TIER MEMBERSHIP</span>
+                        <span className="ultra-tier-pill">TOP TIER MEMBERSHIP • ₦25,000 MONTHLY VALUE</span>
                         <h2 id="ultra-modal-title" className="ultra-modal-title">College Date Elite Ultra</h2>
                         <p className="ultra-modal-subtitle">
-                            The Campus Celebrity tier for instant results. Dominate the top of everyone's feed with 10 boosts, send 30 direct crush alerts (Super Swipes), and show your full 6-photo gallery.
+                            The Campus Celebrity tier for instant results. Share contacts freely, dominate everyone's feed with 10 boosts, send 30 direct crush alerts (Super Swipes), and show your full 6-photo gallery with a 30s live video.
                         </p>
                     </div>
 
@@ -85,6 +85,30 @@ export default function EliteUltraDetailsModal({ isOpen, onClose, onSelectPlan }
                     {/* Feature Highlight List */}
                     <div className="ultra-features-list">
                         <div className="ultra-feature-row">
+                            <span className="feature-icon">💬</span>
+                            <div className="feature-text">
+                                <strong>Unrestricted Contact Sharing</strong>
+                                <span>Freely ask for & share WhatsApp, phone numbers & social handles in chat without filter blocks.</span>
+                            </div>
+                        </div>
+
+                        <div className="ultra-feature-row">
+                            <span className="feature-icon">📱</span>
+                            <div className="feature-text">
+                                <strong>Public Bio Contact Display</strong>
+                                <span>Add your WhatsApp line & Instagram directly in your bio without censorship or masking.</span>
+                            </div>
+                        </div>
+
+                        <div className="ultra-feature-row">
+                            <span className="feature-icon">🎬</span>
+                            <div className="feature-text">
+                                <strong>Extended 30s HD Video Profile</strong>
+                                <span>Showcase your authentic charisma with a full 30-second live video (3x standard Premium limit).</span>
+                            </div>
+                        </div>
+
+                        <div className="ultra-feature-row">
                             <span className="feature-icon">⭐</span>
                             <div className="feature-text">
                                 <strong>30 Super Swipes / Month Included</strong>
@@ -112,7 +136,7 @@ export default function EliteUltraDetailsModal({ isOpen, onClose, onSelectPlan }
                             <span className="feature-icon">👑</span>
                             <div className="feature-text">
                                 <strong>VIP Spotlight Placement & Radiant Pink-Gold Crown</strong>
-                                <span>Command instant attention with prominent radiant crowns across Explore, Match, and Confessions.</span>
+                                <span>Command instant attention with prominent radiant crowns across Explore, Match, and Confessions posts & comments.</span>
                             </div>
                         </div>
 
@@ -120,7 +144,7 @@ export default function EliteUltraDetailsModal({ isOpen, onClose, onSelectPlan }
                             <span className="feature-icon">✨</span>
                             <div className="feature-text">
                                 <strong>All Elite Benefits Included</strong>
-                                <span>Unlimited Swipes, Secret Admirers, 10s Video Profile, HD Calls, and Ghost Mode.</span>
+                                <span>Unlimited Swipes, Unlimited Campus Finder, Secret Admirers, Unlimited HD Calls, and Incognito Ghost Mode.</span>
                             </div>
                         </div>
                     </div>

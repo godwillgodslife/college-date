@@ -82,6 +82,7 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
     const activeStageIdxRef = useRef(0);
     const motionDetectedCountRef = useRef(0);
     const isSubmittingRef = useRef(false);
+    const stageFramesRef = useRef([]);
 
     const triggerHaptic = (ms = 35) => {
         try {
@@ -120,6 +121,7 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
     useEffect(() => {
         if (!isOpen) {
             stopCamera();
+            stageFramesRef.current = [];
             setStep('intro');
             setLivenessProgress(0);
             setCurrentStageIdx(0);
@@ -134,6 +136,7 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
         activeStageIdxRef.current = 0;
         motionDetectedCountRef.current = 0;
         prevFrameDataRef.current = null;
+        stageFramesRef.current = [];
         stageStartTimeRef.current = Date.now();
 
         // Record immutable biometric consent audit trail
@@ -206,6 +209,15 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
 
                         // Advance to next stage when stage time completes
                         if (stageElapsed >= stage.targetDurationMs) {
+                            try {
+                                const compactStageFrame = canvas.toDataURL('image/jpeg', 0.45);
+                                if (compactStageFrame && stageFramesRef.current.length < 5) {
+                                    stageFramesRef.current.push(compactStageFrame);
+                                }
+                            } catch (_frameErr) {
+                                // Ignore stage frame snapshot error
+                            }
+
                             if (stageIdx < LIVENESS_STAGES.length - 1) {
                                 const nextIdx = stageIdx + 1;
                                 activeStageIdxRef.current = nextIdx;
@@ -232,12 +244,9 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
 
     const captureAndVerify = async () => {
         if (!videoRef.current || isSubmittingRef.current) return;
-        isSubmittingRef.current = true;
-        stopCamera();
-        setStep('analyzing');
 
         try {
-            // Capture high-resolution selfie frame on canvas
+            // Capture high-resolution selfie frame and compact LivFace frame BEFORE stopping the video stream or unmounting <video>
             const video = videoRef.current;
             const captureCanvas = document.createElement('canvas');
             captureCanvas.width = video.videoWidth || 640;
@@ -245,8 +254,26 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
             const ctx = captureCanvas.getContext('2d');
             ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
 
-            const selfieBase64 = captureCanvas.toDataURL('image/jpeg', 0.88);
+            const selfieBase64 = captureCanvas.toDataURL('image/jpeg', 0.85);
+
+            const compactCanvas = document.createElement('canvas');
+            compactCanvas.width = 160;
+            compactCanvas.height = 120;
+            const compactCtx = compactCanvas.getContext('2d');
+            compactCtx.drawImage(video, 0, 0, 160, 120);
+            const compactFrameBase64 = compactCanvas.toDataURL('image/jpeg', 0.45);
+
+            const capturedStages = [...stageFramesRef.current];
+            if (compactFrameBase64 && capturedStages.length < 5) {
+                capturedStages.push(compactFrameBase64);
+            }
+
+            const computedLivenessScore = Math.min(98, Math.max(84, 82 + Math.min(16, motionDetectedCountRef.current)));
+
+            stopCamera();
+            isSubmittingRef.current = true;
             setCapturedSelfie(selfieBase64);
+            setStep('analyzing');
 
             // Determine photo to compare: explicit candidate photo (onboarding) -> profile avatar -> profile photos
             const primaryPhoto = candidatePhotoUrl ||
@@ -255,8 +282,10 @@ export default function FaceVerificationModal({ isOpen, onClose, onVerified, can
 
             const { data, error } = await verifyLiveSelfie({
                 selfieBase64,
+                compactFrameBase64,
+                stageFrames: capturedStages,
                 profilePhotoUrl: primaryPhoto,
-                livenessScore: 92
+                livenessScore: computedLivenessScore
             });
 
             if (error || !data?.success) {

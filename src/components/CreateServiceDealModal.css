@@ -1,39 +1,62 @@
+/* ==========================================================================
+   College Date - Create Service Deal (Campus Escrow) Modal Styles
+   - Full Light & Dark Theme Design System Integration
+   - Touch Ergonomics & Keyboard Resilience (<86dvh)
+   - Visual Trust & Escrow Guarantee Presentation
+   ========================================================================== */
+
 .deal-modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.82);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
-    animation: fadeIn 0.2s ease-out;
+    animation: dealOverlayFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .deal-modal-card {
-    background: #18181b;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 22px;
+    background: linear-gradient(175deg, #181822 0%, #111118 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
     width: 100%;
-    max-width: 520px;
-    max-height: 92vh;
+    max-width: 500px;
+    max-height: min(86dvh, 620px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75), 0 0 24px rgba(59, 130, 246, 0.1);
+    position: relative;
+    animation: dealModalScale 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes dealOverlayFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes dealModalScale {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* --------------------------------------------------------------------------
+   Modal Header
+   -------------------------------------------------------------------------- */
 .deal-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 16px 20px 14px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, transparent 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .deal-header-brand {
@@ -42,97 +65,323 @@
     gap: 12px;
 }
 
+.deal-brand-squircle {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 .deal-brand-icon {
-    font-size: 1.6rem;
-}
-
-.deal-header-brand h3 {
-    margin: 0;
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #f4f4f5;
-}
-
-.deal-header-brand p {
-    margin: 2px 0 0;
-    font-size: 0.78rem;
-    color: #93c5fd;
-}
-
-.btn-close-deal-modal {
-    background: none;
-    border: none;
-    color: #a1a1aa;
-    font-size: 1.5rem;
-    cursor: pointer;
+    font-size: 1.45rem;
     line-height: 1;
 }
 
+.deal-header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.deal-header-title-row h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #f8fafc;
+}
+
+.deal-partner-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.14);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.deal-header-subtitle {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    line-height: 1.3;
+}
+
+.btn-close-deal-modal {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.18s;
+}
+
+.btn-close-deal-modal:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    transform: scale(1.05);
+}
+
+/* --------------------------------------------------------------------------
+   Scrollable Form & Layout
+   -------------------------------------------------------------------------- */
 .deal-form {
-    padding: 18px 20px;
+    padding: 18px 20px 10px;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+}
+
+.deal-form::-webkit-scrollbar {
+    width: 4px;
+}
+
+.deal-form::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+}
+
+.deal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.deal-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .deal-field-label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    color: #d4d4d8;
+    color: #cbd5e1;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 4px;
-    display: block;
-}
-
-.role-pills {
+    letter-spacing: 0.04em;
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 4px;
 }
 
-.role-pill {
-    flex: 1;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #d4d4d8;
-    border-radius: 12px;
-    font-size: 0.82rem;
-    font-weight: 600;
+.required-star {
+    color: #f87171;
+}
+
+.optional-tag {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* --------------------------------------------------------------------------
+   Role Selection Cards
+   -------------------------------------------------------------------------- */
+.role-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.role-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
     cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
 }
 
-.role-pill.active {
-    background: rgba(59, 130, 246, 0.18);
+.role-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.role-card.active {
+    background: rgba(59, 130, 246, 0.12);
     border-color: #3b82f6;
-    color: #60a5fa;
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.16);
 }
 
+.role-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.role-card-icon {
+    font-size: 1.25rem;
+}
+
+.role-card-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+}
+
+.role-card.active .role-card-pill {
+    background: rgba(59, 130, 246, 0.22);
+    color: #93c5fd;
+}
+
+.role-card-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.role-card-desc {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    line-height: 1.35;
+}
+
+/* --------------------------------------------------------------------------
+   Inputs, Dropdowns & Textareas
+   -------------------------------------------------------------------------- */
 .deal-input,
 .deal-textarea {
     width: 100%;
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
-    color: #f4f4f5;
+    color: #f8fafc;
     padding: 10px 14px;
     font-size: 0.88rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.18s;
+    font-family: inherit;
 }
 
 .deal-input:focus,
 .deal-textarea:focus {
     border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.deal-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 36px;
+}
+
+.deal-textarea {
+    resize: none;
+    line-height: 1.45;
+}
+
+.label-with-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.char-counter {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Amount Input & Quick Chips
+   -------------------------------------------------------------------------- */
+.amount-input-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-prefix {
+    position: absolute;
+    left: 14px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #34d399;
+    pointer-events: none;
 }
 
 .amount-input {
-    font-size: 1.1rem;
+    padding-left: 36px !important;
+    font-size: 1.18rem;
     font-weight: 800;
     color: #34d399;
+    letter-spacing: 0.02em;
+}
+
+.quick-amount-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.quick-amount-label {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.quick-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.quick-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.quick-chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.quick-chip.selected {
+    background: #2563eb;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
 }
 
 .deal-row-grid {
@@ -141,61 +390,141 @@
     gap: 12px;
 }
 
-.deal-safety-box {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    border-radius: 12px;
-    padding: 12px;
+/* --------------------------------------------------------------------------
+   Escrow Trust Guarantee Card
+   -------------------------------------------------------------------------- */
+.deal-escrow-guarantee-card {
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    border-radius: 16px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
-.safety-badge {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #f87171;
-    text-transform: uppercase;
+.guarantee-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.safety-text {
-    font-size: 0.72rem;
-    color: #cbd5e1;
+.guarantee-badge-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.guarantee-title {
     margin: 0;
-    line-height: 1.4;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #34d399;
+}
+
+.guarantee-subtitle {
+    margin: 1px 0 0;
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.guarantee-points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.guarantee-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.74rem;
+    color: #cbd5e1;
+    line-height: 1.35;
+}
+
+.guarantee-points .point-icon {
+    font-size: 0.85rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.guarantee-points strong {
+    color: #f1f5f9;
+}
+
+.prohibited-policy-strip {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    color: #fca5a5;
+    line-height: 1.35;
 }
 
 .safety-agree-label {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: #e2e8f0;
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 .safety-agree-label input[type="checkbox"] {
     accent-color: #3b82f6;
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.safety-agree-label a {
+    color: #60a5fa;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Sticky Footer Actions
+   -------------------------------------------------------------------------- */
+.deal-modal-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 20px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 100%);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .deal-modal-actions {
     display: flex;
     gap: 12px;
-    margin-top: 4px;
 }
 
 .btn-cancel-deal {
     flex: 1;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e4e4e7;
+    color: #e2e8f0;
     border-radius: 12px;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     cursor: pointer;
+    transition: all 0.18s;
+}
+
+.btn-cancel-deal:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 .btn-submit-deal {
@@ -209,9 +538,325 @@
     font-weight: 800;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-submit-deal:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 .btn-submit-deal:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.submit-loader-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.deal-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: dealSpin 0.7s linear infinite;
+}
+
+@keyframes dealSpin {
+    to { transform: rotate(360deg); }
+}
+
+.deal-submit-reassurance {
+    margin: 0;
+    font-size: 0.71rem;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.35;
+}
+
+/* ==========================================================================
+   LIGHT THEME OVERRIDES
+   - High contrast slate typography
+   - Pure ivory/white surfaces with subtle hairline borders
+   - Emerald mint escrow card and high contrast inputs
+   ========================================================================== */
+html[data-theme="light"] .deal-modal-overlay,
+.theme-light .deal-modal-overlay {
+    background: rgba(15, 23, 42, 0.45);
+}
+
+html[data-theme="light"] .deal-modal-card,
+.theme-light .deal-modal-card {
+    background: linear-gradient(175deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 25px 65px rgba(15, 23, 42, 0.16), 0 2px 14px rgba(37, 99, 235, 0.08);
+}
+
+html[data-theme="light"] .deal-modal-card::-webkit-scrollbar-thumb,
+.theme-light .deal-modal-card::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.16);
+}
+
+html[data-theme="light"] .deal-modal-header,
+.theme-light .deal-modal-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .deal-brand-squircle,
+.theme-light .deal-brand-squircle {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+html[data-theme="light"] .deal-header-title-row h3,
+.theme-light .deal-header-title-row h3 {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-partner-tag,
+.theme-light .deal-partner-tag {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+html[data-theme="light"] .deal-header-subtitle,
+.theme-light .deal-header-subtitle {
+    color: #64748b;
+}
+
+html[data-theme="light"] .btn-close-deal-modal,
+.theme-light .btn-close-deal-modal {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+html[data-theme="light"] .btn-close-deal-modal:hover,
+.theme-light .btn-close-deal-modal:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-field-label,
+.theme-light .deal-field-label {
+    color: #334155;
+}
+
+html[data-theme="light"] .optional-tag,
+.theme-light .optional-tag,
+html[data-theme="light"] .char-counter,
+.theme-light .char-counter {
+    color: #94a3b8;
+}
+
+/* Light Theme Role Cards */
+html[data-theme="light"] .role-card,
+.theme-light .role-card {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+}
+
+html[data-theme="light"] .role-card:hover,
+.theme-light .role-card:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .role-card.active,
+.theme-light .role-card.active {
+    background: #eff6ff;
+    border-color: #2563eb;
+    box-shadow: 0 0 14px rgba(37, 99, 235, 0.12);
+}
+
+html[data-theme="light"] .role-card-pill,
+.theme-light .role-card-pill {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+html[data-theme="light"] .role-card.active .role-card-pill,
+.theme-light .role-card.active .role-card-pill {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+html[data-theme="light"] .role-card-title,
+.theme-light .role-card-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .role-card-desc,
+.theme-light .role-card-desc {
+    color: #475569;
+}
+
+/* Light Theme Inputs */
+html[data-theme="light"] .deal-input,
+html[data-theme="light"] .deal-textarea,
+.theme-light .deal-input,
+.theme-light .deal-textarea {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-input:focus,
+html[data-theme="light"] .deal-textarea:focus,
+.theme-light .deal-input:focus,
+.theme-light .deal-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+html[data-theme="light"] .amount-input,
+.theme-light .amount-input {
+    color: #059669;
+}
+
+html[data-theme="light"] .currency-prefix,
+.theme-light .currency-prefix {
+    color: #059669;
+}
+
+html[data-theme="light"] .quick-amount-label,
+.theme-light .quick-amount-label {
+    color: #475569;
+}
+
+html[data-theme="light"] .quick-chip,
+.theme-light .quick-chip {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+}
+
+html[data-theme="light"] .quick-chip:hover,
+.theme-light .quick-chip:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .quick-chip.selected,
+.theme-light .quick-chip.selected {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+/* Light Theme Escrow Guarantee Card */
+html[data-theme="light"] .deal-escrow-guarantee-card,
+.theme-light .deal-escrow-guarantee-card {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+}
+
+html[data-theme="light"] .guarantee-title,
+.theme-light .guarantee-title {
+    color: #065f46;
+}
+
+html[data-theme="light"] .guarantee-subtitle,
+.theme-light .guarantee-subtitle {
+    color: #166534;
+}
+
+html[data-theme="light"] .guarantee-points li,
+.theme-light .guarantee-points li {
+    color: #1e293b;
+}
+
+html[data-theme="light"] .guarantee-points strong,
+.theme-light .guarantee-points strong {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .prohibited-policy-strip,
+.theme-light .prohibited-policy-strip {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+html[data-theme="light"] .safety-agree-label,
+.theme-light .safety-agree-label {
+    color: #1e293b;
+}
+
+html[data-theme="light"] .safety-agree-label a,
+.theme-light .safety-agree-label a {
+    color: #1d4ed8;
+}
+
+/* Light Theme Footer */
+html[data-theme="light"] .deal-modal-footer,
+.theme-light .deal-modal-footer {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .btn-cancel-deal,
+.theme-light .btn-cancel-deal {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+html[data-theme="light"] .btn-cancel-deal:hover:not(:disabled),
+.theme-light .btn-cancel-deal:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+html[data-theme="light"] .deal-submit-reassurance,
+.theme-light .deal-submit-reassurance {
+    color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile & Small Screen Optimizations
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .deal-modal-overlay {
+        padding: 10px;
+    }
+
+    .deal-modal-card {
+        border-radius: 20px;
+        max-height: min(90dvh, 600px);
+    }
+
+    .deal-modal-header {
+        padding: 14px 16px 12px;
+    }
+
+    .deal-form {
+        padding: 14px 16px 8px;
+        gap: 14px;
+    }
+
+    .role-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .deal-row-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .deal-modal-footer {
+        padding: 10px 16px 14px;
+    }
 }

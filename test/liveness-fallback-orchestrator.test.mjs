@@ -693,3 +693,125 @@ test('Scenario 15: Secret isolation -> LIVENESS_FALLBACK_API_KEY is not exposed 
     '.env must define LIVENESS_FALLBACK_API_KEY server-side'
   );
 });
+
+// ---------------------------------------------------------------------------
+// Scenario 16: LivFace (https://api.livface.com/v1) 3-step session workflow
+// ---------------------------------------------------------------------------
+test('Scenario 16: LivFace 3-step session workflow creates session, submits compact frames with x-api-key, and normalizes 0..1 float confidence', async () => {
+  resetProviderState();
+  process.env.OPENROUTER_API_KEY = 'sk-or-test-mock-key';
+  process.env.LIVENESS_FALLBACK_API_KEY = 'lv_test_livface_key';
+  delete process.env.LIVENESS_FALLBACK_BASE_URL; // Should default to https://api.livface.com/v1
+
+  const livfaceCalls = [];
+
+  mockFetch(async (url, options = {}) => {
+    const u = String(url);
+    if (u.includes('openrouter.ai')) {
+      return {
+        ok: false,
+        status: 402,
+        json: async () => ({ error: { code: 402, message: 'Quota exceeded' } }),
+      };
+    }
+
+    if (u === 'https://api.livface.com/v1/sessions') {
+      livfaceCalls.push({ step: 'create_session', headers: options.headers });
+      return {
+        ok: true,
+        status: 201,
+        json: async () => ({
+          session_id: 'sess-livface-001',
+          challenge_type: 'TURN_LEFT',
+          status: 'pending',
+        }),
+      };
+    }
+
+    if (u === 'https://api.livface.com/v1/sessions/sess-livface-001/verify-public') {
+      const parsedBody = JSON.parse(options.body || '{}');
+      livfaceCalls.push({ step: 'verify_public', frameLength: (parsedBody.frame_b64 || '').length });
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          challenge_passed: true,
+          face_detected: true,
+          session_status: 'passed',
+          confidence: 0.96,
+        }),
+      };
+    }
+
+    if (u === 'https://api.livface.com/v1/sessions/sess-livface-001') {
+      livfaceCalls.push({ step: 'get_session', headers: options.headers });
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          id: 'sess-livface-001',
+          status: 'passed',
+          liveness_verified: true,
+          confidence_score: 0.96,
+          is_same_face: true,
+        }),
+      };
+    }
+
+    throw new Error(`Unexpected URL in Scenario 16: ${u}`);
+  });
+
+  try {
+    const result = await routeVerificationAttempt({
+      selfieBase64: SAMPLE_SELFIE_BASE64,
+      compactFrameBase64: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/',
+      profilePhotoUrl: SAMPLE_PROFILE_PHOTO,
+      userId: 'user-livface-16',
+    });
+
+    assert.strictEqual(result.providerUsed, 'fallback');
+    assert.strictEqual(result.provider, 'liveness-fallback');
+    assert.strictEqual(result.review.status, 'verified');
+    assert.strictEqual(result.review.score, 96);
+    assert.ok(livfaceCalls.some((c) => c.step === 'create_session' && c.headers?.['x-api-key'] === 'lv_test_livface_key'));
+    assert.ok(livfaceCalls.some((c) => c.step === 'verify_public' && c.frameLength > 0 && c.frameLength < 9500));
+  } finally {
+    restoreFetch();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Scenario 17: Read-only comparison (Campus Finder) & Exclusive Badge Authority
+// ---------------------------------------------------------------------------
+test('Scenario 17: Campus Finder uses readOnly: true and Edge Function enforces exclusive badge authority', () => {
+  const campusFinderCode = fs.readFileSync(path.join(rootDir, 'src/services/campusFinderService.js'), 'utf8');
+  const edgeIndexCode = fs.readFileSync(path.join(rootDir, 'supabase/functions/ai-profile-review/index.ts'), 'utf8');
+  const modalCode = fs.readFileSync(path.join(rootDir, 'src/components/FaceVerificationModal.jsx'), 'utf8');
+
+  assert.ok(
+    campusFinderCode.includes('readOnly: true'),
+    'campusFinderService.js must pass readOnly: true so Campus Finder never mutates the searcher profile'
+  );
+
+  assert.ok(
+    edgeIndexCode.includes("const isReadOnly = Boolean(readOnly || body.action === 'compare_faces_readonly');"),
+    'ai-profile-review/index.ts must handle readOnly comparisons without writing to public.profiles'
+  );
+
+  assert.ok(
+    edgeIndexCode.includes('if (avatarChanged)'),
+    'ai-profile-review/index.ts must reset is_verified and photo_verified when avatarChanged is true'
+  );
+
+  // Verify FaceVerificationModal captures frame BEFORE stopCamera() and setStep("analyzing")
+  const captureFnStart = modalCode.indexOf('const captureAndVerify = async () =>');
+  const drawImagePos = modalCode.indexOf('ctx.drawImage(video, 0, 0', captureFnStart);
+  const stopCameraPos = modalCode.indexOf('stopCamera();', captureFnStart);
+  const setStepAnalyzingPos = modalCode.indexOf("setStep('analyzing');", captureFnStart);
+
+  assert.ok(
+    drawImagePos > captureFnStart && drawImagePos < stopCameraPos && drawImagePos < setStepAnalyzingPos,
+    'FaceVerificationModal must draw video frame onto canvas BEFORE stopCamera() and setStep("analyzing")'
+  );
+});
+

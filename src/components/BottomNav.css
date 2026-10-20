@@ -33,7 +33,7 @@
 }
 
 .bottom-nav-item.active {
-    color: var(--accent-primary);
+    color: var(--text-primary);
 }
 
 .bottom-nav-icon {
@@ -66,7 +66,7 @@
 }
 
 .bottom-nav-item.active .bottom-nav-icon {
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .bottom-nav-label {
@@ -89,7 +89,7 @@
     width: 20px;
     height: 2px;
     border-radius: 999px;
-    background: var(--accent-primary);
+    background: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -97,6 +97,22 @@
         display: flex;
         padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
     }
+}
+
+/* Suppress bottom navigation bar whenever ANY modal, dialog, or drawer is active */
+body.has-modal-open .bottom-nav,
+body:has(.status-modal-overlay) .bottom-nav,
+body:has(.modal-overlay) .bottom-nav,
+body:has(.deal-modal-overlay) .bottom-nav,
+body:has(.report-modal-overlay) .bottom-nav,
+body:has(.guide-modal-overlay) .bottom-nav,
+body:has(.inbox-modal-overlay) .bottom-nav,
+body:has(.settings-modal-overlay) .bottom-nav,
+body:has(.status-choice-overlay) .bottom-nav,
+body:has([aria-modal="true"]) .bottom-nav,
+body:has([role="dialog"]) .bottom-nav {
+    display: none !important;
+    pointer-events: none !important;
 }
 
 .bottom-nav-badge {

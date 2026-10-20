@@ -88,3 +88,8 @@ cleanup-backups/
 compliance_documents/
 output/
 test_query.mjs
+
+.netlify-isolated*
+.codex-finalizer/
+.agents/
+frontend-audit-2026/

@@ -143,10 +143,17 @@ const PREVIEW_TABS = [
     },
     {
         id: 'video',
-        label: '🎬 10s Live Video',
+        label: '🎬 Live Video Profile',
         title: 'Authentic Voice & Vibe',
         badge: '3x More Matches',
-        description: 'Introduce yourself with a real 10-second video on your profile and daily chat. Proven to build immediate chemistry.'
+        description: 'Introduce yourself with a real 10-second video moment on standard Premium (or an extended 30-second HD video on Elite Ultra). Proven to build immediate chemistry.'
+    },
+    {
+        id: 'finder',
+        label: '🔍 Campus Finder',
+        title: 'Optical Campus Discovery',
+        badge: 'Unlimited in Elite',
+        description: 'Met someone around your lecture hall, library, or faculty? Take a quick photo to verify if they are on College Date with zero weekly caps.'
     }
 ];
 
@@ -155,6 +162,11 @@ const OUTCOME_HIGHLIGHTS = [
         icon: '✨',
         title: 'Unlimited Swipes',
         outcome: 'No 20-swipe walls between lectures'
+    },
+    {
+        icon: '🔍',
+        title: 'Unlimited Campus Finder',
+        outcome: 'Scan & verify students you meet on campus with zero weekly limits'
     },
     {
         icon: '👀',
@@ -360,7 +372,7 @@ export default function PremiumUpgrade() {
     }
 
     const handleSubscribe = async () => {
-        if (isNative() && tierCategory !== 'ultra') {
+        if (isNative()) {
             await handleNativeSubscribe(currentTier);
         } else {
             await handleWebSubscribe(currentTier);
@@ -398,7 +410,7 @@ export default function PremiumUpgrade() {
 
     const handleNativeSubscribe = async (tier = currentTier) => {
         if (rcPackages.length === 0) {
-            console.warn('[PremiumUpgrade] No RevenueCat packages found, falling back to Paystack card checkout');
+            console.warn('[PremiumUpgrade] No RevenueCat packages found, falling back to secure card checkout');
             await handleWebSubscribe(tier);
             return;
         }
@@ -417,21 +429,37 @@ export default function PremiumUpgrade() {
                 if (tier.id === 'premium_annual') {
                     return id === '$rc_annual' || id.includes('annual') || id.includes('yearly') || prodId.includes('annual');
                 }
+                if (tier.id === 'ultra_monthly') {
+                    return (id.includes('ultra') && id.includes('monthly')) || prodId.includes('ultra_monthly') || (id.includes('ultra') && !id.includes('2month') && !id.includes('3month'));
+                }
+                if (tier.id === 'ultra_2month') {
+                    return (id.includes('ultra') && id.includes('2month')) || prodId.includes('ultra_2month');
+                }
+                if (tier.id === 'ultra_3month') {
+                    return (id.includes('ultra') && (id.includes('3month') || id.includes('quarterly'))) || prodId.includes('ultra_3month');
+                }
                 return false;
             });
 
             if (!pkgToBuy) {
-                console.warn('[PremiumUpgrade] No matching RevenueCat package found, falling back to Paystack card checkout');
+                console.warn('[PremiumUpgrade] No matching RevenueCat package found for tier, falling back to secure card checkout');
+                if (tierCategory === 'ultra') {
+                    addToast('Routing to secure payment gateway for Elite Ultra...', 'info');
+                }
                 await handleWebSubscribe(tier);
                 return;
             }
 
             const { success, error } = await purchaseRevenueCatPackage(pkgToBuy, {
-                requiredEntitlement: 'Premium'
+                requiredEntitlement: tierCategory === 'ultra' ? 'Ultra' : 'Premium',
+                fallbackEntitlement: 'Premium'
             });
 
             if (success) {
-                addToast('Welcome to College Date Elite! Your benefits are unlocked.', 'success');
+                const welcomeMsg = tierCategory === 'ultra'
+                    ? 'Welcome to College Date Elite Ultra! 👑⭐ All VIP privileges unlocked.'
+                    : 'Welcome to College Date Elite! Your benefits are unlocked.';
+                addToast(welcomeMsg, 'success');
                 try {
                     confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
                 } catch {
@@ -782,8 +810,8 @@ export default function PremiumUpgrade() {
                         >
                             <span className="shortcut-icon">🎬</span>
                             <div className="shortcut-meta">
-                                <span className="shortcut-label">10s Video Profile</span>
-                                <span className="shortcut-sub">Showcase your vibe</span>
+                                <span className="shortcut-label">{isUltra ? '30s HD Video Profile' : '10s Video Profile'}</span>
+                                <span className="shortcut-sub">{isUltra ? 'Triple length VIP video showcase' : 'Showcase your vibe'}</span>
                             </div>
                             <span className="shortcut-arrow">→</span>
                         </button>
@@ -912,38 +940,10 @@ export default function PremiumUpgrade() {
                         {tierCategory === 'ultra' && (
                             <div className="ultra-perks-highlight-card animate-fade-in">
                                 <div className="ultra-perks-header">
-                                    <span className="ultra-badge-chip">👑⭐ THE CAMPUS CELEBRITY TIER</span>
+                                    <span className="ultra-badge-chip">👑⭐ THE CAMPUS CELEBRITY TIER • ₦25,000 MONTHLY VALUE</span>
                                     <h4>Instant Results & VIP Dominance</h4>
                                 </div>
                                 <div className="ultra-perks-grid">
-                                    <div className="ultra-perk-item">
-                                        <span className="perk-icon">⭐</span>
-                                        <div>
-                                            <strong>30 Super Swipes / mo</strong>
-                                            <span>Direct crush alerts (₦15,000 value)</span>
-                                        </div>
-                                    </div>
-                                    <div className="ultra-perk-item">
-                                        <span className="perk-icon">🚀</span>
-                                        <div>
-                                            <strong>10 24h Boosts / mo</strong>
-                                            <span>Dominate campus feeds (₦10,000 value)</span>
-                                        </div>
-                                    </div>
-                                    <div className="ultra-perk-item">
-                                        <span className="perk-icon">📸</span>
-                                        <div>
-                                            <strong>Full 6-Photo Gallery</strong>
-                                            <span>Showcase your full gallery on Match</span>
-                                        </div>
-                                    </div>
-                                    <div className="ultra-perk-item">
-                                        <span className="perk-icon">👑</span>
-                                        <div>
-                                            <strong>VIP Spotlight & Radiant Crowns</strong>
-                                            <span>Prominent crowns & top feed priority in Explore & Confessions</span>
-                                        </div>
-                                    </div>
                                     <div className="ultra-perk-item">
                                         <span className="perk-icon">💬</span>
                                         <div>
@@ -951,9 +951,58 @@ export default function PremiumUpgrade() {
                                             <span>Freely ask for & share WhatsApp, phone numbers & social handles without filter blocks</span>
                                         </div>
                                     </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">📱</span>
+                                        <div>
+                                            <strong>Public Bio Contact Display</strong>
+                                            <span>Add your WhatsApp & Instagram directly to your profile bio with zero masking</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">🎬</span>
+                                        <div>
+                                            <strong>Extended 30s HD Video Profile</strong>
+                                            <span>Triple the video duration (30s vs 10s) to show your true vibe and campus personality</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">⭐</span>
+                                        <div>
+                                            <strong>30 Super Swipes / mo</strong>
+                                            <span>Direct crush alerts (₦15,000 value included)</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">🚀</span>
+                                        <div>
+                                            <strong>10 24h Boosts / mo</strong>
+                                            <span>Dominate campus feeds (₦10,000 value included)</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">📸</span>
+                                        <div>
+                                            <strong>Full 6-Photo Gallery</strong>
+                                            <span>Showcase your full gallery on Match (Free accounts capped at 3)</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">👑</span>
+                                        <div>
+                                            <strong>VIP Spotlight & Radiant Crowns</strong>
+                                            <span>Prominent crowns & top feed priority in Explore, Confessions posts & comment threads</span>
+                                        </div>
+                                    </div>
+                                    <div className="ultra-perk-item">
+                                        <span className="perk-icon">✨</span>
+                                        <div>
+                                            <strong>All Elite Benefits Included</strong>
+                                            <span>Unlimited Swipes, Unlimited Campus Finder, Secret Admirers, Unlimited HD Calls & Incognito Ghost Mode</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="ultra-allowance-isolation-note">
-                                    🛡️ <strong>Zero Wallet Depletion:</strong> Finite monthly allowances are included directly with your membership and never touch your campus wallet or coin balance.
+                                    🛡️ <strong>Zero Wallet Depletion:</strong> ₦25,000 worth of monthly allowances (30 Super Swipes + 10 Boosts) are included directly with your membership and never touch your campus wallet or coin balance.
                                 </div>
                             </div>
                         )}
@@ -1124,7 +1173,7 @@ export default function PremiumUpgrade() {
                                                 <div className="video-card-demo">
                                                     <div className="video-player-frame">
                                                         <span className="video-play-btn">▶</span>
-                                                        <span className="video-duration-pill">0:10</span>
+                                                        <span className="video-duration-pill">{tierCategory === 'ultra' ? '0:30' : '0:10'}</span>
                                                         <div className="video-soundwave-anim">
                                                             <span className="bar bar-1"></span>
                                                             <span className="bar bar-2"></span>

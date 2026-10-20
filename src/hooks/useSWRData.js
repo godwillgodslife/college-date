@@ -97,12 +97,8 @@ export function useSWRProfile(userId) {
     const key = userId ? ['profile', userId] : null;
 
     return useSWR(key, async () => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-        if (error) throw error;
+        const { data, error } = await getProfile(userId);
+        if (error) throw new Error(error);
         return data;
     }, persistentSWR(key, {
         revalidateOnFocus: false,

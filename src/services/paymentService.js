@@ -187,6 +187,7 @@ export async function payWithWallet(userId, amount, type, description, productId
     try {
         if (type === 'subscription') {
             const isLocal = typeof window !== 'undefined' &&
+                !isNative() &&
                 (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
             if (isLocal && (productId?.includes('ultra') || description?.includes('Ultra'))) {
@@ -306,6 +307,7 @@ export async function getSubscription(userId) {
 export async function startPaystackPayment(productId, options = {}) {
     try {
         const isLocal = typeof window !== 'undefined' &&
+            !isNative() &&
             (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
         const platform = options.platform || (isNative() ? 'android' : 'web');
 
@@ -689,6 +691,7 @@ export async function purchaseRevenueCatPackage(pkg, options = {}) {
     try {
         const {
             requiredEntitlement = 'Premium',
+            fallbackEntitlement = null,
             requireEntitlement = true
         } = options;
         const { Purchases } = await import('@revenuecat/purchases-capacitor');
@@ -698,7 +701,11 @@ export async function purchaseRevenueCatPackage(pkg, options = {}) {
             return { success: true, customerInfo };
         }
 
-        if (typeof customerInfo.entitlements.active[requiredEntitlement] !== "undefined") {
+        const activeEntitlements = customerInfo?.entitlements?.active || {};
+        if (
+            typeof activeEntitlements[requiredEntitlement] !== "undefined" ||
+            (fallbackEntitlement && typeof activeEntitlements[fallbackEntitlement] !== "undefined")
+        ) {
             return { success: true, customerInfo };
         }
 
@@ -718,8 +725,12 @@ export async function restoreRevenueCatPurchases() {
     try {
         const { Purchases } = await import('@revenuecat/purchases-capacitor');
         const customerInfo = await Purchases.restorePurchases();
+        const activeEntitlements = customerInfo?.entitlements?.active || {};
         
-        if (typeof customerInfo.entitlements.active['Premium'] !== "undefined") {
+        if (
+            typeof activeEntitlements['Premium'] !== "undefined" ||
+            typeof activeEntitlements['Ultra'] !== "undefined"
+        ) {
             return { success: true, customerInfo };
         }
         return { success: false, error: 'No active subscription found.' };

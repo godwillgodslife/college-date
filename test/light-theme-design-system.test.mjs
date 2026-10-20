@@ -57,3 +57,28 @@ test('Light Theme Design System: Surface elevation and typography in src/styles/
     assert.match(polishCss, /border:\s*1px\s+solid\s+#e2e8f0\s*!important;/);
     assert.match(polishCss, /background:\s*linear-gradient\(135deg,\s*#635bff,\s*#ec4899\)\s*!important;/);
 });
+
+test('Light Theme Design System: Profile Dashboard Grid icon visibility and elevation in src/pages/Profile.css', () => {
+    const profileCss = fs.readFileSync(path.resolve('src/pages/Profile.css'), 'utf-8');
+
+    // 1. Base card icon must use semantic icon token instead of hardcoded white
+    assert.match(profileCss, /\.dashboard-card\s+\.card-icon\s*{[^}]*color:\s*var\(--icon-secondary/);
+
+    // 2. Profile Dashboard Cards have dedicated light theme elevation & background
+    assert.match(profileCss, /html\[data-theme="light"\]\s+\.dashboard-card/);
+    assert.match(profileCss, /background:\s*#ffffff;/);
+
+    // 3. Standard card icons (Edit Profile, Wallet, Referrals, Settings, Requests, Leaderboard) have high contrast in light mode
+    assert.match(profileCss, /html\[data-theme="light"\]\s+\.dashboard-card\s+\.card-icon/);
+    assert.match(profileCss, /color:\s*#475569;/);
+
+    // 4. Partner Up link has high-contrast vibrant cyan icon in light theme
+    assert.match(profileCss, /html\[data-theme="light"\]\s+\.dashboard-card\.partner-card-link\s+\.card-icon/);
+    assert.match(profileCss, /color:\s*#0284c7;/);
+
+    // 5. Get Premium and Logout cards have high-contrast light theme icons
+    assert.match(profileCss, /html\[data-theme="light"\]\s+\.dashboard-card\.premium-card\s+\.card-icon/);
+    assert.match(profileCss, /color:\s*#7c3aed;/);
+    assert.match(profileCss, /html\[data-theme="light"\]\s+\.dashboard-card\.logout-card\s+\.card-icon/);
+    assert.match(profileCss, /color:\s*#dc2626;/);
+});

@@ -26,50 +26,49 @@
 .offplatform-sheet {
     width: 100%;
     max-width: 480px;
-    max-height: 92vh;
+    max-height: 76dvh;
     overflow-y: auto;
-    background: linear-gradient(180deg, #1f1a30 0%, #120f1e 100%);
-    border: 1px solid rgba(251, 191, 36, 0.35);
+    background: var(--card-bg, #121216);
+    border: 1px solid rgba(251, 191, 36, 0.32);
     border-bottom: none;
-    border-radius: 26px 26px 0 0;
-    padding: 0.85rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 16px));
-    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(251, 191, 36, 0.15);
-    color: #ffffff;
+    border-radius: 24px 24px 0 0;
+    padding: 0.7rem 1.15rem max(16px, env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.75);
+    color: var(--text-primary, #ffffff);
     text-align: center;
-    animation: offplatformSlide 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    animation: offplatformSlide 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
 
 .offplatform-handle {
-    width: 38px;
+    width: 36px;
     height: 4px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.25);
-    margin: 0 auto 0.75rem;
+    margin: 0 auto 0.55rem;
 }
 
 .offplatform-icon-wrap {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 0.5rem;
-    border-radius: 20px;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 0.35rem;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    font-size: 1.5rem;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.18) 0%, rgba(255, 45, 85, 0.18) 100%);
-    border: 1px solid rgba(251, 191, 36, 0.45);
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.25);
+    gap: 3px;
+    font-size: 1.2rem;
+    background: rgba(251, 191, 36, 0.14);
+    border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
 .offplatform-icon-crown {
-    font-size: 1.6rem;
-    filter: drop-shadow(0 2px 6px rgba(251, 191, 36, 0.6));
+    font-size: 1.25rem;
+    filter: drop-shadow(0 2px 6px rgba(251, 191, 36, 0.5));
 }
 
 .offplatform-eyebrow {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -77,29 +76,29 @@
 }
 
 .offplatform-title {
-    margin: 0.25rem 0 0.35rem;
-    font-size: 1.15rem;
+    margin: 0.15rem 0 0.25rem;
+    font-size: 1.05rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--text-primary, #ffffff);
 }
 
 .offplatform-body {
-    margin: 0 auto 0.85rem;
+    margin: 0 auto 0.65rem;
     max-width: 400px;
-    font-size: 0.86rem;
-    line-height: 1.45;
-    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.78));
 }
 
 /* ── Elite Ultra 15k Luxury Card ── */
 .offplatform-ultra-card {
-    background: linear-gradient(145deg, rgba(30, 24, 48, 0.95) 0%, rgba(18, 14, 30, 0.98) 100%);
+    background: var(--bg-tertiary, #1a1a20);
     border: 1.5px solid #fbbf24;
-    border-radius: 18px;
-    padding: 0.95rem 1rem;
-    margin-bottom: 0.85rem;
+    border-radius: 16px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.65rem;
     text-align: left;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.18);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     position: relative;
     overflow: hidden;
 }

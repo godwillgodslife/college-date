@@ -1,5 +1,6 @@
 import React from 'react';
 import OfficialAccountBadge from './OfficialAccountBadge';
+import brandIcon from '../assets/landing-brand-icon.webp';
 
 /**
  * OfficialChannelCard
@@ -28,41 +29,52 @@ export default function OfficialChannelCard({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '12px 16px',
+                padding: '10px 14px',
                 margin: '4px 8px 8px 8px',
-                background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.08) 0%, rgba(235, 47, 150, 0.08) 100%)',
-                border: '1px solid rgba(0, 210, 255, 0.22)',
+                background: 'var(--bg-secondary, #131318)',
+                border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
                 borderRadius: '14px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                boxShadow: 'var(--shadow-sm)',
                 userSelect: 'none',
             }}
             aria-label="Official The College Date Guides Channel"
         >
-            {/* Avatar with gradient & Shield */}
+            {/* Avatar with official brand logo & Shield */}
             <div
                 style={{
                     position: 'relative',
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #00d2ff 0%, #7928ca 50%, #eb2f96 100%)',
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'var(--bg-tertiary, #18181f)',
+                    border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.12))',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
-                    boxShadow: '0 2px 10px rgba(0, 210, 255, 0.3)',
+                    boxShadow: 'none',
                 }}
             >
-                <span style={{ fontSize: '1.4rem' }}>🎓</span>
+                <img
+                    src={brandIcon}
+                    alt="The College Date"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '11px',
+                        display: 'block',
+                    }}
+                />
                 {/* Official mini check in bottom right of avatar */}
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: '-2px',
-                        right: '-2px',
-                        background: '#090d16',
+                        bottom: '-3px',
+                        right: '-3px',
+                        background: 'var(--bg-secondary, #090d16)',
                         borderRadius: '50%',
                         padding: '1px',
                         display: 'flex',
@@ -78,7 +90,7 @@ export default function OfficialChannelCard({
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
                         <span
                             style={{
-                                color: '#ffffff',
+                                color: 'var(--text-primary, #ffffff)',
                                 fontWeight: 700,
                                 fontSize: '0.92rem',
                                 whiteSpace: 'nowrap',
@@ -93,21 +105,22 @@ export default function OfficialChannelCard({
                     <span
                         style={{
                             fontSize: '0.68rem',
-                            color: '#00d2ff',
-                            background: 'rgba(0, 210, 255, 0.12)',
+                            color: 'var(--text-secondary, #94a3b8)',
+                            background: 'var(--bg-tertiary, rgba(255, 255, 255, 0.06))',
+                            border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
                             padding: '2px 6px',
                             borderRadius: '6px',
                             fontWeight: 600,
                             letterSpacing: '0.02em',
                         }}
                     >
-                        📌 PINNED
+                        PINNED
                     </span>
                 </div>
 
                 <div
                     style={{
-                        color: '#94a3b8',
+                        color: 'var(--text-secondary, #94a3b8)',
                         fontSize: '0.78rem',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
@@ -117,7 +130,7 @@ export default function OfficialChannelCard({
                         gap: '4px',
                     }}
                 >
-                    <span style={{ color: '#38bdf8' }}>▶</span>
+                    <span style={{ color: 'var(--text-secondary, #94a3b8)' }}>▶</span>
                     <span>{latestPostTitle}</span>
                 </div>
             </div>
@@ -133,13 +146,14 @@ export default function OfficialChannelCard({
             >
                 <span
                     style={{
-                        background: 'linear-gradient(135deg, #00d2ff, #0072ff)',
-                        color: '#ffffff',
+                        background: 'var(--bg-tertiary, rgba(255, 255, 255, 0.08))',
+                        color: 'var(--text-primary, #ffffff)',
+                        border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.12))',
                         fontSize: '0.7rem',
                         fontWeight: 700,
                         padding: '3px 8px',
-                        borderRadius: '12px',
-                        boxShadow: '0 2px 6px rgba(0, 114, 255, 0.35)',
+                        borderRadius: '10px',
+                        boxShadow: 'none',
                     }}
                 >
                     {totalGuides} Guides

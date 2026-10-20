@@ -241,6 +241,9 @@ export async function getDiscoverProfiles(userId, filters = {}, userProfile = nu
             .filter(profile => !profile.is_shadow_banned && !profile.is_banned)
             .map(profile => {
                 const normalizedProfile = normalizeProfile(profile);
+                delete normalizedProfile.email;
+                delete normalizedProfile.phone;
+                delete normalizedProfile.onesignal_id;
                 return {
                     ...normalizedProfile,
                     profile_photos: getProfilePhotos(normalizedProfile)
@@ -866,7 +869,7 @@ export async function searchProfilesByName(searchQuery, currentUserId = null, us
         const executeSearchQuery = async (filterString) => {
             let q = supabase
                 .from('profiles')
-                .select('*')
+                .select('id, full_name, username, gender, age, university, faculty, department, level, bio, avatar_url, photos, profile_photos, interests, intro_prompt, voice_intro_url, anthem, attraction_goal, is_verified, photo_verified, completion_score, photo_updated_at, updated_at, created_at, video_url, is_ultra, is_live, last_seen, last_seen_at, last_active, location_status, current_badge')
                 .eq('is_shadow_banned', false)
                 .eq('is_banned', false)
                 .or(filterString)
@@ -909,6 +912,9 @@ export async function searchProfilesByName(searchQuery, currentUserId = null, us
             .filter(row => !row.is_shadow_banned && !row.is_banned)
             .map(row => {
                 const normalized = normalizeProfile(row);
+                delete normalized.email;
+                delete normalized.phone;
+                delete normalized.onesignal_id;
                 return {
                     ...normalized,
                     profile_photos: getProfilePhotos(normalized)

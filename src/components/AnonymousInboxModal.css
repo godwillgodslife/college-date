@@ -15,10 +15,10 @@
 .inbox-modal-card {
     background: #111422;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 26px;
+    border-radius: 22px;
     width: 100%;
-    max-width: 520px;
-    max-height: 88vh;
+    max-width: 480px;
+    max-height: min(80dvh, 560px);
     display: flex;
     flex-direction: column;
     overflow: hidden;

@@ -60,7 +60,7 @@ const APP_ROUTE_PREFIXES = [
     '/wireframes'
 ];
 
-const MESSAGE_TYPES = new Set(['message', 'new_message', 'call']);
+const MESSAGE_TYPES = new Set(['message', 'new_message', 'call', 'gift', 'gift_received']);
 const MATCH_TYPES = new Set(['match', 'swipe_accepted']);
 const REQUEST_TYPES = new Set(['like', 'super_swipe', 'swipe_received']);
 const PROFILE_TYPES = new Set(['view', 'profile_view', 'checked_out']);
@@ -238,6 +238,8 @@ export function getNotificationIcon(type) {
         message: 'C',
         new_message: 'C',
         call: 'C',
+        gift: 'G',
+        gift_received: 'G',
         trending: '#',
         leaderboard: '#',
         confession: '?',

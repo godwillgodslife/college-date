@@ -126,7 +126,7 @@ export const FALLBACK_OFFICIAL_POSTS = [
         post_type: 'tutorial',
         category: 'premium',
         title: '11 Elite Benefits of Premium',
-        caption: 'Unlock unlimited right-swipes, unlimited admirer accepts, 10s video messages in chat, profile viewers, and instant visibility boosts.',
+        caption: 'Unlock unlimited right-swipes, unlimited campus finder scans, unlimited admirer accepts, 10s video messages in chat, profile viewers, and instant visibility boosts.',
         video_url: '/tutorials/tut_premium.webm',
         thumbnail_url: '/tutorials/tut_premium_thumb.webp',
         aspect_ratio: '9:16',

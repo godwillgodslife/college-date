@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -7,13 +7,14 @@ import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AndroidInstallButton from '../components/AndroidInstallButton';
 import { hasActivePremium } from '../utils/premium';
-import { getAvatarUrl } from '../utils/profileData';
+import { getAvatarUrl, calculateProfileStrength, getNextProfileCompletionStep } from '../utils/profileData';
 import { CACHE_TTL } from '../lib/cachePolicy';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import OptimizedImage from '../components/OptimizedImage';
 import { ContextualTip, AppGuideModal, isGuideSeen, markFeatureUsed } from '../components/ContextualGuide';
 import MatchCelebration from '../components/MatchCelebration';
 import { markRequestsDiscovered } from '../utils/requestsDiscovery';
+import { triggerLightHaptic } from '../services/haptics';
 import './Requests.css';
 
 
@@ -27,6 +28,34 @@ export default function Requests() {
         if (typeof window === 'undefined' || !window.localStorage) return false;
         return window.localStorage.getItem('tcd_nudge_dismissed_profile_completion') === 'true';
     });
+
+    const profileStrength = useMemo(() => {
+        return calculateProfileStrength(userProfile, userProfile?.completion_score);
+    }, [userProfile]);
+
+    const nextStep = useMemo(() => {
+        return getNextProfileCompletionStep(userProfile);
+    }, [userProfile]);
+
+    // Re-evaluate dismissal if profile strength changes (e.g. user updated profile)
+    useEffect(() => {
+        if (typeof window === 'undefined' || !window.localStorage) return;
+        const storedScore = window.localStorage.getItem('tcd_nudge_dismissed_profile_score');
+        if (storedScore !== null && Number(storedScore) !== profileStrength) {
+            setNudgeDismissed(false);
+            window.localStorage.removeItem('tcd_nudge_dismissed_profile_completion');
+            window.localStorage.removeItem('tcd_nudge_dismissed_profile_score');
+        }
+    }, [profileStrength]);
+
+    const handleDismissNudge = (e) => {
+        e.stopPropagation();
+        setNudgeDismissed(true);
+        try {
+            localStorage.setItem('tcd_nudge_dismissed_profile_completion', 'true');
+            localStorage.setItem('tcd_nudge_dismissed_profile_score', String(profileStrength));
+        } catch (_) {}
+    };
     const [requestSummary, setRequestSummary] = useState({ total_count: 0, premium: false, upgrade_required: false, free_accepts_remaining: 3, daily_limit: 3, today_accepts_count: 0 });
     const [loading, setLoading] = useState(true);
     const [actioning, setActioning] = useState(null); // ID of request being processed
@@ -89,6 +118,11 @@ export default function Requests() {
 
         fetchRequests();
 
+        const handlePhotoUpdated = () => {
+            fetchRequests();
+        };
+        window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
+
         // Subscribe to NEW incoming swipes
         const subscription = supabase
             .channel(`incoming_swipes:${currentUser.id}`)
@@ -115,6 +149,7 @@ export default function Requests() {
 
         return () => {
             subscription.unsubscribe();
+            window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
         };
     }, [currentUser, userProfile]);
 
@@ -251,22 +286,39 @@ export default function Requests() {
                 </div>
 
                 {!isPremium && (
-                    <div className="requests-premium-upsell-card" onClick={() => navigate('/premium')}>
-                        <div className="upsell-badge-pill">👑 UNLIMITED ACCESS</div>
+                    <div 
+                        className="requests-premium-upsell-card" 
+                        onClick={() => navigate('/premium')}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                navigate('/premium');
+                            }
+                        }}
+                    >
                         <div className="upsell-content">
-                            <div className="upsell-icon">💎</div>
+                            <div className="upsell-icon-wrapper" aria-hidden="true">
+                                <span className="upsell-icon">💎</span>
+                            </div>
                             <div className="upsell-text">
-                                <h3>Never miss a campus connection</h3>
+                                <div className="upsell-header-line">
+                                    <span className="upsell-badge-pill">👑 UNLIMITED ACCESS</span>
+                                    <h3>Never miss a campus connection</h3>
+                                </div>
                                 <p>Free accounts get 3 daily accepts. Upgrade to Premium for unlimited instant matches and clear admirer photos.</p>
                             </div>
                             <button 
+                                type="button"
                                 className="upsell-cta-btn"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     navigate('/premium');
                                 }}
                             >
-                                Upgrade Now ⚡
+                                <span>Upgrade Now</span>
+                                <span className="btn-bolt" aria-hidden="true">⚡</span>
                             </button>
                         </div>
                     </div>
@@ -275,36 +327,71 @@ export default function Requests() {
                 <AndroidInstallButton />
             </div>
 
-            {!nudgeDismissed && typeof userProfile?.completion_score === 'number' && userProfile.completion_score > 0 && userProfile.completion_score < 60 && (
-                <div className="completion-nudge-card card-glow" onClick={() => navigate('/profile/edit')}>
-                    <div className="nudge-icon">⚠️</div>
-                    <div className="nudge-content">
-                        <h3>Your profile is {userProfile.completion_score}% complete</h3>
-                        <p>Complete it to appear more in discovery.</p>
+            {!nudgeDismissed && Boolean(userProfile) && profileStrength < 80 && (
+                <div
+                    className={`completion-nudge-card card-glow ${profileStrength < 50 ? 'is-warning' : 'is-progress'}`}
+                    onClick={() => navigate('/profile/edit')}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            navigate('/profile/edit');
+                        }
+                    }}
+                    title="Tap to finish profile setup"
+                    aria-label={`Your profile is ${profileStrength}% complete. Complete it to appear more in discovery.`}
+                >
+                    <div className="nudge-icon-wrap" aria-hidden="true">
+                        <span className="nudge-icon">{profileStrength < 50 ? '⚠️' : '⚡'}</span>
                     </div>
-                    <button
-                        type="button"
-                        className="nudge-dismiss-btn"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setNudgeDismissed(true);
-                            try {
-                                localStorage.setItem('tcd_nudge_dismissed_profile_completion', 'true');
-                            } catch (_) {}
-                        }}
-                        aria-label="Dismiss completion reminder"
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'var(--text-muted, #94a3b8)',
-                            fontSize: '1.15rem',
-                            cursor: 'pointer',
-                            padding: '4px 8px',
-                            marginLeft: 'auto'
-                        }}
-                    >
-                        ✕
-                    </button>
+
+                    <div className="nudge-content">
+                        <div className="nudge-header-row">
+                            <h3>Your profile is {profileStrength}% complete</h3>
+                            <span className="nudge-tier-chip">
+                                {profileStrength < 50 ? 'Limited Discovery' : 'Almost Optimised'}
+                            </span>
+                        </div>
+
+                        <div className="nudge-progress-track" aria-hidden="true">
+                            <div
+                                className="nudge-progress-bar"
+                                style={{ width: `${profileStrength}%` }}
+                            />
+                        </div>
+
+                        <p>
+                            {nextStep ? (
+                                <>💡 Next: <strong>{nextStep.label}</strong> ({nextStep.bonus}) to appear more in discovery.</>
+                            ) : (
+                                <>Complete it to appear more in discovery.</>
+                            )}
+                        </p>
+                    </div>
+
+                    <div className="nudge-actions-wrap">
+                        <button
+                            type="button"
+                            className="btn-nudge-action"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/profile/edit');
+                            }}
+                        >
+                            <span>Finish Setup →</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className="nudge-dismiss-btn"
+                            onClick={handleDismissNudge}
+                            aria-label="Dismiss completion reminder"
+                            title="Dismiss"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -415,6 +502,16 @@ export default function Requests() {
                     <div className="empty-icon">💌</div>
                     <h2>No pending requests</h2>
                     <p>When someone swipes right on you, they'll appear here!</p>
+                    <button
+                        type="button"
+                        className="empty-requests-discovery-cta"
+                        onClick={() => {
+                            triggerLightHaptic();
+                            navigate('/match');
+                        }}
+                    >
+                        ⚡ Discover Classmates in Match Feed →
+                    </button>
                 </div>
             )}
 

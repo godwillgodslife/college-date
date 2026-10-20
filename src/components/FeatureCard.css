@@ -5,16 +5,18 @@
 }
 
 .feature-card {
-    background: var(--glass-bg);
+    background: var(--glass-bg, rgba(19, 19, 28, 0.88));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 1.4rem 1.35rem;
     position: relative;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
 .feature-card::before {
@@ -26,13 +28,13 @@
     height: 3px;
     background: var(--gradient-primary);
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 .feature-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: rgba(108, 99, 255, 0.3);
+    box-shadow: var(--shadow-lg, 0 10px 30px rgba(0, 0, 0, 0.35));
+    border-color: rgba(108, 99, 255, 0.35);
 }
 
 .feature-card:hover::before {
@@ -49,23 +51,237 @@
     box-shadow: none;
 }
 
+/* ── Icon & Squircle Badge System ──────────────────────────── */
 .feature-card-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 2.2rem;
+    margin-bottom: 0.9rem;
     line-height: 1;
 }
 
-.feature-card-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+.feature-icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-primary);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.feature-icon-badge svg,
+.feature-svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+.feature-card:hover .feature-icon-badge {
+    transform: translateY(-2px) scale(1.06);
+}
+
+.feature-card:hover .feature-icon-badge svg {
+    transform: scale(1.08);
+}
+
+/* ── Theme-Intuitive Card Variants (Dark Mode Default) ─────── */
+/* 1. Start Matching (Vibrant Pink-Red) */
+.feature-card-match::before {
+    background: linear-gradient(90deg, #ff2d55, #ff6b9d);
+}
+
+.feature-card-match:hover {
+    border-color: rgba(255, 45, 85, 0.42);
+    box-shadow: 0 10px 28px rgba(255, 45, 85, 0.16);
+}
+
+.feature-icon-badge-match {
+    background: linear-gradient(135deg, rgba(255, 45, 85, 0.20) 0%, rgba(255, 107, 157, 0.09) 100%);
+    border-color: rgba(255, 45, 85, 0.35);
+    color: #ff3b70;
+    box-shadow: 0 4px 16px rgba(255, 45, 85, 0.18);
+}
+
+.feature-card-match:hover .feature-icon-badge-match {
+    box-shadow: 0 6px 20px rgba(255, 45, 85, 0.32);
+}
+
+.feature-card-match:hover .feature-card-arrow {
+    color: #ff2d55;
+}
+
+/* 2. Messages (Royal Purple / Indigo) */
+.feature-card-chat::before {
+    background: linear-gradient(90deg, #8b5cf6, #6366f1);
+}
+
+.feature-card-chat:hover {
+    border-color: rgba(139, 92, 246, 0.42);
+    box-shadow: 0 10px 28px rgba(139, 92, 246, 0.16);
+}
+
+.feature-icon-badge-chat {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.20) 0%, rgba(99, 102, 241, 0.09) 100%);
+    border-color: rgba(139, 92, 246, 0.35);
+    color: #a78bfa;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.18);
+}
+
+.feature-card-chat:hover .feature-icon-badge-chat {
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.32);
+}
+
+.feature-card-chat:hover .feature-card-arrow {
+    color: #8b5cf6;
+}
+
+/* 3. Explore (Electric Ocean Cyan) */
+.feature-card-explore::before {
+    background: linear-gradient(90deg, #00d2ff, #0284c7);
+}
+
+.feature-card-explore:hover {
+    border-color: rgba(0, 210, 255, 0.42);
+    box-shadow: 0 10px 28px rgba(0, 210, 255, 0.16);
+}
+
+.feature-icon-badge-explore {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.20) 0%, rgba(6, 182, 212, 0.09) 100%);
+    border-color: rgba(0, 210, 255, 0.35);
+    color: #38bdf8;
+    box-shadow: 0 4px 16px rgba(0, 210, 255, 0.18);
+}
+
+.feature-card-explore:hover .feature-icon-badge-explore {
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.32);
+}
+
+.feature-card-explore:hover .feature-card-arrow {
+    color: #00d2ff;
+}
+
+/* 4. Upgrade Premium (Imperial Gold & Amber) */
+.feature-card-premium::before {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706);
+}
+
+.feature-card-premium:hover {
+    border-color: rgba(245, 158, 11, 0.48);
+    box-shadow: 0 10px 28px rgba(245, 158, 11, 0.22);
+}
+
+.feature-icon-badge-premium {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(234, 179, 8, 0.10) 100%);
+    border-color: rgba(245, 158, 11, 0.42);
+    color: #fbbf24;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.22);
+}
+
+.feature-card-premium:hover .feature-icon-badge-premium {
+    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.36);
+}
+
+.feature-card-premium:hover .feature-card-arrow {
+    color: #f59e0b;
+}
+
+/* 5. Wallet (Emerald Mint) */
+.feature-card-wallet::before {
+    background: linear-gradient(90deg, #34d399, #059669);
+}
+
+.feature-card-wallet:hover {
+    border-color: rgba(16, 185, 129, 0.42);
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.16);
+}
+
+.feature-icon-badge-wallet {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.20) 0%, rgba(5, 150, 105, 0.09) 100%);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #34d399;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.18);
+}
+
+.feature-card-wallet:hover .feature-icon-badge-wallet {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.32);
+}
+
+.feature-card-wallet:hover .feature-card-arrow {
+    color: #10b981;
+}
+
+/* 6. Requests (Love Letter Coral / Ruby) */
+.feature-card-requests::before {
+    background: linear-gradient(90deg, #fb7185, #e11d48);
+}
+
+.feature-card-requests:hover {
+    border-color: rgba(244, 63, 94, 0.42);
+    box-shadow: 0 10px 28px rgba(244, 63, 94, 0.16);
+}
+
+.feature-icon-badge-requests {
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.20) 0%, rgba(225, 29, 72, 0.09) 100%);
+    border-color: rgba(244, 63, 94, 0.35);
+    color: #fb7185;
+    box-shadow: 0 4px 16px rgba(244, 63, 94, 0.18);
+}
+
+.feature-card-requests:hover .feature-icon-badge-requests {
+    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.32);
+}
+
+.feature-card-requests:hover .feature-card-arrow {
+    color: #f43f5e;
+}
+
+/* ── Typography & Layout ──────────────────────────────────── */
+.feature-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.feature-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary, #f4f4f8);
+    letter-spacing: -0.01em;
+}
+
+.feature-card-inline-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    background: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .feature-card-desc {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
+    color: var(--text-secondary, #9da0b3);
+    line-height: 1.45;
     margin: 0;
 }
 
@@ -75,7 +291,7 @@
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     background: rgba(108, 99, 255, 0.12);
-    color: var(--accent-primary);
+    color: var(--accent-primary, #6c63ff);
     font-size: 0.6875rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -86,15 +302,109 @@
     position: absolute;
     bottom: 1.25rem;
     right: 1.25rem;
-    color: var(--text-muted);
-    transition: all 0.3s;
+    color: var(--text-muted, #65677d);
+    transition: all 0.3s ease;
 }
 
 .feature-card:hover .feature-card-arrow {
-    color: var(--accent-primary);
+    color: var(--accent-primary, #6c63ff);
     transform: translateX(4px);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME SUPPORT
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="light"] .feature-card,
+.theme-light .feature-card,
+[data-theme="light"] .feature-card {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+html[data-theme="light"] .feature-card:hover,
+.theme-light .feature-card:hover,
+[data-theme="light"] .feature-card:hover {
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"] .feature-card-title,
+.theme-light .feature-card-title,
+[data-theme="light"] .feature-card-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"] .feature-card-desc,
+.theme-light .feature-card-desc,
+[data-theme="light"] .feature-card-desc {
+    color: #475569;
+}
+
+html[data-theme="light"] .feature-card-arrow,
+.theme-light .feature-card-arrow,
+[data-theme="light"] .feature-card-arrow {
+    color: #94a3b8;
+}
+
+/* Light Theme Badges with High-Contrast Colors */
+html[data-theme="light"] .feature-icon-badge-match,
+.theme-light .feature-icon-badge-match,
+[data-theme="light"] .feature-icon-badge-match {
+    background: linear-gradient(135deg, #fff0f3 0%, #ffe4e8 100%);
+    border-color: rgba(255, 45, 85, 0.28);
+    color: #e11d48;
+    box-shadow: 0 2px 10px rgba(225, 29, 72, 0.12);
+}
+
+html[data-theme="light"] .feature-icon-badge-chat,
+.theme-light .feature-icon-badge-chat,
+[data-theme="light"] .feature-icon-badge-chat {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border-color: rgba(124, 58, 237, 0.24);
+    color: #6d28d9;
+    box-shadow: 0 2px 10px rgba(109, 40, 217, 0.12);
+}
+
+html[data-theme="light"] .feature-icon-badge-explore,
+.theme-light .feature-icon-badge-explore,
+[data-theme="light"] .feature-icon-badge-explore {
+    background: linear-gradient(135deg, #ecfeff 0%, #e0f2fe 100%);
+    border-color: rgba(2, 132, 199, 0.24);
+    color: #0284c7;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.12);
+}
+
+html[data-theme="light"] .feature-icon-badge-premium,
+.theme-light .feature-icon-badge-premium,
+[data-theme="light"] .feature-icon-badge-premium {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: rgba(217, 119, 6, 0.32);
+    color: #b45309;
+    box-shadow: 0 2px 10px rgba(180, 83, 9, 0.14);
+}
+
+html[data-theme="light"] .feature-icon-badge-wallet,
+.theme-light .feature-icon-badge-wallet,
+[data-theme="light"] .feature-icon-badge-wallet {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: rgba(16, 185, 129, 0.26);
+    color: #047857;
+    box-shadow: 0 2px 10px rgba(4, 120, 87, 0.12);
+}
+
+html[data-theme="light"] .feature-icon-badge-requests,
+.theme-light .feature-icon-badge-requests,
+[data-theme="light"] .feature-icon-badge-requests {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    border-color: rgba(225, 29, 72, 0.26);
+    color: #be123c;
+    box-shadow: 0 2px 10px rgba(190, 18, 60, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE COMPACT MOBILE ERGONOMICS
+   ═══════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
     .feature-card {
         padding: 0.85rem 0.75rem;
@@ -104,6 +414,22 @@
     .feature-card-icon {
         font-size: 1.5rem;
         margin-bottom: 0.35rem;
+    }
+
+    .feature-icon-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    .feature-icon-badge svg,
+    .feature-svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .feature-card-title-row {
+        margin-bottom: 0.2rem;
     }
 
     .feature-card-title {

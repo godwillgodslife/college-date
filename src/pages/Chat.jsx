@@ -30,14 +30,15 @@ import {
     toValidUuidNonce,
 } from '../services/chatService';
 import { compressImage, generateBlurPlaceholder } from '../utils/imageCompressor';
-import { getAvatarUrl } from '../utils/profileData';
+import { getAvatarUrl, registerProfilePhotoTimestamp } from '../utils/profileData';
 import { getWallet } from '../services/paymentService';
 import { sendGift } from '../services/giftService';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { blockUser, unblockUser, getBlockedUsers } from '../services/blockService';
 import { submitUserReport } from '../services/reportService';
-import { getCoinBalance, sendCoinGift } from '../services/coinService';
+import { getCoinBalance, sendCoinGift, VIRTUAL_GIFTS } from '../services/coinService';
 import { updateLiveLocation, startWatchingPosition, stopLiveLocation } from '../services/locationService';
+import { recordQuestProgress } from '../services/campusQuestService';
 import { canSendLiveLocation } from '../services/entitlementService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
@@ -287,7 +288,7 @@ function ChatMedia({ msg, type, isSent }) {
 export default function Chat() {
     const { currentUser, userProfile } = useAuth();
     const { addToast } = useToast();
-    const { markConversationNotificationsRead } = useNotifications() || {};
+    const { markConversationNotificationsRead, triggerGiftCelebration } = useNotifications() || {};
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -519,7 +520,8 @@ export default function Chat() {
             state: {
                 conversationId: targetConvId,
                 matchId: targetConvId,
-                fromChat: true
+                fromChat: true,
+                partnerProfile: user
             }
         });
     }, [navigate, selectedConv]);
@@ -856,6 +858,10 @@ export default function Chat() {
 
         console.log('[Chat] Deep-link detect:', { chatId: finalChatId, openChatWith: finalTargetId });
 
+        if (location.state?.initialMessage) {
+            setNewMessage(location.state.initialMessage);
+        }
+
         // First attempt: Check if target exists in current list
         const target = finalChatId 
             ? conversations.find(c => c?.id === finalChatId || c?.match_id === finalChatId)
@@ -1047,6 +1053,35 @@ export default function Chat() {
         }
     }, [navigate, revalidateConvs, selectedConv?.id, newMessage]);
 
+    // Fast background fresh-avatar check whenever active conversation changes (e.g. via route, deep link, or selection)
+    useEffect(() => {
+        const partnerId = selectedConv?.other_user?.id;
+        if (!partnerId) return;
+
+        supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, is_verified, photo_verified')
+            .eq('id', partnerId)
+            .maybeSingle()
+            .then(({ data }) => {
+                if (data) {
+                    const freshAvatar = getAvatarUrl(data);
+                    setSelectedConv(prev => {
+                        if (!prev || prev.other_user?.id !== partnerId) return prev;
+                        if (prev.other_user?.avatar_url === freshAvatar) return prev;
+                        return {
+                            ...prev,
+                            other_user: {
+                                ...prev.other_user,
+                                ...data,
+                                avatar_url: freshAvatar
+                            }
+                        };
+                    });
+                }
+            }).catch(() => {});
+    }, [selectedConv?.other_user?.id]);
+
     // Realtime subscription for conversation partner profile updates (avatar, name, verification)
     useEffect(() => {
         const partnerId = selectedConv?.other_user?.id;
@@ -1061,6 +1096,8 @@ export default function Chat() {
                 filter: `id=eq.${partnerId}`
             }, (payload) => {
                 if (payload.new) {
+                    const ts = payload.new.photo_updated_at || payload.new.updated_at || Date.now();
+                    registerProfilePhotoTimestamp(partnerId, ts);
                     const freshAvatar = getAvatarUrl(payload.new);
                     setSelectedConv(prev => {
                         if (!prev || prev.other_user?.id !== partnerId) return prev;
@@ -1083,14 +1120,42 @@ export default function Chat() {
         };
     }, [selectedConv?.other_user?.id, revalidateConvs]);
 
-    // Revalidate conversation avatars when a profile photo update event is fired
+    // Revalidate conversation avatars and active chat header when a profile photo update event is fired
     useEffect(() => {
-        const handlePhotoUpdated = () => {
-            revalidateConvs();
+        const handlePhotoUpdated = (e) => {
+            const updatedUserId = e?.detail?.userId;
+            const updatedTs = e?.detail?.timestamp;
+            if (updatedUserId && updatedTs) {
+                registerProfilePhotoTimestamp(updatedUserId, updatedTs);
+            }
+            if (revalidateConvs) revalidateConvs();
+            if (selectedConv?.other_user?.id && (!updatedUserId || selectedConv.other_user.id === updatedUserId)) {
+                supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, profile_photos, photo_updated_at, updated_at, is_verified, photo_verified')
+                    .eq('id', selectedConv.other_user.id)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        if (data) {
+                            const freshAvatar = getAvatarUrl(data);
+                            setSelectedConv(prev => {
+                                if (!prev || prev.other_user?.id !== data.id) return prev;
+                                return {
+                                    ...prev,
+                                    other_user: {
+                                        ...prev.other_user,
+                                        ...data,
+                                        avatar_url: freshAvatar
+                                    }
+                                };
+                            });
+                        }
+                    }).catch(() => {});
+            }
         };
         window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
         return () => window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
-    }, [revalidateConvs]);
+    }, [revalidateConvs, selectedConv?.other_user?.id]);
 
     // Revalidate messages & conversation list when a virtual gift is sent
     useEffect(() => {
@@ -1287,9 +1352,31 @@ export default function Chat() {
                 setMessages(prev => mergeMessageList(prev, payload));
                 if (payload.sender_id !== currentUser.id) {
                     markMessageAsRead(payload.id);
-                    const isTabFocusedAndVisible = typeof document !== 'undefined' && !document.hidden && (typeof document.hasFocus === 'function' ? document.hasFocus() : true);
-                    if (!isTabFocusedAndVisible) {
-                        playNotificationDing(); // Only ding when user is backgrounded or tab unfocused
+                    if (payload.type === 'gift') {
+                        const giftMeta = payload.metadata || {};
+                        const giftId = giftMeta.gift_id || 'rose';
+                        const giftPreset = VIRTUAL_GIFTS.find(g => g.id === giftId) || VIRTUAL_GIFTS[0];
+                        const giftData = {
+                            id: giftId,
+                            name: giftMeta.gift_name || giftMeta.name || giftPreset.name,
+                            emoji: giftMeta.gift_emoji || giftPreset.emoji,
+                            coins: giftMeta.gift_coins || giftMeta.coins || giftPreset.coins,
+                            color: giftMeta.gift_color || giftMeta.color || giftPreset.color,
+                            desc: giftPreset.desc,
+                            earningCreditNgn: giftMeta.earning_credit_ngn ?? giftPreset.earningCreditNgn ?? ((giftMeta.gift_coins || giftPreset.coins) * 8),
+                            matchId: convId
+                        };
+                        const senderData = {
+                            id: payload.sender_id,
+                            name: selectedConv?.other_user?.full_name || selectedConv?.other_user?.name || 'Someone Special',
+                            avatar_url: selectedConv?.other_user?.avatar_url || selectedConv?.other_user?.avatar
+                        };
+                        triggerGiftCelebration?.(giftData, senderData);
+                    } else {
+                        const isTabFocusedAndVisible = typeof document !== 'undefined' && !document.hidden && (typeof document.hasFocus === 'function' ? document.hasFocus() : true);
+                        if (!isTabFocusedAndVisible) {
+                            playNotificationDing(); // Only ding when user is backgrounded or tab unfocused
+                        }
                     }
                 }
             },
@@ -1397,6 +1484,9 @@ export default function Chat() {
     const handleSendMessage = async (e) => {
         e.preventDefault();
         markFeatureUsed('messages_chat');
+        if (currentUser?.id) {
+            recordQuestProgress(currentUser.id, 'quest_icebreaker', 1);
+        }
         if (!newMessage.trim() || !selectedConv || sending) return;
 
         // Block sending ONLY if we truly don't have a database ID yet
@@ -2512,13 +2602,74 @@ export default function Chat() {
                 );
             case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
             case 'gift': {
-                const giftName = msg.metadata?.name || msg.metadata?.gift_name || 'GIFT';
-                const emoji = msg.metadata?.gift_emoji || (msg.content?.includes(' ') ? '🎁' : msg.content);
+                const giftId = msg.metadata?.gift_id || 'rose';
+                const giftPreset = VIRTUAL_GIFTS.find(g => g.id === giftId) || VIRTUAL_GIFTS[0];
+                const giftName = msg.metadata?.name || msg.metadata?.gift_name || giftPreset.name;
+                const emoji = msg.metadata?.gift_emoji || giftPreset.emoji || (msg.content?.includes(' ') ? '🎁' : msg.content);
+                const coins = msg.metadata?.gift_coins || msg.metadata?.coins || giftPreset.coins;
+                const creditNgn = msg.metadata?.earning_credit_ngn ?? giftPreset.earningCreditNgn ?? (coins * 8);
+                const giftColor = msg.metadata?.gift_color || giftPreset.color || '#f43f5e';
+                const isLion = giftId === 'lion';
+                const isSentByMe = msg.sender_id === currentUser.id;
+
+                const handleReplay = (e) => {
+                    e.stopPropagation();
+                    const giftData = {
+                        id: giftId,
+                        name: giftName,
+                        emoji,
+                        coins,
+                        color: giftColor,
+                        desc: giftPreset.desc,
+                        earningCreditNgn: creditNgn,
+                        matchId: selectedConv?.id
+                    };
+                    const senderData = isSentByMe ? {
+                        id: currentUser.id,
+                        name: 'You',
+                        avatar_url: userProfile?.avatar_url
+                    } : {
+                        id: selectedConv?.other_user?.id,
+                        name: selectedConv?.other_user?.full_name || selectedConv?.other_user?.name || 'Someone Special',
+                        avatar_url: selectedConv?.other_user?.avatar_url || selectedConv?.other_user?.avatar
+                    };
+                    triggerGiftCelebration?.(giftData, senderData);
+                };
+
                 return (
-                    <div className="gift-message">
-                        <div className="gift-animation">🎁</div>
-                        <span className="gift-emoji-large">{emoji}</span>
-                        <span className="gift-label">SENT {giftName.toUpperCase()}</span>
+                    <div
+                        className={`gift-message interactive-gift-card ${isLion ? 'lion-card' : ''}`}
+                        onClick={handleReplay}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleReplay(e); } }}
+                        title="Click to replay celebration animation"
+                        style={{ '--card-theme-color': giftColor }}
+                    >
+                        <div className="gift-card-glow" />
+                        <div className="gift-card-header">
+                            <span className="gift-card-badge">{isLion ? '👑 LEGENDARY GIFT' : '🎁 VIRTUAL GIFT'}</span>
+                        </div>
+                        <div className="gift-card-emoji-wrap">
+                            <span className="gift-emoji-large">{emoji}</span>
+                        </div>
+                        <div className="gift-card-body">
+                            <span className="gift-label">{giftName}</span>
+                            <div className="gift-card-chips">
+                                <span className="chip-coins">🪙 {coins.toLocaleString()} Coins</span>
+                                {creditNgn > 0 && !isSentByMe && (
+                                    <span className="chip-earnings">+₦{creditNgn.toLocaleString()}</span>
+                                )}
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn-replay-gift"
+                            onClick={handleReplay}
+                            aria-label={`Replay ${giftName} celebration`}
+                        >
+                            <span>✨ Replay Animation</span>
+                        </button>
                     </div>
                 );
             }
@@ -3714,7 +3865,8 @@ export default function Chat() {
                             state: {
                                 conversationId: targetConvId,
                                 matchId: targetConvId,
-                                fromChat: true
+                                fromChat: true,
+                                partnerProfile: contact
                             }
                         });
                     }}

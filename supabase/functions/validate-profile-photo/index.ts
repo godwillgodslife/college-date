@@ -340,10 +340,25 @@ serve(async (req) => {
         };
         if (slotIndex === 0) {
           profileUpdates.avatar_url = cacheBustedUrl;
+          profileUpdates.is_verified = false;
+          profileUpdates.photo_verified = false;
+          profileUpdates.ai_verification_status = 'not_started';
         }
         await adminClient.from('profiles').update(profileUpdates).eq('id', user.id);
       } catch (directUpdateErr) {
         console.warn('[validate-profile-photo] Direct profile update warning:', directUpdateErr);
+      }
+    } else if (slotIndex === 0) {
+      // Ensure primary photo replacement resets verification status until re-verified via live selfie
+      try {
+        await adminClient.from('profiles').update({
+          avatar_url: cacheBustedUrl,
+          is_verified: false,
+          photo_verified: false,
+          ai_verification_status: 'not_started',
+        }).eq('id', user.id);
+      } catch (resetErr) {
+        console.warn('[validate-profile-photo] Reset verification on slot 0 change warning:', resetErr);
       }
     }
 
