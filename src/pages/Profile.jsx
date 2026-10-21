@@ -23,6 +23,8 @@ import { requestProfileAiReview } from '../services/aiTrustService';
 import { requestAiAssistant } from '../services/aiAssistantService';
 import { partnerWhatsAppUrl } from '../config/contactLinks';
 import FaceVerificationModal from '../components/FaceVerificationModal';
+import EndorseVibeModal from '../components/EndorseVibeModal';
+import { getUserVibeEndorsements } from '../utils/profileData';
 
 import useSWR from 'swr';
 import { AnimatePresence } from 'framer-motion';
@@ -309,6 +311,26 @@ export default function Profile() {
     const [showFaceVerification, setShowFaceVerification] = useState(false);
     const [vibeLoading, setVibeLoading] = useState(false);
     const [vibeSent, setVibeSent] = useState(false);
+    const [endorseModalOpen, setEndorseModalOpen] = useState(false);
+    const isOwnProfile = !userId || userId === currentUser?.id;
+    const profileId = userId || currentUser?.id;
+    const [vibeEndorsements, setVibeEndorsements] = useState([]);
+
+    useEffect(() => {
+        if (profileId) {
+            setVibeEndorsements(getUserVibeEndorsements(profileId, currentUser?.id));
+        }
+    }, [profileId, currentUser?.id]);
+
+    useEffect(() => {
+        const handleVibeEndorsed = (e) => {
+            if (e.detail?.targetUserId === profileId) {
+                setVibeEndorsements(getUserVibeEndorsements(profileId, currentUser?.id));
+            }
+        };
+        window.addEventListener('tcd:vibe_endorsed', handleVibeEndorsed);
+        return () => window.removeEventListener('tcd:vibe_endorsed', handleVibeEndorsed);
+    }, [profileId, currentUser?.id]);
 
     // Gift & Coins Integration
     const [showGiftStore, setShowGiftStore] = useState(false);
@@ -320,9 +342,6 @@ export default function Profile() {
     const queryParams = new URLSearchParams(location.search);
     const isFromChat = Boolean(location.state?.fromChat || queryParams.get('fromChat') === 'true');
     const [showGalleryView, setShowGalleryView] = useState(false);
-
-    const isOwnProfile = !userId || userId === currentUser?.id;
-    const profileId = userId || currentUser?.id;
 
     // Load coin balance for current user
     useEffect(() => {
@@ -1269,6 +1288,44 @@ export default function Profile() {
                                 </div>
                             </div>
                         )}
+                        {/* Campus Vibe Peer Endorsement Badges */}
+                        <div className="campus-vibe-endorsements-section">
+                            <div className="vibe-endorsements-header">
+                                <div className="vibe-header-title">
+                                    <span className="vibe-header-icon">✨</span>
+                                    <h4>Campus Vibe Badges</h4>
+                                </div>
+                                {!isOwnProfile && (
+                                    <button
+                                        type="button"
+                                        className="btn-endorse-vibe-cta"
+                                        onClick={() => setEndorseModalOpen(true)}
+                                    >
+                                        + Endorse
+                                    </button>
+                                )}
+                            </div>
+                            <div className="vibe-endorsements-pills-wrap">
+                                {vibeEndorsements.length > 0 ? (
+                                    vibeEndorsements.map((badge) => (
+                                        <span
+                                            key={badge.id}
+                                            className={`vibe-badge-pill ${badge.endorsedByMe ? 'endorsed-by-me' : ''}`}
+                                            title={badge.desc}
+                                        >
+                                            <span className="badge-pill-emoji">{badge.icon}</span>
+                                            <span className="badge-pill-label">{badge.label}</span>
+                                            <span className="badge-pill-count">×{badge.count}</span>
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="vibe-empty-hint">
+                                        {isOwnProfile ? 'Your matches can endorse your campus vibes here!' : 'Be the first to endorse a campus vibe!'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
 
                         {/* 10s Video Profile Showcase */}
                         {userProfile?.video_url && (
@@ -1403,6 +1460,44 @@ export default function Profile() {
                                 </div>
                             </div>
                         )}
+                        {/* Campus Vibe Peer Endorsement Badges */}
+                        <div className="campus-vibe-endorsements-section">
+                            <div className="vibe-endorsements-header">
+                                <div className="vibe-header-title">
+                                    <span className="vibe-header-icon">✨</span>
+                                    <h4>Campus Vibe Badges</h4>
+                                </div>
+                                {!isOwnProfile && (
+                                    <button
+                                        type="button"
+                                        className="btn-endorse-vibe-cta"
+                                        onClick={() => setEndorseModalOpen(true)}
+                                    >
+                                        + Endorse
+                                    </button>
+                                )}
+                            </div>
+                            <div className="vibe-endorsements-pills-wrap">
+                                {vibeEndorsements.length > 0 ? (
+                                    vibeEndorsements.map((badge) => (
+                                        <span
+                                            key={badge.id}
+                                            className={`vibe-badge-pill ${badge.endorsedByMe ? 'endorsed-by-me' : ''}`}
+                                            title={badge.desc}
+                                        >
+                                            <span className="badge-pill-emoji">{badge.icon}</span>
+                                            <span className="badge-pill-label">{badge.label}</span>
+                                            <span className="badge-pill-count">×{badge.count}</span>
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="vibe-empty-hint">
+                                        {isOwnProfile ? 'Your matches can endorse your campus vibes here!' : 'Be the first to endorse a campus vibe!'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
 
                         {/* 10s Video Profile Showcase */}
                         {userProfile?.video_url && (
@@ -1528,6 +1623,20 @@ export default function Profile() {
                     walletBalance={walletBalance}
                     onClose={() => setShowCoinStore(false)}
                     onCoinsUpdated={(newBal) => setCoinBalance(newBal)}
+                />
+            )}
+
+            {endorseModalOpen && (
+                <EndorseVibeModal
+                    isOpen={endorseModalOpen}
+                    onClose={() => setEndorseModalOpen(false)}
+                    targetUser={userProfile}
+                    currentUserId={currentUser?.id}
+                    currentUserProfile={myProfile}
+                    currentUserName={myProfile?.full_name}
+                    onEndorsed={(badge) => {
+                        addToast(`Endorsed ${userProfile?.full_name?.split(' ')[0] || 'student'} as "${badge.label}"! +10 XP`, 'success');
+                    }}
                 />
             )}
         </div>

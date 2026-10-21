@@ -2706,3 +2706,142 @@ html[data-theme="light"] .chat-profile-section-card {
     }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   Campus Vibe Peer Endorsement Badges
+   ═══════════════════════════════════════════════════════════ */
+
+.campus-vibe-endorsements-section {
+    margin: 1.25rem 0;
+    padding: 1.15rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+.vibe-endorsements-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+}
+
+.vibe-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.vibe-header-icon {
+    font-size: 16px;
+}
+
+.vibe-header-title h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0;
+}
+
+.btn-endorse-vibe-cta {
+    background: rgba(99, 91, 255, 0.18);
+    border: 1px solid rgba(99, 91, 255, 0.35);
+    color: #a5b4fc;
+    font-size: 12px;
+    font-weight: 750;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-endorse-vibe-cta:hover {
+    background: rgba(99, 91, 255, 0.28);
+    color: #ffffff;
+}
+
+.vibe-endorsements-pills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.vibe-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f1f5f9;
+    transition: all 0.2s;
+}
+
+.vibe-badge-pill.endorsed-by-me {
+    border-color: rgba(99, 91, 255, 0.5);
+    background: rgba(99, 91, 255, 0.15);
+}
+
+.badge-pill-emoji {
+    font-size: 14px;
+}
+
+.badge-pill-label {
+    line-height: 1;
+}
+
+.badge-pill-count {
+    font-size: 11px;
+    font-weight: 800;
+    color: #a5b4fc;
+    background: rgba(99, 91, 255, 0.25);
+    padding: 1px 6px;
+    border-radius: 999px;
+}
+
+.vibe-empty-hint {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* Light theme for Campus Vibe Badges */
+html[data-theme="light"] .campus-vibe-endorsements-section,
+.theme-light .campus-vibe-endorsements-section {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .vibe-header-title h4,
+.theme-light .vibe-header-title h4 {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .btn-endorse-vibe-cta,
+.theme-light .btn-endorse-vibe-cta {
+    background: #ede9fe !important;
+    border-color: #c4b5fd !important;
+    color: #6d28d9 !important;
+}
+
+html[data-theme="light"] .vibe-badge-pill,
+.theme-light .vibe-badge-pill {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .vibe-badge-pill.endorsed-by-me,
+.theme-light .vibe-badge-pill.endorsed-by-me {
+    background: #f5f3ff !important;
+    border-color: #a78bfa !important;
+}
+
+html[data-theme="light"] .badge-pill-count,
+.theme-light .badge-pill-count {
+    background: #ede9fe !important;
+    color: #6d28d9 !important;
+}

@@ -181,3 +181,41 @@
     font-size: 0.68rem;
     font-weight: 600;
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   Obsidian Dark Theme Support
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .profile-completion-card,
+.theme-dark .profile-completion-card {
+    background: var(--bg-card, #121216) !important;
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.09)) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+html[data-theme="dark"] .completion-compact-title,
+.theme-dark .completion-compact-title {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .progress-bar-container,
+.theme-dark .progress-bar-container {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .completion-next-hint,
+.theme-dark .completion-next-hint {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .completion-ai-inner,
+.theme-dark .completion-ai-inner {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .ai-coach-mini-bio,
+.theme-dark .ai-coach-mini-bio {
+    color: #ffffff !important;
+}

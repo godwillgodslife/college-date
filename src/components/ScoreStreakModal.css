@@ -23,10 +23,10 @@
     width: 100%;
     max-width: min(375px, calc(100vw - 1.75rem));
     max-height: min(84dvh, 520px);
-    background: linear-gradient(165deg, rgba(26, 20, 36, 0.98) 0%, rgba(14, 11, 24, 0.99) 100%);
-    border: 1px solid rgba(255, 107, 107, 0.24);
-    border-radius: 20px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(255, 87, 87, 0.14);
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: 22px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(255, 87, 87, 0.1);
     color: #ffffff;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -341,25 +341,48 @@
    -------------------------------------------------------------------------- */
 .score-streak-action-btn {
     width: 100%;
-    padding: 0.72rem;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #ff5757, #ff914d);
-    color: #ffffff;
-    font-size: 0.88rem;
-    font-weight: 700;
-    border: none;
+    padding: 0.75rem 1.25rem;
+    min-height: 46px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0a0a0c;
+    font-size: 0.9rem;
+    font-weight: 850;
+    border: 1px solid rgba(255, 255, 255, 0.14);
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(255, 87, 87, 0.32);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     margin-top: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .score-streak-action-btn:hover {
-    box-shadow: 0 6px 18px rgba(255, 87, 87, 0.42);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .score-streak-action-btn:active {
     transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Android Native App Ergonomics (html.is-native-app)
+   ═══════════════════════════════════════════════════════════ */
+html.is-native-app .score-streak-modal-container {
+    border-radius: 20px;
+    max-height: min(84dvh, 520px);
+}
+
+html.is-native-app .score-streak-action-btn {
+    min-height: 48px;
+    font-size: 0.92rem;
+}
+
+html.is-native-app .score-streak-action-chip {
+    min-height: 38px;
+    padding: 0.45rem 0.65rem;
 }
 
 /* ==========================================================================
@@ -502,7 +525,10 @@ html[data-theme="light"] .score-streak-action-chip,
 
 html[data-theme="light"] .score-streak-action-btn,
 .theme-light .score-streak-action-btn {
-    box-shadow: 0 4px 14px rgba(255, 87, 87, 0.28);
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ==========================================================================

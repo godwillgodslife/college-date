@@ -60,13 +60,13 @@ const APP_ROUTE_PREFIXES = [
     '/wireframes'
 ];
 
-const MESSAGE_TYPES = new Set(['message', 'new_message', 'call', 'gift', 'gift_received']);
-const MATCH_TYPES = new Set(['match', 'swipe_accepted']);
+const MESSAGE_TYPES = new Set(['message', 'new_message', 'call', 'gift', 'gift_received', 'mini_game', 'mini_game_response']);
+const MATCH_TYPES = new Set(['match', 'swipe_accepted', 'mystery_match_revealed']);
 const REQUEST_TYPES = new Set(['like', 'super_swipe', 'swipe_received']);
-const PROFILE_TYPES = new Set(['view', 'profile_view', 'checked_out']);
+const PROFILE_TYPES = new Set(['view', 'profile_view', 'checked_out', 'vibe_endorsement']);
 const SOCIAL_TYPES = new Set(['snapshot_reaction', 'status_update', 'confession']);
-const ACCOUNT_TYPES = new Set(['payment', 'funds', 'goal_reached']);
-const SYSTEM_TYPES = new Set(['system', 'verified', 'security']);
+const ACCOUNT_TYPES = new Set(['payment', 'funds', 'goal_reached', 'quest_reward', 'streak_milestone']);
+const SYSTEM_TYPES = new Set(['system', 'verified', 'security', 'campus_clash_victory']);
 
 function cleanRoutePath(pathname) {
     const path = `/${String(pathname || '').replace(/^\/+/, '')}`.replace(/\/+/g, '/');
@@ -190,11 +190,11 @@ export function getNotificationDeepLink(notification) {
     }
 
     if (REQUEST_TYPES.has(type)) return { to: '/requests' };
-    if (PROFILE_TYPES.has(type)) return { to: '/viewers' };
+    if (PROFILE_TYPES.has(type)) return { to: type === 'vibe_endorsement' ? '/profile' : '/viewers' };
     if (SOCIAL_TYPES.has(type)) return { to: type === 'confession' ? '/confessions' : '/snap' };
-    if (type === 'trending' || type === 'leaderboard') return { to: '/leaderboard' };
+    if (type === 'trending' || type === 'leaderboard' || type === 'campus_clash_victory') return { to: '/leaderboard' };
     if (type === 'nearby') return { to: '/explore' };
-    if (ACCOUNT_TYPES.has(type)) return { to: '/wallet' };
+    if (ACCOUNT_TYPES.has(type)) return { to: (type === 'quest_reward' || type === 'streak_milestone') ? '/dashboard' : '/wallet' };
     if (type === 'official' || type === 'announcement' || type === 'guide') return { to: '/guides' };
     if (SYSTEM_TYPES.has(type)) return { to: '/profile' };
 
@@ -244,7 +244,14 @@ export function getNotificationIcon(type) {
         leaderboard: '#',
         confession: '?',
         verified: 'V',
-        nearby: 'N'
+        nearby: 'N',
+        vibe_endorsement: '✨',
+        mini_game: '🎮',
+        mini_game_response: '🎮',
+        quest_reward: '🎯',
+        streak_milestone: '🔥',
+        campus_clash_victory: '🏆',
+        mystery_match_revealed: '🎉'
     };
 
     return iconMap[type] || '!';

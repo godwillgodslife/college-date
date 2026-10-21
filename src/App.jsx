@@ -84,6 +84,7 @@ const WireframeShowcase = lazyWithRetry(() => import('./pages/WireframeShowcase'
 const AndroidUXComparison = lazyWithRetry(() => import('./pages/AndroidUXComparison'));
 const AndroidUXReview = lazyWithRetry(() => import('./pages/AndroidUXReview'));
 const AndroidDesignReview = lazyWithRetry(() => import('./pages/AndroidDesignReview'));
+const GamificationPreviewLab = lazyWithRetry(() => import('./pages/GamificationPreviewLab'));
 const StaticPageViewer = lazyWithRetry(() => import('./pages/public/StaticPageViewer'));
 const AnonymousAskPage = lazyWithRetry(() => import('./pages/AnonymousAskPage'));
 const OfficialHubPage = lazyWithRetry(() => import('./pages/OfficialHubPage'));
@@ -352,6 +353,8 @@ function AppRoutes() {
         <Route path="/push-lab" element={<DevOrAdminRoute><NotificationPreviewLab /></DevOrAdminRoute>} />
         <Route path="/premium-preview" element={<DevOrAdminRoute><PremiumUpgrade /></DevOrAdminRoute>} />
         <Route path="/referrals-preview" element={<DevOrAdminRoute><Referrals /></DevOrAdminRoute>} />
+        <Route path="/gamification-lab" element={<DevOrAdminRoute><GamificationPreviewLab /></DevOrAdminRoute>} />
+        <Route path="/gamification-preview" element={<DevOrAdminRoute><GamificationPreviewLab /></DevOrAdminRoute>} />
         <Route path="/messages" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/messages/:chatId" element={<CanonicalNotificationRouteRedirect />} />
         <Route path="/ask/:username" element={<AnonymousAskPage />} />

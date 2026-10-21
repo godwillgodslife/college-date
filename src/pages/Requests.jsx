@@ -454,12 +454,23 @@ export default function Requests() {
                                 </div>
                             </div>
 
-                            {req.message_teaser && (
-                                <div className="request-teaser">
-                                    <span className="teaser-quote">“</span>
-                                    <p>{req.message_teaser}</p>
-                                </div>
-                            )}
+                            {req.message_teaser && (() => {
+                                const match = String(req.message_teaser).match(/^\[Replied to ([^\]]+)\]:\s*"?([\s\S]*?)"?$/);
+                                if (match) {
+                                    return (
+                                        <div className="request-teaser request-prompt-reply">
+                                            <span className="request-prompt-category">✈ Replied to {match[1]}</span>
+                                            <p className="request-prompt-body">"{match[2]}"</p>
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div className="request-teaser">
+                                        <span className="teaser-quote">“</span>
+                                        <p>{req.message_teaser}</p>
+                                    </div>
+                                );
+                            })()}
 
                             {req.locked ? (
                                 <div className="request-actions">

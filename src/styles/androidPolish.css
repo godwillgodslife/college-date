@@ -1057,6 +1057,14 @@ html.is-native-app .spinner-brand {
         padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 32px) !important;
     }
 
+    html.is-native-app .dashboard,
+    html.is-native-app .dashboard-page,
+    html.is-native-app .profile-page,
+    html.is-native-app .settings-page,
+    html.is-native-app .wallet-page {
+        padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 16px) + 84px) !important;
+    }
+
     html.is-native-app .edit-profile-page {
         justify-content: flex-start;
         background: var(--bg-primary, #0a0a0c);
@@ -1120,8 +1128,9 @@ html.is-native-app .spinner-brand {
     }
 
     html.is-native-app .swipe-container {
-        max-width: min(420px, calc(100vw - 24px));
+        max-width: min(420px, calc(100vw - 20px));
         height: calc(var(--vh, 1vh) * 83);
+        max-height: calc(100dvh - 176px) !important;
     }
 
     html.is-native-app .leaderboard-page {
@@ -2317,19 +2326,240 @@ html.is-native-app[data-theme="light"] .glass-panel {
     background: rgba(255, 255, 255, 0.98) !important;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Comprehensive Android Native High-Contrast Dark & Light Surfaces
+   Aligned with Confessions Page Design Tokens
+   ═══════════════════════════════════════════════════════════ */
+
+/* Dark Mode Surfaces */
+html.is-native-app[data-theme="dark"] body,
+html.is-native-app.theme-dark body,
+html.is-native-app[data-theme="dark"] .app-layout,
+html.is-native-app.theme-dark .app-layout,
+html.is-native-app[data-theme="dark"] .dashboard,
+html.is-native-app.theme-dark .dashboard {
+    background: #09090e !important;
+    color: #ffffff !important;
+}
+
+html.is-native-app[data-theme="dark"] .dashboard-hero-content,
+html.is-native-app.theme-dark .dashboard-hero-content,
+html.is-native-app[data-theme="dark"] .campus-quests-card,
+html.is-native-app.theme-dark .campus-quests-card,
+html.is-native-app[data-theme="dark"] .campus-primetime-banner,
+html.is-native-app.theme-dark .campus-primetime-banner,
+html.is-native-app[data-theme="dark"] .dashboard-streak-card,
+html.is-native-app.theme-dark .dashboard-streak-card,
+html.is-native-app[data-theme="dark"] .viewer-teaser-card,
+html.is-native-app.theme-dark .viewer-teaser-card,
+html.is-native-app[data-theme="dark"] .stat-card,
+html.is-native-app.theme-dark .stat-card,
+html.is-native-app[data-theme="dark"] .feature-card,
+html.is-native-app.theme-dark .feature-card,
+html.is-native-app[data-theme="dark"] .analytics-dashboard-card,
+html.is-native-app.theme-dark .analytics-dashboard-card {
+    background: #121216 !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.is-native-app[data-theme="dark"] .dashboard-greeting,
+html.is-native-app.theme-dark .dashboard-greeting,
+html.is-native-app[data-theme="dark"] .dashboard-card-title,
+html.is-native-app.theme-dark .dashboard-card-title,
+html.is-native-app[data-theme="dark"] .campus-quests-title,
+html.is-native-app.theme-dark .campus-quests-title,
+html.is-native-app[data-theme="dark"] .primetime-headline,
+html.is-native-app.theme-dark .primetime-headline,
+html.is-native-app[data-theme="dark"] .stat-value,
+html.is-native-app.theme-dark .stat-value,
+html.is-native-app[data-theme="dark"] .feature-card-title,
+html.is-native-app.theme-dark .feature-card-title {
+    color: #ffffff !important;
+}
+
+html.is-native-app[data-theme="dark"] .dashboard-tagline,
+html.is-native-app.theme-dark .dashboard-tagline,
+html.is-native-app[data-theme="dark"] .campus-quests-subhead,
+html.is-native-app.theme-dark .campus-quests-subhead,
+html.is-native-app[data-theme="dark"] .stat-label,
+html.is-native-app.theme-dark .stat-label,
+html.is-native-app[data-theme="dark"] .feature-card-desc,
+html.is-native-app.theme-dark .feature-card-desc {
+    color: #94a3b8 !important;
+}
+
+html.is-native-app[data-theme="dark"] .dashboard-primary-action,
+html.is-native-app.theme-dark .dashboard-primary-action,
+html.is-native-app[data-theme="dark"] .primetime-mystery-btn,
+html.is-native-app.theme-dark .primetime-mystery-btn,
+html.is-native-app[data-theme="dark"] .campus-quest-action-btn,
+html.is-native-app.theme-dark .campus-quest-action-btn {
+    background: #ffffff !important;
+    color: #0a0a0c !important;
+    border: 1px solid #ffffff !important;
+    border-radius: 999px !important;
+}
+
+html.is-native-app[data-theme="dark"] .dashboard-secondary-action,
+html.is-native-app.theme-dark .dashboard-secondary-action {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 999px !important;
+}
+
+/* Light Mode Surfaces */
+html.is-native-app[data-theme="light"] body,
+.theme-light.is-native-app body,
+html.is-native-app[data-theme="light"] .app-layout,
+.theme-light.is-native-app .app-layout,
+html.is-native-app[data-theme="light"] .dashboard,
+.theme-light.is-native-app .dashboard {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-hero-content,
+.theme-light.is-native-app .dashboard-hero-content,
+html.is-native-app[data-theme="light"] .campus-quests-card,
+.theme-light.is-native-app .campus-quests-card,
+html.is-native-app[data-theme="light"] .campus-primetime-banner,
+.theme-light.is-native-app .campus-primetime-banner,
+html.is-native-app[data-theme="light"] .dashboard-streak-card,
+.theme-light.is-native-app .dashboard-streak-card,
+html.is-native-app[data-theme="light"] .viewer-teaser-card,
+.theme-light.is-native-app .viewer-teaser-card,
+html.is-native-app[data-theme="light"] .stat-card,
+.theme-light.is-native-app .stat-card,
+html.is-native-app[data-theme="light"] .feature-card,
+.theme-light.is-native-app .feature-card,
+html.is-native-app[data-theme="light"] .analytics-dashboard-card,
+.theme-light.is-native-app .analytics-dashboard-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-greeting,
+.theme-light.is-native-app .dashboard-greeting,
+html.is-native-app[data-theme="light"] .dashboard-card-title,
+.theme-light.is-native-app .dashboard-card-title,
+html.is-native-app[data-theme="light"] .campus-quests-title,
+.theme-light.is-native-app .campus-quests-title,
+html.is-native-app[data-theme="light"] .primetime-headline,
+.theme-light.is-native-app .primetime-headline,
+html.is-native-app[data-theme="light"] .stat-value,
+.theme-light.is-native-app .stat-value,
+html.is-native-app[data-theme="light"] .feature-card-title,
+.theme-light.is-native-app .feature-card-title {
+    color: #0f172a !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-tagline,
+.theme-light.is-native-app .dashboard-tagline,
+html.is-native-app[data-theme="light"] .campus-quests-subhead,
+.theme-light.is-native-app .campus-quests-subhead,
+html.is-native-app[data-theme="light"] .stat-label,
+.theme-light.is-native-app .stat-label,
+html.is-native-app[data-theme="light"] .feature-card-desc,
+.theme-light.is-native-app .feature-card-desc {
+    color: #64748b !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-primary-action,
+.theme-light.is-native-app .dashboard-primary-action,
+html.is-native-app[data-theme="light"] .primetime-mystery-btn,
+.theme-light.is-native-app .primetime-mystery-btn,
+html.is-native-app[data-theme="light"] .campus-quest-action-btn,
+.theme-light.is-native-app .campus-quest-action-btn {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border: 1px solid #0f172a !important;
+    border-radius: 999px !important;
+}
+
+html.is-native-app[data-theme="light"] .dashboard-secondary-action,
+.theme-light.is-native-app .dashboard-secondary-action {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 999px !important;
+}
+
 /* ─── Android Dashboard Card Outer Margin & Padding Alignment ─── */
+html.is-native-app .dashboard {
+    padding: 0.55rem 0.75rem calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 24px) + 56px) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+html.is-native-app .dashboard-hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0.55rem !important;
+    gap: 0.45rem !important;
+}
+
+html.is-native-app .dashboard-hero > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+}
+
 html.is-native-app .viewer-teaser-card,
 html.is-native-app .dashboard-streak-card,
 html.is-native-app .dashboard-active-program-card {
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    min-width: 0 !important;
     margin: 0 !important;
-    padding: 0.85rem 1rem !important;
-    border-radius: 16px !important;
+    padding: 0.55rem 0.8rem !important;
+    border-radius: 14px !important;
 }
 
-html.is-native-app .dashboard-hero {
-    gap: 0.75rem !important;
+html.is-native-app .dashboard-card-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+
+html.is-native-app .dashboard-card-icon {
+    font-size: 1.3rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+html.is-native-app .dashboard-card-info {
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+
+html.is-native-app .dashboard-card-title {
+    font-size: 0.84rem !important;
+    font-weight: 750 !important;
+    line-height: 1.2 !important;
+}
+
+html.is-native-app .dashboard-card-subtitle {
+    font-size: 0.72rem !important;
+    line-height: 1.2 !important;
+}
+
+html.is-native-app .dashboard-card-action {
+    font-size: 0.74rem !important;
+    font-weight: 750 !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 100px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* ─── Android Profile YouTube Bridge Card Alignment ─── */
@@ -2354,60 +2584,77 @@ html.is-native-app .profile-yt-bridge-btn,
 
 /* ── 1. Dashboard Action & Feature Cards ───────────────────── */
 html.is-native-app .dashboard-hero {
-    margin-bottom: 0.75rem !important;
-    gap: 0.55rem !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0.55rem !important;
+    gap: 0.45rem !important;
 }
 
 html.is-native-app .dashboard-hero-content {
     min-height: unset !important;
-    padding: 1rem !important;
+    padding: 0.85rem 0.95rem !important;
     border-radius: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
 }
 
 html.is-native-app .dashboard-eyebrow {
-    margin-bottom: 0.35rem !important;
-    font-size: 0.68rem !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 0.06em !important;
 }
 
 html.is-native-app .dashboard-greeting {
-    font-size: 1.45rem !important;
-    margin: 0 0 0.35rem !important;
+    font-size: 1.3rem !important;
+    margin: 0 0 0.3rem !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
 }
 
 html.is-native-app .dashboard-tagline {
-    font-size: 0.82rem !important;
+    font-size: 0.78rem !important;
     line-height: 1.35 !important;
+    max-width: 100% !important;
 }
 
 html.is-native-app .dashboard-hero-actions {
-    margin-top: 0.65rem !important;
+    margin-top: 0.55rem !important;
     gap: 0.5rem !important;
 }
 
 html.is-native-app .dashboard-primary-action,
 html.is-native-app .dashboard-secondary-action {
-    min-height: 36px !important;
+    min-height: 34px !important;
     padding: 0 0.85rem !important;
-    font-size: 0.8rem !important;
+    font-size: 0.78rem !important;
 }
 
 html.is-native-app .dashboard-stats {
-    gap: 0.45rem !important;
-    margin-bottom: 0.75rem !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.4rem !important;
+    margin-bottom: 0.65rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 html.is-native-app .stat-card {
-    padding: 0.6rem 0.45rem !important;
+    padding: 0.5rem 0.35rem !important;
     border-radius: 12px !important;
 }
 
 html.is-native-app .stat-value {
-    font-size: 1.35rem !important;
+    font-size: 1.2rem !important;
     margin-bottom: 0.15rem !important;
 }
 
 html.is-native-app .stat-label {
-    font-size: 0.64rem !important;
+    font-size: 0.62rem !important;
 }
 
 html.is-native-app .dashboard-features {

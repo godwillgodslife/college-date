@@ -22,8 +22,29 @@ const EXIT_TRANSITION = { type: 'tween', duration: 0.22, ease: 'easeOut' };
 const RESET_TRANSITION = { type: 'spring', stiffness: 340, damping: 26, mass: 0.9 };
 const MotionDiv = motion.div;
 
+function formatInterestWithEmoji(interest) {
+    if (!interest) return '';
+    const text = String(interest).trim();
+    if (/[\p{Emoji}]/u.test(text)) return text;
+    const lower = text.toLowerCase();
+    if (lower.includes('afrobeat') || lower.includes('music')) return `🎶 ${text}`;
+    if (lower.includes('food') || lower.includes('jollof') || lower.includes('eat')) return `🥘 ${text}`;
+    if (lower.includes('photo')) return `📸 ${text}`;
+    if (lower.includes('danc')) return `💃 ${text}`;
+    if (lower.includes('law') || lower.includes('court')) return `⚖️ ${text}`;
+    if (lower.includes('code') || lower.includes('tech') || lower.includes('program')) return `💻 ${text}`;
+    if (lower.includes('gym') || lower.includes('fit') || lower.includes('workout')) return `💪 ${text}`;
+    if (lower.includes('book') || lower.includes('read') || lower.includes('study')) return `📚 ${text}`;
+    if (lower.includes('game') || lower.includes('gaming')) return `🎮 ${text}`;
+    if (lower.includes('draw') || lower.includes('art')) return `🎨 ${text}`;
+    if (lower.includes('coffee') || lower.includes('tea')) return `☕ ${text}`;
+    if (lower.includes('wine') || lower.includes('cocktail')) return `🍷 ${text}`;
+    return `✨ ${text}`;
+}
+
 function SwipeCard({
     profile,
+    myProfile,
     onSwipe,
     onBeforeSwipe,
     onSwipeCancel,
@@ -31,13 +52,18 @@ function SwipeCard({
     onSuperSwipe,
     priority = false,
     isTop = true,
-    stackPosition = 0
+    stackPosition = 0,
+    onOpenPromptReply,
+    onShareProfile,
+    onBlockProfile,
+    onReportProfile
 }) {
-    const { userProfile: myProfile } = useAuth();
+    const { userProfile: authProfile } = useAuth();
+    const effectiveMyProfile = myProfile || authProfile;
     const displayProfile = useMemo(() => normalizeProfile(profile) || {}, [profile]);
     const isProfilePremium = useMemo(() => hasActivePremium(displayProfile), [displayProfile]);
     const isProfileUltra = useMemo(() => isEliteUltra(displayProfile), [displayProfile]);
-    const photoLimit = useMemo(() => getMatchPhotoLimit(displayProfile, myProfile), [displayProfile, myProfile]);
+    const photoLimit = useMemo(() => getMatchPhotoLimit(displayProfile, effectiveMyProfile), [displayProfile, effectiveMyProfile]);
     const [activePhotoIdx, setActivePhotoIdx] = useState(0);
     const [aiInsight, setAiInsight] = useState(null);
     const [aiInsightType, setAiInsightType] = useState('');
@@ -52,24 +78,23 @@ function SwipeCard({
     const allPhotos = useMemo(() => getProfilePhotos(displayProfile), [displayProfile]);
     const photos = useMemo(() => allPhotos.slice(0, photoLimit), [allPhotos, photoLimit]);
 
-
     const mutualInterests = useMemo(() => {
-        return safeArray(myProfile?.interests).filter(interest =>
+        return safeArray(effectiveMyProfile?.interests).filter(interest =>
             safeArray(displayProfile?.interests).includes(interest)
         );
-    }, [myProfile?.interests, displayProfile?.interests]);
+    }, [effectiveMyProfile?.interests, displayProfile?.interests]);
 
     const compatibilityScore = useMemo(() => {
         let score = 55;
-        if (displayProfile?.intent && displayProfile?.intent === myProfile?.intent) score += 20;
-        if (displayProfile?.university && displayProfile?.university === myProfile?.university) score += 15;
+        if (displayProfile?.attraction_goal && displayProfile?.attraction_goal === effectiveMyProfile?.attraction_goal) score += 20;
+        if (displayProfile?.university && displayProfile?.university === effectiveMyProfile?.university) score += 15;
         score += Math.min(15, mutualInterests.length * 5);
         return Math.min(99, score);
-    }, [displayProfile, myProfile, mutualInterests]);
+    }, [displayProfile, effectiveMyProfile, mutualInterests]);
 
     const whyYouMatchBadge = useMemo(() => {
-        return getWhyYouMatchBadge(displayProfile, myProfile);
-    }, [displayProfile, myProfile]);
+        return getWhyYouMatchBadge(displayProfile, effectiveMyProfile);
+    }, [displayProfile, effectiveMyProfile]);
 
     useEffect(() => {
         if (isSwipeDebugEnabled()) {
@@ -125,6 +150,7 @@ function SwipeCard({
         setActivePhotoIdx(0);
         swipeInProgressRef.current = false;
         dragMoveCountRef.current = 0;
+        setIsExpanded(false);
 
         recordSwipeDebug('card-mounted', { profileId: displayProfile.id });
 
@@ -224,20 +250,20 @@ function SwipeCard({
     ]);
 
     const handleDragStart = useCallback(() => {
-        if (!canInteract) return;
+        if (!canInteract || isExpanded) return;
         stopAnimation();
         dragMoveCountRef.current = 0;
         dragStartTimeRef.current = performance.now();
         recordSwipeDebug('drag-start', { profileId: displayProfile.id });
-    }, [canInteract, displayProfile.id, stopAnimation]);
+    }, [canInteract, isExpanded, displayProfile.id, stopAnimation]);
 
     const handleDrag = useCallback(() => {
-        if (!canInteract) return;
+        if (!canInteract || isExpanded) return;
         dragMoveCountRef.current += 1;
-    }, [canInteract]);
+    }, [canInteract, isExpanded]);
 
     const handleDragEnd = useCallback((_event, info) => {
-        if (!canInteract || swipeInProgressRef.current) return;
+        if (!canInteract || isExpanded || swipeInProgressRef.current) return;
 
         const visualOffset = x.get();
         const horizontalVelocity = info.velocity.x;
@@ -261,7 +287,7 @@ function SwipeCard({
         }
 
         completeSwipe(direction, 'standard', 'drag');
-    }, [canInteract, completeSwipe, displayProfile.id, resetCardPosition, x]);
+    }, [canInteract, isExpanded, completeSwipe, displayProfile.id, resetCardPosition, x]);
 
     const nextPhoto = useCallback((e) => {
         e.stopPropagation();
@@ -281,7 +307,7 @@ function SwipeCard({
 
     const toggleExpand = useCallback((e) => {
         if (!canInteract) return;
-        if (e.target.closest('button') || e.target.closest('.photo-indicators') || e.target.closest('.carousel-nav') || e.target.closest('.premium-note-container')) {
+        if (e.target.closest('button') || e.target.closest('.photo-indicators') || e.target.closest('.carousel-nav') || e.target.closest('.modular-profile-scroll')) {
             return;
         }
         setIsExpanded(prev => !prev);
@@ -298,7 +324,6 @@ function SwipeCard({
         });
         if (!error) setAiInsight(data);
         setAiLoading(false);
-        setIsExpanded(true);
     }, [aiLoading, canInteract, displayProfile]);
 
     const handleActionSwipe = useCallback((e, direction, type = 'standard') => {
@@ -314,7 +339,7 @@ function SwipeCard({
             if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target?.isContentEditable) {
                 return;
             }
-            if (document.querySelector('.filter-overlay, .match-overlay, .guide-modal-overlay, .premium-modal-overlay')) {
+            if (document.querySelector('.discovery-pref-overlay, .prompt-reply-overlay, .report-modal-overlay, .filter-overlay, .match-overlay, .guide-modal-overlay, .premium-modal-overlay')) {
                 return;
             }
 
@@ -392,8 +417,8 @@ function SwipeCard({
         <MotionDiv
             className={`swipe-card ${isExpanded ? 'expanded-mode' : ''} ${canInteract ? 'top-card' : 'stack-card'}`}
             style={cardStyle}
-            drag={canInteract ? 'x' : false}
-            dragListener={canInteract}
+            drag={canInteract && !isExpanded ? 'x' : false}
+            dragListener={canInteract && !isExpanded}
             dragConstraints={false}
             dragElastic={1}
             dragMomentum={false}
@@ -407,185 +432,467 @@ function SwipeCard({
             draggable={false}
         >
             <div className="swipe-card-inner">
-                <div className="swipe-card-image-container">
-                    {photos.length > 1 && (
-                        <div className="photo-indicators">
-                            {photos.map((_, i) => (
-                                <div key={i} className={`indicator-bar ${i === activePhotoIdx ? 'active' : ''}`}>
-                                    <div className="indicator-progress"></div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="carousel-nav nav-left" onClick={prevPhoto}></div>
-                    <div className="carousel-nav nav-right" onClick={nextPhoto}></div>
-
-                    {photos.length > 0 && photos[activePhotoIdx] ? (
-                        <OptimizedImage
-                            src={photos[activePhotoIdx]}
-                            alt={displayName}
-                            className="swipe-card-image"
-                            width={800}
-                            priority={priority && activePhotoIdx === 0}
-                            draggable={false}
-                        />
-                    ) : (
-                        <div className="swipe-card-placeholder flex">
-                            {displayName.charAt(0).toUpperCase()}
-                        </div>
-                    )}
-
-                    {isProfilePremium && (
-                        <div className="card-premium-golden-badge" title={isProfileUltra ? "👑 Elite Ultra VIP" : "👑 Premium Member"}>
-                            <span className="premium-crown-icon">{isProfileUltra ? "👑⭐" : "👑"}</span>
-                        </div>
-                    )}
-
-                    <MotionDiv
-                        className="swipe-stamp stamp-like"
-                        style={{ opacity: likeOpacity, scale: likeScale, rotate: likeRotate }}
-                    >
-                        LIKE
-                    </MotionDiv>
-                    <MotionDiv
-                        className="swipe-stamp stamp-nope"
-                        style={{ opacity: nopeOpacity, scale: nopeScale, rotate: nopeRotate }}
-                    >
-                        NOPE
-                    </MotionDiv>
-
-                    <div className="swipe-card-gradient" />
-
-                    <div className="swipe-card-content">
-                        <div className="swipe-card-tags">
-                            {isProfileUltra ? (
-                                <span className="swipe-tag ultra-tag-glow">👑 Ultra VIP</span>
-                            ) : isProfilePremium ? (
-                                <span className="swipe-tag premium-tag-glow">👑 Premium</span>
-                            ) : null}
-                            {(displayProfile.is_verified || displayProfile.photo_verified) && (
-                                <span className="swipe-tag verified-tag-glow">✓ Verified</span>
-                            )}
-                            {whyYouMatchBadge && (
-                                <span className="swipe-tag why-you-match-tag">{whyYouMatchBadge}</span>
-                            )}
-                            {isLive && (
-                                <div className="live-pulse-container">
-                                    <span className="pulse-dot"></span>
-                                    <span className="live-text">LIVE</span>
-                                </div>
-                            )}
-                            <span className="swipe-tag uni-tag">🎓 {university}</span>
-                            {(displayProfile.isExpandedCampus || displayProfile.is_expanded_campus) && (
-                                <span className="swipe-tag expanded-campus-tag">📍 All Campuses</span>
-                            )}
-                            {recentlyActive && (
-                                <span className="swipe-tag active-tag">🟢 Recently Active</span>
-                            )}
-                            {displayProfile.is_top_seeker && (
-                                <span className="swipe-tag top-seeker-tag">🔥 Top Seeker</span>
-                            )}
-                            {displayProfile.role === 'Female' && (
-                                <span className="swipe-tag premium-available">💎 Premium Unlock Available</span>
-                            )}
-                        </div>
-                        <h2 className="swipe-card-name">
-                            {displayName}
-                            {age && <span className="swipe-card-age">, {age}</span>}
-                            {isProfilePremium && <span className="premium-crown" title={isProfileUltra ? "Elite Ultra VIP" : "Premium Member"}>{isProfileUltra ? "👑⭐" : "👑"}</span>}
-                            {(displayProfile.is_verified || displayProfile.photo_verified) && (
-                                <span className="card-verified-tick" title="Photo Verified Student">✓</span>
-                            )}
-
-                        </h2>
-
-                        <div className={`swipe-card-bio-wrapper ${isExpanded ? 'expanded' : ''}`}>
-                            <p className="swipe-card-bio">{bio}</p>
-
-                            {isExpanded && (
-                                <div className="swipe-card-extra-info fade-in mt-4">
-                                    <div className="compatibility-match-banner">
-                                        <span className="banner-badge">✨ Compatibility: {compatibilityScore}%</span>
-                                        {mutualInterests.length > 0 ? (
-                                            <p className="banner-desc">You both love <strong>{mutualInterests.join(', ')}</strong>!</p>
-                                        ) : (
-                                            <p className="banner-desc">Common student goals & shared vibe.</p>
-                                        )}
-                                    </div>
-                                    {displayProfile.department && <p><strong>Dept:</strong> {displayProfile.department}</p>}
-                                    {displayProfile.level && <p><strong>Level:</strong> {displayProfile.level}</p>}
-                                    {displayProfile.attraction_goal && <p><strong>Looking for:</strong> {displayProfile.attraction_goal}</p>}
-                                    {safeArray(displayProfile.interests).length > 0 && (
-                                        <div className="mt-2">
-                                            <strong>Interests:</strong>
-                                            <div className="flex flex-wrap gap-2 mt-1">
-                                                {safeArray(displayProfile.interests).map(i => <span key={i} className="swipe-tag text-xs">{i}</span>)}
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className="ai-detail-tools" aria-label="AI match tools">
-                                        <span>AI wingmate</span>
-                                        <div>
-                                            <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'compatibility')} disabled={aiLoading || !canInteract}>
-                                                {aiLoading && aiInsightType === 'compatibility' ? 'Reading...' : 'Insight'}
-                                            </button>
-                                            <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'conversation_opener')} disabled={aiLoading || !canInteract}>
-                                                Openers
-                                            </button>
-                                            <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'date_ideas')} disabled={aiLoading || !canInteract}>
-                                                Date
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {aiInsight && (
-                                        <div className={`ai-card-insight ${aiInsightType ? `ai-${aiInsightType}` : ''}`}>
-                                            {renderAiInsight()}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        {!isExpanded && (
-                            <div className="swipe-card-actions-row mt-4">
-                                <button
-                                    className="swipe-action-btn action-nope"
-                                    onPointerDown={stopInteractivePointer}
-                                    onClick={(e) => handleActionSwipe(e, 'left')}
-                                    disabled={!canInteract}
-                                    aria-label="Pass Profile"
-                                >
-                                    ✕
-                                </button>
-
-                                {onSuperSwipe && (
-                                    <button
-                                        className="swipe-action-btn action-super"
-                                        onPointerDown={stopInteractivePointer}
-                                        onClick={(e) => handleActionSwipe(e, 'right', 'super')}
-                                        disabled={!canInteract}
-                                        aria-label="Super Swipe"
-                                    >
-                                        ⭐
-                                        {superSwipesAvailable > 0 && (
-                                            <span className="super-badge">{superSwipesAvailable}</span>
-                                        )}
-                                    </button>
+                {/* ── EXPANDED MODULAR PROFILE DETAIL VIEW (Tinder Architecture) ── */}
+                {isExpanded ? (
+                    <div className="modular-profile-scroll" onClick={stopInteractivePointer}>
+                        {/* Sticky Header with Collapse Chevron */}
+                        <div className="modular-sticky-header">
+                            <div className="modular-header-identity">
+                                <h2 className="modular-header-name">
+                                    {displayName}{age ? `, ${age}` : ''}
+                                </h2>
+                                {(displayProfile.is_verified || displayProfile.photo_verified) && (
+                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
                                 )}
+                                {isProfilePremium && (
+                                    <span className="premium-crown" title={isProfileUltra ? "Elite Ultra VIP" : "Premium Member"}>
+                                        {isProfileUltra ? "👑⭐" : "👑"}
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                className="modular-btn-collapse"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsExpanded(false);
+                                }}
+                                aria-label="Collapse profile"
+                                title="Close Profile"
+                            >
+                                ⌵
+                            </button>
+                        </div>
 
+                        {/* Photo Carousel Hero */}
+                        <div className="modular-photo-hero">
+                            {photos.length > 1 && (
+                                <div className="photo-indicators">
+                                    {photos.map((_, i) => (
+                                        <div key={i} className={`indicator-bar ${i === activePhotoIdx ? 'active' : ''}`}>
+                                            <div className="indicator-progress"></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="carousel-nav nav-left" onClick={prevPhoto}></div>
+                            <div className="carousel-nav nav-right" onClick={nextPhoto}></div>
+
+                            {photos.length > 0 && photos[activePhotoIdx] ? (
+                                <OptimizedImage
+                                    src={photos[activePhotoIdx]}
+                                    alt={displayName}
+                                    className="swipe-card-image"
+                                    width={800}
+                                    priority={priority && activePhotoIdx === 0}
+                                    draggable={false}
+                                />
+                            ) : (
+                                <div className="swipe-card-placeholder flex">
+                                    {displayName.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+
+                            {/* Photo Reply Button */}
+                            <button
+                                type="button"
+                                className="modular-photo-reply-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenPromptReply?.(displayProfile, {
+                                        category: 'Photo',
+                                        content: `${displayName}'s photo`,
+                                        photoUrl: photos[activePhotoIdx]
+                                    });
+                                }}
+                            >
+                                <span>✈</span> Reply
+                            </button>
+                        </div>
+
+                        {/* Modular Cards Stack */}
+                        <div className="modular-cards-stack">
+                            {/* Card 1: Looking For */}
+                            {displayProfile.attraction_goal && (
+                                <div className="modular-card">
+                                    <div className="modular-card-header">
+                                        <span className="modular-card-title">🔍 Looking for</span>
+                                    </div>
+                                    <p className="modular-looking-for-text">{displayProfile.attraction_goal}</p>
+                                    <button
+                                        type="button"
+                                        className="modular-card-reply-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onOpenPromptReply?.(displayProfile, {
+                                                category: 'Looking for',
+                                                content: displayProfile.attraction_goal
+                                            });
+                                        }}
+                                    >
+                                        <span>✈</span> Reply
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Card 2: About Me */}
+                            <div className="modular-card">
+                                <div className="modular-card-header">
+                                    <span className="modular-card-title">“ About me</span>
+                                </div>
+                                <p className="modular-bio-text">{bio}</p>
                                 <button
-                                    className="swipe-action-btn action-like"
-                                    onPointerDown={stopInteractivePointer}
-                                    onClick={(e) => handleActionSwipe(e, 'right')}
-                                    disabled={!canInteract}
-                                    aria-label="Like Profile"
+                                    type="button"
+                                    className="modular-card-reply-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onOpenPromptReply?.(displayProfile, {
+                                            category: 'About me',
+                                            content: bio
+                                        });
+                                    }}
                                 >
-                                    ❤️
+                                    <span>✈</span> Reply
                                 </button>
                             </div>
-                        )}
+
+                            {/* Card 3: Campus Essentials */}
+                            <div className="modular-card">
+                                <div className="modular-card-header">
+                                    <span className="modular-card-title">📇 Essentials</span>
+                                </div>
+                                <div className="modular-essentials-list">
+                                    <div className="modular-essential-item">
+                                        <span className="modular-essential-icon">📍</span>
+                                        <span>{displayProfile.isExpandedCampus ? 'Cross-Campus Network' : university}</span>
+                                    </div>
+                                    {displayProfile.department && (
+                                        <div className="modular-essential-item">
+                                            <span className="modular-essential-icon">🎓</span>
+                                            <span>{displayProfile.department} {displayProfile.level ? `(${displayProfile.level}L)` : ''}</span>
+                                        </div>
+                                    )}
+                                    {displayProfile.gender && (
+                                        <div className="modular-essential-item">
+                                            <span className="modular-essential-icon">👤</span>
+                                            <span>{displayProfile.gender === 'Female' ? 'Woman' : displayProfile.gender === 'Male' ? 'Man' : displayProfile.gender}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="modular-card-reply-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onOpenPromptReply?.(displayProfile, {
+                                            category: 'Campus Essentials',
+                                            content: `${university} • ${displayProfile.department || 'Student'}`
+                                        });
+                                    }}
+                                >
+                                    <span>✈</span> Reply
+                                </button>
+                            </div>
+
+                            {/* Card 4: Campus Prompts */}
+                            <div className="modular-card">
+                                <div className="modular-card-header">
+                                    <span className="modular-card-title">💬 {displayProfile.intro_prompt_title || "I feel happiest when..."}</span>
+                                </div>
+                                <p className="modular-prompt-quote">
+                                    {displayProfile.intro_prompt || "Late night laughter and discovering great campus vibes ✨"}
+                                </p>
+                                <button
+                                    type="button"
+                                    className="modular-card-reply-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onOpenPromptReply?.(displayProfile, {
+                                            category: 'Campus Prompt',
+                                            content: displayProfile.intro_prompt || "Late night laughter and discovering great campus vibes ✨"
+                                        });
+                                    }}
+                                >
+                                    <span>✈</span> Reply
+                                </button>
+                            </div>
+
+                            {/* Card 5: Basics & Lifestyle */}
+                            {(displayProfile.mbti || displayProfile.zodiac || displayProfile.communication_style) && (
+                                <div className="modular-card">
+                                    <div className="modular-card-header">
+                                        <span className="modular-card-title">📁 Basics</span>
+                                    </div>
+                                    <div className="modular-essentials-list">
+                                        {displayProfile.communication_style && (
+                                            <div className="modular-essential-item">
+                                                <span className="modular-essential-icon">💬</span>
+                                                <span>Communication: {displayProfile.communication_style}</span>
+                                            </div>
+                                        )}
+                                        {displayProfile.zodiac && (
+                                            <div className="modular-essential-item">
+                                                <span className="modular-essential-icon">⭐</span>
+                                                <span>Zodiac: {displayProfile.zodiac}</span>
+                                            </div>
+                                        )}
+                                        {displayProfile.mbti && (
+                                            <div className="modular-essential-item">
+                                                <span className="modular-essential-icon">🧠</span>
+                                                <span>MBTI: {displayProfile.mbti}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="modular-card-reply-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onOpenPromptReply?.(displayProfile, {
+                                                category: 'Basics',
+                                                content: `Zodiac: ${displayProfile.zodiac || ''} • MBTI: ${displayProfile.mbti || ''}`
+                                            });
+                                        }}
+                                    >
+                                        <span>✈</span> Reply
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Card 6: Interests */}
+                            {safeArray(displayProfile.interests).length > 0 && (
+                                <div className="modular-card">
+                                    <div className="modular-card-header">
+                                        <span className="modular-card-title">🧩 Interests</span>
+                                    </div>
+                                    <div className="modular-interests-wrap">
+                                        {safeArray(displayProfile.interests).map(item => (
+                                            <span key={item} className="modular-interest-chip">
+                                                {formatInterestWithEmoji(item)}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="modular-card-reply-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onOpenPromptReply?.(displayProfile, {
+                                                category: 'Interests',
+                                                content: safeArray(displayProfile.interests).slice(0, 4).join(', ')
+                                            });
+                                        }}
+                                    >
+                                        <span>✈</span> Reply
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Card 7: AI Match Wingmate & Compatibility */}
+                            <div className="modular-card">
+                                <div className="modular-card-header">
+                                    <span className="modular-card-title">🤖 AI Wingmate & Compatibility</span>
+                                </div>
+                                <div className="compatibility-match-banner" style={{ margin: 0 }}>
+                                    <span className="banner-badge">✨ Compatibility: {compatibilityScore}%</span>
+                                    {mutualInterests.length > 0 ? (
+                                        <p className="banner-desc">You both love <strong>{mutualInterests.join(', ')}</strong>!</p>
+                                    ) : (
+                                        <p className="banner-desc">Common student goals & shared campus vibe.</p>
+                                    )}
+                                </div>
+                                <div className="ai-detail-tools" aria-label="AI match tools">
+                                    <span>AI wingmate</span>
+                                    <div>
+                                        <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'compatibility')} disabled={aiLoading || !canInteract}>
+                                            {aiLoading && aiInsightType === 'compatibility' ? 'Reading...' : 'Insight'}
+                                        </button>
+                                        <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'conversation_opener')} disabled={aiLoading || !canInteract}>
+                                            Openers
+                                        </button>
+                                        <button className="ai-detail-btn" onPointerDown={stopInteractivePointer} onClick={(e) => handleAiInsight(e, 'date_ideas')} disabled={aiLoading || !canInteract}>
+                                            Date
+                                        </button>
+                                    </div>
+                                </div>
+                                {aiInsight && (
+                                    <div className={`ai-card-insight ${aiInsightType ? `ai-${aiInsightType}` : ''}`}>
+                                        {renderAiInsight()}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Card 8: Profile Action Rows */}
+                            <div className="modular-actions-section">
+                                <button
+                                    type="button"
+                                    className="modular-action-btn btn-modular-share"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onShareProfile?.(displayProfile);
+                                    }}
+                                >
+                                    🔗 Share {displayName}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="modular-action-btn btn-modular-block"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onBlockProfile?.(displayProfile);
+                                    }}
+                                >
+                                    🚫 Block {displayName}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-modular-report"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onReportProfile?.(displayProfile);
+                                    }}
+                                >
+                                    🚩 Report {displayName}
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                ) : (
+                    /* ── STANDARD COLLAPSED SWIPE VIEW ── */
+                    <div className="swipe-card-image-container">
+                        {photos.length > 1 && (
+                            <div className="photo-indicators">
+                                {photos.map((_, i) => (
+                                    <div key={i} className={`indicator-bar ${i === activePhotoIdx ? 'active' : ''}`}>
+                                        <div className="indicator-progress"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="carousel-nav nav-left" onClick={prevPhoto}></div>
+                        <div className="carousel-nav nav-right" onClick={nextPhoto}></div>
+
+                        {photos.length > 0 && photos[activePhotoIdx] ? (
+                            <OptimizedImage
+                                src={photos[activePhotoIdx]}
+                                alt={displayName}
+                                className="swipe-card-image"
+                                width={800}
+                                priority={priority && activePhotoIdx === 0}
+                                draggable={false}
+                            />
+                        ) : (
+                            <div className="swipe-card-placeholder flex">
+                                {displayName.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+
+                        {isProfilePremium && (
+                            <div className="card-premium-golden-badge" title={isProfileUltra ? "👑 Elite Ultra VIP" : "👑 Premium Member"}>
+                                <span className="premium-crown-icon">{isProfileUltra ? "👑⭐" : "👑"}</span>
+                            </div>
+                        )}
+
+                        <MotionDiv
+                            className="swipe-stamp stamp-like"
+                            style={{ opacity: likeOpacity, scale: likeScale, rotate: likeRotate }}
+                        >
+                            LIKE
+                        </MotionDiv>
+                        <MotionDiv
+                            className="swipe-stamp stamp-nope"
+                            style={{ opacity: nopeOpacity, scale: nopeScale, rotate: nopeRotate }}
+                        >
+                            NOPE
+                        </MotionDiv>
+
+                        <div className="swipe-card-gradient" />
+
+                        <div className="swipe-card-content">
+                            <div className="swipe-card-tags">
+                                {isProfileUltra ? (
+                                    <span className="swipe-tag ultra-tag-glow">👑 Ultra VIP</span>
+                                ) : isProfilePremium ? (
+                                    <span className="swipe-tag premium-tag-glow">👑 Premium</span>
+                                ) : null}
+                                {(displayProfile.is_verified || displayProfile.photo_verified) && (
+                                    <span className="swipe-tag verified-tag-glow">✓ Verified</span>
+                                )}
+                                {whyYouMatchBadge && (
+                                    <span className="swipe-tag why-you-match-tag">{whyYouMatchBadge}</span>
+                                )}
+                                {isLive && (
+                                    <div className="live-pulse-container">
+                                        <span className="pulse-dot"></span>
+                                        <span className="live-text">LIVE</span>
+                                    </div>
+                                )}
+                                <span className="swipe-tag uni-tag">🎓 {university}</span>
+                                {(displayProfile.isExpandedCampus || displayProfile.is_expanded_campus) && (
+                                    <span className="swipe-tag expanded-campus-tag">📍 All Campuses</span>
+                                )}
+                                {recentlyActive && (
+                                    <span className="swipe-tag active-tag">🟢 Recently Active</span>
+                                )}
+                                {displayProfile.is_top_seeker && (
+                                    <span className="swipe-tag top-seeker-tag">🔥 Top Seeker</span>
+                                )}
+                            </div>
+
+                            <h2 className="swipe-card-name">
+                                {displayName}
+                                {age && <span className="swipe-card-age">, {age}</span>}
+                                {isProfilePremium && <span className="premium-crown" title={isProfileUltra ? "Elite Ultra VIP" : "Premium Member"}>{isProfileUltra ? "👑⭐" : "👑"}</span>}
+                                {(displayProfile.is_verified || displayProfile.photo_verified) && (
+                                    <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                )}
+                            </h2>
+
+                            <div className="swipe-card-bio-wrapper">
+                                <p className="swipe-card-bio">{bio}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── PERSISTENT FLOATING ACTION DOCK (Always visible in both modes) ── */}
+                <div className="persistent-floating-dock" onClick={stopInteractivePointer}>
+                    <button
+                        className="swipe-action-btn action-nope"
+                        onPointerDown={stopInteractivePointer}
+                        onClick={(e) => handleActionSwipe(e, 'left')}
+                        disabled={!canInteract}
+                        aria-label="Pass Profile"
+                    >
+                        ✕
+                    </button>
+
+                    {onSuperSwipe && (
+                        <button
+                            className="swipe-action-btn action-super"
+                            onPointerDown={stopInteractivePointer}
+                            onClick={(e) => handleActionSwipe(e, 'right', 'super')}
+                            disabled={!canInteract}
+                            aria-label="Super Swipe"
+                        >
+                            ⭐
+                            {superSwipesAvailable > 0 && (
+                                <span className="super-badge">{superSwipesAvailable}</span>
+                            )}
+                        </button>
+                    )}
+
+                    <button
+                        className="swipe-action-btn action-like"
+                        onPointerDown={stopInteractivePointer}
+                        onClick={(e) => handleActionSwipe(e, 'right')}
+                        disabled={!canInteract}
+                        aria-label="Like Profile"
+                    >
+                        ❤️
+                    </button>
                 </div>
             </div>
         </MotionDiv>

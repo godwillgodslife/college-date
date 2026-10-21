@@ -1,0 +1,366 @@
+/* ═══════════════════════════════════════════════════════════
+   Endorse Campus Vibe Modal Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.endorse-vibe-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+@media (min-width: 640px) {
+    .endorse-vibe-overlay {
+        align-items: center;
+        padding: 1rem;
+    }
+}
+
+.endorse-vibe-sheet {
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 520px;
+    max-height: min(88dvh, 660px);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem 1.5rem 1.25rem;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+    color: #f8fafc;
+    position: relative;
+    overflow-y: auto;
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (min-width: 640px) {
+    .endorse-vibe-sheet {
+        border-radius: 24px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+}
+
+.endorse-vibe-handle {
+    width: 44px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    margin: 0 auto 0.75rem auto;
+}
+
+.endorse-vibe-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.endorse-vibe-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.endorse-vibe-sparkle {
+    font-size: 20px;
+}
+
+.endorse-vibe-title {
+    font-size: 19px;
+    font-weight: 850;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+}
+
+.endorse-btn-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.endorse-btn-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+}
+
+.endorse-vibe-subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0 0 1rem 0;
+    line-height: 1.45;
+}
+
+.endorse-vibe-subtitle strong {
+    color: #f1f5f9;
+}
+
+/* Grid */
+.endorse-badges-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+}
+
+.endorse-badge-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.endorse-badge-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.endorse-badge-card.selected {
+    background: rgba(99, 91, 255, 0.18);
+    border-color: #635bff;
+    box-shadow: 0 0 16px rgba(99, 91, 255, 0.25);
+}
+
+.badge-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.endorse-badge-card.selected .badge-icon-box {
+    background: #635bff;
+}
+
+.badge-emoji {
+    font-size: 20px;
+}
+
+.badge-info-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.badge-card-name {
+    font-size: 13px;
+    font-weight: 750;
+    color: #ffffff;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-card-desc {
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.3;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.badge-selected-tick {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #a5b4fc;
+    background: rgba(99, 91, 255, 0.3);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Success Card */
+.endorse-success-card {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1.5px solid rgba(34, 197, 94, 0.4);
+    border-radius: 16px;
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.success-icon {
+    font-size: 36px;
+}
+
+.success-text {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #86efac;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Footer Action */
+.endorse-modal-footer {
+    margin-top: auto;
+}
+
+.btn-confirm-endorse {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #0a0a0c;
+    font-size: 14px;
+    font-weight: 850;
+    padding: 12px 18px;
+    min-height: 48px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s, opacity 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-confirm-endorse:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-confirm-endorse:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.btn-confirm-endorse:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Android Native App Ergonomics (html.is-native-app)
+   ═══════════════════════════════════════════════════════════ */
+html.is-native-app .endorse-vibe-sheet {
+    padding: 0.85rem 1.15rem 1.25rem 1.15rem;
+    max-height: min(88dvh, 620px);
+    border-radius: 22px 22px 0 0;
+}
+
+html.is-native-app .endorse-badges-grid {
+    gap: 0.5rem;
+}
+
+html.is-native-app .endorse-badge-card {
+    min-height: 52px;
+    padding: 0.7rem 0.8rem;
+}
+
+html.is-native-app .btn-confirm-endorse {
+    min-height: 50px;
+}
+
+/* Light Theme */
+html[data-theme="light"] .endorse-vibe-sheet,
+.theme-light .endorse-vibe-sheet {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .btn-confirm-endorse,
+.theme-light .btn-confirm-endorse {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+}
+
+html[data-theme="light"] .endorse-vibe-handle,
+.theme-light .endorse-vibe-handle {
+    background: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .endorse-vibe-title,
+.theme-light .endorse-vibe-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .endorse-vibe-subtitle,
+.theme-light .endorse-vibe-subtitle {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .endorse-vibe-subtitle strong,
+.theme-light .endorse-vibe-subtitle strong {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .endorse-btn-close,
+.theme-light .endorse-btn-close {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .endorse-badge-card,
+.theme-light .endorse-badge-card {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .endorse-badge-card:hover,
+.theme-light .endorse-badge-card:hover {
+    background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .endorse-badge-card.selected,
+.theme-light .endorse-badge-card.selected {
+    background: #f5f3ff !important;
+    border-color: #7c3aed !important;
+}
+
+html[data-theme="light"] .badge-card-name,
+.theme-light .badge-card-name {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .badge-card-desc,
+.theme-light .badge-card-desc {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .badge-icon-box,
+.theme-light .badge-icon-box {
+    background: #e2e8f0 !important;
+}

@@ -400,6 +400,10 @@ export async function sendMessage(matchId, senderId, content, type = 'text', met
                     messageSnippet = '📍 Live Location';
                 } else if (type === 'deal') {
                     messageSnippet = '💼 Service Deal';
+                } else if (type === 'mini_game') {
+                    messageSnippet = content || '🎮 Campus Mini-Game Challenge';
+                } else if (type === 'mini_game_response') {
+                    messageSnippet = content || '🎮 Answered your mini-game!';
                 } else if (isCall) {
                     messageSnippet = `${displayName} is calling you...`;
                 }

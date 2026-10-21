@@ -1065,3 +1065,307 @@ html[data-theme="light"] .rank-number,
     color: var(--text-secondary, #64748b);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Clash of Campuses (Inter-University League) & 3-Tab Slider
+   ═══════════════════════════════════════════════════════════ */
+
+.tab-toggle-track.three-tabs {
+    max-width: 460px;
+}
+
+.tab-toggle-slider.three-tabs-slider {
+    width: calc((100% - 0.75rem) / 3);
+}
+
+.campus-clash-banner {
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    box-shadow: var(--shadow-sm, 0 4px 20px rgba(0, 0, 0, 0.3));
+    border-radius: 20px;
+    padding: 1.5rem 1.25rem;
+    margin: 0 auto 2.5rem auto;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.clash-banner-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+}
+
+.clash-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 12px;
+    border-radius: 100px;
+}
+
+.clash-countdown-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 100px;
+}
+
+.clash-champion-active-pill {
+    margin-top: 0.85rem;
+    background: rgba(37, 211, 102, 0.16);
+    border: 1px solid rgba(37, 211, 102, 0.35);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 750;
+    color: #4ade80;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.clash-user-boost-pill {
+    margin-top: 0.5rem;
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #fbbf24;
+    font-weight: 750;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.clash-banner-title {
+    font-size: 22px;
+    font-weight: 950;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.clash-banner-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #cbd5e1;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.clash-banner-desc strong {
+    color: #facc15;
+}
+
+/* Campus Highlight Card */
+.my-standing-highlight-card.my-campus-card {
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+.campus-avatar-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(168, 85, 247, 0.18);
+    border: 1.5px solid rgba(168, 85, 247, 0.35);
+    border-radius: 16px;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+}
+
+.campus-emblem-emoji {
+    font-size: 26px;
+}
+
+/* Campus Podium Crest */
+.campus-podium-crest-badge {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(30, 27, 75, 0.9), rgba(15, 23, 42, 0.95));
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    margin: 0 auto;
+}
+
+.campus-podium-crest-badge.rank-1 {
+    width: 96px;
+    height: 96px;
+    border-color: rgba(251, 191, 36, 0.6);
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.25);
+}
+
+.campus-podium-crest-badge .crest-icon {
+    font-size: 38px;
+}
+
+.campus-podium-crest-badge.rank-1 .crest-icon {
+    font-size: 46px;
+}
+
+/* Campus Row Avatar */
+.campus-row-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.campus-row-icon {
+    font-size: 22px;
+}
+
+/* Light Theme Support for Clash of Campuses */
+html[data-theme="light"] .campus-clash-banner,
+.theme-light .campus-clash-banner {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%) !important;
+    border: 1.5px solid #c4b5fd !important;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.1) !important;
+}
+
+html[data-theme="light"] .clash-banner-badge,
+.theme-light .clash-banner-badge {
+    background: #ffffff !important;
+    border-color: #a78bfa !important;
+    color: #6d28d9 !important;
+}
+
+html[data-theme="light"] .clash-banner-title,
+.theme-light .clash-banner-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .clash-banner-desc,
+.theme-light .clash-banner-desc {
+    color: #475569 !important;
+}
+
+html[data-theme="light"] .clash-banner-desc strong,
+.theme-light .clash-banner-desc strong {
+    color: #7c3aed !important;
+}
+
+html[data-theme="light"] .campus-podium-crest-badge,
+.theme-light .campus-podium-crest-badge {
+    background: #ffffff !important;
+    border: 2px solid #e2e8f0 !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .campus-row-avatar,
+.theme-light .campus-row-avatar {
+    background: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .clash-countdown-pill,
+.theme-light .clash-countdown-pill {
+    background: #fef3c7 !important;
+    border-color: #fcd34d !important;
+    color: #b45309 !important;
+}
+
+html[data-theme="light"] .clash-champion-active-pill,
+.theme-light .clash-champion-active-pill {
+    background: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+    color: #047857 !important;
+}
+
+html[data-theme="light"] .clash-user-boost-pill,
+.theme-light .clash-user-boost-pill {
+    background: #fefce8 !important;
+    border-color: #fef08a !important;
+    color: #a16207 !important;
+}
+
+html[data-theme="light"] .elite-badge,
+.theme-light .elite-badge {
+    background: #fef3c7 !important;
+    border-color: #fde68a !important;
+}
+
+html[data-theme="light"] .elite-badge span,
+.theme-light .elite-badge span {
+    color: #b45309 !important;
+}
+
+html[data-theme="light"] .leaderboard-title,
+.theme-light .leaderboard-title {
+    background: linear-gradient(to bottom right, #0f172a, #334155) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+html[data-theme="light"] .weekly-countdown,
+.theme-light .weekly-countdown {
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+
+html[data-theme="light"] .countdown-label,
+.theme-light .countdown-label {
+    color: #92400e !important;
+}
+
+html[data-theme="light"] .countdown-value,
+.theme-light .countdown-value {
+    color: #b45309 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Android Native App Ergonomics for Clash of Campuses
+   ═══════════════════════════════════════════════════════════ */
+html.is-native-app .campus-clash-banner {
+    padding: 1.15rem 1rem;
+    border-radius: 18px;
+    margin-bottom: 1.5rem;
+}
+
+html.is-native-app .campus-podium-crest-badge {
+    width: 72px;
+    height: 72px;
+}
+
+html.is-native-app .campus-podium-crest-badge.rank-1 {
+    width: 86px;
+    height: 86px;
+}
+
+html.is-native-app .campus-row-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+
+

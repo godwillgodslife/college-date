@@ -2943,6 +2943,11 @@ html[data-theme="light"] .message-received {
     border-color: rgba(255, 45, 85, 0.34);
 }
 
+.circle-game {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.36);
+}
+
 .attachment-label {
     font-size: 0.76rem;
     font-weight: 600;
@@ -4202,4 +4207,44 @@ html[data-theme="light"] .message-received {
 [data-theme="light"] .gift-message.interactive-gift-card .btn-replay-gift:hover,
 .theme-light .gift-message.interactive-gift-card .btn-replay-gift:hover {
     background: rgba(0, 0, 0, 0.12);
+}
+
+/* ── Contextual Discovery Prompt Reply Quote Bubble ── */
+.message-prompt-reply-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.chat-prompt-reply-quote {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 3px solid #38bdf8;
+    border-radius: 4px 10px 10px 4px;
+    padding: 0.3rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+[data-theme="light"] .chat-prompt-reply-quote,
+.theme-light .chat-prompt-reply-quote {
+    background: rgba(0, 0, 0, 0.05);
+    border-left-color: #0284c7;
+}
+
+.chat-prompt-reply-tag {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #38bdf8;
+}
+
+[data-theme="light"] .chat-prompt-reply-tag,
+.theme-light .chat-prompt-reply-tag {
+    color: #0284c7;
+}
+
+.chat-prompt-reply-body {
+    font-size: 0.94rem;
+    line-height: 1.45;
+    color: inherit;
 }

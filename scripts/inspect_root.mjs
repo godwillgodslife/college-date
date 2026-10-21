@@ -1,24 +1,13 @@
-const res = await fetch("http://localhost:9223/json/list");
-const targets = await res.json();
-const target = targets[0];
-const ws = new WebSocket(target.webSocketDebuggerUrl);
+import { connectEmulatorWebview } from './emulator-qa-controller.mjs';
 
-ws.addEventListener("open", async () => {
-    ws.send(JSON.stringify({ 
-        id: 1, 
-        method: "Runtime.evaluate", 
-        params: { 
-            expression: `({
-                rootHtml: document.querySelector('#root')?.innerHTML?.slice(0, 500),
-                bodyClasses: document.body.className,
-                title: document.title
-            })`,
-            returnByValue: true
-        } 
-    }));
-});
-ws.addEventListener("message", (e) => {
-    console.log("Root content:", JSON.parse(e.data).result?.result?.value);
-    ws.close();
-    process.exit(0);
-});
+async function main() {
+    const c = await connectEmulatorWebview();
+    const html = await c.evaluate('document.getElementById("root")?.innerHTML || document.body.innerHTML');
+    console.log('HTML length:', html?.length);
+    console.log('HTML snippet:', html?.slice(0, 500));
+    const url = await c.evaluate('window.location.href');
+    console.log('Current URL:', url);
+    c.close();
+}
+
+main().catch(console.error);

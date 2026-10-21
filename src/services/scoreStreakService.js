@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { enqueueOfflineOperation } from '../lib/offlineQueue';
 import { STREAK_MILESTONES, STREAK_BADGES, getNextMilestone, getStreakCacheKey } from '../utils/scoreStreak';
+import { createNotification } from './notificationService';
 
 export { STREAK_MILESTONES, STREAK_BADGES, getNextMilestone, getStreakCacheKey };
 
@@ -84,6 +85,31 @@ export async function recordStreakActivity(userId, activityType = 'general', cus
                 active_today: true
             };
             setCachedData(cacheKey, updated);
+
+            // Dispatch celebratory milestone notification
+            const reachedDays = data.milestone_reached || (STREAK_MILESTONES.includes(data.current_streak) && data.is_new_day ? data.current_streak : null);
+            if (reachedDays && userId) {
+                const badge = STREAK_BADGES.find(b => b.days === reachedDays);
+                const perkText = badge?.perk || 'Special Campus Superpower';
+                createNotification({
+                    userId,
+                    type: 'streak_milestone',
+                    category: 'account',
+                    title: `🔥 ${reachedDays}-Day Streak Milestone Reached!`,
+                    content: `Incredible dedication! You unlocked ${badge?.label || 'Milestone Champion'} (${perkText})! Keep your campus streak going!`,
+                    deepLink: '/dashboard',
+                    priority: 'high',
+                    dedupeKey: `streak_milestone:${userId}:${reachedDays}`,
+                    metadata: {
+                        event: 'streak_milestone',
+                        streak_days: reachedDays,
+                        badge_label: badge?.label || null,
+                        perk: perkText,
+                        url: '/dashboard'
+                    }
+                }).catch(err => console.warn('[ScoreStreak] Milestone notification error:', err));
+            }
+
             return { data: updated, error: null };
         }
 

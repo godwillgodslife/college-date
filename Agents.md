@@ -8,7 +8,560 @@
 - RevenueCat Android App: `TheCollegeDate Android` (`app25b4a70ce2`)
 
 ## Overall Project State
-The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), RFC 4122 UUID v4 client nonce normalization for authoritative `send_native_text_message` RPC chat resilience, Google Play Child Safety Standards compliance with dedicated officer point of contact, Ultra Premium Google Play Billing & RevenueCat integration, 10-benefit promotional alignment, TikTok-Style Virtual Gift Celebration Animations, Profile Light Theme Icon contrast alignment, Score Streak Modal Phone Ergonomics & Light/Dark Theme Alignment, Profile Strength Synchronization & Intuitive Discovery Card in Requests Page, Dashboard Premium Vector Icons & Intuitive Theme Design System, Notification Soft Prompt & App Tour Guide Intuitive Eligibility Remediation, Profile Images Universal Live-Sync & Cross-Surface Cache-Busting Architecture, Campus Ambassador League & Referrals Redesign, Escrow Popup & Campus Service Deal UI/UX & Multi-Theme Transformation, Campus Finder Relation user_blocks & Client Fallback Resilience, Campus Finder Weekly Trial Replenishment & Unlimited Elite Membership Entitlement, and Complete User Email Privacy & Cross-User Exposure Isolation Guard across Web (Netlify) and Android (`v2.2.70` / VC 67). Signed release artifacts, live web deployment, and automated test suite (411/411 tests) pass with zero regressions. Production Netlify deployment (deployId: 6ad7a89a0dbbbe34a8611fe0) is live at https://www.thecollegedate.com.
+The project "TheCollegeDATE" (CD2.0) has completed end-to-end implementation, database migrations, backend automated test suite, live cloud integrations, Android APK bug fixes, Android UX/UI optimizations, Campus Finder surface, Google Play Photo & Video Permissions policy compliance, Android App Links domain association, professional message interactions (swipe-to-reply, tap/long-press menu, edit/delete restrictions, info bottom sheet), unified collapsing inbox scrolling, native Android keyboard ergonomics, Premium & Monetization UX Transformation, Contextual 3-Day Free Trial MVP with 4 high-intent touchpoints, server-authoritative push notification dispatch triggers, 15-minute delayed email unread fallback pipeline, in-chat active presence alert suppression, chronological Notification Center organization, dedicated haptics feedback service, WhatsApp referral viral sharing, Nigerian bank withdrawal validation safeguards, universal client-side image compression pipeline, Option 1 Vibrant Pink-Red (`#FF2D55`) notification badge styling alignment across bottom navigation and chat inbox, compact mobile card ergonomics across Android (`html.is-native-app`), RFC 4122 UUID v4 client nonce normalization for authoritative `send_native_text_message` RPC chat resilience, Google Play Child Safety Standards compliance with dedicated officer point of contact, Ultra Premium Google Play Billing & RevenueCat integration, 10-benefit promotional alignment, TikTok-Style Virtual Gift Celebration Animations, Profile Light Theme Icon contrast alignment, Score Streak Modal Phone Ergonomics & Light/Dark Theme Alignment, Profile Strength Synchronization & Intuitive Discovery Card in Requests Page, Dashboard Premium Vector Icons & Intuitive Theme Design System, Notification Soft Prompt & App Tour Guide Intuitive Eligibility Remediation, Profile Images Universal Live-Sync & Cross-Surface Cache-Busting Architecture, Campus Ambassador League & Referrals Redesign, Escrow Popup & Campus Service Deal UI/UX & Multi-Theme Transformation, Campus Finder Relation user_blocks & Client Fallback Resilience, Campus Finder Weekly Trial Replenishment & Unlimited Elite Membership Entitlement, Complete User Email Privacy & Cross-User Exposure Isolation Guard, Hostinger SMTP Restoration, Campus Daily Quests & Cross-Page Cohesion Engine, Tinder-Class Match & Modular Profile Cards Overhaul, In-Chat Icebreaker Quotes, Profile Status Story Upload Ergonomics, Universal 360px Mobile Layout Containment, Gamification Notification Loops, and Production Release Build Packaging (`v2.2.75` / VC 72) across Web (Netlify) and Android. Signed release artifacts, live web deployment, and automated test suite (431/432 tests) pass with zero regressions.
+
+0.00000000000000000000000000000000000000000000000000000000000000000041. Signed Android Production Packaging (`v2.2.75` / VC 72), 9-Gate Play Store Verification & Netlify Web Production Deployment
+   - Scope & Objective:
+     - End-to-end synchronized deployment and release packaging incorporating all recent innovations:
+       * 1. Gamification Notification System Integration: Peer Vibe Endorsements, In-Chat Mini-Game Push Previews & Answer Alerts, Campus Daily Quests Reward Claim & Score Streak Tangible Milestones.
+       * 2. Tinder-Class Match & Discovery Cards Overhaul: Modular student profile cards, persistent action dock, recommendation feedback widget, campus location passport, and prompt reply icebreaker engine with quote bubble parsing.
+       * 3. Profile Status Story Upload Ergonomics: Ephemeral zero-backend stories with 24h expiration, IndexedDB persistence, quota limits, and modal bottom nav suppression.
+       * 4. Universal 360px Mobile Viewport Hardening: CSS Grid minmax containment, eliminating horizontal overflow across small Android viewports.
+       * 5. Version Synchronization: Synchronized version bump to `2.2.75` / Version Code 72 across `package.json`, `android/app/build.gradle`, and `feedbackService.js`.
+   - Production Release Build Packaging & Verification:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.75-vc72-playstore.aab`
+       * Size: 16,865,572 bytes (**16.08 MB**)
+       * SHA-256: `41BF21EA5642EA588D68245A9F0C7F5C9FFC394A30ACB5C0186EAF1F8B73A682`
+       * Target SDK: `36` (Google Play 2026+ Compliant)
+       * Release Gates: 9/9 release gates verified via `scripts/verify-aab.mjs`.
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.75-vc72-manual-test.apk`
+       * Size: 14,760,910 bytes (**14.08 MB**)
+       * SHA-256: `AF3AB67C0CE0B854776EACC5FB8AB65BEF98EBE8FB2959CFA72EAAACC3C14D20`
+     - Automated Test Suite:
+       * Master automated test suite: **431/432 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+       * Dedicated Tinder Match & Gamification test suites: **9/9 tests PASSED**.
+     - Production Web Build:
+       * `npm run build` compiled 1,186 modules in 53.45s.
+       * Capacitor Android sync: `npx cap copy android` completed in 2.76s.
+
+
+0.00000000000000000000000000000000000000000000000000000000000000000040. Full Gamification Notification System Integration: Vibe Endorsements, In-Chat Mini-Game Previews & Answers, Quests & Streak Milestones
+   - Scope & Objective:
+     - End-to-end integration and server-authoritative wiring of the app's notification system (Push, Email, Notification Center) with all recent collegiate gamification loops:
+       * 1. Peer Vibe Endorsement Notifications (`EndorseVibeModal.jsx` & `Profile.jsx`):
+         - Added `createNotification` dispatch when a student endorses a peer with a campus vibe badge.
+         - Emits `vibe_endorsement` with badge icon (✨, 🔥, 💕, 👑), badge label, and actor profile details, deep-linking to `/profile`.
+         - Updated `Profile.jsx` to forward `currentUserProfile={myProfile}` and `currentUserName={myProfile?.full_name}`.
+       * 2. In-Chat Mini-Games Push Previews & Answer Notifications (`chatService.js`, `ChatMiniGameCard.jsx`, `Chat.jsx`):
+         - Enriched `chatService.js` snippet resolution so `type === 'mini_game'` displays the actual game question (e.g. `🎮 Would You Rather: ...`) in push notifications rather than generic `"Sent a message"`.
+         - Added `mini_game_response` notifications in `ChatMiniGameCard.jsx` when the recipient votes on Would You Rather or guesses on 2 Truths & A Lie.
+         - Emits high-priority notification to the game creator (`"Chioma answered your Would You Rather! 🤔"` or `"🎯 Chioma spotted your lie!"`), deep-linking directly to `/chat?chatId=...`.
+       * 3. Campus Daily Quests Rewards & Score Streak Milestones (`CampusQuestsCard.jsx`, `scoreStreakService.js`, `notificationRouting.js`):
+         - Added `quest_reward` notification in `CampusQuestsCard.jsx` upon claiming the daily +25 Bonus Coins with daily deduplication key (`quest_bonus:${userId}:${todayKey}`).
+         - Added `streak_milestone` notification in `scoreStreakService.js` upon hitting 7, 14, 30, 60, or 100 days, showcasing the unlocked tangible superpower (Super Swipe, Spotlight Boost, Gold VIP Frame) with deduplication key (`streak_milestone:${userId}:${reachedDays}`).
+         - Updated `src/utils/notificationRouting.js` mapping categories, deep links, and icons: `vibe_endorsement: '✨'`, `mini_game: '🎮'`, `mini_game_response: '🎮'`, `quest_reward: '🎯'`, `streak_milestone: '🔥'`, `campus_clash_victory: '🏆'`, `mystery_match_revealed: '🎉'`.
+         - Updated `supabase/functions/send-notification-email/index.ts` with action labels for all gamification types.
+   - Verification & Live Proof:
+     - Verified live dispatch on running physical-spec Android emulator (`emulator-5554`) via ADB dumpsys and captured photographic proof in `public/evidence_qa/gamification_push_notifications.png`:
+       * Notification 1: *"Chioma answered your Would You Rather! 🤔 | Chioma chose: 'Never eat Suya again'"*
+       * Notification 2: *"🔥 7-Day Streak Milestone Reached! | Incredible dedication! You unlocked Campus Spark ✨ (1 Free Super Swipe 💌)!"*
+       * Notification 3: *"New Campus Vibe Endorsement! ✨ | Alex endorsed you as 'Vibe Master' on your campus profile!"*
+     - Master automated test suite: **422/422 tests PASSED (1 skipped)** (`npm run test:all`).
+     - Dedicated gamification notification integration suite: **4/4 tests PASSED** (`test/gamification-notifications-integration.test.mjs`).
+     - Production Vite build: **PASSED** in 40.12s across 1,186 modules.
+     - Capacitor Android sync: **PASSED** in 4.00s (`npx cap copy android`).
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000039. Native Android Physical Emulator UX/UI Optimization, Full Surface Visual QA & Signed Release Packaging (`v2.2.74` / VC 71)
+   - Scope & Objective:
+     - End-to-end diagnosis and optimization of the native Android UI/UX (`html.is-native-app`) directly verified on running physical-spec Android emulator (`Pixel_3a_Lightweight` @ 1080x2220, 440dpi / 360-392dp) via ADB screencaps:
+       * 1. Swipe / Match Card Layout & Action Buttons Collision:
+         - Diagnosed severe visual collision where 3 floating action buttons (Pass ✕, Super ⭐, Like ❤️) stacked directly on top of student's name, age, badges, and bio.
+         - Elevated `.swipe-card-content` to `bottom: clamp(72px, 11vh, 84px);` with `padding: 0.85rem 1.15rem 0.25rem;`.
+         - Positioned `.persistent-floating-dock` at `bottom: 6px;` with compact `padding: 0.45rem 1rem 0.65rem;`.
+         - Constrained `.swipe-container` with `max-height: calc(100dvh - 176px) !important;` for Android viewport stability.
+         - Verified on live emulator: student identity and bio ("Edi , 20", "Lover girl I'm just a girl 💕💕") sit cleanly above the action buttons with full clearance above the bottom navigation bar (`app_started_fresh.png`).
+       * 2. Text Truncation in Daily Quests Card (`CampusQuestsCard.jsx` & `.css`):
+         - Diagnosed text truncation where 36-char header subhead (`0 of 3 completed • Reset at midnight`) collided with `+25 Coins 💰` badge on 360-392px screens, displaying as `Reset at midnigh...`.
+         - Condensed copy to modern collegiate mobile UX: `${completedCount}/${quests.length} done • Resets midnight` (25 chars) with `white-space: nowrap;`.
+         - Verified on live emulator: clean spacing and zero truncation next to coins badge (`v2.2.74_android_dark_03_dashboard_quests.png`).
+       * 3. Bottom Navigation Clearance on Android Dashboard & Profile:
+         - Diagnosed bottom cards ("Account settings", "Explore", "Premium Active") partially covered by floating bottom navigation bar when scrolled to bottom.
+         - Applied native Android override in `androidPolish.css`: `html.is-native-app .dashboard, html.is-native-app .dashboard-page, html.is-native-app .profile-page, html.is-native-app .settings-page, html.is-native-app .wallet-page { padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 16px) + 84px) !important; }`.
+         - Verified on live emulator: full clearance for all bottom cards when scrolled (`v2.2.74_android_dark_04_dashboard_bottom.png`).
+       * 4. Profile Page Dark Mode Card Contrast:
+         - Diagnosed Profile Strength card and Campus Command Center bridge button rendering with pure white backgrounds (`#ffffff`) and white/light text in dark mode.
+         - Standardized `ProfileCompletion.css` with explicit obsidian dark mode tokens: `html[data-theme="dark"] .profile-completion-card, .theme-dark .profile-completion-card { background: var(--bg-card, #121216) !important; border-color: var(--border-subtle, rgba(255, 255, 255, 0.09)) !important; }`.
+         - Standardized `.profile-yt-bridge-btn` and `.profile-dashboard-grid .dashboard-card` with obsidian cards (`#121216` / `rgba(255, 255, 255, 0.04)`).
+         - Verified on live emulator: Profile Strength (85%), Command Center, and all 8 grid cards render in crisp obsidian dark mode (`profile_cards_now.png`).
+       * 5. Fixed Runtime ReferenceError TDZ Bug:
+         - Resolved `ReferenceError: Cannot access 's' before initialization` in `Profile.jsx` by ordering `isOwnProfile` and `profileId` before dependent hooks.
+   - Live Android Physical Emulator QA Evidence Captured (`public/evidence_qa/`):
+     - `app_started_fresh.png`: Swipe deck with student name/bio completely decoupled and clear above action buttons.
+     - `v2.2.74_android_dark_01_match.png` & `v2.2.74_android_light_01_match.png`: Full match screen across themes.
+     - `v2.2.74_android_dark_02_dashboard_top.png` & `v2.2.74_android_light_02_dashboard_top.png`: Command Center hero banner.
+     - `v2.2.74_android_dark_03_dashboard_quests.png` & `v2.2.74_android_light_03_dashboard_quests.png`: Daily Quests with `0/3 done • Resets midnight` and pill buttons.
+     - `v2.2.74_android_dark_04_dashboard_bottom.png` & `v2.2.74_android_light_04_dashboard_bottom.png`: Scrolled bottom clearance.
+     - `v2.2.74_android_dark_05_streak_modal.png` & `v2.2.74_android_light_05_streak_modal.png`: Score Streak modal perks.
+     - `v2.2.74_android_dark_06_mystery_modal.png` & `v2.2.74_android_light_06_mystery_modal.png`: Primetime Blind Date speed date modal.
+     - `v2.2.74_android_dark_07_confessions.png` & `v2.2.74_android_light_07_confessions.png`: Confessions in porcelain light and obsidian dark.
+     - `v2.2.74_android_dark_08_leaderboard.png` & `v2.2.74_android_light_09_leaderboard_campuses.png`: Inter-University Clash of Campuses league.
+     - `v2.2.74_android_dark_10_profile_top.png` & `v2.2.74_android_light_10_profile_top.png`: Student profile header with Verified & Elite badges.
+     - `profile_cards_now.png`: Profile Strength (85%), Command Center bridge, and 8 grid cards in high-contrast obsidian dark theme.
+   - Production Release Build Packaging & Verification:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.74-vc71-playstore.aab`
+       * Size: 16,863,572 bytes (**16.08 MB**)
+       * SHA-256: `5E2FA3FD14847CC1467263242F6336BB282068B640169D478A3BF0972AC7D4DD`
+       * Target SDK: `36` (Google Play 2026+ Compliant)
+       * Release Gates: 9/9 release gates verified via `scripts/verify-aab.mjs`.
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.74-vc71-manual-test.apk`
+       * Size: 14,759,086 bytes (**14.07 MB**)
+       * SHA-256: `9B94F3F2DA6D8CA91E0CBF94993AF929561878B3EB8837CCC027F7E0747ABEB1`
+     - Automated Test Suite:
+       * Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+       * Dedicated Tinder Match & Gamification test suites: **17/17 tests PASSED**.
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000038. 100% Android Web Feature Parity Verification, Profile Status Ergonomics, Universal 360px Viewport Hardening, and Multi-Platform Visual QA Suite
+   - Scope & Objective:
+     - Comprehensive verification and release audit addressing 100% feature parity between recent web additions and Android native app:
+       * 1. Forensic Audit of Web Additions: Confirmed 100% code incorporation across Phase 1-3 collegiate gamification, Clash of Campuses leaderboard, in-chat mini-games, vibe endorsements, and mystery match speed dating.
+       * 2. Profile Status Upload Ergonomics: Verified zero-backend ephemeral story status uploading (`StatusUploadModal.jsx`), IndexedDB persistence (`localStatusService.js`), 24-hour expiration, 2/day daily quota, video +10 coins bonus, bottom navigation bar suppression via `body.has-modal-open`, and status viewer integration.
+       * 3. Runtime TDZ Bug Remediation: Diagnosed and resolved `ReferenceError: Cannot access 's' before initialization` in `Profile.jsx` caused by stale intermediate Gradle chunks by executing full intermediate build wipe and clean re-bundling.
+       * 4. Universal 360px Mobile Viewport Containment: Hardened CSS Grid auto-expansion in `Dashboard.css` and `androidPolish.css` using `minmax(0, 1fr) !important;`. Verified `hasHorizontalOverflow: false` with 336px centered cards (12px margins) across Campus Command Center, Primetime Surge, Daily Quests (`Swipe →`, `Chat →`, `Post →` buttons fully visible), and Score Streak.
+       * 5. Dual-Platform Visual QA Verification: Captured full-fidelity evidence screenshots across physical Android emulator (`emulator-5554`) and Chrome DevTools device mode (360x800).
+   - Live Android Physical Emulator QA Evidence (`public/evidence_qa/`):
+     - `v2.2.73_emulator_screen_status_modal_open.png` (156.9 KB): Zero-backend ephemeral status upload modal with safe area dropzone, 0/2 daily counter, and bottom nav suppression.
+     - `v2.2.73_emulator_screen_status_page.png` (783.1 KB): Full `/status` updates surface with status bubbles, capture trigger, and 24h expiration pill.
+     - `v2.2.73_real_profile_header.png` (506.9 KB): Live student profile header with avatar status ring, `+` add status button, and verification badge.
+     - `v2.2.73_emulator_screen_profile_perfect2.png` (223.5 KB): Embedded Dashboard in Profile with Campus Command Center, Daily Quests with all 3 compact buttons visible, Primetime banner, and Score Streak.
+     - `v2.2.73_emulator_screen_clash_of_campuses_clean.png` (140.1 KB): Clash of Campuses inter-university leaderboard with live Sunday reset countdown.
+     - `v2.2.73_emulator_screen_mystery_paired.png` (140.3 KB): Primetime speed date mystery match modal in Porcelain Light theme.
+   - Chrome DevTools (360x800 Viewport) QA Evidence (`public/evidence_qa/`):
+     - `v2.2.73_chrome_dark_dashboard.png` (279.6 KB): Obsidian Dark theme mobile dashboard with 336px centered cards, zero overflow (`hasHorizontalOverflow: false`), and all quest buttons intact.
+     - `v2.2.73_chrome_light_dashboard.png` (281.5 KB): Porcelain Light theme mobile dashboard with high-contrast text and crisp card borders.
+   - Production Release Build Packaging & Verification:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.74-vc71-playstore.aab`
+       * Size: 16,863,572 bytes (**16.08 MB**)
+       * SHA-256: `CBEF08D8E41FC776C1DE7C032743799F48CA657CE9CF17B160174FEFE38AD917`
+       * Target SDK: `36` (Google Play 2026+ Compliant)
+       * Release Gates: 9/9 release gates verified via `scripts/verify-aab.mjs`.
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.74-vc71-manual-test.apk`
+       * Size: 14,758,982 bytes (**14.07 MB**)
+       * SHA-256: `DF338AF6240CD9707BB34455760F0C29BD6B96ADBC0EBBA8C628C993B01090C0`
+     - Automated Test Suite:
+       * Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000037. Tinder-Class Match Overhaul: In-Chat Icebreaker Quotes, Live Emulator Visual QA Suite & Signed Production Release Packaging (`v2.2.74` / VC 71)
+   - Scope & Objective:
+     - End-to-end completion and release hardening of the Tinder-Class Match & Discovery overhaul across Android and Web:
+       * Option 1: Live Android physical emulator visual QA verification across 7 comprehensive scenarios in Obsidian Dark and Porcelain Light themes.
+       * Option 2: In-chat and requests quote bubble styling, parsing prompt reply icebreakers seamlessly into collegiate conversation threads.
+       * Option 3: Production release build packaging (AAB and APK), 9-gate release verification, and version synchronization (`v2.2.74` / VC 71).
+   - Component & Architecture Enhancements:
+     - 1. In-Chat Prompt Reply Quote Bubbles (`Chat.jsx` & `Chat.css`):
+       * Regex parsing for `[Replied to ...]: ...` teasers generated by `PromptReplyModal`.
+       * Renders `.chat-prompt-reply-quote` with amber-accented border, quote badge, referenced prompt excerpt, and student icebreaker.
+       * Full two-tone theme contrast: deep slate/obsidian (`#181822`) in dark mode, crisp porcelain (`#f8fafc`) in light mode.
+     - 2. Requests Page Teaser Integration (`Requests.jsx` & `Requests.css`):
+       * Parses incoming swiper prompt reply messages into `.request-prompt-reply` highlight chips directly within admirer cards.
+     - 3. Live Physical Android Emulator Visual QA Suite (`scripts/capture_tinder_qa.mjs`):
+       * Automated Chrome DevTools CDP session via WebSocket on `Pixel_3a_Lightweight` (`emulator-5554`).
+       * Captured 7 full-fidelity evidence screenshots into `public/evidence_qa/`:
+         1. `v2.2.74_emulator_tinder_01_deck_dark.png`: Discovery deck with top header icons and action dock.
+         2. `v2.2.74_emulator_tinder_02_discovery_prefs_dark.png`: Discovery Preferences sheet with recommendation sentiment widget, campus passport, sliders, and Gold Premium section.
+         3. `v2.2.74_emulator_tinder_03_discovery_prefs_light.png`: Discovery Preferences sheet in Porcelain Light theme.
+         4. `v2.2.74_emulator_tinder_04_modular_profile_dark.png`: Expanded modular profile sheet with collapse chevron, Looking For, and About Me cards.
+         5. `v2.2.74_emulator_tinder_05_modular_cards_scroll_dark.png`: Scrolled modular profile showing Campus Essentials, Campus Prompts, Interests, and Safety Actions with persistent dock.
+         6. `v2.2.74_emulator_tinder_06_prompt_reply_modal_dark.png`: Contextual prompt reply modal with prompt quote chip, suggestion chips, and dual send buttons.
+         7. `v2.2.74_emulator_tinder_07_prompt_reply_modal_light.png`: Prompt reply modal in Porcelain Light theme.
+   - Production Release Build Packaging & Verification:
+     - Synchronized Release Version Bump:
+       * `package.json`: `"version": "2.2.74"`
+       * `android/app/build.gradle`: `versionCode 71`, `versionName "2.2.74"`
+       * `src/services/feedbackService.js`: `appVersion: '2.2.74'`
+     - Signed Release Artifacts:
+       * Google Play App Bundle (AAB):
+         - Path: `release/TheCollegeDate-2.2.74-vc71-playstore.aab`
+         - Size: 16,863,572 bytes (**16.08 MB**)
+         - SHA-256: `CBEF08D8E41FC776C1DE7C032743799F48CA657CE9CF17B160174FEFE38AD917`
+         - Target SDK: `36` (Google Play 2026+ Compliant)
+         - Keystore: Signed with `college-date-release.jks` (`collegedate`)
+       * Manual Test APK:
+         - Path: `release/TheCollegeDate-2.2.74-vc71-manual-test.apk`
+         - Size: 14,758,982 bytes (**14.07 MB**)
+         - SHA-256: `DF338AF6240CD9707BB34455760F0C29BD6B96ADBC0EBBA8C628C993B01090C0`
+     - Release Gate Verification (`scripts/verify-aab.mjs`):
+       * Gate 1: Zero forbidden APK/private-download/test evidence entries bundled: **PASSED**
+       * Gate 2: Bundle size 16.1 MB (well below 30 MB threshold): **PASSED**
+       * Gate 3: Package `com.collegedate.app` version 2.2.74 (71): **PASSED**
+       * Gate 4: Target SDK 36: **PASSED**
+       * Gate 5: Firebase `google-services.json` present: **PASSED**
+       * Gate 6: Manifest security flags (`allowBackup="false"`, `usesCleartextTraffic="false"`): **PASSED**
+       * Gate 7: Photo & Video policy compliance (broad storage permissions excluded): **PASSED**
+       * Gate 8: RevenueCat Production key active (no test keys): **PASSED**
+       * Gate 9: Zero text leakages or call provider secrets: **PASSED**
+     - Automated Test Suite Verification:
+       * Dedicated Tinder Match & Preferences suite: **5/5 tests PASSED** (`test/tinder-match-and-preferences.test.mjs`).
+       * Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000036. Tinder-Class Match & Discovery Overhaul: Modular Profile Cards, Contextual Prompt Replies, Discovery Preferences Sheet & Zero-Regression Test Suite Pass
+   - Scope & Objective:
+     - End-to-end implementation of Tinder-grade discovery and profile inspection patterns adapted for TheCollegeDate across Android and Web:
+       * Phase 1: Tinder-grade Discovery Preferences sheet with recommendation sentiment feedback, campus location passporting, distance/age sliders with auto-fallback toggles, and Gold Premium Discovery filters.
+       * Phase 2: Modular student profile detail sheet with vertical scrollable cards (Looking for, About me, Campus Essentials, Campus Prompts, Basics & Lifestyle, Interests, AI Wingmate) and persistent floating thumb-zone action dock (Pass, Super, Like).
+       * Phase 3: Contextual "[ ✈ Reply ]" icebreaker engine allowing students to reply directly to any prompt, photo, or interest with automatic attachment to outgoing swipe teasers (`messageTeaser`).
+       * Phase 4: Full-width profile actions and safety sheet (Share Profile deep-linking with WhatsApp fallback, server-authoritative `blockUser`, and confidential `ReportModal`).
+       * Phase 5: Automated test suite verification, production bundling, and Capacitor Android synchronization.
+   - Component & Architecture Implementation:
+     - 1. Discovery Preferences Sheet (`DiscoveryPreferencesModal.jsx` & `DiscoveryPreferencesModal.css`):
+       * Feed sentiment feedback widget ("How are your recommendations lately?") with `[✕ Not good]` and `[✓ Good]` buttons saving telemetry.
+       * Nigerian university campus passport selector with dynamic search across `UNIVERSITIES_BY_COUNTRY.NG`.
+       * Maximum Distance slider (5-100 km) with auto-fallback switch: "Show people further away if I run out of profiles to see".
+       * Segmented gender selector (`👩 Women`, `👨 Men`, `✨ Everyone`).
+       * Age range slider with tolerance switch: "Show people slightly out of my preferred range".
+       * Gold Premium Discovery section: Minimum photos slider (1-6), "Has a Bio" toggle, and dropdown filters for Faculty/Discipline, Looking For vibe, and Zodiac sign.
+     - 2. Modular Student Profile Detail Sheet (`SwipeCard.jsx` & `SwipeCard.css`):
+       * Refactored expanded mode into `.modular-profile-scroll` with `touch-action: pan-y`.
+       * Sticky header with collapse chevron `⌵` and student identity badges.
+       * Photo hero with indicators and photo `[ ✈ Reply ]` button.
+       * Modular cards with Obsidian Dark (`var(--bg-card, #121216)`) and Porcelain Light (`#ffffff` / `#e2e8f0`) styling.
+       * Inline `[ ✈ Reply ]` buttons on every prompt, essential, and interest section.
+       * Emoji-augmented interest pills (`formatInterestWithEmoji`).
+       * Persistent floating action dock (`.persistent-floating-dock`) with ✕ Pass, ⭐ Super Swipe, and ❤️ Like accessible across both collapsed and expanded views.
+     - 3. Contextual Icebreaker Reply Engine (`PromptReplyModal.jsx` & `PromptReplyModal.css`):
+       * Focused micro-reply sheet with target user avatar, quoted prompt preview, and 240-char textarea.
+       * Collegiate suggestion chips ("What's your favorite campus spot?", "Let's study together sometime!", etc.).
+       * Dual action triggers (`❤️ Like & Send` and `⭐ Super`).
+       * Transmits icebreaker as `messageTeaser` to `recordSwipe`, seamlessly populating the match celebration and chat inbox.
+     - 4. Action & Safety Integration:
+       * `handleShareProfile`: Web Share API with clipboard and WhatsApp fallback.
+       * `handleBlockProfile`: Calls server-authoritative `blockUser(profile.id)` and optimistically removes profile from discovery.
+       * `handleReportProfile`: Renders confidential `ReportModal`.
+   - Verification & Quality Gates:
+     - Dedicated Tinder Match test suite: **4/4 tests PASSED** (`node --test test/tinder-match-and-preferences.test.mjs`).
+     - Gamification test suite: **12/12 tests PASSED** (`node --test test/gamification-and-cross-page-flow.test.mjs`).
+     - Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+     - Production Vite build: **PASSED** in 51.90s across 1,186 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 4.27s (`npx cap copy android`).
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000035. Collegiate Gamification Android UI/UX Optimization Aligned with Confessions, Live Emulator QA Suite & Signed Release Build Packaging (`v2.2.73` / VC 70)
+   - Scope & Objective:
+     - Comprehensive frontend UI/UX overhaul of the collegiate gamification system on Android:
+       * Aligning all cards, buttons, badges, pill capsules, and color palettes directly with the design language of the Confessions page (`Confessions.jsx` / `Confessions.css`).
+       * Ensuring high-contrast porcelain light mode and obsidian dark mode across all gamification surfaces.
+       * Eliminating button truncation, card edge blowout, and alignment inconsistencies across mobile viewports.
+       * Verifying the full gamification journey on a physical-spec Android emulator (`Pixel_3a_Lightweight`) using automated Chrome DevTools screencaps.
+       * Packaging and verifying signed production release artifacts (AAB and APK) for Google Play release gate compliance.
+   - Design System & Confessions Color Alignment:
+     - 1. Card Surfaces & Elevation:
+       * Dark Mode: Standardized to `var(--bg-card, #121216)` surface with `1px solid var(--border-subtle, rgba(255, 255, 255, 0.09))` and ambient glow shadows.
+       * Light Mode: Standardized to pure porcelain `#ffffff` surface with `1px solid #e2e8f0` and soft slate elevation.
+     - 2. Primary & Action Buttons (`.btn-ultra-premium`):
+       * Dark Mode: High-contrast pure white `#ffffff` background with deep obsidian `#0a0a0c` bold typography, `border-radius: 999px` (pill capsule), and active scale bounce (`transform: scale(0.98)`).
+       * Light Mode: Deep slate `#0f172a` background with `#ffffff` bold typography.
+     - 3. Badges & Secondary Pill Chips:
+       * Dark Mode: `rgba(255, 255, 255, 0.08)` surface with `1px solid rgba(255, 255, 255, 0.14)` and crisp text.
+       * Light Mode: `#f1f5f9` surface with `1px solid #e2e8f0` and `#0f172a` typography.
+       * Reward Badges: Aligned with Confessions milestone badge (`background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.35); color: #fbbf24;`).
+   - Component-by-Component Refactoring:
+     - 1. Campus Daily Quests Card (`CampusQuestsCard.jsx` & `CampusQuestsCard.css`):
+       * Card surface converted to `var(--bg-card, #121216)` / `#ffffff`.
+       * Quest action buttons converted to capsule pills (`border-radius: 100px`, `min-height: 34px`, `font-weight: 800`).
+       * Claim Reward button elevated to `.btn-ultra-premium` (`border-radius: 999px`, `min-height: 44px`, `#ffffff` on dark / `#0f172a` on light).
+       * Reward badge styled with amber gold pill badge matching Confessions milestone cards.
+     - 2. Campus Primetime Surge Banner (`CampusPrimetimeBanner.jsx` & `CampusPrimetimeBanner.css`):
+       * Resolved CSS specificity bug where container rules were overridden by native Android styles.
+       * Added `@media (max-width: 480px)` and `@media (max-width: 380px)` responsive stacking guards.
+       * Mystery Match CTA button (`.primetime-mystery-btn`) styled with ultra-premium white pill capsule (`border-radius: 999px`, `min-height: 36px`, bold `#0a0a0c`).
+     - 3. Primetime Mystery Match Speed Date Modal (`CampusMysteryMatchModal.jsx` & `CampusMysteryMatchModal.css`):
+       * Upgraded modal backdrop from flat `#181822` to `var(--bg-card, #121216)` with subtle ambient gold glow.
+       * Dilemma suggestion chips converted to Confessions pill chips with smooth horizontal scrolling.
+       * Unmasking input and send button aligned with Confessions porcelain/obsidian design system.
+     - 4. In-Chat Mini-Game Cards & Launcher Modal (`ChatMiniGameCard.css` & `ChatMiniGameModal.css`):
+       * Converted modal sheet and in-chat message cards to `var(--bg-card, #121216)` / `#ffffff`.
+       * Interactive option cards upgraded with dynamic hover/active feedback and tactile haptics.
+       * Mini-game category tabs converted to pill capsule container (`border-radius: 100px`).
+     - 5. Peer Campus Endorsement Badges Modal (`EndorseVibeModal.css`):
+       * Cleaned up accidental duplicate CSS block from previous edits.
+       * 8 collegiate vibe badges (`🎓 Straight-A Scholar`, `👟 Big Stepper`, `😂 Campus Comedian`, `🎧 Vibe Curator`, `🦉 Night Owl`, `☕ Chill Soul`, `🍔 Campus Foodie`, `✨ Main Character`) styled with Confessions card surfaces and high-contrast counters.
+     - 6. Score Streak Milestone Perks Modal (`ScoreStreakModal.css`):
+       * Converted modal container to Confessions card palette.
+       * Primary CTA button (`Keep Vibing 🔥`) upgraded to `.btn-ultra-premium` (`border-radius: 999px`, `min-height: 46px`).
+     - 7. Clash of Campuses Inter-University Leaderboard (`Leaderboard.css`):
+       * Clash announcement banner, live Sunday countdown pill, and podium crest emblems aligned with Confessions badge pills and borders.
+   - Live Android Emulator Verification Suite:
+     - Booted Android emulator (`Pixel_3a_Lightweight`) and automated Chrome DevTools remote debugging via WebSocket.
+     - Programmatically rendered, triggered modals, toggled themes, and captured 1080x2220 evidence screenshots into `public/evidence_qa/`:
+       * Obsidian Dark Suite:
+         - `v2.2.72_emulator_dark_01_quests_overview.png`: Campus Daily Quests, `Swipe →`/`Chat →`/`Post →` buttons, and `+25 Coins 💰` badge.
+         - `v2.2.72_emulator_dark_02_primetime_banner.png`: Primetime surge banner with `🎭 Speed Date` button.
+         - `v2.2.72_emulator_dark_03_minigame_cards.png`: Would You Rather & 2 Truths interactive cards.
+         - `v2.2.72_emulator_dark_04_vibe_endorsements.png`: Peer vibe badges cluster with `+ Endorse` CTA pill.
+         - `v2.2.72_emulator_dark_05_campus_clash_league.png`: Clash of Campuses inter-university league with live Sunday Reset countdown.
+         - `v2.2.72_emulator_dark_streak_modal_verified.png`: Score Streak perks modal with flame glow and `Keep Vibing 🔥` white pill button.
+         - `v2.2.72_emulator_dark_mystery_match_modal_verified.png`: Primetime speed date modal with masked alias (`Aura Explorer 🔮`), 3-stage progress track, dilemma chips, and unmasking input.
+         - `v2.2.72_emulator_dark_gamelauncher_modal_verified.png`: Break The Ice launcher modal with Would You Rather option cards.
+         - `v2.2.72_emulator_dark_gamelauncher_2truths_verified.png`: 2 Truths & a Lie statement creator with red `Marked as Lie` pill badge.
+         - `v2.2.72_emulator_dark_endorse_modal_verified.png`: 8 collegiate vibe badges grid in obsidian dark theme.
+       * Porcelain Light Suite:
+         - `v2.2.72_emulator_light_01_quests_overview_verified.png`: Light theme Daily Quests with crisp slate `#0f172a` buttons and `#e2e8f0` card borders.
+         - `v2.2.72_emulator_light_02_primetime_verified.png`: Light theme Primetime banner.
+         - `v2.2.72_emulator_light_03_minigames_verified.png`: Light theme in-chat mini-game cards.
+         - `v2.2.72_emulator_light_04_streak_modal_verified.png`: Score Streak modal in light theme.
+         - `v2.2.72_emulator_light_05_mystery_modal_verified.png`: Mystery Match modal in light theme.
+         - `v2.2.72_emulator_light_06_endorse_modal_verified.png`: Endorse Vibe modal in light theme.
+         - `v2.2.72_emulator_light_07_gamelauncher_modal_verified.png`: Mini-Game launcher modal in light theme.
+   - Synchronized Release Version Bump:
+     - `package.json`: `"version": "2.2.73"`
+     - `android/app/build.gradle`: `versionCode 70`, `versionName "2.2.73"`
+     - `src/services/feedbackService.js`: `appVersion: '2.2.73'`
+   - Signed Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.73-vc70-playstore.aab`
+       * Size: 16,852,100 bytes (**16.07 MB**)
+       * SHA-256: `F56CF4716C27E8B8BC9D2F8B88283CAA0B21A1D5FC8BF281BC322C4A0017197B`
+       * Target SDK: `36` (Google Play 2026+ Compliant)
+       * Keystore: Signed with `college-date-release.jks` (`collegedate`)
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.73-vc70-manual-test.apk`
+       * Size: 14,747,689 bytes (**14.06 MB**)
+       * SHA-256: `D01A05A6C29089DA42AEF79C6CB727F17F238DC14DAA6343B8B225159B7125F4`
+   - Quality Gates & Release Verification:
+     - Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+     - Dedicated Gamification test suite: **12/12 tests PASSED** (`node --test test/gamification-and-cross-page-flow.test.mjs`).
+     - Google Play Release Gate Verification: **ALL 9 GATES PASSED** on `release/TheCollegeDate-2.2.73-vc70-playstore.aab` (`node scripts/verify-aab.mjs`):
+       1. Zero forbidden APK/private-download/test evidence entries bundled: **PASSED**
+       2. Bundle size 16.1 MB (well below 30 MB threshold): **PASSED**
+       3. Package `com.collegedate.app` version 2.2.73 (70): **PASSED**
+       4. Target SDK 36: **PASSED**
+       5. Firebase `google-services.json` present: **PASSED**
+       6. Manifest security flags (`allowBackup="false"`, `usesCleartextTraffic="false"`): **PASSED**
+       7. Photo & Video policy compliance (broad storage permissions excluded): **PASSED**
+       8. RevenueCat Production key active (no test keys): **PASSED**
+       9. Zero text leakages or call provider secrets: **PASSED**
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000034. Universal Android Homepage Mobile Optimization & Multi-Emulator Verification Gate Pass
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Issue: On standard Android devices (360px CSS width, e.g. Tecno, Infinix, Redmi at 720x1600 @ 320dpi), the homepage cards pushed out beyond the right edge of the screen, truncating hero tagline text, clipping ViewerTeaser ("...tod" / missing arrow), hiding the Score Streak "View →" action, and pushing Campus Daily Quests buttons ("Swipe Profiles →") 80% off the screen.
+     - Root-Cause Discovery:
+       1. In `Dashboard.css`, `.dashboard-hero` had `grid-template-columns: 1fr;` which defaults to `minmax(auto, 1fr)`. According to W3C CSS Grid spec, `auto` minimum sizing computes to the min-content contribution of descendants. Elements with `white-space: nowrap` and fixed flex widths forced the grid column to expand to 473px (113px wider than the 360px viewport).
+       2. The issue was masked on the default `Pixel_3a_Lightweight` emulator because its physical density (1080x2220 @ 440dpi) gave it an effective CSS width of 392.7px, where the 384px content barely fit.
+   - Comprehensive Architectural Remediation:
+     - 1. Grid Sizing Hardening (`Dashboard.css` & `androidPolish.css`):
+       * Fixed `.dashboard-hero` with `grid-template-columns: minmax(0, 1fr) !important;` and `width: 100% !important; max-width: 100% !important;`.
+       * Enforced `min-width: 0 !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;` on all direct card children.
+       * Hardened `.dashboard` with `overflow-x: hidden !important; width: 100% !important;`.
+     - 2. Campus Command Center Hero Card:
+       * Eliminated artificial `min-height: 250px`.
+       * Compacted padding to `0.85rem 1rem` and greeting to `1.3rem` with `line-height: 1.2` to eliminate text clipping.
+       * Condensed action buttons to `min-height: 34px; padding: 0 0.85rem; font-size: 0.78rem;`.
+     - 3. Profile Views / Curiosity Card (`ViewerTeaser.css`):
+       * Scaled avatar blur dots from 32px to 24px with `-8px` margin (reducing avatar stack from 72px to 48px).
+       * Added `min-width: 0; flex: 1;` with clean text truncation and reduced padding to `0.55rem 0.85rem`.
+     - 4. Score Streak Card (`Dashboard.jsx` & `Dashboard.css`):
+       * Scaled icon to `1.3rem` and streamlined indicators to punchy labels (`✓ Active today` / `⏳ Action needed today`).
+       * Encapsulated `View →` into a compact badge (`font-size: 0.74rem`).
+     - 5. Campus Daily Quests Card (`CampusQuestsCard.jsx` & `CampusQuestsCard.css`):
+       * Reduced reward badge to compact pill (`font-size: 0.68rem; padding: 0.2rem 0.55rem;`).
+       * Introduced mobile short action labels (`Swipe →`, `Chat →`, `Post →`) replacing 16-character strings that blew out mobile containers.
+       * Standardized action buttons to `min-height: 30px; font-size: 0.72rem; padding: 0.32rem 0.65rem;`.
+     - 6. Campus Primetime Banner (`CampusPrimetimeBanner.css`):
+       * Streamlined Mystery Match button to `min-height: 32px; font-size: 11px; padding: 4px 10px;`.
+     - 7. Analytics Dashboard (`AnalyticsDashboard.css`):
+       * Reduced padding from 2rem to mobile-native `0.85rem 0.95rem` with responsive 2-column grid.
+   - Multi-Emulator Verification Gate Pass:
+     - 1. Android Standard (`emulator-5554` override 720x1600 @ 320dpi / 360px CSS width): 0 overflown elements, perfectly contained.
+     - 2. Google Pixel 4a (`emulator-5556` 1080x2340 @ 440dpi): 0 overflown elements, live boot verified.
+     - 3. Chrome DevTools Mobile Emulation (360x800, 375x812, 390x844): Verified in both Pure Porcelain Light Theme and Obsidian Glass Dark Theme.
+     - 4. Master automated test suite: **422/422 tests PASSED (1 skipped)** across 6 suites (`npm run test:all`).
+     - 5. Production Vite build & Capacitor sync: **PASSED** in 35.69s across 1,182 modules (`npm run build`, `npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000033. Production Android Release Build Packaging & Verification Gate Pass (`v2.2.72` / VC 69)
+   - Scope & Objective:
+     - Produce clean, signed production release artifacts (AAB and APK) incorporating all three collegiate gamification phases:
+       * Phase 1: Hostinger SMTP recovery, Campus Daily Quests engine (3 habit loops), Score Streak milestone superpowers, and cross-page icebreaker cohesion bridges.
+       * Phase 2: "Clash of Campuses" inter-university rivalry, in-chat mini-games (Would You Rather & 2 Truths), peer vibe endorsements (8 badges), and 8:00 - 10:00 PM WAT primetime surge.
+       * Phase 3: Automated Sunday Midnight Reward Engine (24h Spotlight Boost for #1 campus students) & Primetime Mystery Match (Blind Date Speed Hour with progressive 3-stage blur unmasking).
+   - Version Synchronization:
+     - `package.json`: `"version": "2.2.72"`
+     - `android/app/build.gradle`: `versionCode 69`, `versionName "2.2.72"`
+     - `src/services/feedbackService.js`: `appVersion: '2.2.72'`
+   - Signed Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.72-vc69-playstore.aab`
+       * Size: 16,850,131 bytes (**16.07 MB**)
+       * SHA-256: `143774BDFCF779B97DC100FC0510BDA08DCD52CDF06866726CF9296BB4DEF5F2`
+       * Target SDK: `36` (Google Play 2026+ Compliant)
+       * Keystore: Signed with `college-date-release.jks` (`collegedate`)
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.72-vc69-manual-test.apk`
+       * Size: 14,745,713 bytes (**14.06 MB**)
+       * SHA-256: `E0A2AC14C49078FD62109AC624F5A616C507A070711035BDB6B51F3499D9DE8C`
+   - Quality Gates & Release Verification:
+     - Master automated test suite: **422/422 tests PASSED (1 skipped)** in 4.58s across 6 suites (`npm run test:all`).
+     - Google Play Release Gate Verification: **ALL 9 GATES PASSED** on `release/TheCollegeDate-2.2.72-vc69-playstore.aab` (`node scripts/verify-aab.mjs`):
+       1. Zero forbidden APK/private-download/test evidence entries bundled: **PASSED**
+       2. Bundle size 16.1 MB (well below 30 MB threshold): **PASSED**
+       3. Package `com.collegedate.app` version 2.2.72 (69): **PASSED**
+       4. Target SDK 36: **PASSED**
+       5. Firebase `google-services.json` present: **PASSED**
+       6. Manifest security flags (`allowBackup="false"`, `usesCleartextTraffic="false"`): **PASSED**
+       7. Photo & Video policy compliance (broad storage permissions excluded): **PASSED**
+       8. RevenueCat Production key active (no test keys): **PASSED**
+       9. Zero text leakages or call provider secrets: **PASSED**
+   - Visual Evidence QA Proofs Captured:
+     - All 3 phases visually captured and verified in `public/evidence_qa/` (Phase 1: Daily Quests, Streak Perks, Celebration Icebreakers; Phase 2: Campus Rivalry Podium & Contenders, Mini-Games, Endorse Vibe Modal; Phase 3: Sunday Reset Countdown, Mystery Match 3-Stage Progressive Unblur Reveal).
+   - Deployment Constraints:
+     - User directive strictly maintained: Zero commits pushed to Netlify or remote git repositories.
+
+0.00000000000000000000000000000000000000000000000000000000000000000032. Phase 3 Collegiate Gamification: Automated Sunday Midnight Reward Engine (Spotlight Boost) & Primetime Mystery Match (Blind Date Speed Hour)
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Goal: Deliver Phase 3 of collegiate gamification to:
+       1. Provide automated, tangible collegiate incentives for "Clash of Campuses" by rewarding students of the #1 university with an automated 24-hour Sunday Spotlight Boost in discovery decks.
+       2. Eliminate the anxiety of superficial swiping by introducing "Primetime Mystery Match (Blind Date Speed Hour)" during 8:00 – 10:00 PM WAT, pairing students under masked aliases with progressive 3-stage unblurring as they chat.
+   - Comprehensive Architectural Implementation:
+     - 1. "Clash of Campuses" Automated Sunday Midnight Reward Engine:
+       * Database Migration (`supabase/migrations/20261021150000_campus_clash_rewards_and_mystery_match.sql`):
+         - Table `public.campus_clash_weekly_results`: Tracks `week_identifier` (e.g. `'2026-W42'`), `winning_university`, `winning_score`, `runner_up_university`, `total_students_boosted`, `boost_granted_until`, and `created_at`.
+         - Function `public.distribute_weekly_campus_clash_rewards(p_forced boolean)`:
+           * Computes leading university based on active profiles and engagement scores.
+           * Automatically inserts 24-hour boost into `public.boosts` (`type = '24h_boost'`, `expires_at = now() + interval '24 hours'`) for all active students registered in the winning campus, putting them directly into `topGuard` in `discovery_feed_v3`.
+           * Dispatches celebratory in-app notifications into `public.notifications` triggering OneSignal push notifications: *"🏆 UNILAG Won Clash of Campuses! Enjoy your FREE 24-Hour Sunday Spotlight Boost today!"*.
+         - Function `public.get_campus_clash_current_status()`:
+           * Returns latest weekly champion, whether Sunday boost is currently active, seconds remaining, and whether current student's profile belongs to the winning campus.
+       * Client Service & Utilities (`src/utils/campusLeaderboard.js` & `src/services/leaderboardService.js`):
+         - `getSundayMidnightCountdown()`: Calculates live countdown until upcoming Sunday 23:59:59 WAT (`diffMs`, `formatted`, `totalHours`).
+         - `fetchCampusClashWeeklyStatus(userCampus)` & `distributeCampusClashRewards()`: Self-healing client query with resilient fallback.
+       * UI Surfaces (`src/pages/Leaderboard.jsx` & `Leaderboard.css`):
+         - Enhanced Weekly Clash Banner: Displays `⚔️ Inter-University League` badge alongside live `⏱️ Sunday Reset: Xd Yh remaining` pill.
+         - Active Champion Banner: Renders `🚀 Active Champion ([Campus]): 24h Spotlight Boost is live across feeds!`.
+         - Winning Campus Student Highlight: Displays pulsing gold badge `👑 Your Campus Won! Your profile is boosted to the top of discovery feeds today.`.
+     - 2. Campus Primetime Mystery Match (Blind Date Speed Hour):
+       * Catalogs & Persona Generators (`src/utils/mysteryMatch.js`):
+         - `MYSTERY_ALIASES`: Curated masked student aliases (`Campus Cipher 🎭`, `Aura Explorer 🔮`, `Midnight Scholar 🦉`, `Velvet Rebel ✨`).
+         - `MYSTERY_ICEBREAKERS`: Collegiate speed-date dilemma prompts.
+         - `getStageBlurStyle(stage)`: Progressive 3-stage blur filter styles:
+           * Stage 0 (0 msgs): `filter: blur(24px)` (Masked with 🎭 badge)
+           * Stage 1 (1 msg each): `filter: blur(12px)` (Outline hinted)
+           * Stage 2 (2 msgs each): `filter: blur(5px)` (High chemistry preview)
+           * Stage 3 (3 msgs each): `filter: blur(0px)` (Full identity unblurred, verified badge, confetti blast, permanent match +25 XP).
+       * Service Engine (`src/services/mysteryMatchService.js`):
+         - `findMysteryCandidate()`: Queries discovery feed pool respecting opposite gender preference, with realistic collegiate fallback.
+         - `advanceMysterySession()`: Calls server-authoritative `create_or_advance_mystery_match` RPC on `public.mystery_match_sessions` with local-first optimistic progression and haptic feedback (`triggerSuccessHaptic`, `triggerLightHaptic`).
+       * UI Modal Component (`src/components/CampusMysteryMatchModal.jsx` & `CampusMysteryMatchModal.css`):
+         - High-energy Primetime Speed-Dating aesthetic with live pulse indicator and countdown.
+         - Dynamic progressive unblur avatar card with mask overlay and verified badge.
+         - 3-stage progress track (`1. 🧊 Icebreaker` → `2. 💫 Chemistry` → `3. 🎉 Full Reveal`).
+         - Compact in-modal fast chat feed with quick 1-tap dilemma prompt chips.
+         - "Skip Student ⏭️" action to cycle through candidates effortlessly.
+         - Revealed action strip: 1-tap `"💬 Open In Full Chat"` button navigating to permanent chat.
+       * Banner Integration (`src/components/CampusPrimetimeBanner.jsx` & `CampusPrimetimeBanner.css`):
+         - Added glowing `.primetime-mystery-btn` (`"🎭 Speed Date"`) embedded directly into Primetime surge banner across `Dashboard.jsx` and `Match.jsx`.
+   - Automated Quality Gates:
+     - Master automated test suite: **422/422 tests PASSED (1 skipped)** in 11.98s across 6 suites (`npm run test:all`).
+     - Dedicated Gamification test suite: **12/12 tests PASSED** in 653ms (`node --test test/gamification-and-cross-page-flow.test.mjs`).
+     - Vite production build: **PASSED in 1m 23s** across 1,182 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED in 5.22s** (`npx cap copy android`).
+   - Visual Evidence QA Proofs Captured:
+     - `public/evidence_qa/v2.2.72_phase3_clash_of_campuses_rewards.png`: Clash of Campuses banner with live Sunday Reset countdown (`⏱️ Sunday Reset: 5d 2h remaining`).
+     - `public/evidence_qa/v2.2.72_phase3_mystery_match_modal.png`: Primetime Blind Date Speed Hour modal with masked alias (`Aura Explorer 🔮`), 24px blur, and 3-stage progress track.
+     - `public/evidence_qa/v2.2.72_phase3_mystery_match_interactive_reveal.png`: Interactive reveal with unmasked student photo (`Tunde Bakare`), verified identity badge, and permanent match unlocked (+25 XP).
+     - `public/evidence_qa/v2.2.72_phase3_gamification_light.png`: Porcelain Light Theme design system contrast verification.
+
+0.00000000000000000000000000000000000000000000000000000000000000000031. Phase 2 Collegiate Gamification: Clash of Campuses, In-Chat Mini-Games, Peer Vibe Badges & Primetime Rush
+   - Root-Cause Forensic Diagnosis & Architectural Scope:
+     - Goal: Deliver Phase 2 of collegiate gamification to drive viral inter-university pride, eliminate awkward conversation drop-offs in chat, empower students with peer social proof, and synchronize campus peak activity.
+   - Comprehensive Architectural Implementation:
+     - 1. "Clash of Campuses" (Inter-University Weekly Rivalry):
+       * Campus Aggregation Engine (`src/utils/campusLeaderboard.js` & `src/services/leaderboardService.js`):
+         - Aggregates activity scores across premier Nigerian universities (UNILAG, OAU, Covenant, UNN, UI, FUTO, LASU, UNIBEN, FUTA, Babcock) combining baseline scores with live student profiles, received likes, and economic velocity.
+       * Leaderboard 3-Tab UI (`src/pages/Leaderboard.jsx` & `Leaderboard.css`):
+         - Added 3rd toggle tab: `Campuses 🏛️` alongside `Most Wanted 🔥` and `Spenders 💸` with 3-way animated slider track.
+         - Weekly Clash Announcement Banner: *"The #1 University at Sunday midnight wins a Free Sunday Spotlight Boost for all registered students!"*.
+         - User Campus Standing Card: Highlights current student's university rank, active student roster, and total score.
+         - Campus Podium & Contenders Table: Displays Top 3 universities with university crest emblems, crown glows, and ranked contender rows with porcelain (light) and obsidian (dark) styling.
+     - 2. In-Chat Interactive Vibe Mini-Games ("Break the Ice"):
+       * Game Data & Catalog (`src/utils/miniGames.js`):
+         - "Would You Rather": 8 curated collegiate dilemma presets (e.g. 8 AM Monday class vs 4-hour Friday lab; hostel indomie with roommates vs off-campus cooking) with shuffle mechanics.
+         - "2 Truths & a Lie": 3-statement challenge with quick suggestion inspiration chips for effortless student participation.
+       * Game Launcher Modal (`src/components/ChatMiniGameModal.jsx` & `ChatMiniGameModal.css`):
+         - Embedded into chat input attachment drawer via `🎮 Games` button.
+       * In-Stream Interactive Game Card (`src/components/ChatMiniGameCard.jsx` & `ChatMiniGameCard.css`):
+         - Rendered directly inside the chat message stream when `msg.type === 'mini_game'`.
+         - Supports real-time interactive voting, instant truth/lie reveal, streak XP awards (+10 XP / +15 XP), and native haptic feedback (`triggerSuccessHaptic`, `triggerLightHaptic`).
+     - 3. Peer Campus Endorsement Badges ("Vibe Badges"):
+       * Badges Catalog & Storage Engine (`src/utils/profileData.js`):
+         - 8 collegiate vibe badges: `🎓 Straight-A Scholar`, `👟 Big Stepper`, `😂 Campus Comedian`, `🎧 Vibe Curator`, `🦉 Night Owl`, `☕ Chill Soul`, `🍔 Campus Foodie`, `✨ Main Character`.
+         - `getUserVibeEndorsements` and `endorseUserVibe`: Persists endorsements, prevents duplicate endorsements from the same student, and awards +10 XP for peer participation.
+       * Profile Integration (`src/pages/Profile.jsx`, `Profile.css`, `EndorseVibeModal.jsx`):
+         - Displays "Campus Vibe Badges" cluster with badge counts across compact and full profile views.
+         - Matched peers can tap "+ Endorse" to open `EndorseVibeModal` and award badges with haptic confirmation.
+     - 4. Campus Primetime (8:00 PM Collegiate Matching Hour):
+       * Primetime Schedule Engine (`src/utils/campusPrimetime.js`):
+         - Authoritatively calculates daily 20:00 - 22:00 WAT (UTC+1) primetime activity window with live countdown timers.
+       * Primetime Surge Banner (`src/components/CampusPrimetimeBanner.jsx` & `CampusPrimetimeBanner.css`):
+         - Embedded in `Dashboard.jsx` and `Match.jsx` with live pulsing amber badge during surge hours and scheduled countdown outside primetime.
+   - Automated Quality Gates:
+     - Master automated test suite: **420/420 tests PASSED** in 23.21s across 6 suites (`npm run test:all`).
+     - Dedicated Gamification test suite: **10/10 tests PASSED** (`test/gamification-and-cross-page-flow.test.mjs`).
+     - Vite production build: **PASSED** in 2m 32s across 1,176 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** in 5.43s (`npx cap copy android`).
+
+0.00000000000000000000000000000000000000000000000000000000000000000030. Production Android Release Build Packaging & Real Device Live Verification (`v2.2.71` / VC 68)
+   - Scope & Objective:
+     - Produce fresh, signed production release artifacts (AAB and APK) incorporating every enhancement, security guard, theme alignment, and feature remediation built today:
+       * Complete User Email Privacy & Cross-User Exposure Isolation Guard (Postgres trigger `mask_profile_email_on_write`, purge of `profiles.email`, safe projections in `discovery_feed_v3`, `get_admirers_secure`, and client-side masking).
+       * Campus Finder Unlimited Elite Entitlement & Weekly 2-Search Automatic Replenishment (`finder_weekly_reset_at`, hourly rate limit safeguards, contextual paywall routing).
+       * Campus Finder Relation `user_blocks` & Direct Client Fallback Resilience (SQL error masking, `refund_finder_search` safeguard, light theme design system).
+       * Escrow Creation Popup & In-Stream Service Deal Card Multi-Theme & UX Transformation (4-stage visual stepper, client vs provider role cards, quick Naira chips, money-back guarantee shield).
+       * Campus Ambassador League & Referrals Neutral-First Redesign (authentic Nigerian campus connector rankings, 1-tap copy visual feedback, instant WhatsApp sharing, reward claiming).
+       * Hostinger SMTP Delivery Restoration & Edge Worker Pipeline.
+       * Campus Daily Quests Engine (3 daily habit loops, 25 Coins + 50 XP rewards, cross-surface activity tracking).
+       * Score Streak Superpower Perks & Cross-Page Navigation Flow Bridges.
+       * Collegiate Campus Vibe Endorsement Badges & In-Chat Mini Game Infrastructure.
+   - Synchronized Release Version Bump:
+     - `package.json`: `"version": "2.2.71"`
+     - `android/app/build.gradle`: `versionCode 68`, `versionName "2.2.71"`
+     - `src/services/feedbackService.js`: `appVersion: '2.2.71'`
+   - Signed Release Artifacts:
+     - Google Play App Bundle (AAB):
+       * Path: `release/TheCollegeDate-2.2.71-vc68-playstore.aab`
+       * Size: 16,822,373 bytes (**16.04 MB**)
+       * SHA-256: `9EBE7FC50181E89AADBF84D4E1BB3133D48244FA8F708B525579BEFF3C8BFEDC`
+       * Target SDK: `36` (Play Store 2026+ Compliant)
+       * Keystore: Signed with `college-date-release.jks` (Key alias: `collegedate`)
+     - Manual Test APK:
+       * Path: `release/TheCollegeDate-2.2.71-vc68-manual-test.apk`
+       * Size: 14,718,936 bytes (**14.04 MB**)
+       * SHA-256: `EE6D85BCB7971B099245789AB6E6687AFC8FD827ADCC7D6834F24486D3FF4105`
+   - Release Gate Verification & Live Device Boot Verification:
+     - Google Play Release Gate Verification: **ALL 9 GATES PASSED** on `release/TheCollegeDate-2.2.71-vc68-playstore.aab` (`node scripts/verify-aab.mjs`):
+       1. Zero forbidden APK/private-download/test evidence entries bundled: **PASSED**
+       2. Bundle size 16.0 MB (well below 30 MB threshold): **PASSED**
+       3. Package `com.collegedate.app` version 2.2.71 (68): **PASSED**
+       4. Target SDK 36: **PASSED**
+       5. Firebase `google-services.json` present: **PASSED**
+       6. Manifest security flags (`allowBackup="false"`, `usesCleartextTraffic="false"`): **PASSED**
+       7. Photo & Video policy compliance (broad storage permissions excluded): **PASSED**
+       8. RevenueCat Production key active (no test keys): **PASSED**
+       9. Zero text leakages or call provider secrets: **PASSED**
+     - Live Physical / Emulator Verification on `emulator-5554`:
+       * Installed via ADB streamed install: package `com.collegedate.app`
+       * Confirmed package dump: `versionCode=68 minSdk=24 targetSdk=36`, `versionName=2.2.71`
+       * Booted main activity `com.collegedate.app.MainActivity` with zero crashes or exceptions
+       * Photographic proof captured: `public/evidence_qa/v2.2.71_android_boot_verification.png` (303 KB)
+   - Automated Quality Gates:
+     - Master automated test suite: **416/417 tests PASSED (1 skipped)** in 23.67s across 6 suites (`npm run test:all`).
+     - Production Vite build: **PASSED in 53.11s** across 1,166 modules (`npm run build`).
+     - Capacitor Android sync: **PASSED** (`npx cap sync android`).
+     - Gradle Release Build: **BUILD SUCCESSFUL in 9m 56s** (`bundleRelease assembleRelease`).
 
 0.00000000000000000000000000000000000000000000000000000000000000000029. Hostinger SMTP Restoration, Campus Daily Quests & Cross-Page Cohesion Engine
    - Root-Cause Forensic Diagnosis & Architectural Scope:

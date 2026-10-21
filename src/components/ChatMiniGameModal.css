@@ -1,0 +1,528 @@
+/* ═══════════════════════════════════════════════════════════
+   Chat Mini-Game Modal Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.mini-game-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+@media (min-width: 640px) {
+    .mini-game-modal-overlay {
+        align-items: center;
+        padding: 1rem;
+    }
+}
+
+.mini-game-modal-sheet {
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 520px;
+    max-height: min(88dvh, 640px);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem 1.5rem 1.25rem;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+    color: #f8fafc;
+    position: relative;
+    overflow-y: auto;
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (min-width: 640px) {
+    .mini-game-modal-sheet {
+        border-radius: 24px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    }
+}
+
+.mini-game-modal-handle {
+    width: 44px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    margin: 0 auto 0.75rem auto;
+}
+
+.mini-game-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.mini-game-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mini-game-icon {
+    font-size: 22px;
+}
+
+.mini-game-title {
+    font-size: 19px;
+    font-weight: 850;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+}
+
+.mini-game-btn-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.mini-game-btn-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+}
+
+.mini-game-subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0 0 1rem 0;
+    line-height: 1.45;
+}
+
+.mini-game-subtitle strong {
+    color: #f1f5f9;
+}
+
+/* Tabs */
+.mini-game-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+}
+
+.mini-game-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    min-height: 38px;
+    border-radius: 100px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mini-game-tab-btn.active {
+    background: #ffffff;
+    color: #0a0a0c;
+    font-weight: 850;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Panel */
+.mini-game-content-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* WYR Preview */
+.wyr-card-preview {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.wyr-badge-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+}
+
+.wyr-category-pill {
+    background: rgba(99, 91, 255, 0.15);
+    border: 1px solid rgba(99, 91, 255, 0.3);
+    color: #a5b4fc;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.btn-shuffle-wyr {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-shuffle-wyr:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.wyr-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.wyr-option-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+}
+
+.wyr-option-box.option-a {
+    border-left: 3px solid #3b82f6;
+}
+
+.wyr-option-box.option-b {
+    border-left: 3px solid #ec4899;
+}
+
+.wyr-letter {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.wyr-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.wyr-or-divider {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 900;
+    color: #64748b;
+    letter-spacing: 0.1em;
+}
+
+/* 2 Truths & a Lie */
+.truth-lie-instructions {
+    font-size: 12.5px;
+    color: #94a3b8;
+    line-height: 1.45;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem;
+}
+
+.truth-lie-inputs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.truth-lie-input-group {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    transition: border-color 0.2s;
+}
+
+.truth-lie-input-group.is-lie {
+    border-color: rgba(244, 63, 94, 0.5);
+    background: rgba(244, 63, 94, 0.04);
+}
+
+.truth-lie-input-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+
+.truth-lie-number {
+    font-size: 11px;
+    font-weight: 800;
+    color: #94a3b8;
+}
+
+.btn-toggle-lie {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-toggle-lie.active {
+    background: rgba(244, 63, 94, 0.2);
+    border-color: #f43f5e;
+    color: #fda4af;
+}
+
+.truth-lie-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 500;
+    outline: none;
+    padding: 2px 0;
+}
+
+.truth-lie-input::placeholder {
+    color: #64748b;
+}
+
+/* Quick Ideas */
+.truth-lie-ideas-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.ideas-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.ideas-chips-scroll {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.idea-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.idea-chip:hover {
+    background: rgba(99, 91, 255, 0.2);
+    color: #ffffff;
+    border-color: rgba(99, 91, 255, 0.4);
+}
+
+/* Actions */
+.mini-game-modal-actions {
+    margin-top: 0.5rem;
+}
+
+.btn-send-game {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #0a0a0c;
+    font-size: 14px;
+    font-weight: 850;
+    padding: 12px 18px;
+    min-height: 48px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s, opacity 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-send-game:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-send-game:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.btn-send-game:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Android Native App Ergonomics (html.is-native-app)
+   ═══════════════════════════════════════════════════════════ */
+html.is-native-app .mini-game-modal-sheet {
+    padding: 0.85rem 1.15rem 1.25rem 1.15rem;
+    max-height: min(88dvh, 600px);
+    border-radius: 22px 22px 0 0;
+}
+
+html.is-native-app .mini-game-tab-btn {
+    min-height: 42px;
+}
+
+html.is-native-app .btn-send-game {
+    min-height: 50px;
+}
+
+html.is-native-app .btn-shuffle-wyr {
+    min-height: 38px;
+    padding: 6px 14px;
+}
+
+html.is-native-app .btn-toggle-lie {
+    min-height: 34px;
+    padding: 4px 12px;
+}
+
+/* Light Theme */
+html[data-theme="light"] .mini-game-modal-sheet,
+.theme-light .mini-game-modal-sheet {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .mini-game-modal-handle,
+.theme-light .mini-game-modal-handle {
+    background: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .mini-game-title,
+.theme-light .mini-game-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .mini-game-subtitle,
+.theme-light .mini-game-subtitle {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .mini-game-subtitle strong,
+.theme-light .mini-game-subtitle strong {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .mini-game-btn-close,
+.theme-light .mini-game-btn-close {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .mini-game-tabs,
+.theme-light .mini-game-tabs {
+    background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .mini-game-tab-btn:not(.active),
+.theme-light .mini-game-tab-btn:not(.active) {
+    color: #64748b !important;
+}
+
+html[data-theme="light"] .wyr-card-preview,
+.theme-light .wyr-card-preview {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .wyr-option-box,
+.theme-light .wyr-option-box {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .wyr-text,
+.theme-light .wyr-text {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .btn-shuffle-wyr,
+.theme-light .btn-shuffle-wyr {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+html[data-theme="light"] .truth-lie-instructions,
+.theme-light .truth-lie-instructions {
+    background: #f8fafc !important;
+    color: #475569 !important;
+}
+
+html[data-theme="light"] .truth-lie-input-group,
+.theme-light .truth-lie-input-group {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .truth-lie-input,
+.theme-light .truth-lie-input {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .mini-game-tab-btn.active,
+.theme-light .mini-game-tab-btn.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+html[data-theme="light"] .btn-send-game,
+.theme-light .btn-send-game {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+}
+
+html[data-theme="light"] .idea-chip,
+.theme-light .idea-chip {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #334155 !important;
+}

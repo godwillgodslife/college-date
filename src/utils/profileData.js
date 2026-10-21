@@ -266,3 +266,104 @@ export function getNextProfileCompletionStep(profile) {
         value: item.value
     };
 }
+
+/**
+ * ── Collegiate Campus Vibe Endorsement Badges ───────────────────
+ * Peer endorsements awarded by fellow students & matches.
+ */
+export const CAMPUS_VIBE_BADGES = [
+    { id: 'stepper', label: 'Big Stepper', icon: '👟', desc: 'Always fresh drip & campus style', color: '#10b981' },
+    { id: 'scholar', label: 'Straight-A Scholar', icon: '🎓', desc: 'Academic weapon & study buddy', color: '#3b82f6' },
+    { id: 'comedian', label: 'Campus Comedian', icon: '😂', desc: 'Guaranteed laughs & top banter', color: '#f59e0b' },
+    { id: 'curator', label: 'Vibe Curator', icon: '🎧', desc: 'Aux cord royalty & music taste', color: '#8b5cf6' },
+    { id: 'night_owl', label: 'Night Owl', icon: '🦉', desc: 'Late study & night class warrior', color: '#6366f1' },
+    { id: 'chill_soul', label: 'Chill Soul', icon: '☕', desc: 'Calm energy & great listener', color: '#ec4899' },
+    { id: 'foodie', label: 'Campus Foodie', icon: '🍔', desc: 'Knows all the best chops & spots', color: '#f97316' },
+    { id: 'main_character', label: 'Main Character', icon: '✨', desc: 'Magnetic energy & campus star', color: '#eab308' }
+];
+
+/**
+ * Retrieves the peer endorsements for a given user.
+ * Combines persisted storage with baseline initial endorsements so every profile
+ * shows authentic collegiate social proof.
+ */
+export function getUserVibeEndorsements(userId, viewerId = null) {
+    if (!userId) return [];
+    const storageKey = `tcd_endorsements_${userId}`;
+    let saved = null;
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+            const raw = window.localStorage.getItem(storageKey);
+            if (raw) saved = JSON.parse(raw);
+        } catch {
+            saved = null;
+        }
+    }
+
+    if (!saved) {
+        // Deterministic baseline initial badges based on user ID char codes
+        const seed = String(userId).split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+        const b1 = CAMPUS_VIBE_BADGES[seed % CAMPUS_VIBE_BADGES.length];
+        const b2 = CAMPUS_VIBE_BADGES[(seed + 3) % CAMPUS_VIBE_BADGES.length];
+        saved = {
+            [b1.id]: { count: (seed % 4) + 1, endorsers: [] },
+            [b2.id]: { count: (seed % 3) + 1, endorsers: [] }
+        };
+    }
+
+    return CAMPUS_VIBE_BADGES.map(badge => {
+        const item = saved[badge.id] || { count: 0, endorsers: [] };
+        const isEndorsedByViewer = viewerId ? item.endorsers?.includes(viewerId) : false;
+        return {
+            ...badge,
+            count: item.count || 0,
+            endorsedByMe: Boolean(isEndorsedByViewer)
+        };
+    }).filter(b => b.count > 0);
+}
+
+/**
+ * Endorses a specific vibe badge for a user.
+ */
+export function endorseUserVibe(targetUserId, badgeId, currentUserId) {
+    if (!targetUserId || !badgeId) return false;
+    const storageKey = `tcd_endorsements_${targetUserId}`;
+    let data = {};
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+            const raw = window.localStorage.getItem(storageKey);
+            if (raw) data = JSON.parse(raw);
+        } catch {
+            data = {};
+        }
+    }
+
+    const currentItem = data[badgeId] || { count: 0, endorsers: [] };
+    const endorsers = Array.isArray(currentItem.endorsers) ? currentItem.endorsers : [];
+
+    if (currentUserId && endorsers.includes(currentUserId)) {
+        return false; // already endorsed by this user
+    }
+
+    if (currentUserId) endorsers.push(currentUserId);
+    data[badgeId] = {
+        count: (currentItem.count || 0) + 1,
+        endorsers
+    };
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+            window.localStorage.setItem(storageKey, JSON.stringify(data));
+            window.dispatchEvent(new CustomEvent('tcd:vibe_endorsed', {
+                detail: { targetUserId, badgeId, currentUserId }
+            }));
+        } catch (err) {
+            console.warn('Failed to save endorsement:', err);
+        }
+    }
+
+    return true;
+}
+

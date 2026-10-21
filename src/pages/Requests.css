@@ -963,3 +963,47 @@ html[data-theme="light"] .empty-requests p,
 .empty-requests-discovery-cta:active {
     transform: scale(0.97);
 }
+
+/* ── Request Prompt Reply Teaser Styling ── */
+.request-prompt-reply {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left: 3px solid #38bdf8 !important;
+    border-radius: 4px 14px 14px 4px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem !important;
+}
+
+[data-theme="light"] .request-prompt-reply,
+.theme-light .request-prompt-reply {
+    background: #f8fafc !important;
+    border-left-color: #0284c7 !important;
+}
+
+.request-prompt-category {
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+}
+
+[data-theme="light"] .request-prompt-category,
+.theme-light .request-prompt-category {
+    color: #0284c7;
+}
+
+.request-prompt-body {
+    font-size: 0.92rem;
+    font-style: normal !important;
+    font-weight: 600;
+    color: var(--text-primary, #ffffff) !important;
+    line-height: 1.4;
+    margin: 0 !important;
+}
+
+[data-theme="light"] .request-prompt-body,
+.theme-light .request-prompt-body {
+    color: #1e293b !important;
+}

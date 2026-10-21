@@ -18,6 +18,7 @@ import StreakIndicator from '../components/StreakIndicator'; // NEW
 import { playCardSwipe } from '../lib/audioContext';
 import { useToast } from '../components/Toast';
 import HiddenProfileBanner from '../components/HiddenProfileBanner';
+import CampusPrimetimeBanner from '../components/CampusPrimetimeBanner';
 import { getOptimizedUrl } from '../lib/imageUrl';
 import { hasActivePremium, isEliteUltra } from '../utils/premium';
 import EliteUltraDetailsModal from '../components/EliteUltraDetailsModal';
@@ -34,6 +35,10 @@ import { useNotifications } from '../contexts/NotificationContext';
 import { formatBadgeCount } from '../services/appBadgeService';
 import { triggerLightHaptic } from '../services/haptics';
 import { recordQuestProgress } from '../services/campusQuestService';
+import DiscoveryPreferencesModal from '../components/DiscoveryPreferencesModal';
+import PromptReplyModal from '../components/PromptReplyModal';
+import ReportModal from '../components/ReportModal';
+import { blockUser } from '../services/blockService';
 import './Match.css';
 
 const OFFLINE_PAID_SWIPES_ENABLED = import.meta.env.VITE_ENABLE_OFFLINE_PAID_SWIPES === 'true';
@@ -79,9 +84,19 @@ export default function Match() {
     const [filters, setFilters] = useState(() => ({
         gender: resolveOppositeGender(userProfile),
         university: 'All',
-        ageRange: [18, 50]
+        ageRange: [18, 50],
+        distanceKm: 25,
+        fallbackNearby: true,
+        fallbackAge: true,
+        minPhotos: 1,
+        hasBio: false,
+        faculty: 'All',
+        attractionGoal: 'All',
+        zodiac: 'All'
     }));
     const [hasUserChangedGender, setHasUserChangedGender] = useState(false);
+    const [promptReplyTarget, setPromptReplyTarget] = useState(null);
+    const [reportingTarget, setReportingTarget] = useState(null);
 
     // Synchronize opposite-gender default when userProfile is loaded
     useEffect(() => {
@@ -443,6 +458,69 @@ export default function Match() {
         addToast(`⭐ Super Swipe sent! ${swipedProfile.full_name || 'They'} will get an instant notification!`, 'success');
     }, [currentUserId, addToast]);
 
+    const handleShareProfile = useCallback(async (profile) => {
+        if (!profile) return;
+        triggerLightHaptic();
+        const shareUrl = `https://www.thecollegedate.com/p/${profile.id}`;
+        const shareText = `Check out ${profile.full_name || 'this student'} from ${profile.university || 'campus'} on TheCollegeDate!`;
+
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${profile.full_name || 'Student'} on TheCollegeDate`,
+                    text: shareText,
+                    url: shareUrl
+                });
+                return;
+            } catch {
+                // User dismissed share dialog
+            }
+        }
+
+        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                addToast(`Link for ${profile.full_name || 'student'} copied to clipboard!`, 'success');
+                return;
+            } catch {
+                // Clipboard fallback
+            }
+        }
+        addToast(`Share link: ${shareUrl}`, 'info');
+    }, [addToast]);
+
+    const handleBlockProfile = useCallback(async (profile) => {
+        if (!profile?.id) return;
+        const confirmBlock = window.confirm(`Block ${profile.full_name || 'this student'}? They will no longer appear in your discovery feed or chats.`);
+        if (!confirmBlock) return;
+
+        triggerLightHaptic();
+        setProfiles(prev => prev.filter(p => p.id !== profile.id));
+        const res = await blockUser(profile.id);
+        if (res.success) {
+            addToast(`${profile.full_name || 'Student'} has been blocked.`, 'success');
+        } else {
+            addToast(res.error || 'Failed to block student', 'error');
+        }
+    }, [addToast]);
+
+    const handleSendPromptReply = useCallback(async (messageText, swipeType = 'standard', targetPrompt = null) => {
+        if (!promptReplyTarget?.targetProfile) return;
+        const target = promptReplyTarget.targetProfile;
+        const teaser = `[Replied to ${targetPrompt?.category || 'Prompt'}]: "${messageText}"`;
+
+        if (swipeType === 'super') {
+            if (superSwipesAvailable <= 0 && !isUltra) {
+                setPaywallOpen(true);
+                return;
+            }
+            await handleSwipe('right', target, 'super', teaser);
+        } else {
+            await handleSwipe('right', target, 'standard', teaser);
+        }
+        setPromptReplyTarget(null);
+    }, [promptReplyTarget, superSwipesAvailable, isUltra, handleSwipe]);
+
     const persistGenderPreference = useCallback(async (g) => {
         if (!currentUserId) return;
         const operationId = `save_gender_preference:${currentUserId}`;
@@ -541,6 +619,17 @@ export default function Match() {
                                 🔴 Live Near Me
                             </button>
                             <button 
+                                type="button"
+                                className="discover-rail-btn discover-prefs-btn" 
+                                onClick={() => {
+                                    triggerLightHaptic();
+                                    setShowFilters(true);
+                                }}
+                                title="Discovery Preferences & Filters"
+                            >
+                                ⚙️ Preferences
+                            </button>
+                            <button 
                                 className={`discover-rail-btn ${filters.gender !== 'All' ? 'active' : ''}`} 
                                 onClick={handleGenderCycle}
                                 onContextMenu={(e) => {
@@ -612,6 +701,11 @@ export default function Match() {
                             </div>
                         )}
                         <StatusBubbles />
+                        <CampusPrimetimeBanner 
+                            currentUserId={currentUserId}
+                            currentUserProfile={userProfile}
+                            onNavigateToChat={(id) => navigate('/chat')}
+                        />
 
                         <ContextualTip
                             featureId="match_swipe"
@@ -736,6 +830,12 @@ export default function Match() {
                                         onSuperSwipe={handleSuperSwipe}
                                         priority={isTopCard}
                                         isTop={isTopCard && !pendingSwipeIds.includes(profile.id)}
+                                        onOpenPromptReply={(targetProf, targetPrompt) => {
+                                            setPromptReplyTarget({ targetProfile: targetProf, targetPrompt });
+                                        }}
+                                        onShareProfile={handleShareProfile}
+                                        onBlockProfile={handleBlockProfile}
+                                        onReportProfile={(targetProf) => setReportingTarget(targetProf)}
                                     />
                                     );
                                 })}
@@ -743,55 +843,42 @@ export default function Match() {
                         )}
                     </div>
 
-                    {showFilters && (
-                        <div className="filter-overlay">
-                            <div className="filter-box animate-fade-in-up">
-                                <div className="filter-header">
-                                    <h2>Discovery Settings</h2>
-                                    <button className="close-filters" onClick={() => setShowFilters(false)}>×</button>
-                                </div>
-                                <div className="filter-body">
-                                    <div className="filter-section">
-                                        <label>I'm interested in</label>
-                                        <div className="filter-options">
-                                            {['All', 'Male', 'Female'].map(g => (
-                                                <button
-                                                    key={g}
-                                                    className={`filter-opt ${filters.gender === g ? 'active' : ''}`}
-                                                    onClick={() => {
-                                                        setFilters(prev => ({ ...prev, gender: g }));
-                                                        const operationId = `save_gender_preference:${currentUserId}`;
-                                                        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                                                            enqueueOfflineOperation(currentUserId, {
-                                                                id: operationId,
-                                                                type: 'save_gender_preference',
-                                                                payload: { userId: currentUserId, gender: g }
-                                                            });
-                                                        } else {
-                                                            saveGenderPreference(currentUserId, g).then((result) => {
-                                                                if (result?.error) {
-                                                                    enqueueOfflineOperation(currentUserId, {
-                                                                        id: operationId,
-                                                                        type: 'save_gender_preference',
-                                                                        payload: { userId: currentUserId, gender: g },
-                                                                        lastError: result.error
-                                                                    });
-                                                                } else {
-                                                                    removeOfflineOperation(currentUserId, operationId);
-                                                                }
-                                                            });
-                                                        }
-                                                    }}
-                                                >
-                                                    {g}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                <button className="btn btn-primary btn-apply" onClick={() => setShowFilters(false)}>Show Results</button>
-                            </div>
-                        </div>
+                    {/* Tinder-Grade Discovery Preferences Sheet */}
+                    <DiscoveryPreferencesModal
+                        isOpen={showFilters}
+                        onClose={() => setShowFilters(false)}
+                        filters={filters}
+                        onApplyFilters={(updatedFilters) => {
+                            setFilters(updatedFilters);
+                            mutateProfiles();
+                        }}
+                        userProfile={userProfile}
+                        isPremium={isPremium}
+                        onOpenPaywall={() => setPaywallOpen(true)}
+                    />
+
+                    {/* Contextual Prompt Reply Icebreaker Modal */}
+                    <PromptReplyModal
+                        isOpen={Boolean(promptReplyTarget)}
+                        onClose={() => setPromptReplyTarget(null)}
+                        targetProfile={promptReplyTarget?.targetProfile}
+                        targetPrompt={promptReplyTarget?.targetPrompt}
+                        onSendReply={handleSendPromptReply}
+                        superSwipesAvailable={superSwipesAvailable}
+                    />
+
+                    {/* Safety Report Profile Modal */}
+                    {reportingTarget && (
+                        <ReportModal
+                            targetUser={reportingTarget}
+                            contextType="discovery"
+                            contextId={reportingTarget.id}
+                            onClose={() => setReportingTarget(null)}
+                            onReportSuccess={() => {
+                                setReportingTarget(null);
+                                setProfiles(prev => prev.filter(p => p.id !== reportingTarget.id));
+                            }}
+                        />
                     )}
 
                     {/* Limit Reached Overlay */}

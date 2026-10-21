@@ -65,6 +65,8 @@ import { recordFeedImpression } from '../services/feedImpressionService';
 import CoinStoreModal from '../components/CoinStoreModal';
 import CreateServiceDealModal from '../components/CreateServiceDealModal';
 import ServiceDealCard from '../components/ServiceDealCard';
+import ChatMiniGameModal from '../components/ChatMiniGameModal';
+import ChatMiniGameCard from '../components/ChatMiniGameCard';
 import LiveLocationCard from '../components/LiveLocationCard';
 import { ContextualTip, AppGuideModal, markFeatureUsed } from '../components/ContextualGuide';
 import { recordStreakActivity } from '../services/scoreStreakService';
@@ -600,6 +602,7 @@ export default function Chat() {
     const [isBlockedByMe, setIsBlockedByMe] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showDealModal, setShowDealModal] = useState(false);
+    const [showMiniGameModal, setShowMiniGameModal] = useState(false);
     const [viewOnceViewerData, setViewOnceViewerData] = useState(null);
     const [pendingMediaUpload, setPendingMediaUpload] = useState(null);
     const [showLocationPicker, setShowLocationPicker] = useState(false);
@@ -1816,6 +1819,28 @@ export default function Chat() {
     };
 
     // ── Call Signaling ──────────────────────────────────────────────
+    const handleSendMiniGame = async (gamePayload) => {
+        if (!selectedConv?.id || !currentUser?.id) return;
+        try {
+            const { content: gameContent, type: gameType, metadata: gameMeta } = gamePayload;
+            await sendMessage(
+                selectedConv.id,
+                currentUser.id,
+                gameContent,
+                gameType || 'mini_game',
+                {
+                    ...(gameMeta || {}),
+                    senderProfile: userProfile
+                }
+            );
+            recordQuestProgress(currentUser.id, 'quest_icebreaker', 1);
+            revalidateConvs();
+        } catch (err) {
+            console.error('Error sending mini-game:', err);
+            addToast('Could not send mini-game. Try again.', 'error');
+        }
+    };
+
     const initiateCall = async (type) => {
         if (!selectedConv?.id) return;
         setCallChoiceOpen(false);
@@ -2600,6 +2625,16 @@ export default function Chat() {
                         }}
                     />
                 );
+            case 'mini_game':
+                return (
+                    <ChatMiniGameCard
+                        message={msg}
+                        currentUserId={currentUser.id}
+                        currentUserName={userProfile?.full_name?.split(' ')[0] || 'Your match'}
+                        partnerName={selectedConv?.other_user?.full_name?.split(' ')[0] || 'Peer'}
+                        isSender={msg.sender_id === currentUser.id}
+                    />
+                );
             case 'sticker': return <div className="sticker-message"><span className="sticker-emoji-large">{msg.content}</span><span className="sticker-label">{msg.metadata?.label}</span></div>;
             case 'gift': {
                 const giftId = msg.metadata?.gift_id || 'rose';
@@ -2701,7 +2736,22 @@ export default function Chat() {
                     </div>
                 );
             }
-            default: return <div className="message-content-text">{msg.content}</div>;
+            default: {
+                const match = typeof msg.content === 'string' && msg.content.match(/^\[Replied to ([^\]]+)\]:\s*"?([\s\S]*?)"?$/);
+                if (match) {
+                    const promptCategory = match[1];
+                    const replyText = match[2];
+                    return (
+                        <div className="message-content-text message-prompt-reply-wrap">
+                            <div className="chat-prompt-reply-quote">
+                                <span className="chat-prompt-reply-tag">✈ Replied to {promptCategory}</span>
+                            </div>
+                            <div className="chat-prompt-reply-body">{replyText}</div>
+                        </div>
+                    );
+                }
+                return <div className="message-content-text">{msg.content}</div>;
+            }
         }
     };
 
@@ -2787,6 +2837,15 @@ export default function Chat() {
                     onDealCreated={() => {
                         revalidateConvs();
                     }}
+                />
+            )}
+
+            {showMiniGameModal && (
+                <ChatMiniGameModal
+                    isOpen={showMiniGameModal}
+                    onClose={() => setShowMiniGameModal(false)}
+                    onSendGame={handleSendMiniGame}
+                    partnerName={selectedConv?.other_user?.full_name?.split(' ')[0] || 'your match'}
                 />
             )}
             {viewOnceViewerData && (
@@ -3599,6 +3658,18 @@ export default function Chat() {
                                                         <span className="attachment-label">Escrow</span>
                                                     </button>
 
+                                                    <button
+                                                        type="button"
+                                                        className="whatsapp-attachment-item"
+                                                        onClick={() => { setShowMiniGameModal(true); setShowMoreActions(false); }}
+                                                        title="Campus Mini-Games & Icebreakers"
+                                                    >
+                                                        <div className="attachment-circle circle-game">
+                                                            <span className="attachment-icon">🎮</span>
+                                                        </div>
+                                                        <span className="attachment-label">Games</span>
+                                                    </button>
+
                                                     <button
                                                         type="button"
                                                         className="whatsapp-attachment-item"

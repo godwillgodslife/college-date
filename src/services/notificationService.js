@@ -61,19 +61,19 @@ function asUuid(value) {
 }
 
 function getDefaultCategory(type) {
-    if (['message', 'new_message', 'call'].includes(type)) return 'messages';
-    if (['match', 'like', 'super_swipe', 'swipe_received', 'swipe_accepted'].includes(type)) return 'matches';
+    if (['message', 'new_message', 'call', 'gift', 'gift_received', 'mini_game', 'mini_game_response'].includes(type)) return 'messages';
+    if (['match', 'like', 'super_swipe', 'swipe_received', 'swipe_accepted', 'mystery_match_revealed'].includes(type)) return 'matches';
     if (['request', 'message_request', 'connection_request'].includes(type)) return 'requests';
-    if (['view', 'profile_view', 'checked_out'].includes(type)) return 'profile_activity';
+    if (['view', 'profile_view', 'checked_out', 'vibe_endorsement'].includes(type)) return 'profile_activity';
     if (['snapshot_reaction', 'status_update', 'confession'].includes(type)) return 'social';
-    if (['payment', 'funds', 'goal_reached'].includes(type)) return 'account';
-    if (['security', 'system', 'verified'].includes(type)) return 'system';
+    if (['payment', 'funds', 'goal_reached', 'quest_reward', 'streak_milestone'].includes(type)) return 'account';
+    if (['security', 'system', 'verified', 'campus_clash_victory'].includes(type)) return 'system';
     return 'general';
 }
 
 function getDefaultPriority(type) {
     if (['security'].includes(type)) return 'critical';
-    if (['message', 'new_message', 'call', 'match', 'super_swipe'].includes(type)) return 'high';
+    if (['message', 'new_message', 'call', 'match', 'super_swipe', 'mini_game', 'mini_game_response', 'mystery_match_revealed', 'streak_milestone', 'campus_clash_victory'].includes(type)) return 'high';
     if (['view', 'profile_view', 'snapshot_reaction', 'status_update'].includes(type)) return 'low';
     return 'normal';
 }

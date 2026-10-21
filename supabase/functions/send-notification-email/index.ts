@@ -30,7 +30,18 @@ function getActionLabel(type?: string): string {
       return "View Connection Request 💌"
     case "chat":
     case "message":
+    case "mini_game":
+    case "mini_game_response":
       return "Reply in Chat 💬"
+    case "vibe_endorsement":
+      return "View Your Profile ✨"
+    case "quest_reward":
+    case "streak_milestone":
+      return "Open Campus Dashboard 🔥"
+    case "campus_clash_victory":
+      return "View Campus Leaderboard 🏆"
+    case "mystery_match_revealed":
+      return "Meet Your Mystery Match 🎉"
     case "ask":
       return "Answer Anonymous Question 🎭"
     case "confession":

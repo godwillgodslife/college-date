@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════════════
+   Campus Primetime Banner Styles
+   Aligned with Confessions Page NGL-Banner Architecture
+   ═══════════════════════════════════════════════════════════ */
+
+.campus-primetime-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.campus-primetime-banner.is-live {
+    background: var(--bg-card, #121216);
+    border: 1.5px solid rgba(245, 158, 11, 0.4);
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.14);
+}
+
+.campus-primetime-banner.is-scheduled {
+    background: var(--bg-card, #121216);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.campus-primetime-banner:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-default, rgba(255, 255, 255, 0.2));
+}
+
+.primetime-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.primetime-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.primetime-status-pill {
+    font-size: 10px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 100px;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.campus-primetime-banner.is-live .primetime-status-pill {
+    background: #ef4444;
+    color: #ffffff;
+    border: 1px solid #dc2626;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.live-pulse {
+    animation: livePulseAnim 1.5s infinite alternate;
+}
+
+@keyframes livePulseAnim {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.85; transform: scale(0.97); }
+}
+
+.primetime-countdown {
+    font-size: 11px;
+    font-weight: 800;
+    color: #fbbf24;
+}
+
+.campus-primetime-banner.is-scheduled .primetime-countdown {
+    color: #94a3b8;
+}
+
+.primetime-headline-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.primetime-headline {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-primary, #ffffff);
+    letter-spacing: -0.01em;
+}
+
+.primetime-surge-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    padding: 1px 7px;
+    border-radius: 100px;
+}
+
+.primetime-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.primetime-mystery-btn {
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: #0a0a0c;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 14px;
+    min-height: 38px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primetime-mystery-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.primetime-arrow {
+    display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Android Native App Ergonomics & Responsive Breakpoints
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+    .campus-primetime-banner {
+        padding: 0.65rem 0.85rem;
+        border-radius: 14px;
+        margin-bottom: 0.65rem;
+    }
+
+    .primetime-headline {
+        font-size: 13px;
+    }
+
+    .primetime-status-pill {
+        font-size: 10px;
+        padding: 2px 7px;
+    }
+
+    .primetime-countdown {
+        font-size: 11px;
+    }
+
+    .primetime-mystery-btn {
+        min-height: 36px;
+        padding: 5px 12px;
+        font-size: 11.5px;
+    }
+}
+
+@media (max-width: 380px) {
+    .campus-primetime-banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .primetime-right {
+        justify-content: flex-end;
+        padding-left: 0;
+    }
+}
+
+html.is-native-app .campus-primetime-banner {
+    padding: 0.6rem 0.85rem;
+    border-radius: 14px;
+    margin-bottom: 0.55rem;
+}
+
+html.is-native-app .primetime-mystery-btn {
+    min-height: 36px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Light Theme Support (Confessions Porcelain Design System)
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="light"] .campus-primetime-banner,
+.theme-light .campus-primetime-banner {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+}
+
+html[data-theme="light"] .campus-primetime-banner.is-live,
+.theme-light .campus-primetime-banner.is-live {
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.1) !important;
+}
+
+html[data-theme="light"] .primetime-status-pill,
+.theme-light .primetime-status-pill {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+html[data-theme="light"] .primetime-headline,
+.theme-light .primetime-headline {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .primetime-countdown,
+.theme-light .primetime-countdown {
+    color: #b45309 !important;
+}
+
+html[data-theme="light"] .primetime-mystery-btn,
+.theme-light .primetime-mystery-btn {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+}

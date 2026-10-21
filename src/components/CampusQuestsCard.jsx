@@ -8,8 +8,17 @@ import {
     DAILY_QUESTS_COMPLETION_BONUS_COINS 
 } from '../services/campusQuestService';
 import { triggerLightHaptic, triggerSuccessHaptic } from '../services/haptics';
+import { createNotification } from '../services/notificationService';
 import { useToast } from './Toast';
 import './CampusQuestsCard.css';
+
+function getShortActionLabel(label) {
+    if (!label) return 'Go →';
+    if (label.includes('Swipe')) return 'Swipe →';
+    if (label.includes('Chat') || label.includes('Message')) return 'Chat →';
+    if (label.includes('Confess')) return 'Post →';
+    return `${label.split(' ')[0]} →`;
+}
 
 export default function CampusQuestsCard({ userId }) {
     const navigate = useNavigate();
@@ -44,6 +53,26 @@ export default function CampusQuestsCard({ userId }) {
             if (addToast) {
                 addToast(`🎉 25 Bonus Coins Claimed! Daily Champion badge active ⚡`, 'success');
             }
+
+            // Write celebratory entry to Notification Center & trigger push
+            if (userId) {
+                const todayKey = new Date().toISOString().split('T')[0];
+                createNotification({
+                    userId,
+                    type: 'quest_reward',
+                    category: 'account',
+                    title: 'Daily Quests Champion! 🎯',
+                    content: `You completed all 3 campus quests today and claimed +${DAILY_QUESTS_COMPLETION_BONUS_COINS} Bonus Coins!`,
+                    deepLink: '/dashboard',
+                    priority: 'normal',
+                    dedupeKey: `quest_bonus:${userId}:${todayKey}`,
+                    metadata: {
+                        event: 'quest_reward',
+                        bonus_coins: DAILY_QUESTS_COMPLETION_BONUS_COINS,
+                        url: '/dashboard'
+                    }
+                }).catch(err => console.warn('[CampusQuestsCard] Notification error:', err));
+            }
         }
     };
 
@@ -62,7 +91,7 @@ export default function CampusQuestsCard({ userId }) {
                         <p className="campus-quests-subhead">
                             {allCompleted 
                                 ? 'All missions completed for today!' 
-                                : `${completedCount} of ${quests.length} completed • Reset at midnight`}
+                                : `${completedCount}/${quests.length} done • Resets midnight`}
                         </p>
                     </div>
                 </div>
@@ -110,7 +139,8 @@ export default function CampusQuestsCard({ userId }) {
                                         onClick={() => handleActionClick(quest.route)}
                                         aria-label={`${quest.actionLabel} to complete ${quest.title}`}
                                     >
-                                        {quest.actionLabel} →
+                                        <span className="quest-btn-label-mobile">{getShortActionLabel(quest.actionLabel)}</span>
+                                        <span className="quest-btn-label-desktop">{quest.actionLabel} →</span>
                                     </button>
                                 )}
                             </div>

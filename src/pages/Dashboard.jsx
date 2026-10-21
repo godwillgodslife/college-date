@@ -20,6 +20,7 @@ import { getCachedData, setCachedData } from '../lib/persistentCache';
 import { useScoreStreak } from '../hooks/useScoreStreak';
 import ScoreStreakModal from '../components/ScoreStreakModal';
 import CampusQuestsCard from '../components/CampusQuestsCard';
+import CampusPrimetimeBanner from '../components/CampusPrimetimeBanner';
 import { useActiveProgram } from '../hooks/useActiveProgram';
 import CollegeDateActiveModal from '../components/CollegeDateActiveModal';
 import { formatDisplayName } from '../utils/profileData';
@@ -300,7 +301,7 @@ export default function Dashboard() {
                                 Score Streak: {scoreStreak} {scoreStreak === 1 ? 'Day' : 'Days'}
                             </div>
                             <div className={`dashboard-card-subtitle ${streakActiveToday ? 'streak-active' : 'streak-pending'}`}>
-                                {streakActiveToday ? '✓ Streak active today' : '⏳ Action needed today to keep alive'}
+                                {streakActiveToday ? '✓ Active today' : '⏳ Action needed today'}
                             </div>
                         </div>
                     </div>
@@ -334,6 +335,14 @@ export default function Dashboard() {
                         </span>
                     </div>
                 )}
+
+                {/* Campus Primetime (Collegiate Matching Rush & Mystery Match) */}
+                <CampusPrimetimeBanner 
+                    onBannerClick={() => navigate('/match')} 
+                    currentUserId={currentUser?.id}
+                    currentUserProfile={userProfile}
+                    onNavigateToChat={(id) => navigate('/chat')}
+                />
 
                 {/* Campus Daily Quests (Gamification Engine) */}
                 <CampusQuestsCard userId={currentUser?.id} />
