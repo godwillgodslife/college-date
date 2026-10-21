@@ -272,6 +272,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_admirers_secure(integer) TO authenticated;
 
 -- 3. Mask email on public.profiles: Erase stored plain text emails and enforce NULL on write
+ALTER TABLE public.profiles ALTER COLUMN email DROP NOT NULL;
 UPDATE public.profiles SET email = NULL WHERE email IS NOT NULL;
 
 CREATE OR REPLACE FUNCTION public.mask_profile_email_on_write()
