@@ -568,11 +568,24 @@ html.is-native-app .swipe-container {
     animation: none;
 }
 
-html.is-native-app .swipe-card {
+html.is-native-app .swipe-card.top-card:not(.expanded-mode) {
     box-shadow:
         0 14px 34px rgba(0, 0, 0, 0.48),
         0 0 0 1px rgba(255, 255, 255, 0.08);
-    transition: none;
+    touch-action: none !important;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    transition: none !important;
+}
+
+html.is-native-app .swipe-card.stack-card {
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.48),
+        0 0 0 1px rgba(255, 255, 255, 0.08);
+    will-change: transform, opacity;
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
 }
 
 html.is-native-app .swipe-card-image,
@@ -1319,14 +1332,18 @@ html.is-native-app .spinner-brand {
     display: inline-block;
     margin-left: 4px;
     font-size: 0.9em;
-    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.7));
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.65));
     vertical-align: middle;
     animation: premiumGlint 3s ease-in-out infinite alternate;
 }
 
+.swipe-card .premium-crown {
+    animation: none;
+}
+
 @keyframes premiumGlint {
-    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5)); }
-    100% { transform: scale(1.12); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95)); }
+    0% { transform: scale(1); opacity: 0.9; }
+    100% { transform: scale(1.12); opacity: 1; }
 }
 
 .premium-badge-glow,

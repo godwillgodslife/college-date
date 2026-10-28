@@ -118,11 +118,13 @@ export async function playMatchSuccess() {
     }
 }
 
-export async function playCardSwipe() {
+export function playCardSwipe() {
     try {
         const c = getContext();
         if (!c) return;
-        await c.resume();
+        if (c.state === 'suspended') {
+            c.resume().catch(() => {});
+        }
         const now = c.currentTime;
         const osc = c.createOscillator();
         const gain = c.createGain();
@@ -133,6 +135,7 @@ export async function playCardSwipe() {
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
         osc.connect(gain);
         gain.connect(c.destination);
+        osc.start(now);
         osc.stop(now + 0.1);
     } catch (e) {}
 }

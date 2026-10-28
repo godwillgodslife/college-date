@@ -634,17 +634,21 @@ export default function Chat() {
 
             if (admirersResult.data?.success) {
                 const total = admirersResult.data.total_count || 0;
+                const admirerItems = Array.isArray(admirersResult.data.items)
+                    ? admirersResult.data.items
+                    : (Array.isArray(admirersResult.data.requests) ? admirersResult.data.requests : []);
+                const isPremiumAdmirer = admirersResult.data.premium === true || admirersResult.data.is_premium === true;
                 setLikesCount(total);
-                if (userProfile?.is_premium) {
-                    setPendingRequestsList(admirersResult.data.items || []);
+                if (userProfile?.is_premium || isPremiumAdmirer) {
+                    setPendingRequestsList(admirerItems);
                 }
                 setCachedData(['requests', currentUser.id], {
                     summary: {
                         total_count: total,
-                        premium: admirersResult.data.premium === true,
+                        premium: isPremiumAdmirer,
                         free_accepts_remaining: admirersResult.data.free_accepts_remaining ?? 3
                     },
-                    items: admirersResult.data.items || []
+                    items: admirerItems
                 }, {
                     userId: currentUser.id,
                     type: 'requests',
@@ -757,7 +761,11 @@ export default function Chat() {
                 if (viewersResult.error) throw viewersResult.error;
 
                 const newLikes = admirersResult.data?.total_count || 0;
-                const newItems = admirersResult.data?.premium ? (admirersResult.data?.items || []) : [];
+                const admirerItems = Array.isArray(admirersResult.data?.items)
+                    ? admirersResult.data.items
+                    : (Array.isArray(admirersResult.data?.requests) ? admirersResult.data.requests : []);
+                const isPremiumAdmirer = admirersResult.data?.premium === true || admirersResult.data?.is_premium === true;
+                const newItems = (userProfile?.is_premium || isPremiumAdmirer) ? admirerItems : [];
                 const newViews = viewersResult.data?.total_count || 0;
 
                 setLikesCount(newLikes);
@@ -766,10 +774,10 @@ export default function Chat() {
 
                 if (currentUser?.id && admirersResult.data) {
                     setCachedData(['requests', currentUser.id], {
-                        items: admirersResult.data.items || [],
+                        items: admirerItems,
                         summary: {
                             total_count: newLikes,
-                            premium: admirersResult.data.premium === true,
+                            premium: isPremiumAdmirer,
                             free_accepts_remaining: admirersResult.data.free_accepts_remaining
                         }
                     }, { userId: currentUser.id, type: 'requests' });
@@ -3668,8 +3676,8 @@ export default function Chat() {
                                                             <span className="attachment-icon">🎮</span>
                                                         </div>
                                                         <span className="attachment-label">Games</span>
-                                                    </button>
-
+                                                    </button>
+
                                                     <button
                                                         type="button"
                                                         className="whatsapp-attachment-item"

@@ -70,9 +70,12 @@ function SwipeCard({
     const [aiLoading, setAiLoading] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const animationRef = useRef(null);
+    const yAnimationRef = useRef(null);
     const swipeInProgressRef = useRef(false);
     const dragMoveCountRef = useRef(0);
     const dragStartTimeRef = useRef(0);
+    const lastDragEndTimeRef = useRef(0);
+    const pointerStartRef = useRef({ x: 0, y: 0, moved: false });
     const renderCountRef = useRef(0);
 
     const allPhotos = useMemo(() => getProfilePhotos(displayProfile), [displayProfile]);
@@ -118,6 +121,7 @@ function SwipeCard({
     }, [activePhotoIdx, photos]);
 
     const x = useMotionValue(0);
+    const y = useMotionValue(0);
     const rotate = useTransform(x, [-240, 240], [-13, 13]);
     const likeOpacity = useTransform(x, [28, 110], [0, 1]);
     const nopeOpacity = useTransform(x, [-110, -28], [1, 0]);
@@ -129,27 +133,34 @@ function SwipeCard({
     const stopAnimation = useCallback(() => {
         animationRef.current?.stop();
         animationRef.current = null;
+        yAnimationRef.current?.stop();
+        yAnimationRef.current = null;
     }, []);
 
     const resetCardPosition = useCallback(async () => {
         stopAnimation();
         const controls = animate(x, 0, RESET_TRANSITION);
+        const yControls = animate(y, 0, RESET_TRANSITION);
         animationRef.current = controls;
+        yAnimationRef.current = yControls;
         try {
-            await controls.finished;
+            await Promise.all([controls.finished, yControls.finished]);
         } catch {
             // Animation was superseded.
         } finally {
             if (animationRef.current === controls) animationRef.current = null;
+            if (yAnimationRef.current === yControls) yAnimationRef.current = null;
         }
-    }, [stopAnimation, x]);
+    }, [stopAnimation, x, y]);
 
     useEffect(() => {
         stopAnimation();
         x.set(0);
+        y.set(0);
         setActivePhotoIdx(0);
         swipeInProgressRef.current = false;
         dragMoveCountRef.current = 0;
+        pointerStartRef.current = { x: 0, y: 0, moved: false };
         setIsExpanded(false);
 
         recordSwipeDebug('card-mounted', { profileId: displayProfile.id });
@@ -158,7 +169,7 @@ function SwipeCard({
             stopAnimation();
             recordSwipeDebug('card-unmounted', { profileId: displayProfile.id });
         };
-    }, [displayProfile.id, stopAnimation, x]);
+    }, [displayProfile.id, stopAnimation, x, y]);
 
     const canInteract = isTop;
     const depth = Math.min(Math.max(stackPosition, 0), 2);
@@ -167,7 +178,7 @@ function SwipeCard({
     const stackOpacity = depth === 1 ? 0.9 : 0.72;
     const zIndex = canInteract ? 30 : 30 - depth * 10;
     const cardStyle = canInteract
-        ? { x, rotate, zIndex, pointerEvents: 'auto' }
+        ? { x, y, rotate, zIndex, pointerEvents: 'auto' }
         : {
             zIndex,
             pointerEvents: 'none',
@@ -175,7 +186,7 @@ function SwipeCard({
             transform: `translate3d(0, ${stackY}px, 0) scale(${stackScale})`
         };
 
-    const completeSwipe = useCallback(async (direction, type = 'standard', source = 'drag') => {
+    const completeSwipe = useCallback(async (direction, type = 'standard', source = 'drag', velocityX = 0) => {
         if (!displayProfile?.id || !canInteract || swipeInProgressRef.current) return;
 
         recordSwipeDebug('swipe-threshold-accepted', {
@@ -190,25 +201,38 @@ function SwipeCard({
             direction,
             type,
             source,
+            velocityX,
             swipeInProgressRef,
             canStartSwipe: onBeforeSwipe,
             onCancel: onSwipeCancel,
             getViewportWidth: () => (typeof window !== 'undefined' ? window.innerWidth : MIN_EXIT_DISTANCE),
-            animateExit: async (targetX) => {
+            animateExit: async (targetX, _dir, _type, _source, exitVelocityX = 0) => {
                 stopAnimation();
                 const start = performance.now();
-                const controls = animate(x, targetX, EXIT_TRANSITION);
+                const currentX = x.get();
+                const currentY = y.get();
+                const remainingDistance = Math.max(120, Math.abs(targetX - currentX));
+                const effectiveSpeed = Math.max(Math.abs(exitVelocityX || 0), 1350);
+                const dynamicDuration = Math.max(0.11, Math.min(0.20, remainingDistance / effectiveSpeed));
+                const exitTransition = source === 'drag'
+                    ? { type: 'tween', duration: dynamicDuration, ease: [0.22, 1, 0.36, 1] }
+                    : EXIT_TRANSITION;
+                const controls = animate(x, targetX, exitTransition);
+                const yControls = animate(y, currentY * 1.15, exitTransition);
                 animationRef.current = controls;
+                yAnimationRef.current = yControls;
                 recordSwipeDebug('exit-animation-start', {
                     profileId: displayProfile.id,
                     direction,
                     type,
                     source,
-                    targetX
+                    targetX,
+                    durationMs: Math.round((exitTransition.duration || 0.22) * 1000)
                 });
 
                 await controls.finished;
                 if (animationRef.current === controls) animationRef.current = null;
+                if (yAnimationRef.current === yControls) yAnimationRef.current = null;
 
                 recordSwipeDebug('exit-animation-complete', {
                     profileId: displayProfile.id,
@@ -231,6 +255,8 @@ function SwipeCard({
             return;
         }
 
+        swipeInProgressRef.current = false;
+
         recordSwipeDebug('swipe-visual-complete', {
             profileId: displayProfile.id,
             direction,
@@ -246,8 +272,24 @@ function SwipeCard({
         onSwipeCancel,
         resetCardPosition,
         stopAnimation,
-        x
+        x,
+        y
     ]);
+
+    const handlePointerDown = useCallback((e) => {
+        pointerStartRef.current = {
+            x: e.clientX ?? 0,
+            y: e.clientY ?? 0,
+            moved: false
+        };
+    }, []);
+
+    const wasGestureDragged = useCallback(() => {
+        if (pointerStartRef.current.moved || dragMoveCountRef.current > 2) return true;
+        if (Math.hypot(x.get(), y.get()) > 6) return true;
+        if (performance.now() - lastDragEndTimeRef.current < 180) return true;
+        return false;
+    }, [x, y]);
 
     const handleDragStart = useCallback(() => {
         if (!canInteract || isExpanded) return;
@@ -260,21 +302,30 @@ function SwipeCard({
     const handleDrag = useCallback(() => {
         if (!canInteract || isExpanded) return;
         dragMoveCountRef.current += 1;
-    }, [canInteract, isExpanded]);
+        if (dragMoveCountRef.current > 2 || Math.hypot(x.get(), y.get()) > 6) {
+            pointerStartRef.current.moved = true;
+        }
+    }, [canInteract, isExpanded, x, y]);
 
     const handleDragEnd = useCallback((_event, info) => {
         if (!canInteract || isExpanded || swipeInProgressRef.current) return;
 
+        lastDragEndTimeRef.current = performance.now();
         const visualOffset = x.get();
+        const verticalOffset = y.get();
         const horizontalVelocity = info.velocity.x;
+        const verticalVelocity = info.velocity.y;
         const direction = resolveSwipeDirection({
             offsetX: visualOffset,
-            velocityX: horizontalVelocity
+            velocityX: horizontalVelocity,
+            offsetY: verticalOffset,
+            velocityY: verticalVelocity
         });
 
         recordSwipeDebug('drag-end', {
             profileId: displayProfile.id,
             offsetX: Math.round(visualOffset),
+            offsetY: Math.round(verticalOffset),
             velocityX: Math.round(horizontalVelocity),
             moves: dragMoveCountRef.current,
             duration: Math.round(performance.now() - dragStartTimeRef.current),
@@ -286,32 +337,35 @@ function SwipeCard({
             return;
         }
 
-        completeSwipe(direction, 'standard', 'drag');
-    }, [canInteract, isExpanded, completeSwipe, displayProfile.id, resetCardPosition, x]);
+        completeSwipe(direction, 'standard', 'drag', horizontalVelocity);
+    }, [canInteract, isExpanded, completeSwipe, displayProfile.id, resetCardPosition, x, y]);
 
     const nextPhoto = useCallback((e) => {
         e.stopPropagation();
         if (!canInteract) return;
+        if (!isExpanded && wasGestureDragged()) return;
         if (activePhotoIdx < photos.length - 1) {
             setActivePhotoIdx(prev => prev + 1);
         }
-    }, [activePhotoIdx, canInteract, photos.length]);
+    }, [activePhotoIdx, canInteract, isExpanded, photos.length, wasGestureDragged]);
 
     const prevPhoto = useCallback((e) => {
         e.stopPropagation();
         if (!canInteract) return;
+        if (!isExpanded && wasGestureDragged()) return;
         if (activePhotoIdx > 0) {
             setActivePhotoIdx(prev => prev - 1);
         }
-    }, [activePhotoIdx, canInteract]);
+    }, [activePhotoIdx, canInteract, isExpanded, wasGestureDragged]);
 
     const toggleExpand = useCallback((e) => {
         if (!canInteract) return;
+        if (!isExpanded && wasGestureDragged()) return;
         if (e.target.closest('button') || e.target.closest('.photo-indicators') || e.target.closest('.carousel-nav') || e.target.closest('.modular-profile-scroll')) {
             return;
         }
         setIsExpanded(prev => !prev);
-    }, [canInteract]);
+    }, [canInteract, isExpanded, wasGestureDragged]);
 
     const handleAiInsight = useCallback(async (e, task = 'compatibility') => {
         e.stopPropagation();
@@ -417,11 +471,12 @@ function SwipeCard({
         <MotionDiv
             className={`swipe-card ${isExpanded ? 'expanded-mode' : ''} ${canInteract ? 'top-card' : 'stack-card'}`}
             style={cardStyle}
-            drag={canInteract && !isExpanded ? 'x' : false}
+            drag={canInteract && !isExpanded}
             dragListener={canInteract && !isExpanded}
             dragConstraints={false}
             dragElastic={1}
             dragMomentum={false}
+            onPointerDown={handlePointerDown}
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}

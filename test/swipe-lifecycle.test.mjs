@@ -157,18 +157,18 @@ test('preflight denial releases the ref lock and does not complete the visual sw
 });
 
 test('calibrated swipe and velocity thresholds resolve correctly for 1:1 physics', () => {
-    assert.equal(SWIPE_THRESHOLD, 115);
-    assert.equal(VELOCITY_THRESHOLD, 480);
+    assert.equal(SWIPE_THRESHOLD, 85);
+    assert.equal(VELOCITY_THRESHOLD, 320);
 
     // Below distance and below velocity -> null
-    assert.equal(resolveSwipeDirection({ offsetX: 100, velocityX: 300 }), null);
-    assert.equal(resolveSwipeDirection({ offsetX: -100, velocityX: -300 }), null);
+    assert.equal(resolveSwipeDirection({ offsetX: 70, velocityX: 250 }), null);
+    assert.equal(resolveSwipeDirection({ offsetX: -70, velocityX: -250 }), null);
 
-    // Above distance threshold (115) -> resolves direction even with 0 velocity
-    assert.equal(resolveSwipeDirection({ offsetX: 116, velocityX: 0 }), 'right');
-    assert.equal(resolveSwipeDirection({ offsetX: -116, velocityX: 0 }), 'left');
+    // Above distance threshold (85) -> resolves direction even with 0 velocity
+    assert.equal(resolveSwipeDirection({ offsetX: 86, velocityX: 0 }), 'right');
+    assert.equal(resolveSwipeDirection({ offsetX: -86, velocityX: 0 }), 'left');
 
-    // Natural flick above velocity threshold (480) -> resolves even with moderate distance
-    assert.equal(resolveSwipeDirection({ offsetX: 60, velocityX: 500 }), 'right');
-    assert.equal(resolveSwipeDirection({ offsetX: -60, velocityX: -500 }), 'left');
+    // Natural flick above velocity threshold (320) -> resolves even with moderate distance
+    assert.equal(resolveSwipeDirection({ offsetX: 45, velocityX: 360 }), 'right');
+    assert.equal(resolveSwipeDirection({ offsetX: -45, velocityX: -360 }), 'left');
 });

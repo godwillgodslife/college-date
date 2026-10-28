@@ -194,6 +194,7 @@ export function getNotificationDeepLink(notification) {
     if (SOCIAL_TYPES.has(type)) return { to: type === 'confession' ? '/confessions' : '/snap' };
     if (type === 'trending' || type === 'leaderboard' || type === 'campus_clash_victory') return { to: '/leaderboard' };
     if (type === 'nearby') return { to: '/explore' };
+    if (type === 'primetime_surge' || type === 'streak_saver') return { to: '/match' };
     if (ACCOUNT_TYPES.has(type)) return { to: (type === 'quest_reward' || type === 'streak_milestone') ? '/dashboard' : '/wallet' };
     if (type === 'official' || type === 'announcement' || type === 'guide') return { to: '/guides' };
     if (SYSTEM_TYPES.has(type)) return { to: '/profile' };
@@ -250,6 +251,8 @@ export function getNotificationIcon(type) {
         mini_game_response: '🎮',
         quest_reward: '🎯',
         streak_milestone: '🔥',
+        streak_saver: '🔥',
+        primetime_surge: '⚡',
         campus_clash_victory: '🏆',
         mystery_match_revealed: '🎉'
     };

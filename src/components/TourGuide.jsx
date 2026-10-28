@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,7 @@ export default function TourGuide() {
     const location = useLocation();
     const { currentUser, userProfile, updateProfile } = useAuth();
     const [isSaving, setIsSaving] = useState(false);
+    const syncedTourRef = useRef(false);
 
     useEffect(() => {
         if (!currentUser || !userProfile) return;
@@ -31,7 +32,8 @@ export default function TourGuide() {
                         window.localStorage.setItem(`hasSeenAppTour_${currentUser.id}`, 'true');
                     }
                 }
-                if (userProfile.has_seen_tour !== true && typeof updateProfile === 'function') {
+                if (userProfile.has_seen_tour !== true && typeof updateProfile === 'function' && !syncedTourRef.current) {
+                    syncedTourRef.current = true;
                     updateProfile(currentUser.id, { has_seen_tour: true }).catch(() => {});
                 }
             } catch {

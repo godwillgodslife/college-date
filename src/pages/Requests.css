@@ -22,13 +22,33 @@
     font-size: 2.5rem;
     font-weight: 800;
     font-family: 'Outfit', sans-serif;
-    color: var(--text-primary);
+    color: var(--text-primary, #ffffff);
     margin: 0 0 0.5rem;
 }
 
 .requests-header p {
-    color: var(--text-secondary);
+    color: var(--text-secondary, #94a3b8);
     font-size: 1.1rem;
+}
+
+html[data-theme="dark"] .requests-header h1,
+:root:not([data-theme="light"]) .requests-header h1 {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .requests-header p,
+:root:not([data-theme="light"]) .requests-header p {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .requests-header h1,
+.theme-light .requests-header h1 {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .requests-header p,
+.theme-light .requests-header p {
+    color: #475569 !important;
 }
 
 .requests-quota-banner {

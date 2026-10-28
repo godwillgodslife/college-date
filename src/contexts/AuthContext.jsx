@@ -111,6 +111,7 @@ export function AuthProvider({ children }) {
     const lockedSessionRef = useRef(null);
     const syncAuthStateRef = useRef(null);
     const biometricAuthPausedRef = useRef(false);
+    const hasLoadedProfileRef = useRef(false);
 
     // Helper to inject defaults for missing DB columns (Existing User Repair)
     const repairProfile = useCallback((profile, subscription = null) => {
@@ -133,7 +134,9 @@ export function AuthProvider({ children }) {
 
     // Fetch user profile from Supabase
     const fetchProfile = useCallback(async (userId) => {
-        setProfileLoading(true);
+        if (!hasLoadedProfileRef.current) {
+            setProfileLoading(true);
+        }
         try {
             const [{ data, error: profileError }, { data: subscription }] = await Promise.all([
                 supabase
@@ -153,6 +156,7 @@ export function AuthProvider({ children }) {
             }
             const profile = repairProfile(data, subscription);
             if (profile?.id) {
+                hasLoadedProfileRef.current = true;
                 const ts = profile.photo_updated_at || profile.updated_at || new Date().toISOString();
                 registerProfilePhotoTimestamp(profile.id, ts);
                 setCachedData(['auth-profile', profile.id], profile);
@@ -160,11 +164,13 @@ export function AuthProvider({ children }) {
             setUserProfile(profile);
         } catch (err) {
             console.error('Error fetching profile:', err);
-            setUserProfile(null);
+            if (!hasLoadedProfileRef.current) {
+                setUserProfile(null);
+            }
         } finally {
             setProfileLoading(false);
         }
-    }, []);
+    }, [repairProfile]);
 
     // Fetch wallet balance
     const fetchWallet = useCallback(async (userId) => {
@@ -870,17 +876,21 @@ export function AuthProvider({ children }) {
             if (updateError) throw updateError;
 
             // 2. Update local state with repaired schema
+            const hasPhotoUpdate = Boolean(safeUpdates.avatar_url || safeUpdates.profile_photos || safeUpdates.photos);
             const repaired = repairProfile(data, null);
             setUserProfile(repaired);
             if (repaired?.id) {
+                hasLoadedProfileRef.current = true;
                 const ts = repaired.photo_updated_at || repaired.updated_at || nowIso;
-                registerProfilePhotoTimestamp(repaired.id, ts);
                 setCachedData(['auth-profile', repaired.id], repaired);
-                clearAppCache({ userId: repaired.id });
-                clearMediaCache().catch(() => {});
-                window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', {
-                    detail: { userId: repaired.id, timestamp: ts }
-                }));
+                if (hasPhotoUpdate) {
+                    registerProfilePhotoTimestamp(repaired.id, ts);
+                    clearAppCache({ userId: repaired.id });
+                    clearMediaCache().catch(() => {});
+                    window.dispatchEvent(new CustomEvent('cd:profile-photo-updated', {
+                        detail: { userId: repaired.id, timestamp: ts }
+                    }));
+                }
             }
 
             return { data: repaired, error: null };

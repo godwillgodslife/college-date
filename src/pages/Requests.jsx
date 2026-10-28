@@ -58,13 +58,17 @@ export default function Requests() {
     };
     const [requestSummary, setRequestSummary] = useState({ total_count: 0, premium: false, upgrade_required: false, free_accepts_remaining: 3, daily_limit: 3, today_accepts_count: 0 });
     const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
     const [actioning, setActioning] = useState(null); // ID of request being processed
     const [guideModalOpen, setGuideModalOpen] = useState(false);
     const [guideFeatureId, setGuideFeatureId] = useState('accept_request');
     const isPremium = requestSummary.premium || hasActivePremium(userProfile);
 
-    async function fetchRequests() {
-        if (!requests.length) setLoading(true);
+    async function fetchRequests(silent = false) {
+        if (!silent && !requests.length) {
+            setLoading(true);
+        }
+        setFetchError(null);
         try {
             const { data, error } = await supabase
                 .rpc('get_admirers_secure', { p_limit: 50 });
@@ -72,54 +76,71 @@ export default function Requests() {
             if (error) throw error;
             if (!data?.success) throw new Error(data?.error || 'Failed to load requests');
 
+            const rawItems = Array.isArray(data.items)
+                ? data.items
+                : (Array.isArray(data.requests) ? data.requests : []);
+            const isPrem = Boolean(data.premium === true || data.is_premium === true || hasActivePremium(userProfile));
+            const totalCount = data.total_count !== undefined ? data.total_count : rawItems.length;
+
             const nextSummary = {
-                total_count: data.total_count || 0,
-                premium: data.premium === true,
-                upgrade_required: data.upgrade_required === true,
-                free_accepts_remaining: data.free_accepts_remaining ?? (data.premium ? 999 : 3),
+                total_count: totalCount,
+                premium: isPrem,
+                upgrade_required: data.upgrade_required === true || (!isPrem && totalCount > 3),
+                free_accepts_remaining: data.free_accepts_remaining ?? (isPrem ? 999 : 3),
                 daily_limit: data.daily_limit || 3,
                 today_accepts_count: data.today_accepts_count || 0
             };
-            const nextItems = data.items || [];
+            const nextItems = rawItems;
 
             setRequests(nextItems);
             setRequestSummary(nextSummary);
-            setCachedData(['requests', currentUser.id], { items: nextItems, summary: nextSummary }, {
-                userId: currentUser.id,
-                type: 'requests'
-            });
+            if (currentUser?.id) {
+                setCachedData(['requests', currentUser.id], { items: nextItems, summary: nextSummary }, {
+                    userId: currentUser.id,
+                    type: 'requests'
+                });
+            }
         } catch (err) {
             console.warn('Could not refresh requests:', err?.message || err);
+            setFetchError(err?.message || 'Failed to refresh connection requests');
         } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser?.id) return;
 
         // Permanently record that user has discovered connection requests
         markRequestsDiscovered(currentUser.id);
 
+        let hasCachedItems = false;
         const cached = getCachedData(['requests', currentUser.id], {
             ttlMs: CACHE_TTL.requests,
             allowStale: true
         });
         if (cached) {
             if (Array.isArray(cached)) {
+                if (cached.length > 0) hasCachedItems = true;
                 setRequests(cached);
                 setRequestSummary({ total_count: cached.length, premium: hasActivePremium(userProfile), upgrade_required: false });
             } else {
-                setRequests(cached.items || []);
-                setRequestSummary(cached.summary || { total_count: 0, premium: false, upgrade_required: false });
+                const cachedItems = Array.isArray(cached.items)
+                    ? cached.items
+                    : (Array.isArray(cached.requests) ? cached.requests : []);
+                if (cachedItems.length > 0) hasCachedItems = true;
+                setRequests(cachedItems);
+                setRequestSummary(cached.summary || { total_count: cachedItems.length, premium: false, upgrade_required: false });
             }
-            setLoading(false);
+            if (hasCachedItems) {
+                setLoading(false);
+            }
         }
 
-        fetchRequests();
+        fetchRequests(hasCachedItems);
 
         const handlePhotoUpdated = () => {
-            fetchRequests();
+            fetchRequests(true);
         };
         window.addEventListener('cd:profile-photo-updated', handlePhotoUpdated);
 
@@ -133,7 +154,7 @@ export default function Requests() {
                 filter: `swiped_id=eq.${currentUser.id}`
             }, (payload) => {
                 console.log('New swipe received real-time:', payload.new);
-                fetchRequests(); // Refresh list to get swiper profile info
+                fetchRequests(true); // Refresh list to get swiper profile info
             })
             .on('postgres_changes', {
                 event: 'UPDATE',
@@ -151,7 +172,7 @@ export default function Requests() {
             subscription.unsubscribe();
             window.removeEventListener('cd:profile-photo-updated', handlePhotoUpdated);
         };
-    }, [currentUser, userProfile]);
+    }, [currentUser?.id, userProfile?.is_premium]);
 
     const handleAccept = async (swipeId) => {
         if (!swipeId) {
@@ -399,114 +420,144 @@ export default function Requests() {
                 <div className="requests-loading-state" style={{ display: 'flex', justifyContent: 'center', padding: '3rem 1rem' }}>
                     <LoadingSpinner text="Checking connection requests..." />
                 </div>
-            ) : requestSummary.total_count > 0 ? (
+            ) : fetchError && !requests.length ? (
+                <div className="empty-requests" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+                    <div className="empty-icon">⚠️</div>
+                    <h2>Unable to load connection requests</h2>
+                    <p style={{ maxWidth: '420px', margin: '0.5rem auto 1.5rem' }}>
+                        We encountered a temporary connection issue checking for your admirers.
+                    </p>
+                    <button
+                        type="button"
+                        className="empty-requests-discovery-cta"
+                        onClick={() => fetchRequests(false)}
+                    >
+                        🔄 Try Again
+                    </button>
+                </div>
+            ) : (requests.length > 0 || requestSummary.total_count > 0) ? (
                 <>
                     <div className="requests-section-label" style={{ marginBottom: '0.75rem' }}>
-                        ADMIRERS ({requestSummary.total_count})
+                        ADMIRERS ({Math.max(requestSummary.total_count, requests.length)})
                     </div>
-                    <div className="requests-grid">
-                    {requests.map((req, index) => (
-                        <div key={req.id || `${req.created_at}-${index}`} className={`request-card ${req.is_priority ? 'priority' : ''}`}>
-                            {req.is_priority && (
-                                <div className="priority-badge">💎 PREMIUM</div>
-                            )}
-                            <div className="request-user">
-                                <div style={{ position: 'relative', width: '60px', height: '60px', flexShrink: 0 }}>
-                                    <div className={`user-avatar-small ${req.locked ? 'blurred-freemium' : ''}`}>
-                                        {(() => {
-                                            const swiperAvatar = req.swiper ? (
-                                                getAvatarUrl(req.swiper) || (req.swiper.id ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.swiper.id}` : null)
-                                            ) : null;
-                                            const displayName = req.swiper?.full_name || '';
-                                            const isGenericName = !displayName || /^(admirer|secret\s*admirer|viewer|visitor|user|student)$/i.test(displayName.trim());
-                                            const initial = !isGenericName && displayName.trim().length > 0 ? displayName.trim().charAt(0).toUpperCase() : '👤';
-                                            return !req.locked && swiperAvatar ? (
-                                                <OptimizedImage
-                                                    src={swiperAvatar}
-                                                    alt={!isGenericName ? displayName : "Admirer"}
-                                                    width={80}
-                                                    height={80}
-                                                    priority={true}
-                                                    className="admirer-avatar-img"
-                                                />
-                                            ) : (
-                                                <div className="avatar-placeholder">
-                                                    {req.locked ? '?' : initial}
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-                                    {!req.locked && hasActivePremium(req.swiper) && (
-                                        <span className="request-avatar-premium-badge" title="Premium Member">👑</span>
-                                    )}
-                                </div>
-                                <div className={`user-details ${req.locked ? 'blurred-freemium-text' : ''}`}>
-                                    <h3>
-                                        {req.locked ? 'Hidden Admirer' : req.swiper?.full_name}
+                    {requests.length > 0 ? (
+                        <div className="requests-grid">
+                        {requests.map((req, index) => (
+                            <div key={req.id || `${req.created_at}-${index}`} className={`request-card ${req.is_priority ? 'priority' : ''}`}>
+                                {req.is_priority && (
+                                    <div className="priority-badge">💎 PREMIUM</div>
+                                )}
+                                <div className="request-user">
+                                    <div style={{ position: 'relative', width: '60px', height: '60px', flexShrink: 0 }}>
+                                        <div className={`user-avatar-small ${req.locked ? 'blurred-freemium' : ''}`}>
+                                            {(() => {
+                                                const swiperAvatar = req.swiper ? (
+                                                    getAvatarUrl(req.swiper) || (req.swiper.id ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.swiper.id}` : null)
+                                                ) : null;
+                                                const displayName = req.swiper?.full_name || '';
+                                                const isGenericName = !displayName || /^(admirer|secret\s*admirer|viewer|visitor|user|student)$/i.test(displayName.trim());
+                                                const initial = !isGenericName && displayName.trim().length > 0 ? displayName.trim().charAt(0).toUpperCase() : '👤';
+                                                return !req.locked && swiperAvatar ? (
+                                                    <OptimizedImage
+                                                        src={swiperAvatar}
+                                                        alt={!isGenericName ? displayName : "Admirer"}
+                                                        width={80}
+                                                        height={80}
+                                                        priority={true}
+                                                        className="admirer-avatar-img"
+                                                    />
+                                                ) : (
+                                                    <div className="avatar-placeholder">
+                                                        {req.locked ? '?' : initial}
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
                                         {!req.locked && hasActivePremium(req.swiper) && (
-                                            <span className="premium-crown" title="Premium Member">👑</span>
+                                            <span className="request-avatar-premium-badge" title="Premium Member">👑</span>
                                         )}
-                                        {!req.locked && (req.swiper?.is_verified || req.swiper?.photo_verified) && (
-                                            <span className="card-verified-tick" title="Photo Verified Student">✓</span>
-                                        )}
-                                    </h3>
-                                    <p>{req.locked ? 'Upgrade to reveal' : req.swiper?.university}</p>
+                                    </div>
+                                    <div className={`user-details ${req.locked ? 'blurred-freemium-text' : ''}`}>
+                                        <h3>
+                                            {req.locked ? 'Hidden Admirer' : req.swiper?.full_name}
+                                            {!req.locked && hasActivePremium(req.swiper) && (
+                                                <span className="premium-crown" title="Premium Member">👑</span>
+                                            )}
+                                            {!req.locked && (req.swiper?.is_verified || req.swiper?.photo_verified) && (
+                                                <span className="card-verified-tick" title="Photo Verified Student">✓</span>
+                                            )}
+                                        </h3>
+                                        <p>{req.locked ? 'Upgrade to reveal' : req.swiper?.university}</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {req.message_teaser && (() => {
-                                const match = String(req.message_teaser).match(/^\[Replied to ([^\]]+)\]:\s*"?([\s\S]*?)"?$/);
-                                if (match) {
+                                {req.message_teaser && (() => {
+                                    const match = String(req.message_teaser).match(/^\[Replied to ([^\]]+)\]:\s*"?([\s\S]*?)"?$/);
+                                    if (match) {
+                                        return (
+                                            <div className="request-teaser request-prompt-reply">
+                                                <span className="request-prompt-category">✈ Replied to {match[1]}</span>
+                                                <p className="request-prompt-body">"{match[2]}"</p>
+                                            </div>
+                                        );
+                                    }
                                     return (
-                                        <div className="request-teaser request-prompt-reply">
-                                            <span className="request-prompt-category">✈ Replied to {match[1]}</span>
-                                            <p className="request-prompt-body">"{match[2]}"</p>
+                                        <div className="request-teaser">
+                                            <span className="teaser-quote">“</span>
+                                            <p>{req.message_teaser}</p>
                                         </div>
                                     );
-                                }
-                                return (
-                                    <div className="request-teaser">
-                                        <span className="teaser-quote">“</span>
-                                        <p>{req.message_teaser}</p>
-                                    </div>
-                                );
-                            })()}
+                                })()}
 
-                            {req.locked ? (
-                                <div className="request-actions">
-                                    <button className="btn-accept" onClick={() => navigate('/premium')}>
-                                        Unlock with Premium 👑
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="request-actions">
-                                    {!isPremium && (requestSummary.free_accepts_remaining ?? 3) <= 0 ? (
-                                        <button className="btn-accept btn-limit" onClick={() => navigate('/premium')}>
-                                            Limit Reached • Upgrade to Accept 👑
+                                {req.locked ? (
+                                    <div className="request-actions">
+                                        <button className="btn-accept" onClick={() => navigate('/premium')}>
+                                            Unlock with Premium 👑
                                         </button>
-                                    ) : (
-                                        <>
-                                            <button
-                                                className="btn-accept"
-                                                disabled={actioning === req.id}
-                                                onClick={() => handleAccept(req.id)}
-                                            >
-                                                {actioning === req.id ? '...' : 'Accept'}
+                                    </div>
+                                ) : (
+                                    <div className="request-actions">
+                                        {!isPremium && (requestSummary.free_accepts_remaining ?? 3) <= 0 ? (
+                                            <button className="btn-accept btn-limit" onClick={() => navigate('/premium')}>
+                                                Limit Reached • Upgrade to Accept 👑
                                             </button>
-                                            <button
-                                                className="btn-decline"
-                                                disabled={actioning === req.id}
-                                                onClick={() => handleDecline(req.id)}
-                                            >
-                                                Decline
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
+                                        ) : (
+                                            <>
+                                                <button
+                                                    className="btn-accept"
+                                                    disabled={actioning === req.id}
+                                                    onClick={() => handleAccept(req.id)}
+                                                >
+                                                    {actioning === req.id ? '...' : 'Accept'}
+                                                </button>
+                                                <button
+                                                    className="btn-decline"
+                                                    disabled={actioning === req.id}
+                                                    onClick={() => handleDecline(req.id)}
+                                                >
+                                                    Decline
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                         </div>
-                    ))}
-                </div>
+                    ) : (
+                        <div className="empty-requests" style={{ padding: '2.5rem 1rem' }}>
+                            <div className="empty-icon">💌</div>
+                            <h2>{requestSummary.total_count} connection request{requestSummary.total_count > 1 ? 's' : ''} waiting</h2>
+                            <p>Tap below to refresh and display your admirers.</p>
+                            <button
+                                type="button"
+                                className="empty-requests-discovery-cta"
+                                onClick={() => fetchRequests(false)}
+                            >
+                                🔄 Refresh Admirers List
+                            </button>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="empty-requests">

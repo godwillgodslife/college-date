@@ -1,15 +1,23 @@
-export const SWIPE_THRESHOLD = 115;
-export const VELOCITY_THRESHOLD = 480;
+export const SWIPE_THRESHOLD = 85;
+export const VELOCITY_THRESHOLD = 320;
 export const MIN_EXIT_DISTANCE = 520;
+export const MIN_FLICK_OFFSET = 28;
 
 export function resolveSwipeDirection({
     offsetX = 0,
     velocityX = 0,
+    offsetY = 0,
+    velocityY = 0,
     threshold = SWIPE_THRESHOLD,
-    velocityThreshold = VELOCITY_THRESHOLD
+    velocityThreshold = VELOCITY_THRESHOLD,
+    minFlickOffset = MIN_FLICK_OFFSET
 } = {}) {
-    if (offsetX > threshold || velocityX > velocityThreshold) return 'right';
-    if (offsetX < -threshold || velocityX < -velocityThreshold) return 'left';
+    if (offsetX > threshold) return 'right';
+    if (offsetX < -threshold) return 'left';
+
+    const horizontalDominant = Math.abs(velocityX) >= Math.abs(velocityY);
+    if (horizontalDominant && offsetX >= minFlickOffset && velocityX > velocityThreshold) return 'right';
+    if (horizontalDominant && offsetX <= -minFlickOffset && velocityX < -velocityThreshold) return 'left';
     return null;
 }
 
@@ -72,6 +80,7 @@ export async function completeVisualSwipe({
     direction,
     type = 'standard',
     source = 'drag',
+    velocityX = 0,
     swipeInProgressRef,
     canStartSwipe,
     animateExit,
@@ -87,7 +96,10 @@ export async function completeVisualSwipe({
 
     let allowed = true;
     try {
-        allowed = await canStartSwipe?.(direction, type, profile);
+        const preflightResult = canStartSwipe?.(direction, type, profile);
+        allowed = (preflightResult && typeof preflightResult.then === 'function')
+            ? await preflightResult
+            : preflightResult;
     } catch (error) {
         swipeInProgressRef.current = false;
         onCancel?.(profile.id, 'preflight-error');
@@ -103,7 +115,7 @@ export async function completeVisualSwipe({
     const targetX = getSwipeExitTarget(direction, getViewportWidth());
 
     try {
-        await animateExit(targetX, direction, type, source);
+        await animateExit(targetX, direction, type, source, velocityX);
         onVisualComplete?.(direction, profile, type);
         return { status: 'completed', targetX };
     } catch (error) {

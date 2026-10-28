@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -154,6 +154,7 @@ export default function Match() {
     const [limitReached, setLimitReached] = useState(null);
     const [timeLeft, setTimeLeft] = useState('');
     const [paywallOpen, setPaywallOpen] = useState(false);
+    const swipedSessionIdsRef = useRef(new Set());
 
     useEffect(() => {
         // Sync SWR data to local profiles stack
@@ -172,9 +173,11 @@ export default function Match() {
                 })
                 .filter(Boolean);
 
-            // STRICT CLIENT-SIDE GATEKEEPING
+            // STRICT CLIENT-SIDE GATEKEEPING (never re-inject profiles already swiped in this session)
             const validProfiles = processedProfiles.filter(p =>
-                p && p.id && Array.isArray(p.profile_photos) && p.profile_photos.length > 0 && !queuedSwipeIds.has(p.id)
+                p && p.id && Array.isArray(p.profile_photos) && p.profile_photos.length > 0
+                && !queuedSwipeIds.has(p.id)
+                && !swipedSessionIdsRef.current.has(p.id)
             );
 
             setTimeout(() => {
@@ -210,23 +213,26 @@ export default function Match() {
                 table: 'profiles'
             }, (payload) => {
                 const updatedProfile = payload.new;
+                if (!updatedProfile?.id) return;
 
-                // If the user went LIVE and matches current filters, prepend to stack?
-                // For now, just update the existing profile in state if present
-                setProfiles(prev => prev.map(p => p.id === updatedProfile.id ? { ...p, ...updatedProfile } : p));
+                // Only allocate a new array if the updated profile is actually in our active discovery deck
+                setProfiles(prev => {
+                    if (!prev.some(p => p.id === updatedProfile.id)) return prev;
+                    return prev.map(p => p.id === updatedProfile.id ? { ...p, ...updatedProfile } : p);
+                });
             })
             .subscribe();
 
         return () => supabase.removeChannel(channel);
     }, [currentUserId]);
 
+    const topProfileId = profiles[0]?.id;
     useEffect(() => {
-        if (currentUserId && profiles.length > 0) {
-            const topProfile = profiles[0];
-            trackProfileView(currentUserId, topProfile.id);
-            recordFeedImpression('profile', topProfile.id, 'match').catch(() => {});
+        if (currentUserId && topProfileId) {
+            trackProfileView(currentUserId, topProfileId);
+            recordFeedImpression('profile', topProfileId, 'match').catch(() => {});
         }
-    }, [currentUserId, profiles]);
+    }, [currentUserId, topProfileId]);
 
     // Countdown Timer for Swipe Reset
     useEffect(() => {
@@ -255,7 +261,11 @@ export default function Match() {
     }, []);
 
     // SWR for Boosts & Limits
-    const { data: limitsRes } = useSWR(currentUserId ? ['limits', currentUserId] : null, () => checkSwipeLimit(currentUserId));
+    const { data: limitsRes } = useSWR(
+        currentUserId ? ['limits', currentUserId] : null,
+        () => checkSwipeLimit(currentUserId),
+        { revalidateOnFocus: false, dedupingInterval: 15000 }
+    );
 
     useEffect(() => {
         if (limitsRes) {
@@ -283,18 +293,17 @@ export default function Match() {
         return () => window.removeEventListener('tcd:offline-sync-complete', handleOfflineSyncComplete);
     }, [mutateProfiles, currentUserId, loadBoosts]);
 
-    const canStartSwipe = useCallback(async (direction, type = 'standard') => {
+    const canStartSwipe = useCallback((direction, type = 'standard') => {
         if (!isPremium && direction === 'right' && type === 'standard') {
-            const { canSwipe, used, max } = await checkSwipeLimit(currentUserId);
-
-            if (!canSwipe) {
-                setLimitReached({ used, max });
+            if (limitReached || freeSwipes <= 0) {
+                const maxCount = limitsRes?.max || 20;
+                setLimitReached(prev => prev || { used: maxCount, max: maxCount });
                 addToast('Free swipes exhausted for today!', 'error');
                 return false;
             }
         }
         return true;
-    }, [currentUserId, isPremium, addToast]);
+    }, [isPremium, limitReached, freeSwipes, limitsRes?.max, addToast]);
 
     const handleSwipe = useCallback(async (direction, swipedProfile, type = 'standard', teaser = null) => {
         if (!swipedProfile?.id) {
@@ -315,22 +324,22 @@ export default function Match() {
         playCardSwipe();
         markFeatureUsed('match_swipe');
 
+        swipedSessionIdsRef.current.add(swipedProfile.id);
         setPendingSwipeIds(prev => prev.includes(swipedProfile.id) ? prev : [...prev, swipedProfile.id]);
 
-        // 2. Optimistic Update (Local State ONLY, delayed so exit animation can finish)
+        // 2. Optimistic Update (Local State ONLY, defer localStorage serialization & SWR mutation)
+        let remainingAfterSwipe = 0;
         setProfiles(prev => {
-            const updated = prev.filter(p => p.id !== swipedProfile.id);
-            const cacheKey = getDiscoveryCacheKey(currentUserId, { ...filters, liveOnly }, userProfile);
-            setCachedData(cacheKey, updated, {
-                userId: currentUserId,
-                type: 'discovery'
-            });
-            // Defer SWR mutations & preloading to protect swipe animation FPS
+            const updated = prev.filter(p => p.id !== swipedProfile.id && !swipedSessionIdsRef.current.has(p.id));
+            remainingAfterSwipe = updated.length;
+            // Defer persistent cache write & SWR mutations to protect swipe animation FPS
             setTimeout(() => {
+                const cacheKey = getDiscoveryCacheKey(currentUserId, { ...filters, liveOnly }, userProfile);
+                setCachedData(cacheKey, updated, {
+                    userId: currentUserId,
+                    type: 'discovery'
+                });
                 mutateProfiles(updated, false);
-                if (updated.length < 5) {
-                    mutateProfiles();
-                }
             }, 300); // 300ms allows standard CSS transitions to complete
             return updated;
         });
@@ -339,9 +348,17 @@ export default function Match() {
             setPendingSwipeIds(prev => prev.filter(id => id !== swipedProfile.id));
         }, 40);
         
-        // Optimistically update free swipes to make it feel instant
+        // Optimistically update free swipes to make it feel instant, and sync server limit non-blockingly
         if (!isPremium && direction === 'right' && type === 'standard') {
             setFreeSwipes(prev => Math.max(0, prev - 1));
+            if (!offline && currentUserId) {
+                checkSwipeLimit(currentUserId).then(({ canSwipe, used, max }) => {
+                    setFreeSwipes(Math.max(0, max - used));
+                    if (!canSwipe) {
+                        setLimitReached({ used, max });
+                    }
+                }).catch(() => {});
+            }
         }
 
         const offlineOperationId = `record_swipe:${currentUserId}:${swipedProfile.id}:${direction}:${type}`;
@@ -369,8 +386,13 @@ export default function Match() {
         // 4. Record Swipe and Check for Match/Streak
         const result = await recordSwipe(currentUserId, swipedProfile.id, direction, type, teaser, {
             isPremium,
-            clientOperationId: offlineOperationId
+            clientOperationId: offlineOperationId,
+            swiperProfile: userProfile
         });
+
+        if (remainingAfterSwipe < 5) {
+            mutateProfiles();
+        }
 
         // Gamification: Record Daily Quest Progress for Campus Explorer
         recordQuestProgress(currentUserId, 'quest_explore', 1);
@@ -444,6 +466,9 @@ export default function Match() {
             return;
         }
 
+        if (swipedProfile?.id) {
+            swipedSessionIdsRef.current.add(swipedProfile.id);
+        }
         setProfiles((prev) => prev.filter(p => p.id !== swipedProfile.id));
 
         const { error } = await superSwipe(currentUserId, swipedProfile);
@@ -520,6 +545,14 @@ export default function Match() {
         }
         setPromptReplyTarget(null);
     }, [promptReplyTarget, superSwipesAvailable, isUltra, handleSwipe]);
+
+    const handleOpenPromptReply = useCallback((targetProf, targetPrompt) => {
+        setPromptReplyTarget({ targetProfile: targetProf, targetPrompt });
+    }, []);
+
+    const handleReportProfile = useCallback((targetProf) => {
+        setReportingTarget(targetProf);
+    }, []);
 
     const persistGenderPreference = useCallback(async (g) => {
         if (!currentUserId) return;
@@ -700,12 +733,16 @@ export default function Match() {
                                 <span>Offline Mode • Swipes Saved</span>
                             </div>
                         )}
-                        <StatusBubbles />
-                        <CampusPrimetimeBanner 
-                            currentUserId={currentUserId}
-                            currentUserProfile={userProfile}
-                            onNavigateToChat={(id) => navigate('/chat')}
-                        />
+                        {profiles.length === 0 && (
+                            <>
+                                <StatusBubbles />
+                                <CampusPrimetimeBanner 
+                                    currentUserId={currentUserId}
+                                    currentUserProfile={userProfile}
+                                    onNavigateToChat={(id) => navigate('/chat')}
+                                />
+                            </>
+                        )}
 
                         <ContextualTip
                             featureId="match_swipe"
@@ -819,6 +856,7 @@ export default function Match() {
                                 </div>
                                 {profiles.slice(0, 2).reverse().map((profile, index, stack) => {
                                     const isTopCard = index === stack.length - 1;
+                                    const stackPos = stack.length - 1 - index;
                                     return (
                                     <SwipeCard
                                         key={profile.id}
@@ -830,12 +868,11 @@ export default function Match() {
                                         onSuperSwipe={handleSuperSwipe}
                                         priority={isTopCard}
                                         isTop={isTopCard && !pendingSwipeIds.includes(profile.id)}
-                                        onOpenPromptReply={(targetProf, targetPrompt) => {
-                                            setPromptReplyTarget({ targetProfile: targetProf, targetPrompt });
-                                        }}
+                                        stackPosition={stackPos}
+                                        onOpenPromptReply={handleOpenPromptReply}
                                         onShareProfile={handleShareProfile}
                                         onBlockProfile={handleBlockProfile}
-                                        onReportProfile={(targetProf) => setReportingTarget(targetProf)}
+                                        onReportProfile={handleReportProfile}
                                     />
                                     );
                                 })}

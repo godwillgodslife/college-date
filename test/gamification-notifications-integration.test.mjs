@@ -105,3 +105,39 @@ test('Gamification Notifications: Daily Quests and Score Streak Milestones', () 
     assert.ok(emailFuncSrc.includes('case "quest_reward":') && emailFuncSrc.includes('case "streak_milestone":'), 'send-notification-email must handle quest & streak');
     assert.ok(emailFuncSrc.includes('case "mini_game":'), 'send-notification-email must handle mini_game');
 });
+
+test('Closed-App Retention: Rich Big-Picture, Action Buttons, and Re-Engagement Loops', () => {
+    const pushFuncSrc = fs.readFileSync(path.resolve('supabase/functions/send-notification-push/index.ts'), 'utf8');
+    const pushServiceSrc = fs.readFileSync(path.resolve('src/services/pushNotification.js'), 'utf8');
+    const swipeServiceSrc = fs.readFileSync(path.resolve('src/services/swipeService.js'), 'utf8');
+    const notifyEventSrc = fs.readFileSync(path.resolve('supabase/functions/notify-on-event/index.ts'), 'utf8');
+
+    // 1. send-notification-push: Big-picture media preview
+    assert.ok(pushFuncSrc.includes('notificationPayload.big_picture = safeImageUrl'), 'Must set big_picture for expanded Android card');
+    assert.ok(pushFuncSrc.includes('notificationPayload.chrome_web_image = safeImageUrl'), 'Must set chrome_web_image for Web push');
+
+    // 2. send-notification-push: Interactive action buttons
+    assert.ok(pushFuncSrc.includes('actionButtons.push({ id: "reply", text: "💬 Reply" })'), 'Must support direct message reply action');
+    assert.ok(pushFuncSrc.includes('actionButtons.push({ id: "say_hi", text: "💬 Say Hi" })'), 'Must support match say hi action');
+    assert.ok(pushFuncSrc.includes('actionButtons.push({ id: "see_admirer", text: "👀 See Admirers" })'), 'Must support admirer review action');
+    assert.ok(pushFuncSrc.includes('actionButtons.push({ id: "play_back", text: "🎮 Answer Game" })'), 'Must support mini-game quick answer action');
+    assert.ok(pushFuncSrc.includes('notificationPayload.buttons = actionButtons'), 'Must attach buttons to OneSignal payload');
+
+    // 3. send-notification-push: Curiosity-gap copy
+    assert.ok(pushFuncSrc.includes('New Admirer on Campus! ✨'), 'Must support campus admirer intrigue copy');
+    assert.ok(pushFuncSrc.includes('liked your profile. Tap to see who it is!'), 'Must generate curious prompt with faculty/campus');
+
+    // 4. pushNotification.js: Action ID routing
+    assert.ok(pushServiceSrc.includes("actionId === 'see_admirer'"), 'pushNotification.js must route see_admirer to /requests');
+    assert.ok(pushServiceSrc.includes("actionId === 'reply'"), 'pushNotification.js must route reply to /chat with focus');
+    assert.ok(pushServiceSrc.includes("actionId === 'claim_reward'"), 'pushNotification.js must route claim_reward to /dashboard');
+
+    // 5. swipeService.js: Passes swiperProfile metadata
+    assert.ok(swipeServiceSrc.includes('actor_faculty: actorFaculty'), 'swipeService must pass actor faculty metadata');
+    assert.ok(swipeServiceSrc.includes('actor_university: actorUniversity'), 'swipeService must pass actor university metadata');
+
+    // 6. notify-on-event: Re-engagement loops & production URLs
+    assert.ok(notifyEventSrc.includes("payload.type === 'STREAK_PROTECTOR'"), 'Must handle STREAK_PROTECTOR evening loss-aversion loop');
+    assert.ok(notifyEventSrc.includes("payload.type === 'PRIMETIME_SURGE'"), 'Must handle PRIMETIME_SURGE rush hour loop');
+    assert.ok(!notifyEventSrc.includes('campusdate.app'), 'All legacy campusdate.app URLs must be modernized to thecollegedate.com');
+});

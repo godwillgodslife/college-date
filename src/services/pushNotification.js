@@ -6,6 +6,7 @@ let nativeSubscriptionListenerAdded = false;
 let nativeClickListenerAdded = false;
 let nativePushUserId = null;
 let webSubscriptionListenerAdded = false;
+let webClickListenerAdded = false;
 let webOneSignalLoadPromise = null;
 let webOneSignalInitialized = false;
 const DEVICE_ID_STORAGE_KEY = 'tcd_notification_device_id';
@@ -227,7 +228,25 @@ async function initNativePush(userId) {
 
         if (!nativeClickListenerAdded) {
             OneSignal.Notifications.addEventListener('click', (event) => {
-                const url = event?.result?.url || event?.notification?.additionalData?.url;
+                const actionId = event?.result?.actionId;
+                const additionalData = event?.notification?.additionalData || {};
+                let url = event?.result?.url || additionalData?.url;
+
+                if (actionId === 'see_admirer') {
+                    url = '/requests';
+                } else if (actionId === 'claim_reward') {
+                    url = '/dashboard';
+                } else if (actionId === 'reply' || actionId === 'say_hi' || actionId === 'play_back') {
+                    if (additionalData?.conversation_id || additionalData?.chat_id || additionalData?.match_id) {
+                        const chatId = additionalData.conversation_id || additionalData.chat_id || additionalData.match_id;
+                        url = `/chat?chatId=${chatId}&focus=true`;
+                    }
+                } else if (actionId === 'view_match' || actionId === 'endorse_back') {
+                    if (additionalData?.actor_id) {
+                        url = `/profile?id=${additionalData.actor_id}`;
+                    }
+                }
+
                 routeNotificationUrl(url);
             });
             nativeClickListenerAdded = true;
@@ -319,6 +338,32 @@ async function initWebPush(userId) {
                     allowLocalhostAsSecureOrigin: true,
                 });
                 webOneSignalInitialized = true;
+            }
+
+            if (OneSignal.Notifications && !webClickListenerAdded) {
+                OneSignal.Notifications.addEventListener('click', (event) => {
+                    const actionId = event?.result?.actionId;
+                    const additionalData = event?.notification?.additionalData || {};
+                    let url = event?.result?.url || additionalData?.url;
+
+                    if (actionId === 'see_admirer') {
+                        url = '/requests';
+                    } else if (actionId === 'claim_reward') {
+                        url = '/dashboard';
+                    } else if (actionId === 'reply' || actionId === 'say_hi' || actionId === 'play_back') {
+                        if (additionalData?.conversation_id || additionalData?.chat_id || additionalData?.match_id) {
+                            const chatId = additionalData.conversation_id || additionalData.chat_id || additionalData.match_id;
+                            url = `/chat?chatId=${chatId}&focus=true`;
+                        }
+                    } else if (actionId === 'view_match' || actionId === 'endorse_back') {
+                        if (additionalData?.actor_id) {
+                            url = `/profile?id=${additionalData.actor_id}`;
+                        }
+                    }
+
+                    routeNotificationUrl(url);
+                });
+                webClickListenerAdded = true;
             }
 
             if (OneSignal.User?.PushSubscription && !webSubscriptionListenerAdded) {

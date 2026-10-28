@@ -593,15 +593,27 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
             };
         }
 
-        // 5. If it's a LIKE but NOT a Match, notify User B (Standard/Premium request sent)
+        // 5. If it's a LIKE but NOT a Match, notify User B with high-retention curiosity copy
         if (direction === 'right' && !isMatch) {
-            // It's a fire-and-forget notification
+            const swiperProfile = options.swiperProfile || null;
+            const actorFaculty = swiperProfile?.faculty || null;
+            const actorUniversity = swiperProfile?.university || null;
+            const actorAvatar = swiperProfile?.avatar_url || null;
+            const actorName = swiperProfile?.full_name || 'Someone';
+
+            const dynamicTitle = actorUniversity
+                ? `Someone at ${actorUniversity} liked you! 👀`
+                : 'New Admirer on Campus! ✨';
+            const dynamicContent = actorFaculty && actorUniversity
+                ? `A student from ${actorFaculty} at ${actorUniversity} just swiped right on you. Tap to see your admirers!`
+                : (swipeType === 'premium' ? 'Someone sent you a premium Super Swipe!' : 'Someone on campus just right-swiped you. Check your requests!');
+
             createNotification({
                 userId: swipedId,
                 actorId: swiperId,
                 type: 'like',
-                title: 'New Like! 👀',
-                content: swipeType === 'premium' ? 'Someone sent you a premium request!' : 'Someone just right-swiped you. Check your requests!',
+                title: dynamicTitle,
+                content: dynamicContent,
                 category: 'requests',
                 entityType: 'swipe',
                 entityId: swipeRecord.id,
@@ -609,7 +621,17 @@ export async function recordSwipe(swiperId, swipedId, direction, swipeType = 'st
                 priority: swipeType === 'premium' ? 'high' : 'normal',
                 groupKey: `requests:${swipedId}`,
                 dedupeKey: `like:${swipeRecord.id}`,
-                metadata: { swipe_id: swipeRecord.id, url: '/requests' }
+                metadata: {
+                    swipe_id: swipeRecord.id,
+                    url: '/requests',
+                    actor_id: swiperId,
+                    actor_name: actorName,
+                    actor_avatar_url: actorAvatar,
+                    actor_university: actorUniversity,
+                    actor_faculty: actorFaculty,
+                    actor_level: swiperProfile?.level || null,
+                    image_url: actorAvatar
+                }
             }).catch(e => console.warn('Notification failed silently:', e));
         }
 
