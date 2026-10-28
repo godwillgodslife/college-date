@@ -195,9 +195,24 @@ serve(async (req) => {
           effectiveTitle = 'New message 💬'
           effectiveContent = 'Someone sent you a message on The College Date. Tap to chat!'
         }
-      } else if (category === 'requests' && !hasActivePremium(userProfile)) {
-        effectiveTitle = 'New Connection Request 💌'
-        effectiveContent = 'Someone wants to connect with you on The College Date. Tap to review!'
+      } else if (category === 'requests' || notifType === 'like') {
+        const actorFaculty = (metadata?.actor_faculty || metadata?.faculty) as string | undefined
+        const actorCampus = (metadata?.actor_university || metadata?.university) as string | undefined
+        if (!hasActivePremium(userProfile)) {
+          if (actorFaculty && actorCampus) {
+            effectiveTitle = `New Admirer on Campus! ✨`
+            effectiveContent = `A student from ${actorFaculty} at ${actorCampus} liked your profile. Tap to see who it is!`
+          } else if (actorCampus) {
+            effectiveTitle = `Someone at ${actorCampus} liked you! 👀`
+            effectiveContent = `A fellow student just swiped right on your profile. Tap to see if it's a match!`
+          } else {
+            effectiveTitle = 'New Connection Request 💌'
+            effectiveContent = 'Someone wants to connect with you on The College Date. Tap to review!'
+          }
+        } else if (actorFaculty || actorCampus) {
+          effectiveTitle = `${metadata?.actor_name || 'Someone'} (${actorCampus || 'Campus'}) liked you! ✨`
+          effectiveContent = `Tap to match and start chatting right away!`
+        }
       }
     }
 
@@ -385,6 +400,47 @@ serve(async (req) => {
       firefox_icon: visualIcon,
       large_icon: visualIcon,
       android_accent_color: "FF6C63FF",
+    }
+
+    // High-Retention Immersive Big Picture (Expanded Lock-Screen Preview)
+    if (safeImageUrl && !isAnonymousInteraction) {
+      notificationPayload.big_picture = safeImageUrl
+      notificationPayload.chrome_web_image = safeImageUrl
+    } else if (metadata?.big_picture && typeof metadata.big_picture === "string") {
+      notificationPayload.big_picture = metadata.big_picture
+      notificationPayload.chrome_web_image = metadata.big_picture
+    }
+
+    // High-Retention Lock-Screen Interactive Action Buttons
+    const actionButtons: Array<{ id: string; text: string; icon?: string }> = []
+    const webActionButtons: Array<{ id: string; text: string; url?: string }> = []
+
+    if (category === "messages" || notifType === "message") {
+      actionButtons.push({ id: "reply", text: "💬 Reply" })
+      if (launchUrl) webActionButtons.push({ id: "reply", text: "💬 Reply", url: launchUrl })
+    } else if (category === "matches" || notifType === "match") {
+      actionButtons.push({ id: "say_hi", text: "💬 Say Hi" })
+      actionButtons.push({ id: "view_match", text: "👀 View Profile" })
+      if (launchUrl) webActionButtons.push({ id: "chat", text: "💬 Say Hi", url: launchUrl })
+    } else if (notifType === "like" || category === "requests") {
+      actionButtons.push({ id: "see_admirer", text: "👀 See Admirers" })
+      if (launchUrl) webActionButtons.push({ id: "admirers", text: "👀 See Admirers", url: launchUrl })
+    } else if (notifType === "mini_game" || notifType === "mini_game_response") {
+      actionButtons.push({ id: "play_back", text: "🎮 Answer Game" })
+      if (launchUrl) webActionButtons.push({ id: "play", text: "🎮 Play", url: launchUrl })
+    } else if (notifType === "vibe_endorsement") {
+      actionButtons.push({ id: "endorse_back", text: "✨ Endorse Back" })
+      if (launchUrl) webActionButtons.push({ id: "vibe", text: "✨ Endorsements", url: launchUrl })
+    } else if (notifType === "streak_milestone" || notifType === "quest_reward") {
+      actionButtons.push({ id: "claim_reward", text: "🎁 View Reward" })
+      if (launchUrl) webActionButtons.push({ id: "claim", text: "🎁 Claim", url: launchUrl })
+    }
+
+    if (actionButtons.length > 0) {
+      notificationPayload.buttons = actionButtons
+    }
+    if (webActionButtons.length > 0) {
+      notificationPayload.web_buttons = webActionButtons
     }
 
     // Unread count calculation for WhatsApp-style launcher desktop app icon badge

@@ -54,7 +54,7 @@ serve(async (req) => {
                 contents: { en: `Someone from ${faculty} just swiped on you! Reveal who it is before they're gone.` },
                 data: { type: 'swipe', url: '/match' },
                 web_buttons: [
-                    { id: "reveal", text: "Reveal Who 🔍", url: "https://campusdate.app/match" }
+                    { id: "reveal", text: "Reveal Who 🔍", url: "https://www.thecollegedate.com/match" }
                 ],
                 android_sound: "default",
                 ios_sound: "default"
@@ -78,7 +78,7 @@ serve(async (req) => {
                 android_sound: "credit_alert",
                 ios_sound: "credit_alert.wav",
                 web_buttons: [
-                    { id: "wallet", text: "Open Wallet 💳", url: "https://campusdate.app/wallet" }
+                    { id: "wallet", text: "Open Wallet 💳", url: "https://www.thecollegedate.com/wallet" }
                 ]
             })
         }
@@ -97,7 +97,7 @@ serve(async (req) => {
                 contents: { en: `Someone from ${university} is checking out your profile right now. Make sure it's looking good!` },
                 data: { type: 'profile_view', url: '/profile' },
                 web_buttons: [
-                    { id: "view_profile", text: "Update Profile", url: "https://campusdate.app/profile" }
+                    { id: "view_profile", text: "Update Profile", url: "https://www.thecollegedate.com/profile" }
                 ],
                 android_sound: "default",
                 ios_sound: "default"
@@ -131,7 +131,7 @@ serve(async (req) => {
                         contents: { en: `${university} is spilling tea ☕ Check the latest confession before it's deleted!` },
                         data: { type: 'confession', confession_id: record.id, url: '/confessions' },
                         web_buttons: [
-                            { id: "read_confession", text: "Read It 📜", url: "https://campusdate.app/confessions" }
+                            { id: "read_confession", text: "Read It 📜", url: "https://www.thecollegedate.com/confessions" }
                         ],
                         android_sound: "default",
                         ios_sound: "default"
@@ -162,7 +162,7 @@ serve(async (req) => {
                 contents: { en: `You ${direction} spots! ${rival_name} is catching up. Swipe now to reclaim your #${new_rank} spot.` },
                 data: { type: 'leaderboard', url: '/leaderboard' },
                 web_buttons: [
-                    { id: "leaderboard", text: "See Rankings 🏆", url: "https://campusdate.app/leaderboard" }
+                    { id: "leaderboard", text: "See Rankings 🏆", url: "https://www.thecollegedate.com/leaderboard" }
                 ],
                 android_sound: "default",
                 ios_sound: "default"
@@ -174,6 +174,67 @@ serve(async (req) => {
         //    Triggers via external cron job hitting this endpoint
         //    with { type: 'GHOST_PULSE', user_id, new_users_count }
         // ══════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════
+        // 7. STREAK PROTECTOR — 8:00 PM Loss Aversion Loop
+        //    Alerts students with active streaks (>= 2 days)
+        // ══════════════════════════════════════════════════
+        else if (payload.type === 'STREAK_PROTECTOR') {
+            const { user_id, user_ids, streak_days = 3 } = payload;
+            const targetIds = Array.isArray(user_ids) ? user_ids : (user_id ? [user_id] : []);
+
+            if (targetIds.length > 0) {
+                await sendNotification({
+                    include_external_user_ids: targetIds,
+                    headings: { en: `🔥 Don't let your ${streak_days}-Day Streak freeze!` },
+                    contents: { en: "You have a few hours before midnight! Do 1 quick swipe or chat to protect your campus perks." },
+                    data: { type: 'streak_milestone', url: '/match' },
+                    buttons: [
+                        { id: "protect_streak", text: "🔥 Protect Streak" }
+                    ],
+                    web_buttons: [
+                        { id: "protect_streak", text: "🔥 Protect Streak", url: "https://www.thecollegedate.com/match" }
+                    ],
+                    android_sound: "default",
+                    ios_sound: "default"
+                });
+            }
+        }
+
+        // ══════════════════════════════════════════════════
+        // 8. PRIMETIME SURGE — Collegiate Peak Rush Loop
+        //    Broadcasts during 8:30 PM - 10:30 PM peak
+        // ══════════════════════════════════════════════════
+        else if (payload.type === 'PRIMETIME_SURGE') {
+            const { university = 'Campus', user_ids } = payload;
+            let targetIds = Array.isArray(user_ids) ? user_ids : [];
+
+            if (targetIds.length === 0 && university) {
+                const { data: uniUsers } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('university', university)
+                    .limit(500);
+                targetIds = (uniUsers ?? []).map((u: { id: string }) => u.id);
+            }
+
+            if (targetIds.length > 0) {
+                await sendNotification({
+                    include_external_user_ids: targetIds,
+                    headings: { en: `⚡ ${university} Primetime is LIVE!` },
+                    contents: { en: "Activity is 3.8x higher right now! 2x profile visibility active for the next 45 minutes." },
+                    data: { type: 'primetime_surge', url: '/match' },
+                    buttons: [
+                        { id: "join_primetime", text: "⚡ Join the Surge" }
+                    ],
+                    web_buttons: [
+                        { id: "join_primetime", text: "⚡ Join the Surge", url: "https://www.thecollegedate.com/match" }
+                    ],
+                    android_sound: "default",
+                    ios_sound: "default"
+                });
+            }
+        }
+
         else if (payload.type === 'GHOST_PULSE') {
             const { user_id, new_users_count } = payload
             const count = new_users_count || 15
@@ -184,7 +245,7 @@ serve(async (req) => {
                 contents: { en: `${count} new students from your level just joined. See who's online before they get swiped up!` },
                 data: { type: 're_engagement', url: '/match' },
                 web_buttons: [
-                    { id: "explore", text: "See Who Joined 👀", url: "https://campusdate.app/match" }
+                    { id: "explore", text: "See Who Joined 👀", url: "https://www.thecollegedate.com/match" }
                 ],
                 android_sound: "default",
                 ios_sound: "default"
