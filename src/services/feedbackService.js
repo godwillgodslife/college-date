@@ -73,7 +73,7 @@ export async function submitInAppFeedback({
     const devicePayload = {
         platform: window.Capacitor?.getPlatform?.() || (window.Capacitor?.isNativePlatform?.() ? 'android' : 'web'),
         isNative: Boolean(window.Capacitor?.isNativePlatform?.()),
-        appVersion: '2.2.76',
+        appVersion: '2.2.77',
         submittedAt: new Date().toISOString(),
         ...deviceInfo
     };
