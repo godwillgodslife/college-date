@@ -11,7 +11,7 @@
 --
 -- Key Guarantee:
 --   - 100% Idempotent & Non-Destructive (preserves all existing users, wallets, matches, messages)
---   - 100% Complete (all 75+ tables, 7 views, 168 functions/RPCs, triggers, RLS policies, storage policies)
+--   - 100% Complete (all 74 tables, 7 views, 169 functions/RPCs, triggers, RLS policies, storage policies)
 --   - Zero Function Overload Clashes & Zero Regressions
 --   - Zero Wildcard Privilege Escalations (Admin RBAC, Trust Badges, Wallet Locks, and Email Privacy strictly enforced)
 -- =============================================================================
@@ -28206,7 +28206,6 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_admirers_secure(integer) TO authenticated;
 
-
 -- =============================================================================
 -- LAYER 5: DEFINITIVE DE-CLASHING, OVERLOAD PURGE, REGRESSION FIXES & LOCKDOWN
 -- =============================================================================
@@ -28217,20 +28216,39 @@ GRANT EXECUTE ON FUNCTION public.get_admirers_secure(integer) TO authenticated;
 --   5.3 Restores & hardens the 4 RPCs that only existed in legacy root scripts
 --       (purchase_boost, use_super_swipe, send_super_swipe, update_swipe_streak)
 --   5.4 Fixes copy-paste regressions in admin_get_user_detail, admin_get_withdrawals,
---       admin_get_transactions, get_current_profile, and check_and_reset_swipe_limit
+--       admin_get_transactions, get_current_profile, check_and_reset_swipe_limit, and get_admirers_secure
 --   5.5 Re-asserts strict least-privilege grants and revokes anon/public execution on sensitive RPCs
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
 -- 5.1 PURGE OBSOLETE / AMBIGUOUS FUNCTION OVERLOADS
 -- -----------------------------------------------------------------------------
+-- Drop old 8-parameter admin_search_users (replaced by 9-parameter version with p_activity)
+DROP FUNCTION IF EXISTS public.admin_search_users(integer, integer, text, text, text, text, boolean, boolean);
 DROP FUNCTION IF EXISTS public.admin_search_users(text, text, text, text, boolean, boolean, integer, integer);
+
+-- Drop old un-gated 2-parameter admin_set_app_config (replaced by 3-parameter version with p_reason & RBAC)
 DROP FUNCTION IF EXISTS public.admin_set_app_config(text, jsonb);
+
+-- Drop old un-gated 1-parameter admin_deactivate_promo_code (replaced by 2-parameter version with p_reason & RBAC)
 DROP FUNCTION IF EXISTS public.admin_deactivate_promo_code(uuid);
+
+-- Drop old un-gated 2-parameter admin_get_transactions (replaced by 10-parameter filtered RBAC version)
 DROP FUNCTION IF EXISTS public.admin_get_transactions(integer, integer);
+
+-- Drop old un-gated 2-parameter admin_get_audit_logs (replaced by 8-parameter filtered RBAC version)
 DROP FUNCTION IF EXISTS public.admin_get_audit_logs(integer, integer);
+
+-- Drop old 6-parameter insert_notification (replaced by 16-parameter Notification 2.0 version)
+DROP FUNCTION IF EXISTS public.insert_notification(uuid, uuid, text, text, text, jsonb);
 DROP FUNCTION IF EXISTS public.insert_notification(uuid, text, text, text, jsonb, text);
+
+-- Drop unsafe 1-parameter calculate_completion_score(uuid) (trigger version calculate_completion_score() is canonical)
 DROP FUNCTION IF EXISTS public.calculate_completion_score(uuid);
+
+-- Drop legacy update_profile_data overloads (superseded by update_current_profile)
+DROP FUNCTION IF EXISTS public.update_profile_data(text, integer, text, text, text, text);
+DROP FUNCTION IF EXISTS public.update_profile_data(text, integer, text, text, text, text, text);
 
 -- -----------------------------------------------------------------------------
 -- 5.2 PURGE DUPLICATE LEGACY TRIGGERS & RE-BIND CANONICAL PROFILE TRIGGERS
@@ -28240,6 +28258,7 @@ DROP TRIGGER IF EXISTS on_referred_profile_created ON public.profiles;
 DROP TRIGGER IF EXISTS on_referred_profile_updated ON public.profiles;
 DROP TRIGGER IF EXISTS confession_notification_trigger ON public.confessions;
 DROP TRIGGER IF EXISTS swipe_notification_trigger ON public.swipes;
+DROP TRIGGER IF EXISTS trg_protect_profile_trust_badges ON public.profiles;
 
 DROP TRIGGER IF EXISTS trigger_calculate_completion_score ON public.profiles;
 CREATE TRIGGER trigger_calculate_completion_score
@@ -28323,7 +28342,7 @@ BEGIN
     VALUES (
         p_user_id,
         v_wallet_id,
-        'payment',
+        'boost_purchase',
         v_cost,
         'completed',
         v_description,
@@ -28343,19 +28362,19 @@ $$;
 REVOKE ALL ON FUNCTION public.purchase_boost(uuid, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.purchase_boost(uuid, text) TO authenticated, service_role;
 
--- 5.3.2 use_super_swipe: Hardened with auth.uid() check and FOR UPDATE boost lock
+-- 5.3.2 use_super_swipe: Hardened with auth.uid() check and FOR UPDATE SKIP LOCKED boost lock
 CREATE OR REPLACE FUNCTION public.use_super_swipe(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
     v_caller_id uuid := auth.uid();
     v_boost_id uuid;
 BEGIN
-    IF v_caller_id IS NULL OR v_caller_id <> p_user_id THEN
-        RETURN jsonb_build_object('success', false, 'error', 'Unauthorized');
+    IF v_caller_id IS DISTINCT FROM p_user_id THEN
+        RETURN jsonb_build_object('success', false, 'error', 'Not authorized');
     END IF;
 
     SELECT id INTO v_boost_id
@@ -28365,17 +28384,17 @@ BEGIN
       AND expires_at > now()
     ORDER BY created_at ASC
     LIMIT 1
-    FOR UPDATE;
+    FOR UPDATE SKIP LOCKED;
 
     IF v_boost_id IS NULL THEN
-        RETURN jsonb_build_object('success', false, 'error', 'No Super Swipe credits available');
+        RETURN jsonb_build_object('success', false, 'error', 'No super swipe credits available');
     END IF;
 
     UPDATE public.boosts
     SET expires_at = now()
     WHERE id = v_boost_id;
 
-    RETURN jsonb_build_object('success', true, 'boost_id', v_boost_id);
+    RETURN jsonb_build_object('success', true, 'used_boost_id', v_boost_id, 'boost_id', v_boost_id);
 END;
 $$;
 
@@ -28387,7 +28406,7 @@ CREATE OR REPLACE FUNCTION public.send_super_swipe(p_target_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
     v_user_id uuid := auth.uid();
@@ -28399,7 +28418,7 @@ BEGIN
     END IF;
 
     IF p_target_id IS NULL OR p_target_id = v_user_id THEN
-        RETURN jsonb_build_object('success', false, 'error', 'Invalid target profile');
+        RETURN jsonb_build_object('success', false, 'error', 'Invalid target');
     END IF;
 
     SELECT id INTO v_boost_id
@@ -28409,15 +28428,11 @@ BEGIN
       AND expires_at > now()
     ORDER BY created_at ASC
     LIMIT 1
-    FOR UPDATE;
+    FOR UPDATE SKIP LOCKED;
 
     IF v_boost_id IS NULL THEN
-        RETURN jsonb_build_object('success', false, 'error', 'No Super Swipe credits available');
+        RETURN jsonb_build_object('success', false, 'error', 'No super swipe credits available');
     END IF;
-
-    UPDATE public.boosts
-    SET expires_at = now()
-    WHERE id = v_boost_id;
 
     INSERT INTO public.swipes (
         swiper_id,
@@ -28427,29 +28442,38 @@ BEGIN
         status,
         is_priority,
         is_free,
+        message_teaser,
         created_at
     )
     VALUES (
         v_user_id,
         p_target_id,
         'right',
-        'super_swipe',
+        'premium',
         'pending',
         true,
-        false,
+        true,
+        'Sent a Super Swipe',
         now()
     )
     ON CONFLICT (swiper_id, swiped_id) DO UPDATE
     SET direction = 'right',
-        type = 'super_swipe',
+        type = 'premium',
         status = 'pending',
         is_priority = true,
+        is_free = true,
+        message_teaser = 'Sent a Super Swipe',
         created_at = now()
     RETURNING id INTO v_swipe_id;
+
+    UPDATE public.boosts
+    SET expires_at = now()
+    WHERE id = v_boost_id;
 
     RETURN jsonb_build_object(
         'success', true,
         'swipe_id', v_swipe_id,
+        'used_boost_id', v_boost_id,
         'boost_id', v_boost_id
     );
 END;
@@ -28459,6 +28483,7 @@ REVOKE ALL ON FUNCTION public.send_super_swipe(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.send_super_swipe(uuid) TO authenticated, service_role;
 
 -- 5.3.4 update_swipe_streak: Atomic engagement streak updater for swiping
+DROP FUNCTION IF EXISTS public.update_swipe_streak(uuid);
 CREATE OR REPLACE FUNCTION public.update_swipe_streak(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -28519,6 +28544,225 @@ GRANT EXECUTE ON FUNCTION public.update_swipe_streak(uuid) TO authenticated, ser
 -- -----------------------------------------------------------------------------
 -- 5.4 REGRESSION FIXES (MERGING SECURITY + EMAIL ISOLATION + ULTRA + RBAC)
 -- -----------------------------------------------------------------------------
+
+-- 5.4.0 get_admirers_secure & composite swipe indexes (from 20261023150000)
+-- ============================================================================
+-- Migration: 20261023150000_fix_get_admirers_secure_contract_and_indexes.sql
+-- Description:
+--   1. Restores backward-compatible data contract in public.get_admirers_secure:
+--      Returns 'items' AND 'requests' arrays, 'premium' AND 'is_premium' flags,
+--      'upgrade_required', and 'daily_limit', guaranteeing full parity with
+--      both web (Requests.jsx, Chat.jsx) and native Android/iOS client parsing.
+--   2. Preserves strict email privacy: safe swiper profile projection with NO email,
+--      NO phone number, NO sensitive auth tokens.
+--   3. Adds high-performance composite indexes on public.swipes for sub-50ms
+--      connection request queries and eliminates cold query timeouts.
+-- ============================================================================
+
+-- 1. High-Performance Indexes for connection requests / admirers queries
+CREATE INDEX IF NOT EXISTS idx_swipes_admirers_lookup
+    ON public.swipes (swiped_id, status, is_priority DESC, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_swipes_swiper_id
+    ON public.swipes (swiper_id);
+
+-- 2. Update get_admirers_secure with universal dual contract & safe email projection
+CREATE OR REPLACE FUNCTION public.get_admirers_secure(p_limit integer DEFAULT 50)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_user_id uuid;
+    v_is_premium boolean;
+    v_total integer := 0;
+    v_today_accepts_count integer := 0;
+    v_free_accepts_remaining integer := 3;
+    v_items jsonb := '[]'::jsonb;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RETURN jsonb_build_object(
+            'success', false,
+            'error', 'unauthorized',
+            'message', 'Authentication required'
+        );
+    END IF;
+
+    -- Check if user is premium
+    v_is_premium := public.has_entitlement(v_user_id, 'premium');
+
+    -- Count total pending swipes targeting the user (excluding shadow-banned or banned swipers)
+    SELECT count(*)::integer
+    INTO v_total
+    FROM public.swipes sw
+    JOIN public.profiles p ON p.id = sw.swiper_id
+    WHERE sw.swiped_id = v_user_id
+      AND sw.status = 'pending'
+      AND COALESCE(p.is_banned, false) = false
+      AND COALESCE(p.is_shadow_banned, false) = false;
+
+    -- Count how many requests the user has accepted today (UTC)
+    SELECT count(*)::integer
+    INTO v_today_accepts_count
+    FROM public.swipes sw
+    WHERE sw.swiped_id = v_user_id
+      AND sw.status = 'accepted'
+      AND COALESCE(sw.updated_at, sw.created_at) >= (current_date at time zone 'UTC');
+
+    IF v_is_premium THEN
+        v_free_accepts_remaining := 999;
+    ELSE
+        v_free_accepts_remaining := GREATEST(0, 3 - v_today_accepts_count);
+    END IF;
+
+    IF NOT v_is_premium THEN
+        -- For freemium users, unlock up to 3 admirers so they can accept/decline them, lock the rest
+        SELECT COALESCE(jsonb_agg(item), '[]'::jsonb)
+        INTO v_items
+        FROM (
+            SELECT
+                CASE
+                    WHEN row_number() over (ORDER BY coalesce(sw.is_priority, false) DESC, sw.created_at DESC) <= 3 THEN
+                        jsonb_build_object(
+                            'id', sw.id,
+                            'swiper_id', sw.swiper_id,
+                            'swiped_id', sw.swiped_id,
+                            'type', sw.type,
+                            'status', sw.status,
+                            'is_priority', coalesce(sw.is_priority, false),
+                            'message_teaser', sw.message_teaser,
+                            'created_at', sw.created_at,
+                            'locked', false,
+                            'swiper', jsonb_build_object(
+                                'id', p.id,
+                                'full_name', p.full_name,
+                                'username', p.username,
+                                'gender', p.gender,
+                                'age', p.age,
+                                'university', p.university,
+                                'faculty', p.faculty,
+                                'department', p.department,
+                                'level', p.level,
+                                'avatar_url', p.avatar_url,
+                                'profile_photos', p.profile_photos,
+                                'photo_updated_at', p.photo_updated_at,
+                                'is_verified', coalesce(p.is_verified, false),
+                                'photo_verified', coalesce(p.photo_verified, false),
+                                'bio', p.bio,
+                                'interests', p.interests,
+                                'intro_prompt', p.intro_prompt,
+                                'voice_intro_url', p.voice_intro_url,
+                                'anthem', p.anthem,
+                                'attraction_goal', p.attraction_goal,
+                                'last_seen_at', p.last_seen_at,
+                                'last_active', p.last_active,
+                                'is_live', p.is_live,
+                                'completion_score', p.completion_score,
+                                'current_badge', p.current_badge
+                            )
+                        )
+                    ELSE
+                        jsonb_build_object(
+                            'id', sw.id,
+                            'swiper_id', sw.swiper_id,
+                            'swiped_id', sw.swiped_id,
+                            'type', sw.type,
+                            'status', sw.status,
+                            'is_priority', coalesce(sw.is_priority, false),
+                            'created_at', sw.created_at,
+                            'locked', true,
+                            'swiper', jsonb_build_object(
+                                'full_name', 'Secret Admirer 🔒',
+                                'university', p.university,
+                                'avatar_url', null,
+                                'is_verified', false
+                            )
+                        )
+                END as item
+            FROM public.swipes sw
+            JOIN public.profiles p ON p.id = sw.swiper_id
+            WHERE sw.swiped_id = v_user_id
+              AND sw.status = 'pending'
+              AND COALESCE(p.is_banned, false) = false
+              AND COALESCE(p.is_shadow_banned, false) = false
+            ORDER BY coalesce(sw.is_priority, false) DESC, sw.created_at DESC
+            LIMIT p_limit
+        ) q;
+    ELSE
+        -- Premium: fully visible with safe fields (NO EMAIL, NO PHONE)
+        SELECT COALESCE(jsonb_agg(item), '[]'::jsonb)
+        INTO v_items
+        FROM (
+            SELECT
+                jsonb_build_object(
+                    'id', sw.id,
+                    'swiper_id', sw.swiper_id,
+                    'swiped_id', sw.swiped_id,
+                    'type', sw.type,
+                    'status', sw.status,
+                    'is_priority', coalesce(sw.is_priority, false),
+                    'message_teaser', sw.message_teaser,
+                    'created_at', sw.created_at,
+                    'locked', false,
+                    'swiper', jsonb_build_object(
+                        'id', p.id,
+                        'full_name', p.full_name,
+                        'username', p.username,
+                        'gender', p.gender,
+                        'age', p.age,
+                        'university', p.university,
+                        'faculty', p.faculty,
+                        'department', p.department,
+                        'level', p.level,
+                        'avatar_url', p.avatar_url,
+                        'profile_photos', p.profile_photos,
+                        'photo_updated_at', p.photo_updated_at,
+                        'is_verified', coalesce(p.is_verified, false),
+                        'photo_verified', coalesce(p.photo_verified, false),
+                        'bio', p.bio,
+                        'interests', p.interests,
+                        'intro_prompt', p.intro_prompt,
+                        'voice_intro_url', p.voice_intro_url,
+                        'anthem', p.anthem,
+                        'attraction_goal', p.attraction_goal,
+                        'last_seen_at', p.last_seen_at,
+                        'last_active', p.last_active,
+                        'is_live', p.is_live,
+                        'completion_score', p.completion_score,
+                        'current_badge', p.current_badge
+                    )
+                ) as item
+            FROM public.swipes sw
+            JOIN public.profiles p ON p.id = sw.swiper_id
+            WHERE sw.swiped_id = v_user_id
+              AND sw.status = 'pending'
+              AND COALESCE(p.is_banned, false) = false
+              AND COALESCE(p.is_shadow_banned, false) = false
+            ORDER BY coalesce(sw.is_priority, false) DESC, sw.created_at DESC
+            LIMIT p_limit
+        ) q;
+    END IF;
+
+    -- Return full dual contract for 100% web & native compatibility
+    RETURN jsonb_build_object(
+        'success', true,
+        'items', v_items,
+        'requests', v_items,
+        'premium', v_is_premium,
+        'is_premium', v_is_premium,
+        'upgrade_required', (NOT v_is_premium AND v_total > 3),
+        'daily_limit', 3,
+        'total_count', v_total,
+        'free_accepts_remaining', v_free_accepts_remaining,
+        'today_accepts_count', v_today_accepts_count
+    );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_admirers_secure(integer) TO authenticated;
+
 
 -- 5.4.1 get_current_profile: Join auth.users so logged-in user sees their own email
 --       even while public.profiles.email is forced to NULL for cross-user privacy
@@ -28640,7 +28884,7 @@ BEGIN
             SELECT 1
             FROM public.subscriptions s
             WHERE s.user_id = p_user_id
-              AND s.plan_type IN ('Premium', 'Ultra', 'Elite', 'FreeTrial')
+              AND (s.plan_type IN ('Premium', 'Ultra', 'Elite', 'Elite Ultra', 'FreeTrial') OR s.plan_type ILIKE '%premium%' OR s.plan_type ILIKE '%ultra%')
               AND s.status = 'active'
               AND (s.current_period_end IS NULL OR s.current_period_end > now())
         )
@@ -28704,506 +28948,344 @@ CREATE OR REPLACE FUNCTION public.admin_get_user_detail(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, extensions
+SET search_path TO ''
 AS $$
 DECLARE
-    v_profile jsonb;
-    v_wallet jsonb;
-    v_subscription jsonb;
-    v_Swipe_limits jsonb;
-    v_transactions jsonb;
-    v_withdrawals jsonb;
-    v_reports_against jsonb;
-    v_reports_by jsonb;
-    v_referrals jsonb;
-    v_audit_logs jsonb;
-    v_counts jsonb;
+  v_profile jsonb;
+  v_wallet jsonb;
+  v_transactions jsonb;
 BEGIN
-    IF NOT public.admin_has_permission('users:read') THEN
-        RAISE EXCEPTION 'Forbidden: admin users:read permission required';
-    END IF;
+  IF NOT (
+    public.admin_has_permission('users:read')
+    OR public.admin_has_permission('users.view')
+    OR public.admin_has_permission('users:moderate')
+    OR public.admin_is_owner()
+  ) THEN
+    RAISE EXCEPTION 'Not authorized';
+  END IF;
 
-    SELECT to_jsonb(p_row)
-    INTO v_profile
-    FROM (
-        SELECT
-            p.id,
-            p.full_name,
-            COALESCE(u.email, p.email) AS email,
-            p.phone,
-            p.gender,
-            p.age,
-            p.university,
-            p.department,
-            p.faculty,
-            p.level,
-            p.bio,
-            p.avatar_url,
-            p.photos,
-            p.profile_photos,
-            p.role,
-            COALESCE(p.is_verified, false) AS is_verified,
-            COALESCE(p.photo_verified, false) AS photo_verified,
-            COALESCE(p.is_premium, false) AS is_premium,
-            COALESCE(p.is_ultra, false) AS is_ultra,
-            COALESCE(p.is_banned, false) AS is_banned,
-            COALESCE(p.is_shadow_banned, false) AS is_shadow_banned,
-            COALESCE(p.is_blocked, false) AS is_blocked,
-            COALESCE(p.is_onboarded, false) AS is_onboarded,
-            COALESCE(p.free_swipes, 0) AS free_swipes,
-            COALESCE(p.completion_score, 0) AS completion_score,
-            p.referral_code,
-            p.referred_by,
-            p.ai_review_status,
-            p.ai_review_score,
-            p.ai_review_Flags,
-            p.ai_review_summary,
-            p.last_seen_at,
-            p.last_active,
-            p.created_at,
-            p.updated_at
-        FROM public.profiles p
-        LEFT JOIN auth.users u ON u.id = p.id
-        WHERE p.id = p_user_id
-    ) p_row;
+  SELECT to_jsonb(prof)
+  INTO v_profile
+  FROM (
+    SELECT
+      p.id,
+      coalesce(u.email, p.email)::text AS email,
+      p.full_name,
+      p.university,
+      p.gender,
+      p.avatar_url,
+      p.is_banned,
+      p.is_shadow_banned,
+      p.is_verified,
+      p.is_premium,
+      coalesce(p.is_ultra, false) AS is_ultra,
+      p.premium_expires_at,
+      p.created_at,
+      p.last_seen_at,
+      p.last_active
+    FROM public.profiles p
+    LEFT JOIN auth.users u ON u.id = p.id
+    WHERE p.id = p_user_id
+  ) prof;
 
-    IF v_profile IS NULL THEN
-        RETURN jsonb_build_object('success', false, 'error', 'User not found');
-    END IF;
+  SELECT to_jsonb(w)
+  INTO v_wallet
+  FROM (
+    SELECT
+      id,
+      user_id,
+      available_balance,
+      pending_balance,
+      total_earned,
+      total_spent,
+      total_withdrawn,
+      updated_at
+    FROM public.wallets
+    WHERE user_id = p_user_id
+  ) w;
 
-    SELECT to_jsonb(w_row)
-    INTO v_wallet
-    FROM (
-        SELECT
-            w.id,
-            w.user_id,
-            COALESCE(w.available_balance, 0) AS available_balance,
-            COALESCE(w.pending_balance, 0) AS pending_balance,
-            COALESCE(w.total_earned, 0) AS total_earned,
-            COALESCE(w.total_spent, 0) AS total_spent,
-            COALESCE(w.total_withdrawn, 0) AS total_withdrawn,
-            w.updated_at
-        FROM public.wallets w
-        WHERE w.user_id = p_user_id
-    ) w_row;
+  SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY t.created_at DESC), '[]'::jsonb)
+  INTO v_transactions
+  FROM (
+    SELECT
+      id,
+      user_id,
+      wallet_id,
+      type,
+      amount,
+      status,
+      description,
+      payment_method,
+      reference_id,
+      created_at
+    FROM public.wallet_transactions
+    WHERE user_id = p_user_id
+    ORDER BY created_at DESC
+    LIMIT 20
+  ) t;
 
-    SELECT to_jsonb(s_row)
-    INTO v_subscription
-    FROM (
-        SELECT
-            s.id,
-            s.user_id,
-            s.plan_type,
-            s.status,
-            s.current_period_start,
-            s.current_period_end,
-            s.payment_reference,
-            s.created_at,
-            s.updated_at
-        FROM public.subscriptions s
-        WHERE s.user_id = p_user_id
-        ORDER BY s.updated_at DESC NULLS LAST, s.created_at DESC NULLS LAST
-        LIMIT 1
-    ) s_row;
+  PERFORM public.admin_write_audit_log(
+    'admin_view_user_detail',
+    'profile',
+    p_user_id,
+    jsonb_build_object('transaction_limit', 20)
+  );
 
-    SELECT to_jsonb(sl_row)
-    INTO v_Swipe_limits
-    FROM (
-        SELECT
-            sl.user_id,
-            COALESCE(sl.swipes_used, 0) AS swipes_used,
-            sl.last_reset
-        FROM public.swipe_limits sl
-        WHERE sl.user_id = p_user_id
-    ) sl_row;
-
-    SELECT COALESCE(jsonb_agg(t_row), '[]'::jsonb)
-    INTO v_transactions
-    FROM (
-        SELECT
-            t.id,
-            t.wallet_id,
-            t.user_id,
-            t.type,
-            t.amount,
-            t.status,
-            t.description,
-            t.reference_id,
-            t.metadata,
-            t.created_at
-        FROM public.wallet_transactions t
-        WHERE t.user_id = p_user_id
-        ORDER BY t.created_at DESC
-        LIMIT 25
-    ) t_row;
-
-    SELECT COALESCE(jsonb_agg(wd_row), '[]'::jsonb)
-    INTO v_withdrawals
-    FROM (
-        SELECT
-            w.id,
-            w.user_id,
-            w.amount,
-            w.status,
-            w.bank_name,
-            w.account_number,
-            w.account_name,
-            w.admin_notes,
-            w.payout_reference,
-            w.reviewed_by,
-            w.reviewed_at,
-            w.created_at,
-            w.processed_at
-        FROM public.withdrawals w
-        WHERE w.user_id = p_user_id
-        ORDER BY w.created_at DESC
-        LIMIT 15
-    ) wd_row;
-
-    SELECT COALESCE(jsonb_agg(ra_row), '[]'::jsonb)
-    INTO v_reports_against
-    FROM (
-        SELECT
-            r.id,
-            r.reporter_id,
-            rp.full_name AS reporter_name,
-            r.reason,
-            r.details,
-            r.status,
-            r.created_at
-        FROM public.reports r
-        LEFT JOIN public.profiles rp ON rp.id = r.reporter_id
-        WHERE r.reported_id = p_user_id
-        ORDER BY r.created_at DESC
-        LIMIT 15
-    ) ra_row;
-
-    SELECT COALESCE(jsonb_agg(rb_row), '[]'::jsonb)
-    INTO v_reports_by
-    FROM (
-        SELECT
-            r.id,
-            r.reported_id,
-            tp.full_name AS reported_name,
-            r.reason,
-            r.details,
-            r.status,
-            r.created_at
-        FROM public.reports r
-        LEFT JOIN public.profiles tp ON tp.id = r.reported_id
-        WHERE r.reporter_id = p_user_id
-        ORDER BY r.created_at DESC
-        LIMIT 15
-    ) rb_row;
-
-    SELECT COALESCE(jsonb_agg(ref_row), '[]'::jsonb)
-    INTO v_referrals
-    FROM (
-        SELECT
-            rf.id,
-            rf.referrer_id,
-            rf.referred_id,
-            p2.full_name AS referred_name,
-            rf.status,
-            rf.reward_amount,
-            rf.created_at
-        FROM public.referrals rf
-        LEFT JOIN public.profiles p2 ON p2.id = rf.referred_id
-        WHERE rf.referrer_id = p_user_id OR rf.referred_id = p_user_id
-        ORDER BY rf.created_at DESC
-        LIMIT 20
-    ) ref_row;
-
-    SELECT COALESCE(jsonb_agg(al_row), '[]'::jsonb)
-    INTO v_audit_logs
-    FROM (
-        SELECT
-            l.id,
-            l.admin_user_id,
-            ap.full_name AS admin_name,
-            l.action,
-            l.target_type,
-            l.target_id,
-            l.metadata,
-            l.created_at
-        FROM public.admin_audit_logs l
-        LEFT JOIN public.profiles ap ON ap.id = l.admin_user_id
-        WHERE l.target_id = p_user_id::text
-        ORDER BY l.created_at DESC
-        LIMIT 25
-    ) al_row;
-
-    SELECT jsonb_build_object(
-        'swipes_sent', (SELECT count(*) FROM public.swipes WHERE swiper_id = p_user_id),
-        'swipes_received', (SELECT count(*) FROM public.swipes WHERE swiped_id = p_user_id AND direction = 'right'),
-        'matches_count', (SELECT count(*) FROM public.matches WHERE user1_id = p_user_id OR user2_id = p_user_id),
-        'messages_sent', (SELECT count(*) FROM public.messages WHERE sender_id = p_user_id),
-        'confessions_count', (SELECT count(*) FROM public.confessions WHERE user_id = p_user_id),
-        'reports_against_count', (SELECT count(*) FROM public.reports WHERE reported_id = p_user_id),
-        'referrals_made_count', (SELECT count(*) FROM public.referrals WHERE referrer_id = p_user_id)
-    )
-    INTO v_counts;
-
-    PERFORM public.admin_write_audit_log(
-        'admin_view_user_detail',
-        'profile',
-        p_user_id::text,
-        jsonb_build_object('viewed_user_id', p_user_id)
-    );
-
-    RETURN jsonb_build_object(
-        'success', true,
-        'profile', v_profile,
-        'wallet', COALESCE(v_wallet, jsonb_build_object('available_balance', 0, 'pending_balance', 0, 'total_earned', 0, 'total_spent', 0, 'total_withdrawn', 0)),
-        'subscription', v_subscription,
-        'swipe_limits', v_Swipe_limits,
-        'counts', v_counts,
-        'transactions', v_transactions,
-        'withdrawals', v_withdrawals,
-        'reports_against', v_reports_against,
-        'reports_by', v_reports_by,
-        'referrals', v_referrals,
-        'audit_logs', v_audit_logs
-    );
+  RETURN jsonb_build_object(
+    'profile', coalesce(v_profile, '{}'::jsonb),
+    'wallet', coalesce(v_wallet, '{}'::jsonb),
+    'transactions', coalesce(v_transactions, '[]'::jsonb)
+  );
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.admin_get_user_detail(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_get_user_detail(uuid) TO authenticated, service_role;
 
--- 5.4.4 admin_get_withdrawals: Merges strict finance RBAC & pending-first ordering with auth.users email join
+-- 5.4.4 admin_get_withdrawals: Merges July 16 (finance:read/finance:payouts RBAC + pending-first ordering) + Oct 21 (auth.users email join)
 CREATE OR REPLACE FUNCTION public.admin_get_withdrawals(
-    p_status text DEFAULT NULL,
-    p_search text DEFAULT NULL,
-    p_limit integer DEFAULT 100,
-    p_offset integer DEFAULT 0
+  p_limit integer default 100,
+  p_offset integer default 0,
+  p_status text default null
 )
-RETURNS jsonb
+RETURNS table (
+  id uuid,
+  user_id uuid,
+  full_name text,
+  email text,
+  university text,
+  gender text,
+  amount numeric,
+  type text,
+  status text,
+  bank_details jsonb,
+  created_at timestamp with time zone,
+  processed_at timestamp with time zone,
+  processed_by uuid,
+  admin_note text,
+  rejection_reason text
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, extensions
-AS $$
-DECLARE
-    v_status text := lower(nullif(btrim(coalesce(p_status, '')), ''));
-    v_search text := nullif(btrim(coalesce(p_search, '')), '');
-    v_limit integer := greatest(1, least(coalesce(p_limit, 100), 250));
-    v_offset integer := greatest(0, coalesce(p_offset, 0));
-    v_total bigint := 0;
-    v_pending_count bigint := 0;
-    v_pending_amount numeric := 0;
-    v_items jsonb := '[]'::jsonb;
-BEGIN
-    IF NOT (public.admin_has_permission('finance:read') OR public.admin_has_permission('finance:payouts')) THEN
-        RAISE EXCEPTION 'Forbidden: finance permission required';
-    END IF;
+SET search_path TO ''
+AS $function$
+declare
+  v_limit integer := least(greatest(coalesce(p_limit, 100), 1), 200);
+  v_offset integer := greatest(coalesce(p_offset, 0), 0);
+  v_status text := nullif(trim(coalesce(p_status, '')), '');
+begin
+  if not (
+    public.admin_has_permission('finance:read')
+    or public.admin_has_permission('finance:payouts')
+    or public.admin_has_permission('wallet:read')
+    or public.admin_has_permission('finance.view')
+    or public.admin_is_owner()
+  ) then
+    raise exception 'Not authorized';
+  end if;
 
-    SELECT
-        count(*),
-        COALESCE(sum(w.amount), 0)
-    INTO v_pending_count, v_pending_amount
-    FROM public.withdrawals w
-    WHERE w.status = 'pending';
+  return query
+  select
+    w.id,
+    w.user_id,
+    p.full_name::text,
+    coalesce(u.email, p.email)::text as email,
+    p.university::text,
+    p.gender::text,
+    w.amount,
+    w.type::text,
+    w.status::text,
+    w.bank_details,
+    w.created_at,
+    w.processed_at,
+    w.processed_by,
+    w.admin_note::text,
+    w.rejection_reason::text
+  from public.withdrawals w
+  left join public.profiles p on p.id = w.user_id
+  left join auth.users u on u.id = w.user_id
+  where (v_status is null or lower(w.status) = lower(v_status))
+  order by
+    case when w.status = 'pending' then 0 else 1 end,
+    w.created_at desc
+  limit v_limit
+  offset v_offset;
+end;
+$function$;
 
-    SELECT count(*)
-    INTO v_total
-    FROM public.withdrawals w
-    LEFT JOIN public.profiles p ON p.id = w.user_id
-    LEFT JOIN auth.users u ON u.id = w.user_id
-    WHERE (v_status IS NULL OR v_status = 'all' OR lower(coalesce(w.status, '')) = v_status)
-      AND (
-          v_search IS NULL
-          OR coalesce(p.full_name, '') ILIKE '%' || v_search || '%'
-          OR coalesce(u.email, p.email, '') ILIKE '%' || v_search || '%'
-          OR coalesce(w.bank_name, '') ILIKE '%' || v_search || '%'
-          OR coalesce(w.account_number, '') ILIKE '%' || v_search || '%'
-          OR coalesce(w.account_name, '') ILIKE '%' || v_search || '%'
-          OR coalesce(w.payout_reference, '') ILIKE '%' || v_search || '%'
-          OR w.user_id::text ILIKE '%' || v_search || '%'
-          OR w.id::text ILIKE '%' || v_search || '%'
-      );
+REVOKE ALL ON FUNCTION public.admin_get_withdrawals(integer, integer, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_get_withdrawals(integer, integer, text) TO authenticated, service_role;
 
-    SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb)
-    INTO v_items
-    FROM (
-        SELECT
-            w.id,
-            w.user_id,
-            p.full_name AS user_name,
-            COALESCE(u.email, p.email) AS user_email,
-            p.university AS user_university,
-            p.avatar_url AS user_avatar_url,
-            COALESCE(p.is_banned, false) AS user_is_banned,
-            COALESCE(p.is_shadow_banned, false) AS user_is_shadow_banned,
-            w.amount,
-            w.bank_name,
-            w.account_number,
-            w.account_name,
-            w.status,
-            w.admin_notes,
-            w.payout_reference,
-            w.reviewed_by,
-            rp.full_name AS reviewed_by_name,
-            w.reviewed_at,
-            w.created_at,
-            w.processed_at,
-            COALESCE(wl.available_balance, 0) AS wallet_available_balance,
-            COALESCE(wl.pending_balance, 0) AS wallet_pending_balance,
-            COALESCE(wl.total_withdrawn, 0) AS wallet_total_withdrawn
-        FROM public.withdrawals w
-        LEFT JOIN public.profiles p ON p.id = w.user_id
-        LEFT JOIN auth.users u ON u.id = w.user_id
-        LEFT JOIN public.profiles rp ON rp.id = w.reviewed_by
-        LEFT JOIN public.wallets wl ON wl.user_id = w.user_id
-        WHERE (v_status IS NULL OR v_status = 'all' OR lower(coalesce(w.status, '')) = v_status)
-          AND (
-              v_search IS NULL
-              OR coalesce(p.full_name, '') ILIKE '%' || v_search || '%'
-              OR coalesce(u.email, p.email, '') ILIKE '%' || v_search || '%'
-              OR coalesce(w.bank_name, '') ILIKE '%' || v_search || '%'
-              OR coalesce(w.account_number, '') ILIKE '%' || v_search || '%'
-              OR coalesce(w.account_name, '') ILIKE '%' || v_search || '%'
-              OR coalesce(w.payout_reference, '') ILIKE '%' || v_search || '%'
-              OR w.user_id::text ILIKE '%' || v_search || '%'
-              OR w.id::text ILIKE '%' || v_search || '%'
-          )
-        ORDER BY
-            CASE WHEN w.status = 'pending' THEN 0 ELSE 1 END,
-            w.created_at DESC
-        LIMIT v_limit
-        OFFSET v_offset
-    ) t;
-
-    RETURN jsonb_build_object(
-        'items', v_items,
-        'total', v_total,
-        'pending_count', v_pending_count,
-        'pending_amount', v_pending_amount,
-        'limit', v_limit,
-        'offset', v_offset
-    );
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.admin_get_withdrawals(text, text, integer, integer) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.admin_get_withdrawals(text, text, integer, integer) TO authenticated, service_role;
-
--- 5.4.5 admin_get_transactions: Joins auth.users so searching transactions by email works with profiles.email = NULL
+-- 5.4.5 admin_get_transactions: Merges July 16 10-arg signature with auth.users email join
 CREATE OR REPLACE FUNCTION public.admin_get_transactions(
-    p_limit integer DEFAULT 100,
-    p_offset integer DEFAULT 0,
-    p_search text DEFAULT NULL,
-    p_type text DEFAULT NULL,
-    p_status text DEFAULT NULL,
-    p_user_id uuid DEFAULT NULL,
-    p_min_amount numeric DEFAULT NULL,
-    p_max_amount numeric DEFAULT NULL,
-    p_start_at timestamp with time zone DEFAULT NULL,
-    p_end_at timestamp with time zone DEFAULT NULL
+  p_limit integer default 100,
+  p_offset integer default 0,
+  p_search text default null,
+  p_university text default null,
+  p_gender text default null,
+  p_type text default null,
+  p_status text default null,
+  p_source text default null,
+  p_from timestamp with time zone default null,
+  p_to timestamp with time zone default null
 )
-RETURNS TABLE(
-    id uuid,
-    wallet_id uuid,
-    user_id uuid,
-    user_name text,
-    user_email text,
-    user_university text,
-    type text,
-    amount numeric,
-    status text,
-    description text,
-    reference_id text,
-    metadata jsonb,
-    created_at timestamp with time zone,
-    total_count bigint,
-    completed_amount_sum numeric
+RETURNS table (
+  id uuid,
+  user_id uuid,
+  full_name text,
+  university text,
+  gender text,
+  type text,
+  amount numeric,
+  status text,
+  description text,
+  payment_method text,
+  reference_id text,
+  created_at timestamp with time zone,
+  total_count bigint,
+  total_amount numeric,
+  credit_amount numeric,
+  debit_amount numeric
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, extensions
-AS $$
-DECLARE
-    v_search text := nullif(btrim(coalesce(p_search, '')), '');
-    v_type text := lower(nullif(btrim(coalesce(p_type, '')), ''));
-    v_status text := lower(nullif(btrim(coalesce(p_status, '')), ''));
-    v_limit integer := greatest(1, least(coalesce(p_limit, 100), 250));
-    v_offset integer := greatest(0, coalesce(p_offset, 0));
-BEGIN
-    IF NOT public.admin_has_permission('finance:read') THEN
-        RAISE EXCEPTION 'Forbidden: finance:read permission required';
-    END IF;
+SET search_path TO ''
+AS $function$
+declare
+  v_limit integer := least(greatest(coalesce(p_limit, 100), 1), 200);
+  v_offset integer := greatest(coalesce(p_offset, 0), 0);
+  v_search text := nullif(trim(coalesce(p_search, '')), '');
+  v_university text := nullif(trim(coalesce(p_university, '')), '');
+  v_gender text := lower(nullif(trim(coalesce(p_gender, '')), ''));
+  v_type text := lower(nullif(trim(coalesce(p_type, '')), ''));
+  v_status text := lower(nullif(trim(coalesce(p_status, '')), ''));
+  v_source text := lower(nullif(trim(coalesce(p_source, '')), ''));
+begin
+  if not (
+    public.admin_has_permission('finance:read')
+    or public.admin_has_permission('finance:payouts')
+    or public.admin_has_permission('wallet:read')
+    or public.admin_has_permission('finance.view')
+    or public.admin_is_owner()
+  ) then
+    raise exception 'Not authorized';
+  end if;
 
-    RETURN QUERY
-    WITH filtered AS (
-        SELECT
-            wt.id,
-            wt.wallet_id,
-            wt.user_id,
-            p.full_name AS user_name,
-            COALESCE(u.email, p.email)::text AS user_email,
-            p.university AS user_university,
-            wt.type,
-            wt.amount,
-            wt.status,
-            wt.description,
-            wt.reference_id,
-            wt.metadata,
-            wt.created_at
-        FROM public.wallet_transactions wt
-        LEFT JOIN public.profiles p ON p.id = wt.user_id
-        LEFT JOIN auth.users u ON u.id = wt.user_id
-        WHERE (p_user_id IS NULL OR wt.user_id = p_user_id)
-          AND (v_type IS NULL OR v_type = 'all' OR lower(coalesce(wt.type, '')) = v_type)
-          AND (v_status IS NULL OR v_status = 'all' OR lower(coalesce(wt.status, '')) = v_status)
-          AND (p_min_amount IS NULL OR wt.amount >= p_min_amount)
-          AND (p_max_amount IS NULL OR wt.amount <= p_max_amount)
-          AND (p_start_at IS NULL OR wt.created_at >= p_start_at)
-          AND (p_end_at IS NULL OR wt.created_at <= p_end_at)
-          AND (
-              v_search IS NULL
-              OR coalesce(p.full_name, '') ILIKE '%' || v_search || '%'
-              OR coalesce(u.email, p.email, '') ILIKE '%' || v_search || '%'
-              OR coalesce(p.university, '') ILIKE '%' || v_search || '%'
-              OR coalesce(wt.description, '') ILIKE '%' || v_search || '%'
-              OR coalesce(wt.reference_id, '') ILIKE '%' || v_search || '%'
-              OR coalesce(wt.type, '') ILIKE '%' || v_search || '%'
-              OR wt.user_id::text ILIKE '%' || v_search || '%'
-              OR wt.id::text ILIKE '%' || v_search || '%'
-          )
-    ),
-    totals AS (
-        SELECT
-            count(*)::bigint AS matched_count,
-            COALESCE(sum(f.amount) FILTER (WHERE f.status = 'completed'), 0)::numeric AS completed_sum
-        FROM filtered f
-    )
-    SELECT
-        f.id,
-        f.wallet_id,
-        f.user_id,
-        f.user_name,
-        f.user_email,
-        f.user_university,
-        f.type,
-        f.amount,
-        f.status,
-        f.description,
-        f.reference_id,
-        f.metadata,
-        f.created_at,
-        t.matched_count AS total_count,
-        t.completed_sum AS completed_amount_sum
-    FROM filtered f
-    CROSS JOIN totals t
-    ORDER BY f.created_at DESC
-    LIMIT v_limit
-    OFFSET v_offset;
-END;
-$$;
+  return query
+  with filtered as (
+    select
+      wt.id,
+      wt.user_id,
+      p.full_name,
+      p.university,
+      p.gender,
+      wt.type,
+      wt.amount,
+      wt.status,
+      wt.description,
+      wt.payment_method,
+      wt.reference_id,
+      wt.created_at
+    from public.wallet_transactions wt
+    left join public.profiles p on wt.user_id = p.id
+    left join auth.users u on wt.user_id = u.id
+    where
+      (
+        v_search is null
+        or coalesce(p.full_name, '') ilike '%' || v_search || '%'
+        or coalesce(u.email, p.email, '') ilike '%' || v_search || '%'
+        or coalesce(p.university, '') ilike '%' || v_search || '%'
+        or coalesce(wt.description, '') ilike '%' || v_search || '%'
+        or coalesce(wt.reference_id, '') ilike '%' || v_search || '%'
+        or wt.id::text = v_search
+        or wt.user_id::text = v_search
+      )
+      and (v_university is null or coalesce(p.university, '') ilike '%' || v_university || '%')
+      and (v_gender is null or lower(coalesce(p.gender, '')) = v_gender)
+      and (v_type is null or lower(coalesce(wt.type, '')) = v_type)
+      and (v_status is null or lower(coalesce(wt.status, '')) = v_status)
+      and (v_source is null or lower(coalesce(wt.payment_method, 'wallet')) = v_source)
+      and (p_from is null or wt.created_at >= p_from)
+      and (p_to is null or wt.created_at <= p_to)
+  ),
+  totals as (
+    select
+      count(*)::bigint as total_count,
+      coalesce(sum(ft.amount), 0)::numeric as total_amount,
+      coalesce(sum(case when lower(coalesce(ft.type, '')) = 'credit' then ft.amount else 0 end), 0)::numeric as credit_amount,
+      coalesce(sum(case when lower(coalesce(ft.type, '')) = 'debit' then ft.amount else 0 end), 0)::numeric as debit_amount
+    from filtered ft
+  )
+  select
+    f.id,
+    f.user_id,
+    f.full_name::text,
+    f.university::text,
+    f.gender::text,
+    f.type::text,
+    f.amount,
+    f.status::text,
+    f.description::text,
+    f.payment_method::text,
+    f.reference_id::text,
+    f.created_at,
+    t.total_count,
+    t.total_amount,
+    t.credit_amount,
+    t.debit_amount
+  from filtered f
+  cross join totals t
+  order by f.created_at desc
+  limit v_limit
+  offset v_offset;
+end;
+$function$;
 
-REVOKE ALL ON FUNCTION public.admin_get_transactions(integer, integer, text, text, text, uuid, numeric, numeric, timestamp with time zone, timestamp with time zone) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.admin_get_transactions(integer, integer, text, text, text, uuid, numeric, numeric, timestamp with time zone, timestamp with time zone) TO authenticated, service_role;
+REVOKE ALL ON FUNCTION public.admin_get_transactions(integer, integer, text, text, text, text, text, text, timestamp with time zone, timestamp with time zone) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_get_transactions(integer, integer, text, text, text, text, text, text, timestamp with time zone, timestamp with time zone) TO authenticated, service_role;
 
 -- -----------------------------------------------------------------------------
--- 5.5 FINAL SCHEMA CACHE RELOAD
+-- 5.5 ZERO-TRUST PRIVILEGE LOCKDOWN (REVOKE ANON EXECUTION ON PRIVILEGED RPCs)
+-- -----------------------------------------------------------------------------
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    -- Revoke PUBLIC and anon execution from all SECURITY DEFINER functions in public schema
+    -- except validate_referral_code(text) which is required on the pre-auth signup screen.
+    FOR r IN
+        SELECT p.oid::regprocedure AS fn_sig, p.proname
+        FROM pg_proc p
+        JOIN pg_namespace n ON n.oid = p.pronamespace
+        WHERE n.nspname = 'public'
+          AND p.prosecdef = true
+          AND p.proname NOT IN ('validate_referral_code')
+    LOOP
+        EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon;', r.fn_sig);
+    END LOOP;
+
+    -- Restrict internal queue/cron worker functions strictly to service_role
+    FOR r IN
+        SELECT p.oid::regprocedure AS fn_sig
+        FROM pg_proc p
+        JOIN pg_namespace n ON n.oid = p.pronamespace
+        WHERE n.nspname = 'public'
+          AND p.proname IN (
+              'claim_notification_email_batch',
+              'fetch_pending_notification_emails',
+              'mark_notification_email_result',
+              'enqueue_delayed_notification_email',
+              'dispatch_campus_retention_reminders',
+              'grant_paid_product_entitlements',
+              'write_payment_audit_log'
+          )
+    LOOP
+        EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon, authenticated;', r.fn_sig);
+        EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO service_role;', r.fn_sig);
+    END LOOP;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 5.6 FINAL SCHEMA CACHE RELOAD
 -- -----------------------------------------------------------------------------
 NOTIFY pgrst, 'reload schema';
